@@ -64,11 +64,15 @@ def write_epub_archive(unzipped_input_fpath: str, outputfile: str):
     Write the modified extracted EPUB archive to a new archive file.
     """
     with zipfile.ZipFile(outputfile, 'w') as zip_out:
-        for folder_name, _, filenames in os.walk(unzipped_input_fpath):
-            for filename in filenames:
-                rel_dir = os.path.relpath(folder_name, unzipped_input_fpath)
-                rel_file = os.path.join(rel_dir, filename)
-                file_path = os.path.join(folder_name, filename)
-                # Add file to zip
-                zip_out.write(file_path, rel_file)
-                logging.info(f"    Adding {rel_file}")
+        root = Path(unzipped_input_fpath)
+        mimetype_path = root / "mimetype"
+        if mimetype_path.is_file():
+            zip_out.writestr("mimetype", mimetype_path.read_bytes(),
+                             compress_type=zipfile.ZIP_STORED)
+        for file_path in sorted(path for path in root.rglob("*") if path.is_file()):
+            rel_file = file_path.relative_to(root).as_posix()
+            if rel_file == "mimetype":
+                continue
+            zip_out.write(file_path, rel_file,
+                          compress_type=zipfile.ZIP_DEFLATED)
+            logging.info("    Adding %s", rel_file)

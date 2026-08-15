@@ -18,6 +18,8 @@ ENV/
 .pytest_cache/
 .coverage
 htmlcov/
+artifacts/
+reports/
 
 # Ebook files (test/sample data)
 *.epub

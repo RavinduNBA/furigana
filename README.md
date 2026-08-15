@@ -89,3 +89,18 @@ Install python and poetry, (optionally) create a virtual environment, and instal
 ```bash
 poetry install
 ```
+
+Phase 0 EPUB regression
+-----------------------
+
+The generated copyright-free fixture covers two chapters, navigation, CSS, an
+image, internal links, punctuation, emphasis, publisher ruby, Japanese, and
+non-Japanese text. Run:
+
+```bash
+./scripts/phase0-regression.sh
+```
+
+This runs focused checks, converts and validates the fixture, and retains
+packed and unpacked files in `artifacts/phase0/`. Complete
+`docs/phase0-calibre-checklist.md` before declaring Phase 0 complete.
