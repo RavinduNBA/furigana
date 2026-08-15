@@ -1,5 +1,6 @@
 import logging
 import re
+from dataclasses import dataclass
 from typing import Tuple, List, Iterable, Optional, Set
 from xml.etree import ElementTree as ET
 
@@ -8,6 +9,41 @@ from furigana.furigana import create_furigana_html
 from furiganalyse.params import FuriganaMode
 
 NAMESPACE = "{http://www.w3.org/1999/xhtml}"
+
+
+@dataclass(frozen=True)
+class RubyAnnotation:
+    """A publisher-provided ruby span discovered in the source XHTML."""
+
+    surface: str
+    reading: str
+    source: str = "publisher"
+
+
+def extract_publisher_ruby(tree: ET.ElementTree) -> List[RubyAnnotation]:
+    """Return publisher ruby without mixing ``rt``/``rp`` into base text.
+
+    Unsupported or incomplete ruby is deliberately left in the XHTML and
+    reported instead of being guessed into an annotation.
+    """
+    annotations = []
+    for ruby in tree.findall(f".//{NAMESPACE}ruby"):
+        surface_parts = [ruby.text or ""]
+        reading_parts = []
+        for child in ruby:
+            if child.tag.endswith("rt"):
+                reading_parts.extend(child.itertext())
+            elif not child.tag.endswith("rp"):
+                surface_parts.extend(child.itertext())
+            surface_parts.append(child.tail or "")
+
+        surface = "".join(surface_parts)
+        reading = "".join(reading_parts)
+        if not surface.strip() or not reading.strip():
+            logging.warning("Preserving unsupported publisher ruby without analysis")
+            continue
+        annotations.append(RubyAnnotation(surface=surface, reading=reading))
+    return annotations
 
 
 def process_html(

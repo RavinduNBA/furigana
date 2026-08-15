@@ -1,8 +1,14 @@
 import xml.etree.ElementTree as ET
+from copy import deepcopy
 
 import pytest
 
-from furiganalyse.parsing import process_tree
+from furiganalyse.parsing import (
+    NAMESPACE,
+    RubyAnnotation,
+    extract_publisher_ruby,
+    process_tree,
+)
 
 
 @pytest.mark.parametrize(
@@ -127,3 +133,71 @@ def test_process_tree(test_case, xml_str, mode, expected_xml_str):
     expected_tree = ET.fromstring(template.format(expected_xml_str))
 
     assert ET.tostring(tree, encoding='unicode') == ET.tostring(expected_tree, encoding='unicode')
+
+
+@pytest.mark.parametrize(
+    ("xml_str", "expected"),
+    [
+        (
+            "<body><ruby>表舞台<rt>おもてぶたい</rt></ruby></body>",
+            [RubyAnnotation("表舞台", "おもてぶたい")],
+        ),
+        (
+            "<body><ruby><rb>雪乃</rb><rp>（</rp><rt>ゆきの</rt><rp>）</rp></ruby></body>",
+            [RubyAnnotation("雪乃", "ゆきの")],
+        ),
+        (
+            "<body><a><em><ruby>第一<rt>ファースト</rt></ruby></em></a></body>",
+            [RubyAnnotation("第一", "ファースト")],
+        ),
+    ],
+)
+def test_extract_publisher_ruby(xml_str, expected):
+    namespaced = xml_str.replace("<body>", f'<body xmlns="{NAMESPACE[1:-1]}">')
+    tree = ET.ElementTree(ET.fromstring(namespaced))
+    assert extract_publisher_ruby(tree) == expected
+
+
+@pytest.mark.parametrize(
+    "publisher_markup",
+    [
+        "<ruby id='publisher'>表舞台<rt>おもてぶたい</rt></ruby>",
+        "<ruby id='publisher'><rb>雪乃</rb><rp>（</rp><rt>ゆきの</rt><rp>）</rp></ruby>",
+        "<a><em><ruby id='publisher'>第一<rt>ファースト</rt></ruby></em></a>",
+    ],
+)
+def test_add_keeps_publisher_ruby_subtree_unchanged(publisher_markup):
+    tree = ET.ElementTree(
+        ET.fromstring(
+            f'<body xmlns="{NAMESPACE[1:-1]}">{publisher_markup}の物語</body>'
+        )
+    )
+    publisher = tree.find(f".//{NAMESPACE}ruby[@id='publisher']")
+    expected = deepcopy(publisher)
+    expected.tail = None
+
+    process_tree(tree, "add")
+
+    publisher = tree.find(f".//{NAMESPACE}ruby[@id='publisher']")
+    actual = deepcopy(publisher)
+    actual.tail = None
+    assert ET.tostring(actual) == ET.tostring(expected)
+    assert publisher.find(f".//{NAMESPACE}ruby") is None
+
+
+def test_add_preserves_malformed_ruby(caplog):
+    tree = ET.ElementTree(
+        ET.fromstring(
+            f'<body xmlns="{NAMESPACE[1:-1]}"><ruby>未知</ruby>の語</body>'
+        )
+    )
+
+    with caplog.at_level("WARNING"):
+        assert extract_publisher_ruby(tree) == []
+    process_tree(tree, "add")
+
+    ruby = tree.find(f".//{NAMESPACE}ruby")
+    assert "Preserving unsupported publisher ruby" in caplog.text
+    assert ruby is not None
+    assert ruby.text == "未知"
+    assert ruby.find(f"{NAMESPACE}rt") is None
