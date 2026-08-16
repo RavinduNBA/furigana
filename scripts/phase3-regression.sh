@@ -19,6 +19,12 @@ EXPRESSION_ARTIFACT_DIR="${JMDICT_ARTIFACT_DIR}/expressions"
 EXPRESSION_INDEX="${EXPRESSION_ARTIFACT_DIR}/synthetic-jmdict.sqlite3"
 EXPRESSION_RUN_A="${EXPRESSION_ARTIFACT_DIR}/run-a/vocabulary.json"
 EXPRESSION_RUN_B="${EXPRESSION_ARTIFACT_DIR}/run-b/vocabulary.json"
+JMNEDICT_FIXTURE="${ROOT_DIR}/tests/fixtures/jmnedict-mini.xml"
+JMNEDICT_GOLDEN="${ROOT_DIR}/tests/phase3_golden/vocabulary-jmnedict-v4.json"
+JMNEDICT_ARTIFACT_DIR="${ARTIFACT_DIR}/jmnedict"
+JMNEDICT_INDEX="${JMNEDICT_ARTIFACT_DIR}/synthetic-jmnedict.sqlite3"
+JMNEDICT_RUN_A="${JMNEDICT_ARTIFACT_DIR}/run-a/vocabulary.json"
+JMNEDICT_RUN_B="${JMNEDICT_ARTIFACT_DIR}/run-b/vocabulary.json"
 
 mkdir -p \
   "${ARTIFACT_DIR}/run-a" \
@@ -26,7 +32,9 @@ mkdir -p \
   "${JMDICT_ARTIFACT_DIR}/run-a" \
   "${JMDICT_ARTIFACT_DIR}/run-b" \
   "${EXPRESSION_ARTIFACT_DIR}/run-a" \
-  "${EXPRESSION_ARTIFACT_DIR}/run-b"
+  "${EXPRESSION_ARTIFACT_DIR}/run-b" \
+  "${JMNEDICT_ARTIFACT_DIR}/run-a" \
+  "${JMNEDICT_ARTIFACT_DIR}/run-b"
 cd "${ROOT_DIR}"
 
 ./scripts/phase2-regression.sh
@@ -57,7 +65,21 @@ rm -f "${EXPRESSION_INDEX}"
 cmp "${EXPRESSION_RUN_A}" "${EXPRESSION_RUN_B}"
 cmp "${EXPRESSION_RUN_A}" "${EXPRESSION_GOLDEN}"
 
-.venv/bin/python -m pytest -q \
-  tests/test_vocabulary_analysis.py tests/test_jmdict.py
+rm -f "${JMNEDICT_INDEX}"
+.venv/bin/python scripts/build_jmnedict_index.py \
+  "${JMNEDICT_FIXTURE}" "${JMNEDICT_INDEX}"
+.venv/bin/python scripts/analyze_vocabulary.py \
+  "${FIXTURE}" "${JMNEDICT_RUN_A}" \
+  --jmdict-index "${EXPRESSION_INDEX}" --expressions \
+  --jmnedict-index "${JMNEDICT_INDEX}"
+.venv/bin/python scripts/analyze_vocabulary.py \
+  "${FIXTURE}" "${JMNEDICT_RUN_B}" \
+  --jmdict-index "${EXPRESSION_INDEX}" --expressions \
+  --jmnedict-index "${JMNEDICT_INDEX}"
+cmp "${JMNEDICT_RUN_A}" "${JMNEDICT_RUN_B}"
+cmp "${JMNEDICT_RUN_A}" "${JMNEDICT_GOLDEN}"
 
-echo "Phase 3 tokenizer, JMdict, and expression reports passed. Artifacts: ${ARTIFACT_DIR}"
+.venv/bin/python -m pytest -q \
+  tests/test_vocabulary_analysis.py tests/test_jmdict.py tests/test_jmnedict.py
+
+echo "Phase 3 tokenizer, dictionary, expression, and name reports passed. Artifacts: ${ARTIFACT_DIR}"

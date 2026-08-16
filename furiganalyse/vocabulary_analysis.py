@@ -19,6 +19,12 @@ from furiganalyse.jmdict import (
     normalize_reading,
     pos_compatible,
 )
+from furiganalyse.jmnedict import (
+    JmnedictEntryMatch,
+    JmnedictProvider,
+    JmnedictProvenance,
+    JmnedictQuery,
+)
 
 SCHEMA_VERSION = 1
 JAPANESE_PATTERN = re.compile(r"[一-龯々〆ヵヶぁ-ゖァ-ヺー]")
@@ -139,6 +145,58 @@ class ExpressionEnrichedVocabularyReport:
     dictionary_matches: list[CandidateDictionaryMatches]
     expressions: list[VocabularyExpression]
     expression_dictionary_matches: list[ExpressionDictionaryMatches]
+
+
+@dataclass(frozen=True)
+class NameOccurrence:
+    id: str
+    candidate_id: str
+    token_id: str
+    surface: str
+    reading: Optional[str]
+    chapter_id: str
+    block_id: str
+    sentence_id: str
+    sentence_start: int
+    sentence_end: int
+    block_start: int
+    block_end: int
+    publisher_ruby_id: Optional[str]
+    classification_evidence: str
+    selection_reason: str
+
+
+@dataclass(frozen=True)
+class NameDictionaryMatches:
+    id: str
+    name_id: str
+    entries: list[JmnedictEntryMatch]
+
+
+@dataclass(frozen=True)
+class NameDiagnostic:
+    id: str
+    candidate_id: str
+    classification_evidence: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class NameEnrichedVocabularyReport:
+    schema_version: int
+    book_id: str
+    source_book_schema_version: int
+    tokenizer: TokenizerProvenance
+    tokens: list[VocabularyToken]
+    candidates: list[VocabularyCandidate]
+    dictionary: Optional[JmdictProvenance]
+    dictionary_matches: list[CandidateDictionaryMatches]
+    expressions: list[VocabularyExpression]
+    expression_dictionary_matches: list[ExpressionDictionaryMatches]
+    name_dictionary: JmnedictProvenance
+    name_occurrences: list[NameOccurrence]
+    name_dictionary_matches: list[NameDictionaryMatches]
+    name_diagnostics: list[NameDiagnostic]
 
 
 def _tokenizer():
@@ -843,11 +901,311 @@ def validate_enriched_report(
                         )
 
 
+def enrich_name_report(
+    report: (
+        VocabularyReport
+        | EnrichedVocabularyReport
+        | ExpressionEnrichedVocabularyReport
+    ),
+    provider: JmnedictProvider,
+) -> NameEnrichedVocabularyReport:
+    occurrences = []
+    matches = []
+    diagnostics = []
+    for candidate in report.candidates:
+        publisher = candidate.reading_source == "publisher"
+        proper_noun = (candidate.part_of_speech or "").startswith(
+            "名詞,固有名詞"
+        )
+        if not publisher and not proper_noun:
+            continue
+        evidence = "publisher_ruby" if publisher else "tokenizer_proper_noun"
+        entries = provider.lookup(
+            JmnedictQuery(
+                surface=candidate.surface,
+                reading=candidate.reading,
+                part_of_speech=candidate.part_of_speech,
+                publisher_reading=publisher,
+            )
+        )
+        if not entries:
+            diagnostics.append(
+                NameDiagnostic(
+                    id=f"{candidate.id}-name-rejected",
+                    candidate_id=candidate.id,
+                    classification_evidence=evidence,
+                    reason=(
+                        "publisher-reading-mismatch-or-no-match"
+                        if publisher
+                        else "no-compatible-jmnedict-entry"
+                    ),
+                )
+            )
+            continue
+        name_id = f"{candidate.id}-name"
+        occurrences.append(
+            NameOccurrence(
+                id=name_id,
+                candidate_id=candidate.id,
+                token_id=candidate.token_id,
+                surface=candidate.surface,
+                reading=candidate.reading,
+                chapter_id=candidate.chapter_id,
+                block_id=candidate.block_id,
+                sentence_id=candidate.sentence_id,
+                sentence_start=candidate.sentence_start,
+                sentence_end=candidate.sentence_end,
+                block_start=candidate.block_start,
+                block_end=candidate.block_end,
+                publisher_ruby_id=candidate.publisher_ruby_id,
+                classification_evidence=evidence,
+                selection_reason=(
+                    "publisher-reading-compatible"
+                    if publisher
+                    else "tokenizer-proper-noun-and-dictionary-match"
+                ),
+            )
+        )
+        matches.append(
+            NameDictionaryMatches(
+                id=f"{name_id}-jmnedict",
+                name_id=name_id,
+                entries=entries,
+            )
+        )
+
+    enriched = NameEnrichedVocabularyReport(
+        schema_version=4,
+        book_id=report.book_id,
+        source_book_schema_version=report.source_book_schema_version,
+        tokenizer=report.tokenizer,
+        tokens=report.tokens,
+        candidates=report.candidates,
+        dictionary=getattr(report, "dictionary", None),
+        dictionary_matches=getattr(report, "dictionary_matches", []),
+        expressions=getattr(report, "expressions", []),
+        expression_dictionary_matches=getattr(
+            report, "expression_dictionary_matches", []
+        ),
+        name_dictionary=provider.provenance,
+        name_occurrences=occurrences,
+        name_dictionary_matches=matches,
+        name_diagnostics=diagnostics,
+    )
+    validate_name_report(enriched)
+    return enriched
+
+
+def validate_name_report(report: NameEnrichedVocabularyReport):
+    provenance = report.name_dictionary
+    if (
+        not provenance.dataset_id
+        or not provenance.dataset_version
+        or provenance.format_version < 1
+        or not re.fullmatch(r"[0-9a-f]{64}", provenance.sha256)
+    ):
+        raise VocabularyAnalysisError("Invalid name dictionary provenance")
+    candidates = {candidate.id: candidate for candidate in report.candidates}
+    candidate_order = {
+        candidate.id: index for index, candidate in enumerate(report.candidates)
+    }
+    names = {}
+    previous_candidate_index = -1
+    for occurrence in report.name_occurrences:
+        if occurrence.id in names:
+            raise VocabularyAnalysisError(f"Duplicate name ID: {occurrence.id}")
+        names[occurrence.id] = occurrence
+        candidate = candidates.get(occurrence.candidate_id)
+        if candidate is None:
+            raise VocabularyAnalysisError(
+                f"Unknown name candidate: {occurrence.candidate_id}"
+            )
+        if (
+            occurrence.id != f"{candidate.id}-name"
+            or occurrence.token_id != candidate.token_id
+        ):
+            raise VocabularyAnalysisError(f"Unstable name ID: {occurrence.id}")
+        current_index = candidate_order[candidate.id]
+        if current_index <= previous_candidate_index:
+            raise VocabularyAnalysisError("Unordered name occurrences")
+        previous_candidate_index = current_index
+        expected = (
+            candidate.surface,
+            candidate.reading,
+            candidate.chapter_id,
+            candidate.block_id,
+            candidate.sentence_id,
+            candidate.sentence_start,
+            candidate.sentence_end,
+            candidate.block_start,
+            candidate.block_end,
+            candidate.publisher_ruby_id,
+        )
+        actual = (
+            occurrence.surface,
+            occurrence.reading,
+            occurrence.chapter_id,
+            occurrence.block_id,
+            occurrence.sentence_id,
+            occurrence.sentence_start,
+            occurrence.sentence_end,
+            occurrence.block_start,
+            occurrence.block_end,
+            occurrence.publisher_ruby_id,
+        )
+        if actual != expected:
+            raise VocabularyAnalysisError(
+                f"Name/candidate mismatch: {occurrence.id}"
+            )
+        expected_evidence = (
+            "publisher_ruby"
+            if candidate.reading_source == "publisher"
+            else "tokenizer_proper_noun"
+        )
+        if occurrence.classification_evidence != expected_evidence:
+            raise VocabularyAnalysisError(
+                f"Invalid name classification evidence: {occurrence.id}"
+            )
+        expected_reason = (
+            "publisher-reading-compatible"
+            if expected_evidence == "publisher_ruby"
+            else "tokenizer-proper-noun-and-dictionary-match"
+        )
+        if occurrence.selection_reason != expected_reason:
+            raise VocabularyAnalysisError(
+                f"Invalid name selection reason: {occurrence.id}"
+            )
+
+    if len(report.name_dictionary_matches) != len(report.name_occurrences):
+        raise VocabularyAnalysisError("Name/match count mismatch")
+    for occurrence, match in zip(
+        report.name_occurrences, report.name_dictionary_matches
+    ):
+        if (
+            match.name_id != occurrence.id
+            or match.id != f"{occurrence.id}-jmnedict"
+            or not match.entries
+        ):
+            raise VocabularyAnalysisError(
+                f"Invalid name dictionary match: {match.id}"
+            )
+        previous_sequence = -1
+        entry_ids = set()
+        for entry in match.entries:
+            if entry.entry_id in entry_ids or entry.sequence <= previous_sequence:
+                raise VocabularyAnalysisError(
+                    f"Duplicate or unordered name entries: {match.id}"
+                )
+            entry_ids.add(entry.entry_id)
+            previous_sequence = entry.sequence
+            if entry.entry_id != f"jmnedict-{entry.sequence}":
+                raise VocabularyAnalysisError(
+                    f"Unstable name entry ID: {entry.entry_id}"
+                )
+            if entry.matched_form not in {
+                occurrence.surface,
+                normalize_reading(occurrence.reading),
+            }:
+                raise VocabularyAnalysisError(
+                    f"Name dictionary text mismatch: {entry.entry_id}"
+                )
+            if occurrence.classification_evidence == "publisher_ruby":
+                authoritative = normalize_reading(occurrence.reading)
+                if any(
+                    normalize_reading(reading.text) != authoritative
+                    for reading in entry.readings
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Publisher name reading mismatch: {entry.entry_id}"
+                    )
+            for reading in entry.readings:
+                if (
+                    entry.matched_by == "surface"
+                    and reading.written_restrictions
+                    and occurrence.surface not in reading.written_restrictions
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible name reading restriction: {entry.entry_id}"
+                    )
+            previous_translation_index = 0
+            translation_ids = set()
+            for translation in entry.translations:
+                if (
+                    translation.id in translation_ids
+                    or translation.index <= previous_translation_index
+                    or translation.id
+                    != (
+                        f"jmnedict-{entry.sequence}-translation-"
+                        f"{translation.index:04d}"
+                    )
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Invalid name translation order or ID: {translation.id}"
+                    )
+                translation_ids.add(translation.id)
+                previous_translation_index = translation.index
+                if (
+                    not translation.name_types
+                    or not translation.translations
+                    or any(
+                        not value.strip() for value in translation.translations
+                    )
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incomplete name translation: {translation.id}"
+                    )
+
+    diagnostic_ids = set()
+    previous_diagnostic_index = -1
+    for diagnostic in report.name_diagnostics:
+        if diagnostic.id in diagnostic_ids:
+            raise VocabularyAnalysisError(
+                f"Duplicate name diagnostic ID: {diagnostic.id}"
+            )
+        diagnostic_ids.add(diagnostic.id)
+        candidate = candidates.get(diagnostic.candidate_id)
+        if candidate is None:
+            raise VocabularyAnalysisError(
+                f"Unknown diagnostic candidate: {diagnostic.candidate_id}"
+            )
+        if diagnostic.id != f"{candidate.id}-name-rejected":
+            raise VocabularyAnalysisError(
+                f"Unstable name diagnostic ID: {diagnostic.id}"
+            )
+        publisher = candidate.reading_source == "publisher"
+        proper_noun = (candidate.part_of_speech or "").startswith(
+            "名詞,固有名詞"
+        )
+        expected_evidence = (
+            "publisher_ruby" if publisher else "tokenizer_proper_noun"
+        )
+        expected_reason = (
+            "publisher-reading-mismatch-or-no-match"
+            if publisher
+            else "no-compatible-jmnedict-entry"
+        )
+        if (
+            not publisher
+            and not proper_noun
+            or diagnostic.classification_evidence != expected_evidence
+            or diagnostic.reason != expected_reason
+            or f"{candidate.id}-name" in names
+        ):
+            raise VocabularyAnalysisError(
+                f"Invalid name diagnostic: {diagnostic.id}"
+            )
+        current_index = candidate_order[candidate.id]
+        if current_index <= previous_diagnostic_index:
+            raise VocabularyAnalysisError("Unordered name diagnostics")
+        previous_diagnostic_index = current_index
+
+
 def serialize_vocabulary_report(
     report: (
         VocabularyReport
         | EnrichedVocabularyReport
         | ExpressionEnrichedVocabularyReport
+        | NameEnrichedVocabularyReport
     ),
 ) -> str:
     return json.dumps(asdict(report), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -858,6 +1216,7 @@ def write_vocabulary_report(
         VocabularyReport
         | EnrichedVocabularyReport
         | ExpressionEnrichedVocabularyReport
+        | NameEnrichedVocabularyReport
     ),
     output_path: str | Path,
 ):

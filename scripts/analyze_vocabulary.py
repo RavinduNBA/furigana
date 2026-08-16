@@ -10,9 +10,11 @@ sys.path.insert(0, str(ROOT))
 
 from furiganalyse.book_analysis import extract_book  # noqa: E402
 from furiganalyse.jmdict import SqliteJmdictProvider  # noqa: E402
+from furiganalyse.jmnedict import SqliteJmnedictProvider  # noqa: E402
 from furiganalyse.vocabulary_analysis import (  # noqa: E402
     analyze_vocabulary,
     enrich_vocabulary_report,
+    enrich_name_report,
     write_vocabulary_report,
 )
 
@@ -25,6 +27,11 @@ def main():
         "--jmdict-index",
         type=Path,
         help="Optional local SQLite JMdict index; dictionary lookup is off by default",
+    )
+    parser.add_argument(
+        "--jmnedict-index",
+        type=Path,
+        help="Optional local SQLite JMnedict index; name lookup is off by default",
     )
     parser.add_argument(
         "--expressions",
@@ -45,6 +52,12 @@ def main():
             )
         finally:
             provider.close()
+    if args.jmnedict_index:
+        name_provider = SqliteJmnedictProvider(args.jmnedict_index)
+        try:
+            report = enrich_name_report(report, name_provider)
+        finally:
+            name_provider.close()
     write_vocabulary_report(report, args.output_json)
     print(
         f"Wrote vocabulary schema v{report.schema_version} with "
