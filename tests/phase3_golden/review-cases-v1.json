@@ -1,0 +1,85 @@
+{
+  "cases": [
+    {
+      "is_candidate": true,
+      "kind": "noun",
+      "token": {
+        "lemma": "言葉",
+        "part_of_speech": "名詞,一般",
+        "reading": "コトバ",
+        "sentence_end": 7,
+        "sentence_start": 5,
+        "surface": "言葉"
+      },
+      "token_id": "ch-0001-b-0003-s-0001-tok-0005"
+    },
+    {
+      "is_candidate": true,
+      "kind": "inflected_verb",
+      "token": {
+        "block_end": 15,
+        "block_start": 11,
+        "lemma": "振り返る",
+        "part_of_speech": "動詞,自立",
+        "reading": "フリカエッ",
+        "surface": "振り返っ"
+      },
+      "token_id": "ch-0002-b-0002-s-0002-tok-0005"
+    },
+    {
+      "is_candidate": true,
+      "kind": "publisher_ruby",
+      "token": {
+        "lemma": "表舞台",
+        "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+        "reading": "おもてぶたい",
+        "reading_source": "publisher",
+        "surface": "表舞台"
+      },
+      "token_id": "ch-0001-b-0004-s-0001-tok-0003"
+    },
+    {
+      "is_candidate": true,
+      "kind": "malformed_publisher_ruby",
+      "token": {
+        "lemma": "未知",
+        "publisher_ruby_id": "ch-0002-b-0003-r-0001",
+        "reading": null,
+        "reading_source": "publisher",
+        "surface": "未知"
+      },
+      "token_id": "ch-0002-b-0003-s-0001-tok-0001"
+    },
+    {
+      "is_candidate": false,
+      "kind": "latin_exclusion",
+      "token": {
+        "lemma": "English",
+        "reading": null,
+        "surface": "English"
+      },
+      "token_id": "ch-0001-b-0003-s-0001-tok-0011"
+    },
+    {
+      "is_candidate": false,
+      "kind": "punctuation_exclusion",
+      "token": {
+        "part_of_speech": "記号,句点",
+        "surface": "。"
+      },
+      "token_id": "ch-0001-b-0002-s-0001-tok-0014"
+    }
+  ],
+  "expected_counts": {
+    "candidates": 60,
+    "tokens": 82
+  },
+  "ipadic_split": {
+    "input": "成功体験",
+    "tokens": [
+      ["成功", "成功", "セイコウ"],
+      ["体験", "体験", "タイケン"]
+    ]
+  },
+  "schema_version": 1
+}

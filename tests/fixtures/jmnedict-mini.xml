@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JMnedict dataset-id="furiganalyse-synthetic-jmnedict" version="2026-08-16">
+  <entry>
+    <ent_seq>2001</ent_seq>
+    <k_ele><keb>雪乃</keb></k_ele>
+    <r_ele><reb>ゆきの</reb></r_ele>
+    <trans>
+      <name_type>person</name_type>
+      <name_type>female given name</name_type>
+      <trans_det>Yukino</trans_det>
+      <trans_det>Yuki-no</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2002</ent_seq>
+    <k_ele><keb>東京</keb></k_ele>
+    <r_ele><reb>とうきょう</reb></r_ele>
+    <trans><name_type>place</name_type><trans_det>Tokyo</trans_det></trans>
+  </entry>
+  <entry>
+    <ent_seq>2003</ent_seq>
+    <k_ele><keb>架空社</keb></k_ele>
+    <r_ele><reb>かくうしゃ</reb></r_ele>
+    <trans>
+      <name_type>organization</name_type>
+      <trans_det>Fictional Corporation</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2004</ent_seq>
+    <r_ele><reb>ゆきの</reb></r_ele>
+    <trans>
+      <name_type>female given name</name_type>
+      <trans_det>Yukino</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2005</ent_seq>
+    <k_ele><keb>春</keb></k_ele>
+    <r_ele><reb>はる</reb></r_ele>
+    <trans><name_type>given name</name_type><trans_det>Haru</trans_det></trans>
+  </entry>
+  <entry>
+    <ent_seq>2006</ent_seq>
+    <k_ele><keb>春</keb></k_ele>
+    <r_ele><reb>はる</reb></r_ele>
+    <trans><name_type>surname</name_type><trans_det>Haru</trans_det></trans>
+  </entry>
+  <entry>
+    <ent_seq>2007</ent_seq>
+    <r_ele><reb>はーばーど</reb></r_ele>
+    <trans>
+      <name_type>organization</name_type>
+      <trans_det>Harvard</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2008</ent_seq>
+    <k_ele><keb>第一</keb></k_ele>
+    <r_ele><reb>だいいち</reb></r_ele>
+    <trans><name_type>given name</name_type><trans_det>Daiichi</trans_det></trans>
+  </entry>
+  <entry>
+    <ent_seq>2009</ent_seq>
+    <k_ele><keb>言葉</keb></k_ele>
+    <r_ele><reb>ことば</reb></r_ele>
+    <trans>
+      <name_type>given name</name_type>
+      <trans_det>Synthetic Kotoba</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2010</ent_seq>
+    <k_ele><keb>雪乃</keb></k_ele>
+    <r_ele><reb>ゆきな</reb></r_ele>
+    <trans>
+      <name_type>female given name</name_type>
+      <trans_det>Yukina</trans_det>
+    </trans>
+  </entry>
+  <entry>
+    <ent_seq>2011</ent_seq>
+    <k_ele><keb>青木</keb></k_ele>
+    <k_ele><keb>青樹</keb></k_ele>
+    <r_ele><reb>あおき</reb><re_restr>青木</re_restr></r_ele>
+    <r_ele><reb>せいじゅ</reb><re_restr>青樹</re_restr></r_ele>
+    <trans><name_type>surname</name_type><trans_det>Aoki</trans_det></trans>
+  </entry>
+</JMnedict>

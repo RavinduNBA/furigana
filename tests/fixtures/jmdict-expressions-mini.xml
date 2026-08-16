@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JMdict dataset-id="furiganalyse-synthetic-jmdict-expressions" version="2026-08-16">
+  <entry>
+    <ent_seq>1001</ent_seq>
+    <k_ele><keb>言葉</keb></k_ele>
+    <r_ele><reb>ことば</reb></r_ele>
+    <sense><pos>n</pos><gloss>language</gloss><gloss>word</gloss></sense>
+    <sense><pos>n</pos><gloss>expression</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1002</ent_seq>
+    <k_ele><keb>振り返る</keb></k_ele>
+    <r_ele><reb>ふりかえる</reb></r_ele>
+    <sense><pos>v5r</pos><gloss>to turn around</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1003</ent_seq>
+    <r_ele><reb>ありがとう</reb><re_nokanji/></r_ele>
+    <sense><pos>exp</pos><gloss>thank you</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1004</ent_seq>
+    <k_ele><keb>開く</keb></k_ele>
+    <k_ele><keb>空く</keb></k_ele>
+    <r_ele><reb>ひらく</reb><re_restr>開く</re_restr></r_ele>
+    <r_ele><reb>あく</reb><re_restr>空く</re_restr></r_ele>
+    <sense><pos>v5k</pos><gloss>to open</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1005</ent_seq>
+    <k_ele><keb>上手</keb></k_ele>
+    <k_ele><keb>巧い</keb></k_ele>
+    <r_ele><reb>じょうず</reb><re_restr>上手</re_restr></r_ele>
+    <r_ele><reb>うまい</reb><re_restr>巧い</re_restr></r_ele>
+    <sense><stagk>上手</stagk><stagr>じょうず</stagr><pos>n</pos><gloss>skill</gloss></sense>
+    <sense><stagk>巧い</stagk><stagr>うまい</stagr><pos>adj-i</pos><gloss>skillful</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1006</ent_seq>
+    <k_ele><keb>表舞台</keb></k_ele>
+    <r_ele><reb>おもてぶたい</reb></r_ele>
+    <sense><pos>n</pos><gloss>public stage</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1007</ent_seq>
+    <k_ele><keb>表舞台</keb></k_ele>
+    <r_ele><reb>ひょうぶたい</reb></r_ele>
+    <sense><pos>n</pos><gloss>synthetic conflicting reading</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1008</ent_seq>
+    <k_ele><keb>良い天気</keb></k_ele>
+    <r_ele><reb>よいてんき</reb></r_ele>
+    <sense><pos>n</pos><gloss>fine weather</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1009</ent_seq>
+    <k_ele><keb>気がする</keb></k_ele>
+    <r_ele><reb>きがする</reb></r_ele>
+    <sense><pos>v</pos><gloss>to have a feeling</gloss></sense>
+    <sense><pos>v</pos><gloss>to seem</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1010</ent_seq>
+    <k_ele><keb>仕方がない</keb></k_ele>
+    <r_ele><reb>しかたがない</reb></r_ele>
+    <sense><pos>adj-i</pos><gloss>it cannot be helped</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1011</ent_seq>
+    <k_ele><keb>気が</keb></k_ele>
+    <r_ele><reb>きが</reb></r_ele>
+    <sense><pos>exp</pos><gloss>synthetic shorter overlap</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1012</ent_seq>
+    <k_ele><keb>気が、する</keb></k_ele>
+    <r_ele><reb>きがする</reb></r_ele>
+    <sense><pos>v</pos><gloss>must not cross punctuation</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1013</ent_seq>
+    <k_ele><keb>気がEnglishする</keb></k_ele>
+    <r_ele><reb>きがいんぐりっしゅする</reb></r_ele>
+    <sense><pos>v</pos><gloss>must not cross Latin text</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1014</ent_seq>
+    <k_ele><keb>気が表舞台する</keb></k_ele>
+    <r_ele><reb>きがおもてぶたいする</reb></r_ele>
+    <sense><pos>v</pos><gloss>must not cross whitespace or publisher ruby</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1015</ent_seq>
+    <k_ele><keb>上手になる</keb></k_ele>
+    <k_ele><keb>巧いになる</keb></k_ele>
+    <r_ele><reb>じょうずになる</reb><re_restr>上手になる</re_restr></r_ele>
+    <r_ele><reb>うまいになる</reb><re_restr>巧いになる</re_restr></r_ele>
+    <sense><stagk>上手になる</stagk><stagr>じょうずになる</stagr><pos>v</pos><gloss>to become skilled</gloss></sense>
+    <sense><stagk>巧いになる</stagk><stagr>うまいになる</stagr><pos>adj-i</pos><gloss>synthetic restricted expression</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1016</ent_seq>
+    <k_ele><keb>気がする</keb></k_ele>
+    <r_ele><reb>きがする</reb></r_ele>
+    <sense><pos>n</pos><gloss>synthetic incompatible noun expression</gloss></sense>
+  </entry>
+  <entry>
+    <ent_seq>1017</ent_seq>
+    <k_ele><keb>気が する</keb></k_ele>
+    <r_ele><reb>きがする</reb></r_ele>
+    <sense><pos>v</pos><gloss>must not cross whitespace</gloss></sense>
+  </entry>
+</JMdict>

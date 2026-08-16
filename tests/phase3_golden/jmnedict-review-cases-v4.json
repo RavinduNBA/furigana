@@ -1,0 +1,111 @@
+{
+  "diagnostics": [
+    {
+      "candidate_id": "ch-0001-b-0004-s-0001-tok-0003-cand",
+      "classification_evidence": "publisher_ruby",
+      "reason": "publisher-reading-mismatch-or-no-match"
+    },
+    {
+      "candidate_id": "ch-0001-b-0004-s-0002-tok-0001-cand",
+      "classification_evidence": "publisher_ruby",
+      "reason": "publisher-reading-mismatch-or-no-match"
+    },
+    {
+      "candidate_id": "ch-0001-b-0004-s-0003-tok-0001-cand",
+      "classification_evidence": "publisher_ruby",
+      "reason": "publisher-reading-mismatch-or-no-match"
+    },
+    {
+      "candidate_id": "ch-0002-b-0003-s-0001-tok-0001-cand",
+      "classification_evidence": "publisher_ruby",
+      "reason": "publisher-reading-mismatch-or-no-match"
+    }
+  ],
+  "expected_counts": {
+    "candidates": 60,
+    "dictionary_matches": 4,
+    "expressions": 1,
+    "name_diagnostics": 4,
+    "name_matches": 1,
+    "name_occurrences": 1,
+    "tokens": 82
+  },
+  "integration_name": {
+    "block_end": 5,
+    "block_start": 3,
+    "candidate_id": "ch-0002-b-0002-s-0001-tok-0003-cand",
+    "classification_evidence": "publisher_ruby",
+    "entry_ids": ["jmnedict-2001"],
+    "id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+    "name_types": [["person", "female given name"]],
+    "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+    "reading": "ゆきの",
+    "selection_reason": "publisher-reading-compatible",
+    "sentence_end": 5,
+    "sentence_start": 3,
+    "surface": "雪乃",
+    "token_id": "ch-0002-b-0002-s-0001-tok-0003",
+    "translations": [["Yukino", "Yuki-no"]]
+  },
+  "lookup_cases": [
+    {
+      "kind": "person_and_given_name",
+      "name_types": ["person", "female given name"],
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "ユキノ", "surface": "雪乃"},
+      "sequences": [2001],
+      "translations": ["Yukino", "Yuki-no"]
+    },
+    {
+      "kind": "place",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "トウキョウ", "surface": "東京"},
+      "sequences": [2002]
+    },
+    {
+      "kind": "organization",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "カクウシャ", "surface": "架空社"},
+      "sequences": [2003]
+    },
+    {
+      "kind": "kana_only_and_ambiguous",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "ユキノ", "surface": "ゆきの"},
+      "sequences": [2001, 2004]
+    },
+    {
+      "kind": "ambiguous_order",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "ハル", "surface": "春"},
+      "sequences": [2005, 2006]
+    },
+    {
+      "kind": "reading_restriction",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "アオキ", "surface": "青木"},
+      "sequences": [2011]
+    },
+    {
+      "kind": "reading_restriction_rejection",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "セイジュ", "surface": "青木"},
+      "sequences": []
+    },
+    {
+      "kind": "ordinary_vocabulary_pos_rejection",
+      "query": {"part_of_speech": "名詞,一般", "reading": "コトバ", "surface": "言葉"},
+      "sequences": []
+    },
+    {
+      "kind": "publisher_reading_precedence",
+      "query": {"part_of_speech": null, "publisher_reading": true, "reading": "ゆきの", "surface": "雪乃"},
+      "sequences": [2001]
+    },
+    {
+      "kind": "no_match",
+      "query": {"part_of_speech": "名詞,固有名詞", "reading": "フソンザイ", "surface": "不存在"},
+      "sequences": []
+    }
+  ],
+  "name_dictionary": {
+    "dataset_id": "furiganalyse-synthetic-jmnedict",
+    "dataset_version": "2026-08-16",
+    "format_version": 1,
+    "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+  },
+  "schema_version": 4
+}

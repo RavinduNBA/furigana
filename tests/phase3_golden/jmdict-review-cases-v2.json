@@ -1,0 +1,94 @@
+{
+  "dictionary": {
+    "dataset_id": "furiganalyse-synthetic-jmdict",
+    "dataset_version": "2026-08-16",
+    "format_version": 1,
+    "sha256": "b4952e87b430740d35bd4d5a50b463c764c12535d750ee9a18f5c0c848ad6deb"
+  },
+  "expected_counts": {
+    "candidates": 60,
+    "dictionary_matches": 4,
+    "matched_entries": 4,
+    "matched_senses": 5,
+    "tokens": 82
+  },
+  "lookup_cases": [
+    {
+      "kind": "exact_noun_and_ordered_senses",
+      "query": {"part_of_speech": "名詞,一般", "reading": "コトバ", "surface": "言葉"},
+      "sequences": [1001],
+      "sense_ids": ["jmdict-1001-sense-0001", "jmdict-1001-sense-0002"]
+    },
+    {
+      "kind": "inflected_verb_lemma",
+      "query": {"lemma": "振り返る", "part_of_speech": "動詞,自立", "reading": "フリカエッ", "surface": "振り返っ"},
+      "sequences": [1002]
+    },
+    {
+      "kind": "kana_only",
+      "query": {"reading": "アリガトウ", "surface": "ありがとう"},
+      "sequences": [1003],
+      "written_forms": []
+    },
+    {
+      "kind": "reading_and_written_form_restrictions",
+      "query": {"part_of_speech": "動詞,自立", "reading": "ヒラク", "surface": "開く"},
+      "readings": ["ひらく"],
+      "sequences": [1004]
+    },
+    {
+      "kind": "sense_written_reading_and_pos_restrictions",
+      "query": {"part_of_speech": "名詞,一般", "reading": "ジョウズ", "surface": "上手"},
+      "sequences": [1005],
+      "sense_ids": ["jmdict-1005-sense-0001"]
+    },
+    {
+      "kind": "restriction_rejection",
+      "query": {"part_of_speech": "動詞,自立", "reading": "アク", "surface": "開く"},
+      "sequences": []
+    },
+    {
+      "kind": "pos_rejection",
+      "query": {"part_of_speech": "形容詞,自立", "reading": "ジョウズ", "surface": "上手"},
+      "sequences": []
+    },
+    {
+      "kind": "no_match",
+      "query": {"reading": "ミチゴ", "surface": "未知語"},
+      "sequences": []
+    },
+    {
+      "kind": "publisher_ruby_reading_precedence",
+      "query": {"publisher_reading": true, "reading": "おもてぶたい", "surface": "表舞台"},
+      "readings": ["おもてぶたい"],
+      "sequences": [1006]
+    }
+  ],
+  "report_matches": [
+    {
+      "candidate_id": "ch-0001-b-0003-s-0001-tok-0005-cand",
+      "entry_ids": ["jmdict-1001"],
+      "match_id": "ch-0001-b-0003-s-0001-tok-0005-cand-jmdict",
+      "sense_ids": ["jmdict-1001-sense-0001", "jmdict-1001-sense-0002"]
+    },
+    {
+      "candidate_id": "ch-0001-b-0004-s-0001-tok-0003-cand",
+      "entry_ids": ["jmdict-1006"],
+      "match_id": "ch-0001-b-0004-s-0001-tok-0003-cand-jmdict",
+      "sense_ids": ["jmdict-1006-sense-0001"]
+    },
+    {
+      "candidate_id": "ch-0001-b-0004-s-0002-tok-0001-cand",
+      "entry_ids": ["jmdict-1006"],
+      "match_id": "ch-0001-b-0004-s-0002-tok-0001-cand-jmdict",
+      "sense_ids": ["jmdict-1006-sense-0001"]
+    },
+    {
+      "candidate_id": "ch-0002-b-0002-s-0002-tok-0005-cand",
+      "entry_ids": ["jmdict-1002"],
+      "match_id": "ch-0002-b-0002-s-0002-tok-0005-cand-jmdict",
+      "sense_ids": ["jmdict-1002-sense-0001"]
+    }
+  ],
+  "schema_version": 2
+}

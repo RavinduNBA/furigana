@@ -154,3 +154,140 @@ The fixture passage containing publisher ruby for 表舞台 can be traced to blo
 `舞台は`, `表舞台`, and `だった。`. The middle span references publisher-ruby
 record `ch-0001-b-0004-r-0001`; its reading remains on that record and never
 appears in canonical sentence text.
+
+Phase 3 vocabulary candidates
+-----------------------------
+
+Generate a deterministic, versioned tokenizer and vocabulary-candidate report:
+
+```bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json
+```
+
+Run the complete Phase 3 tokenizer/report gate with:
+
+```bash
+./scripts/phase3-regression.sh
+```
+
+The gate first runs Phase 2, then validates both dictionary-disabled schema v1
+and synthetic-JMdict-enriched schema v2 output. It generates each report twice,
+requires byte identity with its checked-in golden report, and runs the focused
+Phase 3 suite. It retains schema v1 reports in `artifacts/phase3/run-a/` and
+`run-b/`; the synthetic index and enriched reports are retained under
+`artifacts/phase3/jmdict/`. Opt-in schema v3 expression artifacts are under
+`artifacts/phase3/jmdict/expressions/`. Opt-in schema v4 JMnedict name
+artifacts are retained under `artifacts/phase3/jmnedict/`.
+
+The legal fixture produces 82 tokens and 60 candidates. The synthetic JMdict
+matches 4 candidates: 言葉, two publisher-ruby 表舞台 occurrences, and the
+inflected 振り返っ token through its 振り返る lemma. Review tokenizer records
+with `docs/phase3-report-review-checklist.md` and enriched matches with
+`docs/phase3-jmdict-report-review-checklist.md`.
+
+The report consumes the Phase 2 canonical model and records stable token and
+candidate IDs, lemmas, readings, parts of speech, context IDs, offsets, and
+tokenizer provenance. Publisher ruby remains a single protected token using its
+publisher reading. Punctuation, whitespace, and Latin-only tokens are excluded
+from candidates.
+
+The current stack is `furigana 0.5` with `mecab-python3 1.0.12` and the system
+IPADIC-format dictionary (binary dictionary version 102). Segmentation is
+dictionary-dependent: this environment splits `成功体験` into `成功` and `体験`,
+where a NEologd dictionary may retain the compound. This slice reports those
+boundaries without dictionary lookup or expression merging.
+
+### Optional local JMdict lookup
+
+Build an index from an explicitly supplied local JMdict-compatible XML snapshot:
+
+~~~bash
+.venv/bin/python scripts/build_jmdict_index.py \
+    data/JMdict.xml data/jmdict.sqlite3 \
+    --dataset-id jmdict --dataset-version YYYY-MM-DD
+~~~
+
+Then opt into dictionary enrichment:
+
+~~~bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json \
+    --jmdict-index data/jmdict.sqlite3
+~~~
+
+Enable deterministic longest-match expressions explicitly:
+
+~~~bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json \
+    --jmdict-index data/jmdict.sqlite3 --expressions
+~~~
+
+Without `--jmdict-index`, output remains the existing schema v1 tokenizer report.
+With an index, schema v2 preserves all existing fields and adds ordered,
+restriction-aware JMdict entry and sense matches. Each match retains entry and
+sense IDs, written forms, readings, POS, restrictions, English glosses, and
+dataset identity/version/SHA-256 provenance.
+
+With `--expressions`, additive schema v3 records deterministic longest matches
+across adjacent candidate tokens while retaining every token, candidate, and
+single-token match. Expression records include component IDs, exact sentence
+and block offsets, normalized lookup form, ordered entries, and senses.
+
+### Optional local JMnedict name lookup
+
+Build an index from an explicitly supplied local JMnedict-compatible snapshot:
+
+~~~bash
+.venv/bin/python scripts/build_jmnedict_index.py \
+    data/JMnedict.xml data/jmnedict.sqlite3 \
+    --dataset-id jmnedict --dataset-version YYYY-MM-DD
+~~~
+
+Enable the additive schema v4 name report:
+
+~~~bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json \
+    --jmdict-index data/jmdict.sqlite3 --expressions \
+    --jmnedict-index data/jmnedict.sqlite3
+~~~
+
+JMnedict is disabled unless `--jmnedict-index` is supplied. Names remain
+separate from JMdict vocabulary and expression matches. Eligible records need
+either tokenizer proper-noun evidence or publisher ruby; publisher readings
+are authoritative. Selected occurrences retain candidate/token references,
+offsets, name types, ordered translations, and provenance. Eligible rejected
+candidates receive deterministic diagnostics rather than guessed names.
+
+Tests use a tiny synthetic JMdict-compatible fixture; no production dictionary
+is downloaded or committed. Production snapshots must be obtained and stored
+locally according to their license, pinned with explicit identity/version, and
+rebuilt when updated. Expression matching is limited to eight contiguous
+Japanese candidate tokens. It never crosses punctuation, whitespace, Latin
+text, sentence boundaries, or publisher ruby. Overlaps use deterministic
+longest-match-first selection. Name lookup remains exact and is not merged with
+expression records. Entity resolution and sense ranking remain future work.
+
+The checked-in synthetic dataset provenance is
+`furiganalyse-synthetic-jmdict`, version `2026-08-16`, index format 1, with
+XML SHA-256
+`b4952e87b430740d35bd4d5a50b463c764c12535d750ee9a18f5c0c848ad6deb`.
+The strict schema-v2 golden is
+`tests/phase3_golden/vocabulary-jmdict-v2.json`; compact reviewed expectations
+are in `tests/phase3_golden/jmdict-review-cases-v2.json`.
+
+The expression fixture provenance is
+`furiganalyse-synthetic-jmdict-expressions`, version `2026-08-16`, index
+format 1, SHA-256
+`d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169`.
+The legal fixture selects one expression, `良い天気だ`, normalized to
+`良い天気`. Review schema v3 with
+`docs/phase3-expression-report-review-checklist.md`.
+
+The synthetic name fixture provenance is
+`furiganalyse-synthetic-jmnedict`, version `2026-08-16`, index format 1,
+SHA-256
+`64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca`.
+The legal fixture selects one name, `雪乃【ゆきの】`, with four explicit
+publisher-candidate diagnostics. Review schema v4 with
+`docs/phase3-jmnedict-report-review-checklist.md`. Production JMnedict data
+must be obtained, licensed, pinned, and stored locally; none is downloaded or
+committed by this project.

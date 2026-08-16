@@ -1,0 +1,75 @@
+{
+  "boundary_cases": [
+    {"forbidden_sequence": 1012, "sentences": ["気が、する。"]},
+    {"forbidden_sequence": 1013, "sentences": ["気がEnglishする。"]},
+    {"forbidden_sequence": 1017, "sentences": ["気が する。"]},
+    {"forbidden_sequence": 1009, "sentences": ["気が", "する"]}
+  ],
+  "dictionary": {
+    "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+    "dataset_version": "2026-08-16",
+    "format_version": 1,
+    "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+  },
+  "expected_counts": {
+    "candidates": 60,
+    "dictionary_matches": 4,
+    "expression_dictionary_matches": 1,
+    "expressions": 1,
+    "tokens": 82
+  },
+  "focused_cases": {
+    "inflected_final_token": {
+      "normalized_form": "気がする",
+      "sequence": 1009,
+      "surface": "気がした"
+    },
+    "longest_match": {
+      "rejected_overlap_sequence": 1011,
+      "selected_sequence": 1009,
+      "sense_ids": ["jmdict-1009-sense-0001", "jmdict-1009-sense-0002"],
+      "surface": "気がする"
+    },
+    "no_match": {
+      "expressions": 0,
+      "surface": "未知表現。"
+    },
+    "publisher_boundary": {
+      "forbidden_sequence": 1014,
+      "surface": "気が表舞台する。"
+    },
+    "restrictions": {
+      "accepted_reading": "じょうずになる",
+      "accepted_sense_id": "jmdict-1015-sense-0001",
+      "rejected_reading": "うまいになる",
+      "surface": "上手になる"
+    }
+  },
+  "integration_expression": {
+    "block_end": 9,
+    "block_id": "ch-0001-b-0002",
+    "block_start": 4,
+    "candidate_ids": [
+      "ch-0001-b-0002-s-0001-tok-0004-cand",
+      "ch-0001-b-0002-s-0001-tok-0005-cand",
+      "ch-0001-b-0002-s-0001-tok-0006-cand"
+    ],
+    "chapter_id": "ch-0001",
+    "entry_ids": ["jmdict-1008"],
+    "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+    "glosses": [["fine weather"]],
+    "match_id": "ch-0001-b-0002-s-0001-expr-0001-jmdict",
+    "normalized_form": "良い天気",
+    "sentence_end": 9,
+    "sentence_id": "ch-0001-b-0002-s-0001",
+    "sentence_start": 4,
+    "sense_ids": ["jmdict-1008-sense-0001"],
+    "surface": "良い天気だ",
+    "token_ids": [
+      "ch-0001-b-0002-s-0001-tok-0004",
+      "ch-0001-b-0002-s-0001-tok-0005",
+      "ch-0001-b-0002-s-0001-tok-0006"
+    ]
+  },
+  "schema_version": 3
+}
