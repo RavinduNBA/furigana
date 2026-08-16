@@ -11,6 +11,12 @@ from pathlib import Path
 from typing import Optional
 
 from furiganalyse.book_analysis import BookAnalysis
+from furiganalyse.jmdict import (
+    JmdictEntryMatch,
+    JmdictProvider,
+    JmdictProvenance,
+    JmdictQuery,
+)
 
 SCHEMA_VERSION = 1
 JAPANESE_PATTERN = re.compile(r"[一-龯々〆ヵヶぁ-ゖァ-ヺー]")
@@ -75,6 +81,25 @@ class VocabularyReport:
     tokenizer: TokenizerProvenance
     tokens: list[VocabularyToken]
     candidates: list[VocabularyCandidate]
+
+
+@dataclass(frozen=True)
+class CandidateDictionaryMatches:
+    id: str
+    candidate_id: str
+    entries: list[JmdictEntryMatch]
+
+
+@dataclass(frozen=True)
+class EnrichedVocabularyReport:
+    schema_version: int
+    book_id: str
+    source_book_schema_version: int
+    tokenizer: TokenizerProvenance
+    tokens: list[VocabularyToken]
+    candidates: list[VocabularyCandidate]
+    dictionary: JmdictProvenance
+    dictionary_matches: list[CandidateDictionaryMatches]
 
 
 def _tokenizer():
@@ -281,11 +306,89 @@ def validate_vocabulary_report(book: BookAnalysis, report: VocabularyReport):
             raise VocabularyAnalysisError(f"Ineligible candidate: {candidate.id}")
 
 
-def serialize_vocabulary_report(report: VocabularyReport) -> str:
+def enrich_vocabulary_report(
+    report: VocabularyReport, provider: JmdictProvider
+) -> EnrichedVocabularyReport:
+    matches = []
+    for candidate in report.candidates:
+        entries = provider.lookup(
+            JmdictQuery(
+                surface=candidate.surface,
+                lemma=candidate.lemma,
+                reading=candidate.reading,
+                part_of_speech=candidate.part_of_speech,
+                publisher_reading=candidate.reading_source == "publisher",
+            )
+        )
+        if entries:
+            matches.append(
+                CandidateDictionaryMatches(
+                    id=f"{candidate.id}-jmdict",
+                    candidate_id=candidate.id,
+                    entries=entries,
+                )
+            )
+    enriched = EnrichedVocabularyReport(
+        schema_version=2,
+        book_id=report.book_id,
+        source_book_schema_version=report.source_book_schema_version,
+        tokenizer=report.tokenizer,
+        tokens=report.tokens,
+        candidates=report.candidates,
+        dictionary=provider.provenance,
+        dictionary_matches=matches,
+    )
+    validate_enriched_report(enriched)
+    return enriched
+
+
+def validate_enriched_report(report: EnrichedVocabularyReport):
+    candidate_ids = {candidate.id for candidate in report.candidates}
+    identifiers = set()
+    for match in report.dictionary_matches:
+        if match.id in identifiers:
+            raise VocabularyAnalysisError(f"Duplicate dictionary match ID: {match.id}")
+        identifiers.add(match.id)
+        if match.candidate_id not in candidate_ids:
+            raise VocabularyAnalysisError(
+                f"Unknown dictionary-match candidate: {match.candidate_id}"
+            )
+        previous_sequence = -1
+        entry_ids = set()
+        for entry in match.entries:
+            if entry.entry_id in entry_ids:
+                raise VocabularyAnalysisError(
+                    f"Duplicate dictionary entry match ID: {entry.entry_id}"
+                )
+            entry_ids.add(entry.entry_id)
+            if entry.sequence <= previous_sequence:
+                raise VocabularyAnalysisError(
+                    f"Unordered dictionary entries: {match.id}"
+                )
+            previous_sequence = entry.sequence
+            if not entry.senses:
+                raise VocabularyAnalysisError(
+                    f"Dictionary entry has no compatible senses: {entry.entry_id}"
+                )
+            sense_ids = set()
+            for sense in entry.senses:
+                if sense.id in sense_ids:
+                    raise VocabularyAnalysisError(
+                        f"Duplicate dictionary sense ID: {sense.id}"
+                    )
+                sense_ids.add(sense.id)
+
+
+def serialize_vocabulary_report(
+    report: VocabularyReport | EnrichedVocabularyReport,
+) -> str:
     return json.dumps(asdict(report), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
 
-def write_vocabulary_report(report: VocabularyReport, output_path: str | Path):
+def write_vocabulary_report(
+    report: VocabularyReport | EnrichedVocabularyReport,
+    output_path: str | Path,
+):
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(serialize_vocabulary_report(report), encoding="utf-8")

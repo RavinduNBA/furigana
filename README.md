@@ -187,3 +187,33 @@ IPADIC-format dictionary (binary dictionary version 102). Segmentation is
 dictionary-dependent: this environment splits `成功体験` into `成功` and `体験`,
 where a NEologd dictionary may retain the compound. This slice reports those
 boundaries without dictionary lookup or expression merging.
+
+### Optional local JMdict lookup
+
+Build an index from an explicitly supplied local JMdict-compatible XML snapshot:
+
+~~~bash
+.venv/bin/python scripts/build_jmdict_index.py \
+    data/JMdict.xml data/jmdict.sqlite3 \
+    --dataset-id jmdict --dataset-version YYYY-MM-DD
+~~~
+
+Then opt into dictionary enrichment:
+
+~~~bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json \
+    --jmdict-index data/jmdict.sqlite3
+~~~
+
+Without `--jmdict-index`, output remains the existing schema v1 tokenizer report.
+With an index, schema v2 preserves all existing fields and adds ordered,
+restriction-aware JMdict entry and sense matches. Each match retains entry and
+sense IDs, written forms, readings, POS, restrictions, English glosses, and
+dataset identity/version/SHA-256 provenance.
+
+Tests use a tiny synthetic JMdict-compatible fixture; no production dictionary
+is downloaded or committed. Production snapshots must be obtained and stored
+locally according to their license, pinned with explicit identity/version, and
+rebuilt when updated. This slice supports single-token JMdict lookup only:
+JMnedict, expression matching, name classification, and sense ranking remain
+future work.
