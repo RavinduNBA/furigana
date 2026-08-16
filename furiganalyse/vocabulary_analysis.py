@@ -93,6 +93,29 @@ class CandidateDictionaryMatches:
 
 
 @dataclass(frozen=True)
+class VocabularyExpression:
+    id: str
+    surface: str
+    normalized_form: str
+    token_ids: list[str]
+    candidate_ids: list[str]
+    chapter_id: str
+    block_id: str
+    sentence_id: str
+    sentence_start: int
+    sentence_end: int
+    block_start: int
+    block_end: int
+
+
+@dataclass(frozen=True)
+class ExpressionDictionaryMatches:
+    id: str
+    expression_id: str
+    entries: list[JmdictEntryMatch]
+
+
+@dataclass(frozen=True)
 class EnrichedVocabularyReport:
     schema_version: int
     book_id: str
@@ -102,6 +125,20 @@ class EnrichedVocabularyReport:
     candidates: list[VocabularyCandidate]
     dictionary: JmdictProvenance
     dictionary_matches: list[CandidateDictionaryMatches]
+
+
+@dataclass(frozen=True)
+class ExpressionEnrichedVocabularyReport:
+    schema_version: int
+    book_id: str
+    source_book_schema_version: int
+    tokenizer: TokenizerProvenance
+    tokens: list[VocabularyToken]
+    candidates: list[VocabularyCandidate]
+    dictionary: JmdictProvenance
+    dictionary_matches: list[CandidateDictionaryMatches]
+    expressions: list[VocabularyExpression]
+    expression_dictionary_matches: list[ExpressionDictionaryMatches]
 
 
 def _tokenizer():
@@ -308,9 +345,143 @@ def validate_vocabulary_report(book: BookAnalysis, report: VocabularyReport):
             raise VocabularyAnalysisError(f"Ineligible candidate: {candidate.id}")
 
 
+def _expression_lookup_form(
+    tokens: list[VocabularyToken],
+) -> tuple[str, str | None, int]:
+    content_end = len(tokens) - 1
+    while content_end > 0 and (
+        tokens[content_end].part_of_speech or ""
+    ).startswith("助動詞"):
+        content_end -= 1
+    content = tokens[: content_end + 1]
+    normalized = "".join(
+        token.lemma if index == len(content) - 1 else token.surface
+        for index, token in enumerate(content)
+    )
+    return normalized, content[-1].part_of_speech, len(content)
+
+
+def _expression_runs(
+    report: VocabularyReport,
+) -> list[list[VocabularyToken]]:
+    candidate_by_token = {candidate.token_id for candidate in report.candidates}
+    runs = []
+    current = []
+    for token in report.tokens:
+        eligible = (
+            token.id in candidate_by_token
+            and token.publisher_ruby_id is None
+            and bool(JAPANESE_PATTERN.search(token.surface))
+        )
+        contiguous = (
+            current
+            and token.sentence_id == current[-1].sentence_id
+            and token.sentence_start == current[-1].sentence_end
+        )
+        if not eligible or (current and not contiguous):
+            if current:
+                runs.append(current)
+            current = []
+        if eligible:
+            current.append(token)
+    if current:
+        runs.append(current)
+    return runs
+
+
+def _find_expressions(
+    report: VocabularyReport,
+    provider: JmdictProvider,
+    max_tokens: int = 8,
+) -> tuple[list[VocabularyExpression], list[ExpressionDictionaryMatches]]:
+    candidate_by_token = {
+        candidate.token_id: candidate for candidate in report.candidates
+    }
+    discovered = []
+    for run in _expression_runs(report):
+        for start in range(len(run)):
+            for end in range(start + 2, min(len(run), start + max_tokens) + 1):
+                tokens = run[start:end]
+                normalized, part_of_speech, content_count = (
+                    _expression_lookup_form(tokens)
+                )
+                if content_count < 2:
+                    continue
+                surface = "".join(token.surface for token in tokens)
+                entries = provider.lookup(
+                    JmdictQuery(
+                        surface=surface,
+                        lemma=normalized,
+                        reading=None,
+                        part_of_speech=part_of_speech,
+                    )
+                )
+                if entries:
+                    discovered.append((tokens, surface, normalized, entries))
+
+    selected = []
+    occupied = set()
+    for item in sorted(
+        discovered,
+        key=lambda value: (
+            -len(value[0]),
+            value[0][0].sentence_id,
+            value[0][0].sentence_start,
+            value[0][-1].sentence_end,
+        ),
+    ):
+        token_ids = {token.id for token in item[0]}
+        if token_ids & occupied:
+            continue
+        selected.append(item)
+        occupied.update(token_ids)
+
+    selected.sort(
+        key=lambda value: (
+            value[0][0].chapter_id,
+            value[0][0].block_id,
+            value[0][0].sentence_id,
+            value[0][0].sentence_start,
+        )
+    )
+    expressions = []
+    matches = []
+    index_by_sentence = {}
+    for tokens, surface, normalized, entries in selected:
+        first, last = tokens[0], tokens[-1]
+        index = index_by_sentence.get(first.sentence_id, 0) + 1
+        index_by_sentence[first.sentence_id] = index
+        expression_id = f"{first.sentence_id}-expr-{index:04d}"
+        expression = VocabularyExpression(
+            id=expression_id,
+            surface=surface,
+            normalized_form=normalized,
+            token_ids=[token.id for token in tokens],
+            candidate_ids=[candidate_by_token[token.id].id for token in tokens],
+            chapter_id=first.chapter_id,
+            block_id=first.block_id,
+            sentence_id=first.sentence_id,
+            sentence_start=first.sentence_start,
+            sentence_end=last.sentence_end,
+            block_start=first.block_start,
+            block_end=last.block_end,
+        )
+        expressions.append(expression)
+        matches.append(
+            ExpressionDictionaryMatches(
+                id=f"{expression_id}-jmdict",
+                expression_id=expression_id,
+                entries=entries,
+            )
+        )
+    return expressions, matches
+
+
 def enrich_vocabulary_report(
-    report: VocabularyReport, provider: JmdictProvider
-) -> EnrichedVocabularyReport:
+    report: VocabularyReport,
+    provider: JmdictProvider,
+    include_expressions: bool = False,
+) -> EnrichedVocabularyReport | ExpressionEnrichedVocabularyReport:
     matches = []
     for candidate in report.candidates:
         entries = provider.lookup(
@@ -330,8 +501,7 @@ def enrich_vocabulary_report(
                     entries=entries,
                 )
             )
-    enriched = EnrichedVocabularyReport(
-        schema_version=2,
+    values = dict(
         book_id=report.book_id,
         source_book_schema_version=report.source_book_schema_version,
         tokenizer=report.tokenizer,
@@ -340,11 +510,23 @@ def enrich_vocabulary_report(
         dictionary=provider.provenance,
         dictionary_matches=matches,
     )
+    if include_expressions:
+        expressions, expression_matches = _find_expressions(report, provider)
+        enriched = ExpressionEnrichedVocabularyReport(
+            schema_version=3,
+            expressions=expressions,
+            expression_dictionary_matches=expression_matches,
+            **values,
+        )
+    else:
+        enriched = EnrichedVocabularyReport(schema_version=2, **values)
     validate_enriched_report(enriched)
     return enriched
 
 
-def validate_enriched_report(report: EnrichedVocabularyReport):
+def validate_enriched_report(
+    report: EnrichedVocabularyReport | ExpressionEnrichedVocabularyReport,
+):
     if (
         not report.dictionary.dataset_id
         or not report.dictionary.dataset_version
@@ -471,15 +653,212 @@ def validate_enriched_report(report: EnrichedVocabularyReport):
                         f"Incompatible dictionary part of speech: {sense.id}"
                     )
 
+    if isinstance(report, ExpressionEnrichedVocabularyReport):
+        token_by_id = {token.id: token for token in report.tokens}
+        candidate_by_id = {candidate.id: candidate for candidate in report.candidates}
+        expression_by_id = {}
+        previous_key = None
+        occupied_by_sentence = {}
+        for expression in report.expressions:
+            if expression.id in expression_by_id:
+                raise VocabularyAnalysisError(
+                    f"Duplicate expression ID: {expression.id}"
+                )
+            expression_by_id[expression.id] = expression
+            if expression.id != (
+                f"{expression.sentence_id}-expr-"
+                f"{len([value for value in expression_by_id.values() if value.sentence_id == expression.sentence_id]):04d}"
+            ):
+                raise VocabularyAnalysisError(f"Unstable expression ID: {expression.id}")
+            tokens = [token_by_id.get(token_id) for token_id in expression.token_ids]
+            if len(tokens) < 2 or any(token is None for token in tokens):
+                raise VocabularyAnalysisError(
+                    f"Invalid expression token references: {expression.id}"
+                )
+            if any(token.publisher_ruby_id for token in tokens):
+                raise VocabularyAnalysisError(
+                    f"Expression crosses publisher ruby: {expression.id}"
+                )
+            if expression.candidate_ids != [
+                f"{token.id}-cand" for token in tokens
+            ] or any(
+                candidate_id not in candidate_by_id
+                for candidate_id in expression.candidate_ids
+            ):
+                raise VocabularyAnalysisError(
+                    f"Invalid expression candidate references: {expression.id}"
+                )
+            if any(
+                left.sentence_id != right.sentence_id
+                or left.sentence_end != right.sentence_start
+                for left, right in zip(tokens, tokens[1:])
+            ):
+                raise VocabularyAnalysisError(
+                    f"Non-contiguous expression tokens: {expression.id}"
+                )
+            first, last = tokens[0], tokens[-1]
+            expected_context = (
+                first.chapter_id,
+                first.block_id,
+                first.sentence_id,
+                first.sentence_start,
+                last.sentence_end,
+                first.block_start,
+                last.block_end,
+            )
+            actual_context = (
+                expression.chapter_id,
+                expression.block_id,
+                expression.sentence_id,
+                expression.sentence_start,
+                expression.sentence_end,
+                expression.block_start,
+                expression.block_end,
+            )
+            if actual_context != expected_context:
+                raise VocabularyAnalysisError(
+                    f"Invalid expression context: {expression.id}"
+                )
+            if expression.surface != "".join(token.surface for token in tokens):
+                raise VocabularyAnalysisError(
+                    f"Expression text mismatch: {expression.id}"
+                )
+            normalized, _, content_count = _expression_lookup_form(tokens)
+            if content_count < 2:
+                raise VocabularyAnalysisError(
+                    f"Expression has fewer than two lexical components: {expression.id}"
+                )
+            if expression.normalized_form != normalized:
+                raise VocabularyAnalysisError(
+                    f"Expression normalization mismatch: {expression.id}"
+                )
+            key = (
+                expression.chapter_id,
+                expression.block_id,
+                expression.sentence_id,
+                expression.sentence_start,
+            )
+            if previous_key is not None and key <= previous_key:
+                raise VocabularyAnalysisError("Unordered expressions")
+            previous_key = key
+            occupied = occupied_by_sentence.setdefault(expression.sentence_id, set())
+            if occupied.intersection(expression.token_ids):
+                raise VocabularyAnalysisError(
+                    f"Overlapping expressions: {expression.sentence_id}"
+                )
+            occupied.update(expression.token_ids)
+
+        if len(report.expression_dictionary_matches) != len(report.expressions):
+            raise VocabularyAnalysisError("Expression/match count mismatch")
+        for expression, match in zip(
+            report.expressions, report.expression_dictionary_matches
+        ):
+            if (
+                match.expression_id != expression.id
+                or match.id != f"{expression.id}-jmdict"
+                or not match.entries
+            ):
+                raise VocabularyAnalysisError(
+                    f"Invalid expression dictionary match: {match.id}"
+                )
+            previous_sequence = -1
+            entry_ids = set()
+            expression_tokens = [
+                token_by_id[token_id] for token_id in expression.token_ids
+            ]
+            _, expression_pos, _ = _expression_lookup_form(expression_tokens)
+            for entry in match.entries:
+                if entry.entry_id in entry_ids:
+                    raise VocabularyAnalysisError(
+                        f"Duplicate expression entry ID: {entry.entry_id}"
+                    )
+                entry_ids.add(entry.entry_id)
+                if entry.sequence <= previous_sequence:
+                    raise VocabularyAnalysisError(
+                        f"Unordered expression entries: {match.id}"
+                    )
+                previous_sequence = entry.sequence
+                if entry.entry_id != f"jmdict-{entry.sequence}":
+                    raise VocabularyAnalysisError(
+                        f"Unstable expression entry ID: {entry.entry_id}"
+                    )
+                if entry.matched_form not in {
+                    expression.surface,
+                    expression.normalized_form,
+                }:
+                    raise VocabularyAnalysisError(
+                        f"Expression dictionary text mismatch: {entry.entry_id}"
+                    )
+                written_form = (
+                    entry.matched_form if entry.matched_by != "reading" else None
+                )
+                if any(
+                    written_form is not None
+                    and reading.written_restrictions
+                    and written_form not in reading.written_restrictions
+                    for reading in entry.readings
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible expression reading: {entry.entry_id}"
+                    )
+                previous_sense_index = 0
+                sense_ids = set()
+                for sense in entry.senses:
+                    if (
+                        sense.id in sense_ids
+                        or sense.index <= previous_sense_index
+                        or sense.id
+                        != f"jmdict-{entry.sequence}-sense-{sense.index:04d}"
+                    ):
+                        raise VocabularyAnalysisError(
+                            f"Invalid expression sense order or ID: {sense.id}"
+                        )
+                    sense_ids.add(sense.id)
+                    previous_sense_index = sense.index
+                    if not sense.glosses or any(
+                        not gloss.strip() for gloss in sense.glosses
+                    ):
+                        raise VocabularyAnalysisError(
+                            f"Expression sense has no English gloss: {sense.id}"
+                        )
+                    if (
+                        sense.written_restrictions
+                        and written_form not in sense.written_restrictions
+                    ):
+                        raise VocabularyAnalysisError(
+                            f"Incompatible expression written restriction: {sense.id}"
+                        )
+                    if sense.reading_restrictions and not any(
+                        reading.text in sense.reading_restrictions
+                        for reading in entry.readings
+                    ):
+                        raise VocabularyAnalysisError(
+                            f"Incompatible expression reading restriction: {sense.id}"
+                        )
+                    if not pos_compatible(
+                        expression_pos, sense.parts_of_speech
+                    ):
+                        raise VocabularyAnalysisError(
+                            f"Incompatible expression part of speech: {sense.id}"
+                        )
+
 
 def serialize_vocabulary_report(
-    report: VocabularyReport | EnrichedVocabularyReport,
+    report: (
+        VocabularyReport
+        | EnrichedVocabularyReport
+        | ExpressionEnrichedVocabularyReport
+    ),
 ) -> str:
     return json.dumps(asdict(report), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
 
 def write_vocabulary_report(
-    report: VocabularyReport | EnrichedVocabularyReport,
+    report: (
+        VocabularyReport
+        | EnrichedVocabularyReport
+        | ExpressionEnrichedVocabularyReport
+    ),
     output_path: str | Path,
 ):
     output = Path(output_path)

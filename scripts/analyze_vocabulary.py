@@ -26,13 +26,23 @@ def main():
         type=Path,
         help="Optional local SQLite JMdict index; dictionary lookup is off by default",
     )
+    parser.add_argument(
+        "--expressions",
+        action="store_true",
+        help="Add deterministic adjacent-token expression matches (requires --jmdict-index)",
+    )
     args = parser.parse_args()
+
+    if args.expressions and not args.jmdict_index:
+        parser.error("--expressions requires --jmdict-index")
 
     report = analyze_vocabulary(extract_book(args.input_epub))
     if args.jmdict_index:
         provider = SqliteJmdictProvider(args.jmdict_index)
         try:
-            report = enrich_vocabulary_report(report, provider)
+            report = enrich_vocabulary_report(
+                report, provider, include_expressions=args.expressions
+            )
         finally:
             provider.close()
     write_vocabulary_report(report, args.output_json)

@@ -13,12 +13,20 @@ JMDICT_ARTIFACT_DIR="${ARTIFACT_DIR}/jmdict"
 JMDICT_INDEX="${JMDICT_ARTIFACT_DIR}/synthetic-jmdict.sqlite3"
 JMDICT_RUN_A="${JMDICT_ARTIFACT_DIR}/run-a/vocabulary.json"
 JMDICT_RUN_B="${JMDICT_ARTIFACT_DIR}/run-b/vocabulary.json"
+EXPRESSION_FIXTURE="${ROOT_DIR}/tests/fixtures/jmdict-expressions-mini.xml"
+EXPRESSION_GOLDEN="${ROOT_DIR}/tests/phase3_golden/vocabulary-jmdict-expressions-v3.json"
+EXPRESSION_ARTIFACT_DIR="${JMDICT_ARTIFACT_DIR}/expressions"
+EXPRESSION_INDEX="${EXPRESSION_ARTIFACT_DIR}/synthetic-jmdict.sqlite3"
+EXPRESSION_RUN_A="${EXPRESSION_ARTIFACT_DIR}/run-a/vocabulary.json"
+EXPRESSION_RUN_B="${EXPRESSION_ARTIFACT_DIR}/run-b/vocabulary.json"
 
 mkdir -p \
   "${ARTIFACT_DIR}/run-a" \
   "${ARTIFACT_DIR}/run-b" \
   "${JMDICT_ARTIFACT_DIR}/run-a" \
-  "${JMDICT_ARTIFACT_DIR}/run-b"
+  "${JMDICT_ARTIFACT_DIR}/run-b" \
+  "${EXPRESSION_ARTIFACT_DIR}/run-a" \
+  "${EXPRESSION_ARTIFACT_DIR}/run-b"
 cd "${ROOT_DIR}"
 
 ./scripts/phase2-regression.sh
@@ -37,7 +45,19 @@ rm -f "${JMDICT_INDEX}"
 cmp "${JMDICT_RUN_A}" "${JMDICT_RUN_B}"
 cmp "${JMDICT_RUN_A}" "${JMDICT_GOLDEN}"
 
+rm -f "${EXPRESSION_INDEX}"
+.venv/bin/python scripts/build_jmdict_index.py \
+  "${EXPRESSION_FIXTURE}" "${EXPRESSION_INDEX}"
+.venv/bin/python scripts/analyze_vocabulary.py \
+  "${FIXTURE}" "${EXPRESSION_RUN_A}" \
+  --jmdict-index "${EXPRESSION_INDEX}" --expressions
+.venv/bin/python scripts/analyze_vocabulary.py \
+  "${FIXTURE}" "${EXPRESSION_RUN_B}" \
+  --jmdict-index "${EXPRESSION_INDEX}" --expressions
+cmp "${EXPRESSION_RUN_A}" "${EXPRESSION_RUN_B}"
+cmp "${EXPRESSION_RUN_A}" "${EXPRESSION_GOLDEN}"
+
 .venv/bin/python -m pytest -q \
   tests/test_vocabulary_analysis.py tests/test_jmdict.py
 
-echo "Phase 3 tokenizer and JMdict reports passed. Artifacts: ${ARTIFACT_DIR}"
+echo "Phase 3 tokenizer, JMdict, and expression reports passed. Artifacts: ${ARTIFACT_DIR}"

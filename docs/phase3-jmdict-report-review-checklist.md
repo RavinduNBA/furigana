@@ -30,3 +30,7 @@ closing Phase 3.
 - Notes: Schema, provenance, counts, IDs, ordering, restrictions, glosses, and
   byte identity passed direct checks. The reviewer confirmed the ordered 言葉
   senses and English glosses.
+
+Expression matching is reviewed separately with
+`docs/phase3-expression-report-review-checklist.md`; this recorded schema-v2
+single-token review remains unchanged.
