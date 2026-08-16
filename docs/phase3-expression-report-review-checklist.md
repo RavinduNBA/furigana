@@ -26,8 +26,11 @@ candidate tokens and applies deterministic longest-match selection. It does not
 rank senses or search across punctuation, whitespace, Latin text, sentence
 boundaries, or publisher ruby.
 
-- Date:
-- Commit:
-- Reviewer:
-- Result:
-- Notes:
+- Date: 2026-08-16
+- Commit: `e516afd`
+- Reviewer: Ravindu
+- Result: Pass
+- Notes: Schema, provenance, counts, IDs, ordering, references, offsets,
+  restrictions, boundary exclusions, and byte identity passed direct checks.
+  The reviewer confirmed `良い天気だ` → `良い天気`, reading
+  `よいてんき`, and gloss `fine weather`.
