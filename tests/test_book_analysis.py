@@ -1,5 +1,6 @@
 import json
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -13,6 +14,8 @@ from furiganalyse.book_analysis import (
     write_book_json,
 )
 from tests.phase0_epub import build_fixture
+
+GOLDEN_BOOK = Path(__file__).parent / "golden" / "phase2-book-v2.json"
 
 
 @pytest.fixture
@@ -206,6 +209,54 @@ def test_serialized_json_is_byte_deterministic(tmp_path):
     assert sentence["text_spans"][1]["publisher_ruby_id"] == (
         "ch-0001-b-0004-r-0001"
     )
+
+
+def test_fixture_matches_complete_schema_v2_golden(tmp_path):
+    epub = tmp_path / "fixture.epub"
+    build_fixture(epub)
+    actual = serialize_book(extract_book(epub))
+    expected = GOLDEN_BOOK.read_text(encoding="utf-8")
+    assert actual == expected
+    assert json.loads(actual) == json.loads(expected)
+
+
+def test_complete_fixture_invariants(extracted_fixture):
+    identifiers = []
+    ruby_ids = set()
+    referenced_ruby_ids = []
+    for chapter in extracted_fixture.chapters:
+        identifiers.append(chapter.id)
+        assert chapter.text == "\n".join(block.text for block in chapter.blocks)
+        for block in chapter.blocks:
+            identifiers.append(block.id)
+            for ruby in block.publisher_ruby:
+                identifiers.append(ruby.id)
+                ruby_ids.add(ruby.id)
+                assert block.text[ruby.start : ruby.end] == ruby.surface
+            previous_end = 0
+            for sentence in block.sentences:
+                identifiers.append(sentence.id)
+                assert previous_end <= sentence.start < sentence.end <= len(block.text)
+                assert block.text[sentence.start : sentence.end] == sentence.text
+                assert "".join(span.text for span in sentence.text_spans) == sentence.text
+                assert sentence.publisher_ruby == [
+                    span.publisher_ruby_id
+                    for span in sentence.text_spans
+                    if span.publisher_ruby_id is not None
+                ]
+                previous_span_end = sentence.start
+                for span in sentence.text_spans:
+                    identifiers.append(span.id)
+                    assert span.start == previous_span_end
+                    assert block.text[span.start : span.end] == span.text
+                    previous_span_end = span.end
+                    if span.publisher_ruby_id is not None:
+                        referenced_ruby_ids.append(span.publisher_ruby_id)
+                assert previous_span_end == sentence.end
+                previous_end = sentence.end
+    assert len(identifiers) == len(set(identifiers))
+    assert set(referenced_ruby_ids) == ruby_ids
+    assert len(referenced_ruby_ids) == len(set(referenced_ruby_ids))
 
 
 @pytest.mark.parametrize("href", ["../../outside.xhtml", "/absolute.xhtml", "..\\outside.xhtml"])

@@ -131,6 +131,17 @@ from an EPUB without modifying the book:
 .venv/bin/python scripts/extract_book.py book.epub analysis/book.json
 ```
 
+Run the complete Phase 2 acceptance gate with:
+
+```bash
+./scripts/phase2-regression.sh
+```
+
+The gate builds the legal fixture, performs two byte-identical extractions,
+compares the result with the checked-in schema v2 golden JSON, runs the focused
+tests, and retains inspectable output in `artifacts/phase2/`. Complete
+`docs/phase2-manual-trace-checklist.md` before closing Phase 2.
+
 The extractor follows manifest/spine order, processes only spine XHTML,
 normalizes visible block text, excludes `rt`/`rp` readings from canonical text,
 and records publisher ruby with provenance and source anchors. Schema v2 adds
