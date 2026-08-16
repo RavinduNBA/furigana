@@ -23,8 +23,10 @@ data is required.
 Record the review date, commit, reviewer, result, and concise notes below before
 closing Phase 3.
 
-- Date:
-- Commit:
-- Reviewer:
-- Result:
-- Notes:
+- Date: 2026-08-16
+- Commit: `84a4d16`
+- Reviewer: Ravindu
+- Result: Pass
+- Notes: Schema, provenance, counts, IDs, ordering, restrictions, glosses, and
+  byte identity passed direct checks. The reviewer confirmed the ordered 言葉
+  senses and English glosses.
