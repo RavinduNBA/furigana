@@ -249,7 +249,7 @@ def _entry_from_payload(payload: str) -> JmdictEntry:
     )
 
 
-def _pos_compatible(candidate_pos: str | None, sense_pos: list[str]) -> bool:
+def pos_compatible(candidate_pos: str | None, sense_pos: list[str]) -> bool:
     if not candidate_pos or not sense_pos:
         return True
     category = candidate_pos.split(",", 1)[0]
@@ -350,7 +350,7 @@ class SqliteJmdictProvider:
                         for reading in readings
                     )
                 )
-                and _pos_compatible(query.part_of_speech, sense.parts_of_speech)
+                and pos_compatible(query.part_of_speech, sense.parts_of_speech)
             ]
             if not senses:
                 continue

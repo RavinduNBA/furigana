@@ -170,11 +170,18 @@ Run the complete Phase 3 tokenizer/report gate with:
 ./scripts/phase3-regression.sh
 ```
 
-The gate first runs Phase 2, generates the vocabulary report twice, checks both
-outputs against each other and the checked-in schema v1 golden report, and runs
-the focused Phase 3 suite. It retains reports in `artifacts/phase3/`. The legal
-fixture currently produces 82 tokens and 60 candidates. Review representative
-records with `docs/phase3-report-review-checklist.md`.
+The gate first runs Phase 2, then validates both dictionary-disabled schema v1
+and synthetic-JMdict-enriched schema v2 output. It generates each report twice,
+requires byte identity with its checked-in golden report, and runs the focused
+Phase 3 suite. It retains schema v1 reports in `artifacts/phase3/run-a/` and
+`run-b/`; the synthetic index and enriched reports are retained under
+`artifacts/phase3/jmdict/`.
+
+The legal fixture produces 82 tokens and 60 candidates. The synthetic JMdict
+matches 4 candidates: 言葉, two publisher-ruby 表舞台 occurrences, and the
+inflected 振り返っ token through its 振り返る lemma. Review tokenizer records
+with `docs/phase3-report-review-checklist.md` and enriched matches with
+`docs/phase3-jmdict-report-review-checklist.md`.
 
 The report consumes the Phase 2 canonical model and records stable token and
 candidate IDs, lemmas, readings, parts of speech, context IDs, offsets, and
@@ -217,3 +224,11 @@ locally according to their license, pinned with explicit identity/version, and
 rebuilt when updated. This slice supports single-token JMdict lookup only:
 JMnedict, expression matching, name classification, and sense ranking remain
 future work.
+
+The checked-in synthetic dataset provenance is
+`furiganalyse-synthetic-jmdict`, version `2026-08-16`, index format 1, with
+XML SHA-256
+`b4952e87b430740d35bd4d5a50b463c764c12535d750ee9a18f5c0c848ad6deb`.
+The strict schema-v2 golden is
+`tests/phase3_golden/vocabulary-jmdict-v2.json`; compact reviewed expectations
+are in `tests/phase3_golden/jmdict-review-cases-v2.json`.

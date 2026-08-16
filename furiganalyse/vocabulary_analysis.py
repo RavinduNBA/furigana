@@ -16,6 +16,8 @@ from furiganalyse.jmdict import (
     JmdictProvider,
     JmdictProvenance,
     JmdictQuery,
+    normalize_reading,
+    pos_compatible,
 )
 
 SCHEMA_VERSION = 1
@@ -343,16 +345,34 @@ def enrich_vocabulary_report(
 
 
 def validate_enriched_report(report: EnrichedVocabularyReport):
-    candidate_ids = {candidate.id for candidate in report.candidates}
+    if (
+        not report.dictionary.dataset_id
+        or not report.dictionary.dataset_version
+        or report.dictionary.format_version < 1
+        or not re.fullmatch(r"[0-9a-f]{64}", report.dictionary.sha256)
+    ):
+        raise VocabularyAnalysisError("Invalid dictionary provenance")
+    candidates = {candidate.id: candidate for candidate in report.candidates}
+    candidate_order = {
+        candidate.id: index for index, candidate in enumerate(report.candidates)
+    }
     identifiers = set()
+    previous_candidate_index = -1
     for match in report.dictionary_matches:
         if match.id in identifiers:
             raise VocabularyAnalysisError(f"Duplicate dictionary match ID: {match.id}")
         identifiers.add(match.id)
-        if match.candidate_id not in candidate_ids:
+        candidate = candidates.get(match.candidate_id)
+        if candidate is None:
             raise VocabularyAnalysisError(
                 f"Unknown dictionary-match candidate: {match.candidate_id}"
             )
+        if match.id != f"{candidate.id}-jmdict":
+            raise VocabularyAnalysisError(f"Unstable dictionary match ID: {match.id}")
+        current_candidate_index = candidate_order[candidate.id]
+        if current_candidate_index <= previous_candidate_index:
+            raise VocabularyAnalysisError("Unordered dictionary matches")
+        previous_candidate_index = current_candidate_index
         previous_sequence = -1
         entry_ids = set()
         for entry in match.entries:
@@ -366,17 +386,90 @@ def validate_enriched_report(report: EnrichedVocabularyReport):
                     f"Unordered dictionary entries: {match.id}"
                 )
             previous_sequence = entry.sequence
+            if entry.entry_id != f"jmdict-{entry.sequence}":
+                raise VocabularyAnalysisError(
+                    f"Unstable dictionary entry ID: {entry.entry_id}"
+                )
+            expected_forms = {
+                "lemma": candidate.lemma,
+                "surface": candidate.surface,
+                "reading": normalize_reading(candidate.reading),
+            }
+            if (
+                entry.matched_by not in expected_forms
+                or entry.matched_form != expected_forms[entry.matched_by]
+            ):
+                raise VocabularyAnalysisError(
+                    f"Dictionary match does not reference candidate text: {entry.entry_id}"
+                )
+            written_form = (
+                entry.matched_form if entry.matched_by != "reading" else None
+            )
+            for reading in entry.readings:
+                if (
+                    written_form is not None
+                    and reading.written_restrictions
+                    and written_form not in reading.written_restrictions
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible dictionary reading restriction: {entry.entry_id}"
+                    )
+            if candidate.reading_source == "publisher":
+                authoritative = normalize_reading(candidate.reading)
+                if not entry.readings or any(
+                    normalize_reading(reading.text) != authoritative
+                    for reading in entry.readings
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Publisher reading mismatch: {entry.entry_id}"
+                    )
             if not entry.senses:
                 raise VocabularyAnalysisError(
                     f"Dictionary entry has no compatible senses: {entry.entry_id}"
                 )
             sense_ids = set()
+            previous_sense_index = 0
             for sense in entry.senses:
                 if sense.id in sense_ids:
                     raise VocabularyAnalysisError(
                         f"Duplicate dictionary sense ID: {sense.id}"
                     )
                 sense_ids.add(sense.id)
+                if sense.index <= previous_sense_index:
+                    raise VocabularyAnalysisError(
+                        f"Unordered dictionary senses: {entry.entry_id}"
+                    )
+                previous_sense_index = sense.index
+                if sense.id != f"jmdict-{entry.sequence}-sense-{sense.index:04d}":
+                    raise VocabularyAnalysisError(
+                        f"Unstable dictionary sense ID: {sense.id}"
+                    )
+                if not sense.glosses or any(
+                    not gloss.strip() for gloss in sense.glosses
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Dictionary sense has no English gloss: {sense.id}"
+                    )
+                if (
+                    sense.written_restrictions
+                    and written_form not in sense.written_restrictions
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible sense written restriction: {sense.id}"
+                    )
+                if sense.reading_restrictions and not any(
+                    reading.text in sense.reading_restrictions
+                    for reading in entry.readings
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible sense reading restriction: {sense.id}"
+                    )
+                if not pos_compatible(
+                    candidate.part_of_speech, sense.parts_of_speech
+                ):
+                    raise VocabularyAnalysisError(
+                        f"Incompatible dictionary part of speech: {sense.id}"
+                    )
 
 
 def serialize_vocabulary_report(
