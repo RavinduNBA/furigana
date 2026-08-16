@@ -11,12 +11,14 @@ from typing import Optional
 from urllib.parse import unquote, urlsplit
 from xml.etree import ElementTree as ET
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 CONTAINER_NS = "urn:oasis:names:tc:opendocument:xmlns:container"
 OPF_NS = "http://www.idpf.org/2007/opf"
 DC_NS = "http://purl.org/dc/elements/1.1/"
 BLOCK_TAGS = {"blockquote", "h1", "h2", "h3", "h4", "h5", "h6", "li", "p"}
 HIDDEN_TAGS = {"rp", "rt", "script", "style"}
+SENTENCE_TERMINATORS = {"!", ".", "?", "。", "！", "？"}
+SENTENCE_CLOSERS = {'"', "'", ")", "]", "}", "’", "”", "）", "】", "』", "」"}
 
 
 class BookAnalysisError(ValueError):
@@ -35,11 +37,33 @@ class PublisherRubySpan:
 
 
 @dataclass(frozen=True)
+class TextSpan:
+    id: str
+    text: str
+    kind: str
+    source: str
+    start: int
+    end: int
+    publisher_ruby_id: Optional[str]
+
+
+@dataclass(frozen=True)
+class BookSentence:
+    id: str
+    text: str
+    start: int
+    end: int
+    text_spans: list[TextSpan]
+    publisher_ruby: list[str]
+
+
+@dataclass(frozen=True)
 class BookBlock:
     id: str
     text: str
     source_anchor: Optional[str]
     publisher_ruby: list[PublisherRubySpan]
+    sentences: list[BookSentence]
 
 
 @dataclass(frozen=True)
@@ -159,6 +183,88 @@ def _leaf_blocks(root: ET.Element):
             yield element
 
 
+def _sentence_ranges(text: str):
+    start = 0
+    cursor = 0
+    while cursor < len(text):
+        if text[cursor] not in SENTENCE_TERMINATORS:
+            cursor += 1
+            continue
+        end = cursor + 1
+        while end < len(text) and text[end] in SENTENCE_CLOSERS:
+            end += 1
+        yield start, end
+        start = end
+        while start < len(text) and text[start].isspace():
+            start += 1
+        cursor = start
+    if start < len(text):
+        yield start, len(text)
+
+
+def _sentence_spans(
+    sentence_id: str,
+    text: str,
+    start: int,
+    end: int,
+    ruby_spans: list[PublisherRubySpan],
+) -> tuple[list[TextSpan], list[str]]:
+    contained_ruby = [
+        ruby for ruby in ruby_spans if ruby.start >= start and ruby.end <= end
+    ]
+    spans = []
+    cursor = start
+    for ruby in contained_ruby:
+        if cursor < ruby.start:
+            spans.append((cursor, ruby.start, "text", "publisher_text", None))
+        spans.append((ruby.start, ruby.end, "ruby", "publisher", ruby.id))
+        cursor = ruby.end
+    if cursor < end:
+        spans.append((cursor, end, "text", "publisher_text", None))
+
+    return (
+        [
+            TextSpan(
+                id=f"{sentence_id}-t-{index:04d}",
+                text=text[span_start:span_end],
+                kind=kind,
+                source=source,
+                start=span_start,
+                end=span_end,
+                publisher_ruby_id=ruby_id,
+            )
+            for index, (span_start, span_end, kind, source, ruby_id) in enumerate(
+                spans, start=1
+            )
+        ],
+        [ruby.id for ruby in contained_ruby],
+    )
+
+
+def _extract_sentences(
+    block_id: str,
+    text: str,
+    ruby_spans: list[PublisherRubySpan],
+) -> list[BookSentence]:
+    sentences = []
+    for sentence_index, (start, end) in enumerate(_sentence_ranges(text), start=1):
+        sentence_id = f"{block_id}-s-{sentence_index:04d}"
+        text_spans, publisher_ruby = _sentence_spans(
+            sentence_id, text, start, end, ruby_spans
+        )
+        sentences.append(
+            BookSentence(
+                id=sentence_id,
+                text=text[start:end],
+                start=start,
+                end=end,
+                text_spans=text_spans,
+                publisher_ruby=publisher_ruby,
+            )
+        )
+    return sentences
+
+
 def _extract_blocks(root: ET.Element, chapter_id: str) -> list[BookBlock]:
     blocks = []
     for element in _leaf_blocks(root):
@@ -191,6 +297,7 @@ def _extract_blocks(root: ET.Element, chapter_id: str) -> list[BookBlock]:
                 text=text,
                 source_anchor=element.attrib.get("id"),
                 publisher_ruby=ruby_spans,
+                sentences=_extract_sentences(block_id, text, ruby_spans),
             )
         )
     return blocks
@@ -261,12 +368,75 @@ def extract_book(epub_path: str | Path) -> BookAnalysis:
                 )
             )
 
-    return BookAnalysis(
+    book = BookAnalysis(
         schema_version=SCHEMA_VERSION,
         book_id=_book_identifier(package),
         package_path=package_path,
         chapters=chapters,
     )
+    validate_book(book)
+    return book
+
+
+def validate_book(book: BookAnalysis):
+    """Reject duplicate IDs, invalid offsets, and overlapping canonical spans."""
+    identifiers = set()
+
+    def record(identifier: str):
+        if identifier in identifiers:
+            raise BookAnalysisError(f"Duplicate canonical ID: {identifier}")
+        identifiers.add(identifier)
+
+    for chapter in book.chapters:
+        record(chapter.id)
+        for block in chapter.blocks:
+            record(block.id)
+            ruby_by_id = {}
+            previous_ruby_end = 0
+            for ruby in block.publisher_ruby:
+                record(ruby.id)
+                if not 0 <= ruby.start < ruby.end <= len(block.text):
+                    raise BookAnalysisError(f"Invalid ruby offsets: {ruby.id}")
+                if ruby.start < previous_ruby_end:
+                    raise BookAnalysisError(f"Overlapping ruby spans in {block.id}")
+                if block.text[ruby.start : ruby.end] != ruby.surface:
+                    raise BookAnalysisError(f"Ruby surface does not match: {ruby.id}")
+                previous_ruby_end = ruby.end
+                ruby_by_id[ruby.id] = ruby
+
+            previous_sentence_end = 0
+            for sentence in block.sentences:
+                record(sentence.id)
+                if not 0 <= sentence.start < sentence.end <= len(block.text):
+                    raise BookAnalysisError(f"Invalid sentence offsets: {sentence.id}")
+                if sentence.start < previous_sentence_end:
+                    raise BookAnalysisError(f"Overlapping sentences in {block.id}")
+                if block.text[sentence.start : sentence.end] != sentence.text:
+                    raise BookAnalysisError(f"Sentence text does not match: {sentence.id}")
+                previous_sentence_end = sentence.end
+
+                span_cursor = sentence.start
+                for span in sentence.text_spans:
+                    record(span.id)
+                    if span.start != span_cursor or not span.start < span.end <= sentence.end:
+                        raise BookAnalysisError(
+                            f"Invalid or overlapping text spans in {sentence.id}"
+                        )
+                    if block.text[span.start : span.end] != span.text:
+                        raise BookAnalysisError(f"Text span does not match: {span.id}")
+                    if span.publisher_ruby_id:
+                        ruby = ruby_by_id.get(span.publisher_ruby_id)
+                        if ruby is None or (span.start, span.end) != (ruby.start, ruby.end):
+                            raise BookAnalysisError(
+                                f"Invalid publisher ruby reference: {span.id}"
+                            )
+                    span_cursor = span.end
+                if span_cursor != sentence.end:
+                    raise BookAnalysisError(f"Text spans do not cover: {sentence.id}")
+                if any(ruby_id not in ruby_by_id for ruby_id in sentence.publisher_ruby):
+                    raise BookAnalysisError(
+                        f"Unknown sentence ruby reference: {sentence.id}"
+                    )
 
 
 def serialize_book(book: BookAnalysis) -> str:
