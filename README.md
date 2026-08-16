@@ -154,3 +154,24 @@ The fixture passage containing publisher ruby for 表舞台 can be traced to blo
 `舞台は`, `表舞台`, and `だった。`. The middle span references publisher-ruby
 record `ch-0001-b-0004-r-0001`; its reading remains on that record and never
 appears in canonical sentence text.
+
+Phase 3 vocabulary candidates
+-----------------------------
+
+Generate a deterministic, versioned tokenizer and vocabulary-candidate report:
+
+```bash
+.venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json
+```
+
+The report consumes the Phase 2 canonical model and records stable token and
+candidate IDs, lemmas, readings, parts of speech, context IDs, offsets, and
+tokenizer provenance. Publisher ruby remains a single protected token using its
+publisher reading. Punctuation, whitespace, and Latin-only tokens are excluded
+from candidates.
+
+The current stack is `furigana 0.5` with `mecab-python3 1.0.12` and the system
+IPADIC-format dictionary (binary dictionary version 102). Segmentation is
+dictionary-dependent: this environment splits `成功体験` into `成功` and `体験`,
+where a NEologd dictionary may retain the compound. This slice reports those
+boundaries without dictionary lookup or expression merging.
