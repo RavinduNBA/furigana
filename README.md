@@ -120,3 +120,18 @@ This compares publisher ruby structures before and after conversion, rejects
 nested generated ruby, validates diagnostics and EPUB links, and retains the
 Calibre artifacts in `artifacts/phase1/`. Complete
 `docs/phase1-calibre-checklist.md` before declaring Phase 1 complete.
+
+Phase 2 canonical extraction
+----------------------------
+
+Extract deterministic, versioned canonical chapter and block JSON directly
+from an EPUB without modifying the book:
+
+```bash
+.venv/bin/python scripts/extract_book.py book.epub analysis/book.json
+```
+
+The extractor follows manifest/spine order, processes only spine XHTML,
+normalizes visible block text, excludes `rt`/`rp` readings from canonical text,
+and records publisher ruby with provenance, source anchors, and block-relative
+offsets. This phase does not perform dictionary lookup or render annotations.
