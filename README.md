@@ -120,3 +120,37 @@ This compares publisher ruby structures before and after conversion, rejects
 nested generated ruby, validates diagnostics and EPUB links, and retains the
 Calibre artifacts in `artifacts/phase1/`. Complete
 `docs/phase1-calibre-checklist.md` before declaring Phase 1 complete.
+
+Phase 2 canonical extraction
+----------------------------
+
+Extract deterministic, versioned canonical chapter and block JSON directly
+from an EPUB without modifying the book:
+
+```bash
+.venv/bin/python scripts/extract_book.py book.epub analysis/book.json
+```
+
+Run the complete Phase 2 acceptance gate with:
+
+```bash
+./scripts/phase2-regression.sh
+```
+
+The gate builds the legal fixture, performs two byte-identical extractions,
+compares the result with the checked-in schema v2 golden JSON, runs the focused
+tests, and retains inspectable output in `artifacts/phase2/`. Complete
+`docs/phase2-manual-trace-checklist.md` before closing Phase 2.
+
+The extractor follows manifest/spine order, processes only spine XHTML,
+normalizes visible block text, excludes `rt`/`rp` readings from canonical text,
+and records publisher ruby with provenance and source anchors. Schema v2 adds
+deterministic sentences and text spans with block-relative offsets. It does not
+perform dictionary lookup or render annotations.
+
+The fixture passage containing publisher ruby for 表舞台 can be traced to block
+`ch-0001-b-0004`, sentence `ch-0001-b-0004-s-0001`, and canonical text
+`舞台は表舞台だった。` at block offsets 0 through 10. Its text spans cover
+`舞台は`, `表舞台`, and `だった。`. The middle span references publisher-ruby
+record `ch-0001-b-0004-r-0001`; its reading remains on that record and never
+appears in canonical sentence text.

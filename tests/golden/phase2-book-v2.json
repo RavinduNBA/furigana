@@ -1,0 +1,449 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "chapters": [
+    {
+      "blocks": [
+        {
+          "id": "ch-0001-b-0001",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "ch-0001-b-0001-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "第一章 出会い",
+              "text_spans": [
+                {
+                  "end": 7,
+                  "id": "ch-0001-b-0001-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "第一章 出会い"
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "第一章 出会い"
+        },
+        {
+          "id": "ch-0001-b-0002",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 19,
+              "id": "ch-0001-b-0002-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "「今日は良い天気だね」と彼女は言った。",
+              "text_spans": [
+                {
+                  "end": 19,
+                  "id": "ch-0001-b-0002-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "「今日は良い天気だね」と彼女は言った。"
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "「今日は良い天気だね」と彼女は言った。"
+        },
+        {
+          "id": "ch-0001-b-0003",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 31,
+              "id": "ch-0001-b-0003-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "強調された言葉と、句読点——そして English text.",
+              "text_spans": [
+                {
+                  "end": 31,
+                  "id": "ch-0001-b-0003-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "強調された言葉と、句読点——そして English text."
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "強調された言葉と、句読点——そして English text."
+        },
+        {
+          "id": "ch-0001-b-0004",
+          "publisher_ruby": [
+            {
+              "end": 6,
+              "id": "ch-0001-b-0004-r-0001",
+              "reading": "おもてぶたい",
+              "source": "publisher",
+              "source_anchor": "publisher-grouped",
+              "start": 3,
+              "surface": "表舞台"
+            },
+            {
+              "end": 14,
+              "id": "ch-0001-b-0004-r-0002",
+              "reading": "おもてぶたい",
+              "source": "publisher",
+              "source_anchor": "publisher-nested",
+              "start": 11,
+              "surface": "表舞台"
+            },
+            {
+              "end": 21,
+              "id": "ch-0001-b-0004-r-0003",
+              "reading": "ファースト",
+              "source": "publisher",
+              "source_anchor": "publisher-unusual",
+              "start": 19,
+              "surface": "第一"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 10,
+              "id": "ch-0001-b-0004-s-0001",
+              "publisher_ruby": [
+                "ch-0001-b-0004-r-0001"
+              ],
+              "start": 0,
+              "text": "舞台は表舞台だった。",
+              "text_spans": [
+                {
+                  "end": 3,
+                  "id": "ch-0001-b-0004-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "舞台は"
+                },
+                {
+                  "end": 6,
+                  "id": "ch-0001-b-0004-s-0001-t-0002",
+                  "kind": "ruby",
+                  "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+                  "source": "publisher",
+                  "start": 3,
+                  "text": "表舞台"
+                },
+                {
+                  "end": 10,
+                  "id": "ch-0001-b-0004-s-0001-t-0003",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 6,
+                  "text": "だった。"
+                }
+              ]
+            },
+            {
+              "end": 18,
+              "id": "ch-0001-b-0004-s-0002",
+              "publisher_ruby": [
+                "ch-0001-b-0004-r-0002"
+              ],
+              "start": 11,
+              "text": "表舞台の漢字。",
+              "text_spans": [
+                {
+                  "end": 14,
+                  "id": "ch-0001-b-0004-s-0002-t-0001",
+                  "kind": "ruby",
+                  "publisher_ruby_id": "ch-0001-b-0004-r-0002",
+                  "source": "publisher",
+                  "start": 11,
+                  "text": "表舞台"
+                },
+                {
+                  "end": 18,
+                  "id": "ch-0001-b-0004-s-0002-t-0002",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 14,
+                  "text": "の漢字。"
+                }
+              ]
+            },
+            {
+              "end": 21,
+              "id": "ch-0001-b-0004-s-0003",
+              "publisher_ruby": [
+                "ch-0001-b-0004-r-0003"
+              ],
+              "start": 19,
+              "text": "第一",
+              "text_spans": [
+                {
+                  "end": 21,
+                  "id": "ch-0001-b-0004-s-0003-t-0001",
+                  "kind": "ruby",
+                  "publisher_ruby_id": "ch-0001-b-0004-r-0003",
+                  "source": "publisher",
+                  "start": 19,
+                  "text": "第一"
+                }
+              ]
+            }
+          ],
+          "source_anchor": "publisher-ruby-cases",
+          "text": "舞台は表舞台だった。 表舞台の漢字。 第一"
+        },
+        {
+          "id": "ch-0001-b-0005",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 4,
+              "id": "ch-0001-b-0005-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "次の章へ",
+              "text_spans": [
+                {
+                  "end": 4,
+                  "id": "ch-0001-b-0005-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "次の章へ"
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "次の章へ"
+        }
+      ],
+      "id": "ch-0001",
+      "source_path": "EPUB/text/chapter-01.xhtml",
+      "spine_index": 0,
+      "text": "第一章 出会い\n「今日は良い天気だね」と彼女は言った。\n強調された言葉と、句読点——そして English text.\n舞台は表舞台だった。 表舞台の漢字。 第一\n次の章へ"
+    },
+    {
+      "blocks": [
+        {
+          "id": "ch-0002-b-0001",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "ch-0002-b-0001-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "第二章 答え",
+              "text_spans": [
+                {
+                  "end": 6,
+                  "id": "ch-0002-b-0001-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "第二章 答え"
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "第二章 答え"
+        },
+        {
+          "id": "ch-0002-b-0002",
+          "publisher_ruby": [
+            {
+              "end": 5,
+              "id": "ch-0002-b-0002-r-0001",
+              "reading": "ゆきの",
+              "source": "publisher",
+              "source_anchor": "publisher-fallback",
+              "start": 3,
+              "surface": "雪乃"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "ch-0002-b-0002-s-0001",
+              "publisher_ruby": [
+                "ch-0002-b-0002-r-0001"
+              ],
+              "start": 0,
+              "text": "名前は雪乃。",
+              "text_spans": [
+                {
+                  "end": 3,
+                  "id": "ch-0002-b-0002-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "名前は"
+                },
+                {
+                  "end": 5,
+                  "id": "ch-0002-b-0002-s-0001-t-0002",
+                  "kind": "ruby",
+                  "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+                  "source": "publisher",
+                  "start": 3,
+                  "text": "雪乃"
+                },
+                {
+                  "end": 6,
+                  "id": "ch-0002-b-0002-s-0001-t-0003",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 5,
+                  "text": "。"
+                }
+              ]
+            },
+            {
+              "end": 17,
+              "id": "ch-0002-b-0002-s-0002",
+              "publisher_ruby": [],
+              "start": 6,
+              "text": "怪訝な顔で振り返った。",
+              "text_spans": [
+                {
+                  "end": 17,
+                  "id": "ch-0002-b-0002-s-0002-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 6,
+                  "text": "怪訝な顔で振り返った。"
+                }
+              ]
+            }
+          ],
+          "source_anchor": "answer",
+          "text": "名前は雪乃。怪訝な顔で振り返った。"
+        },
+        {
+          "id": "ch-0002-b-0003",
+          "publisher_ruby": [
+            {
+              "end": 2,
+              "id": "ch-0002-b-0003-r-0001",
+              "reading": null,
+              "source": "publisher",
+              "source_anchor": "publisher-malformed",
+              "start": 0,
+              "surface": "未知"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 11,
+              "id": "ch-0002-b-0003-s-0001",
+              "publisher_ruby": [
+                "ch-0002-b-0003-r-0001"
+              ],
+              "start": 0,
+              "text": "未知の漢字は保存する。",
+              "text_spans": [
+                {
+                  "end": 2,
+                  "id": "ch-0002-b-0003-s-0001-t-0001",
+                  "kind": "ruby",
+                  "publisher_ruby_id": "ch-0002-b-0003-r-0001",
+                  "source": "publisher",
+                  "start": 0,
+                  "text": "未知"
+                },
+                {
+                  "end": 11,
+                  "id": "ch-0002-b-0003-s-0001-t-0002",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 2,
+                  "text": "の漢字は保存する。"
+                }
+              ]
+            }
+          ],
+          "source_anchor": "malformed-ruby",
+          "text": "未知の漢字は保存する。"
+        },
+        {
+          "id": "ch-0002-b-0004",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 48,
+              "id": "ch-0002-b-0004-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "Numbers 123 and Greek text remain ordinary text.",
+              "text_spans": [
+                {
+                  "end": 48,
+                  "id": "ch-0002-b-0004-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "Numbers 123 and Greek text remain ordinary text."
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "Numbers 123 and Greek text remain ordinary text."
+        },
+        {
+          "id": "ch-0002-b-0005",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "ch-0002-b-0005-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "第一章へ戻る",
+              "text_spans": [
+                {
+                  "end": 6,
+                  "id": "ch-0002-b-0005-s-0001-t-0001",
+                  "kind": "text",
+                  "publisher_ruby_id": null,
+                  "source": "publisher_text",
+                  "start": 0,
+                  "text": "第一章へ戻る"
+                }
+              ]
+            }
+          ],
+          "source_anchor": null,
+          "text": "第一章へ戻る"
+        }
+      ],
+      "id": "ch-0002",
+      "source_path": "EPUB/text/chapter-02.xhtml",
+      "spine_index": 1,
+      "text": "第二章 答え\n名前は雪乃。怪訝な顔で振り返った。\n未知の漢字は保存する。\nNumbers 123 and Greek text remain ordinary text.\n第一章へ戻る"
+    }
+  ],
+  "package_path": "EPUB/package.opf",
+  "schema_version": 2
+}

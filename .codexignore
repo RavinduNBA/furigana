@@ -1,0 +1,47 @@
+# Phase 2: canonical EPUB extraction
+#
+# Review and adjust this file whenever the project moves to another phase.
+# Keep README.md, implementation.md, pyproject.toml, poetry.lock,
+# furiganalyse/book_analysis.py, scripts/extract_book.py, and
+# tests/test_book_analysis.py available for the current work.
+
+# Repository internals and local tooling
+.git/
+.venv/
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/
+*.py[cod]
+
+# Generated regression and extraction output
+artifacts/
+reports/
+
+# Completed Phase 0 and Phase 1 material
+docs/phase0-*
+docs/phase1-*
+scripts/phase0_*
+scripts/phase0-*
+scripts/phase1_*
+scripts/phase1-*
+tests/phase0_*
+tests/test_phase0_*
+
+# Legacy application surfaces outside the current extraction slice
+assets/
+furiganalyse/templates/
+furiganalyse/words_lists/
+furiganalyse/apkg_format.py
+furiganalyse/app.py
+furiganalyse/epub_format.py
+furiganalyse/known_words.py
+furiganalyse/params.py
+furiganalyse/parsing.py
+furiganalyse/txt_format.py
+tests/test_furiganalyse.py
+tests/test_known_words.py
+
+# Deployment configuration is unrelated to Phase 2 extraction
+Dockerfile
+Dockerrun.aws.json
+docker-compose.yml
