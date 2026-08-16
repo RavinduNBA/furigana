@@ -1,5 +1,6 @@
 import logging
 import re
+from dataclasses import dataclass
 from typing import Tuple, List, Iterable, Optional, Set
 from xml.etree import ElementTree as ET
 
@@ -8,6 +9,48 @@ from furigana.furigana import create_furigana_html
 from furiganalyse.params import FuriganaMode
 
 NAMESPACE = "{http://www.w3.org/1999/xhtml}"
+RUBY_RELATED_TAGS = {"ruby", "rt", "rb", "rp"}
+
+
+def local_name(tag: str) -> str:
+    """Return an XML tag's local name without relying on suffix matches."""
+    return tag.rsplit("}", 1)[-1]
+
+
+@dataclass(frozen=True)
+class RubyAnnotation:
+    """A publisher-provided ruby span discovered in the source XHTML."""
+
+    surface: str
+    reading: str
+    source: str = "publisher"
+
+
+def extract_publisher_ruby(tree: ET.ElementTree) -> List[RubyAnnotation]:
+    """Return publisher ruby without mixing ``rt``/``rp`` into base text.
+
+    Unsupported or incomplete ruby is deliberately left in the XHTML and
+    reported instead of being guessed into an annotation.
+    """
+    annotations = []
+    for ruby in tree.findall(f".//{NAMESPACE}ruby"):
+        surface_parts = [ruby.text or ""]
+        reading_parts = []
+        for child in ruby:
+            child_name = local_name(child.tag)
+            if child_name == "rt":
+                reading_parts.extend(child.itertext())
+            elif child_name != "rp":
+                surface_parts.extend(child.itertext())
+            surface_parts.append(child.tail or "")
+
+        surface = "".join(surface_parts)
+        reading = "".join(reading_parts)
+        if not surface.strip() or not reading.strip():
+            logging.warning("Preserving unsupported publisher ruby without analysis")
+            continue
+        annotations.append(RubyAnnotation(surface=surface, reading=reading))
+    return annotations
 
 
 def process_html(
@@ -23,17 +66,29 @@ def process_tree(
 ):
     parent_map = dict((c, p) for p in tree.iter() for c in p)
 
+    if mode == "add":
+        # Discover publisher annotations before any generated ruby is inserted.
+        # This also reports malformed ruby while preserving its markup.
+        extract_publisher_ruby(tree)
+
     if mode in {"remove", "replace"}:
         remove_existing_furigana(tree, parent_map)
 
     if mode in {"add", "replace"}:
         ps = tree.findall(f'.//{NAMESPACE}*')
         for p in ps:
-            # Exclude ruby related tags, we don't want to override them (unless we have removed them before)
-            if not inside_ruby_subtag(p, parent_map):
+            parent = parent_map[p]
+            protected_head = inside_ruby_subtag(p, parent_map)
+            protected_tail = inside_ruby_subtag(parent, parent_map)
+            if not protected_head or not protected_tail:
                 logging.debug(f">>> BEFORE {p.tag} > '{p.text}' {list(p)} '{p.tail}'")
+            if not protected_head:
                 process_head(p, exclude_words)
-                process_tail(p, parent_map[p], exclude_words)
+            # An element's tail belongs to its parent. The tail after the ruby
+            # element itself is outside the protected publisher subtree.
+            if not protected_tail:
+                process_tail(p, parent, exclude_words)
+            if not protected_head or not protected_tail:
                 logging.debug(f">>> AFTER  {p.tag} > '{p.text}' {list(p)} '{p.tail}'")
 
         # Add the namespace to our new elements
@@ -44,10 +99,10 @@ def process_tree(
 
 def inside_ruby_subtag(elem: ET.Element, parent_map):
     """
-    Returns True if any of the ascendant tags is a ruby subtag (<rt>, <rb> or <rp>)
+    Return True when an element is within publisher ruby-related markup.
     """
     while elem is not None:
-        if any((elem.tag.endswith(tag) for tag in {"rt", "rb", "rp"})):
+        if local_name(elem.tag) in RUBY_RELATED_TAGS:
             return True
         elem = parent_map.get(elem)
     return False
@@ -62,7 +117,7 @@ def remove_existing_furigana(tree: ET.ElementTree, parent_map: dict):
         # Remove all the <rt> children, e.g., the readings, but keep the text from other childs
         childs_text = []
         for child in list(elem):
-            if not child.tag.endswith("rt") and not child.tag.endswith("rp"):
+            if local_name(child.tag) not in {"rt", "rp"}:
                 text = (child.text or "") + (child.tail or "")
             else:
                 text = child.tail or ""
@@ -92,7 +147,7 @@ def process_head(elem: ET.Element, exclude_words: Optional[Set[str]] = None):
     """
     Process the text that is before the children of the given element.
     """
-    if not elem.text or elem.tag.endswith("ruby"):
+    if not elem.text or local_name(elem.tag) == "ruby":
         return
 
     text = elem.text.strip()

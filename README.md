@@ -104,3 +104,19 @@ non-Japanese text. Run:
 This runs focused checks, converts and validates the fixture, and retains
 packed and unpacked files in `artifacts/phase0/`. Complete
 `docs/phase0-calibre-checklist.md` before declaring Phase 0 complete.
+
+Phase 1 publisher-ruby regression
+---------------------------------
+
+The Phase 1 gate extends the fixture with grouped and unusual publisher ruby,
+`rb`/`rp` fallback markup, nested emphasis, a link around ruby, malformed ruby,
+and annotatable text immediately after protected markup. Run:
+
+```bash
+./scripts/phase1-regression.sh
+```
+
+This compares publisher ruby structures before and after conversion, rejects
+nested generated ruby, validates diagnostics and EPUB links, and retains the
+Calibre artifacts in `artifacts/phase1/`. Complete
+`docs/phase1-calibre-checklist.md` before declaring Phase 1 complete.

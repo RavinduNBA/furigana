@@ -48,7 +48,11 @@ FIXTURE_FILES = {
  <body><section id="chapter-01"><h1>\u7b2c\u4e00\u7ae0\u3000\u51fa\u4f1a\u3044</h1>
  <p>\u300c\u4eca\u65e5\u306f\u826f\u3044\u5929\u6c17\u3060\u306d\u300d\u3068\u5f7c\u5973\u306f\u8a00\u3063\u305f\u3002</p>
  <p><em>\u5f37\u8abf\u3055\u308c\u305f\u8a00\u8449</em>\u3068\u3001\u53e5\u8aad\u70b9\u2014\u2014\u305d\u3057\u3066 English text.</p>
- <p>\u821e\u53f0\u306f<ruby>\u8868\u821e\u53f0<rt>\u304a\u3082\u3066\u3076\u305f\u3044</rt></ruby>\u3060\u3063\u305f\u3002</p>
+ <p id="publisher-ruby-cases">
+  \u821e\u53f0\u306f<ruby id="publisher-grouped">\u8868\u821e\u53f0<rt>\u304a\u3082\u3066\u3076\u305f\u3044</rt></ruby>\u3060\u3063\u305f\u3002
+  <ruby id="publisher-nested"><em>\u8868</em><span>\u821e\u53f0</span><rt>\u304a\u3082\u3066\u3076\u305f\u3044</rt></ruby>\u306e\u6f22\u5b57\u3002
+  <a href="#chapter-01"><ruby id="publisher-unusual">\u7b2c\u4e00<rt>\u30d5\u30a1\u30fc\u30b9\u30c8</rt></ruby></a>
+ </p>
  <p><a href="chapter-02.xhtml#answer">\u6b21\u306e\u7ae0\u3078</a></p>
  <img src="../images/lantern.svg" alt="lantern"/>
  </section></body>
@@ -57,7 +61,8 @@ FIXTURE_FILES = {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
  <head><title>\u7b2c\u4e8c\u7ae0</title><link rel="stylesheet" href="../styles/book.css"/></head>
  <body><section id="chapter-02"><h1>\u7b2c\u4e8c\u7ae0\u3000\u7b54\u3048</h1>
- <p id="answer">\u540d\u524d\u306f<ruby>\u96ea\u4e43<rt>\u3086\u304d\u306e</rt></ruby>\u3002\u602a\u8a1d\u306a\u9854\u3067\u632f\u308a\u8fd4\u3063\u305f\u3002</p>
+ <p id="answer">\u540d\u524d\u306f<ruby id="publisher-fallback"><rb>\u96ea\u4e43</rb><rp>\uff08</rp><rt>\u3086\u304d\u306e</rt><rp>\uff09</rp></ruby>\u3002\u602a\u8a1d\u306a\u9854\u3067\u632f\u308a\u8fd4\u3063\u305f\u3002</p>
+ <p id="malformed-ruby"><ruby id="publisher-malformed">\u672a\u77e5</ruby>\u306e\u6f22\u5b57\u306f\u4fdd\u5b58\u3059\u308b\u3002</p>
  <p>Numbers 123 and Greek text remain ordinary text.</p>
  <p><a href="chapter-01.xhtml#chapter-01">\u7b2c\u4e00\u7ae0\u3078\u623b\u308b</a></p>
  </section></body>
@@ -80,8 +85,11 @@ def build_fixture(path):
 
 
 def _resolve(source, target):
+    target_path = target.split("#", 1)[0]
+    if not target_path:
+        return source
     return posixpath.normpath(
-        posixpath.join(posixpath.dirname(source), target.split("#", 1)[0])
+        posixpath.join(posixpath.dirname(source), target_path)
     )
 
 

@@ -28,8 +28,8 @@ def unpack(path, destination):
         archive.extractall(destination)
 
 
-def run():
-    artifacts = ROOT / "artifacts" / "phase0"
+def run(artifact_group="phase0"):
+    artifacts = ROOT / "artifacts" / artifact_group
     source = artifacts / "fixture.epub"
     output = artifacts / "fixture-converted.epub"
     build_fixture(source)
@@ -38,7 +38,7 @@ def run():
     check(output)
     unpack(source, artifacts / "fixture-unpacked")
     unpack(output, artifacts / "fixture-converted-unpacked")
-    print(f"Phase 0 regression passed. Artifacts: {artifacts}")
+    print(f"EPUB regression passed. Artifacts: {artifacts}")
 
 
 if __name__ == "__main__":
