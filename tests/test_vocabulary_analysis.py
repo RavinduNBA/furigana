@@ -1,4 +1,6 @@
 from dataclasses import replace
+import json
+from pathlib import Path
 
 import pytest
 
@@ -13,6 +15,10 @@ from furiganalyse.vocabulary_analysis import (
     write_vocabulary_report,
 )
 from tests.phase0_epub import build_fixture
+
+GOLDEN_DIR = Path(__file__).parent / "phase3_golden"
+GOLDEN_REPORT = GOLDEN_DIR / "vocabulary-v1.json"
+REVIEWED_CASES = GOLDEN_DIR / "review-cases-v1.json"
 
 
 @pytest.fixture
@@ -114,6 +120,37 @@ def test_serialized_report_is_byte_deterministic(analyzed_fixture, tmp_path):
     write_vocabulary_report(report, first)
     write_vocabulary_report(report, second)
     assert first.read_bytes() == second.read_bytes()
+
+
+def test_fixture_matches_complete_vocabulary_golden(analyzed_fixture):
+    _, report = analyzed_fixture
+    actual = serialize_vocabulary_report(report)
+    expected = GOLDEN_REPORT.read_text(encoding="utf-8")
+    assert actual == expected
+    assert json.loads(actual) == json.loads(expected)
+
+
+def test_manually_reviewed_vocabulary_cases(analyzed_fixture):
+    _, report = analyzed_fixture
+    reviewed = json.loads(REVIEWED_CASES.read_text(encoding="utf-8"))
+    tokens = {token.id: token for token in report.tokens}
+    candidate_token_ids = {candidate.token_id for candidate in report.candidates}
+
+    assert reviewed["schema_version"] == report.schema_version
+    assert reviewed["expected_counts"] == {
+        "tokens": len(report.tokens),
+        "candidates": len(report.candidates),
+    }
+    for case in reviewed["cases"]:
+        token = tokens[case["token_id"]]
+        for field, expected in case["token"].items():
+            assert getattr(token, field) == expected
+        assert (token.id in candidate_token_ids) is case["is_candidate"]
+
+    assert [
+        (token[0], token[1], token[2])
+        for token in _segment_tokens(reviewed["ipadic_split"]["input"], 0)
+    ] == [tuple(values) for values in reviewed["ipadic_split"]["tokens"]]
 
 
 def test_validation_rejects_duplicate_ids_invalid_offsets_and_overlap(analyzed_fixture):

@@ -164,6 +164,18 @@ Generate a deterministic, versioned tokenizer and vocabulary-candidate report:
 .venv/bin/python scripts/analyze_vocabulary.py book.epub analysis/vocabulary.json
 ```
 
+Run the complete Phase 3 tokenizer/report gate with:
+
+```bash
+./scripts/phase3-regression.sh
+```
+
+The gate first runs Phase 2, generates the vocabulary report twice, checks both
+outputs against each other and the checked-in schema v1 golden report, and runs
+the focused Phase 3 suite. It retains reports in `artifacts/phase3/`. The legal
+fixture currently produces 82 tokens and 60 candidates. Review representative
+records with `docs/phase3-report-review-checklist.md`.
+
 The report consumes the Phase 2 canonical model and records stable token and
 candidate IDs, lemmas, readings, parts of speech, context IDs, offsets, and
 tokenizer provenance. Publisher ruby remains a single protected token using its
