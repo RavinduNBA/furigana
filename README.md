@@ -291,3 +291,26 @@ publisher-candidate diagnostics. Review schema v4 with
 `docs/phase3-jmnedict-report-review-checklist.md`. Production JMnedict data
 must be obtained, licensed, pinned, and stored locally; none is downloaded or
 committed by this project.
+
+## Phase 4 annotation planning
+
+Phase 4 starts with deterministic dictionary-only study selection from the
+Phase 3 schema-v4 report; it does not reparse or modify EPUB XHTML. Run:
+
+~~~bash
+./scripts/phase4-regression.sh
+~~~
+
+The gate runs Phase 3 first, generates the plan twice, requires byte identity
+with `tests/phase4_golden/annotation-plan-v1.json`, and runs focused Phase 4
+tests. Outputs remain under `artifacts/phase4/`.
+
+The legal fixture selects 5 unique items from 6 occurrences and records 52
+exclusion diagnostics. The default limit is 10 unique items per primary
+chapter; override it with `scripts/create_study_plan.py --per-chapter-limit N`.
+Selection uses the first compatible source-ordered entry and sense or
+translation. Publisher readings remain authoritative, names stay distinct from
+vocabulary, and repeated lexical items retain ordered occurrence references.
+This baseline does not perform contextual sense ranking, learner adaptation, or
+EPUB rendering. Review it with
+`docs/phase4-annotation-plan-review-checklist.md`.
