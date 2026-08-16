@@ -17,5 +17,16 @@ Record the Calibre version and date, then compare both books:
 - no publisher ruby contains nested generated ruby;
 - no unexpected layout or navigation difference is visible.
 
-Phase 1 is complete only after this checklist is recorded as passed. Packed and
-unpacked diagnostic artifacts remain under `artifacts/phase1/`.
+## Verification record
+
+- Date: 2026-08-16
+- Reader: Calibre 8.14
+- Result: passed
+- TOC/navigation, publisher ruby, unusual readings, malformed-ruby
+  preservation, post-ruby generated furigana, layout, and content passed.
+- The malformed `未知` case was confirmed to remain visible without a guessed
+  reading. This fixture case intentionally lacks `rt` markup and verifies the
+  preserve-and-diagnose fallback rather than learner-facing annotation.
+
+Phase 1 is complete. Packed and unpacked diagnostic artifacts remain under
+`artifacts/phase1/`.
