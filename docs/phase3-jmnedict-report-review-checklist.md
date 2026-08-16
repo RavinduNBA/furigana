@@ -27,8 +27,12 @@ Known limitations: lookup is exact and local. It does not perform fuzzy name
 matching, entity resolution, expression/name merging, transliteration, or
 book-wide identity tracking. Ambiguous entries remain ordered candidates.
 
-- Date:
-- Commit:
-- Reviewer:
-- Result:
-- Notes:
+- Date: 2026-08-16
+- Commit: `5e0c01d`
+- Reviewer: Ravindu
+- Result: Pass
+- Notes: Schemas v1-v4, provenance, counts, deterministic IDs/order,
+  publisher-ruby precedence, JMdict matches, expression matching, name
+  restrictions, diagnostics, and byte identity passed direct checks. The
+  reviewer confirmed `雪乃【ゆきの】`, its person/female-given-name types,
+  and ordered `Yukino`/`Yuki-no` translations.
