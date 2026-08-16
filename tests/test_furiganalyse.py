@@ -164,6 +164,8 @@ def test_extract_publisher_ruby(xml_str, expected):
         "<ruby id='publisher'>表舞台<rt>おもてぶたい</rt></ruby>",
         "<ruby id='publisher'><rb>雪乃</rb><rp>（</rp><rt>ゆきの</rt><rp>）</rp></ruby>",
         "<a><em><ruby id='publisher'>第一<rt>ファースト</rt></ruby></em></a>",
+        "<ruby id='publisher'><em>表</em>舞台<rt>おもてぶたい</rt></ruby>",
+        "<ruby id='publisher'><a href='#note'>表</a>舞台<rt>おもてぶたい</rt></ruby>",
     ],
 )
 def test_add_keeps_publisher_ruby_subtree_unchanged(publisher_markup):
@@ -185,6 +187,39 @@ def test_add_keeps_publisher_ruby_subtree_unchanged(publisher_markup):
     assert publisher.find(f".//{NAMESPACE}ruby") is None
 
 
+def test_add_processes_text_after_protected_publisher_ruby():
+    tree = ET.ElementTree(
+        ET.fromstring(
+            f'<body xmlns="{NAMESPACE[1:-1]}">'
+            "<ruby id='publisher'>第一<rt>ファースト</rt></ruby>の漢字"
+            "</body>"
+        )
+    )
+
+    process_tree(tree, "add")
+
+    generated = [
+        ruby
+        for ruby in tree.findall(f".//{NAMESPACE}ruby")
+        if ruby.attrib.get("id") != "publisher"
+    ]
+    assert generated
+    assert all(ruby.text != "第一" for ruby in generated)
+
+
+def test_tag_suffix_is_not_mistaken_for_ruby_markup():
+    tree = ET.ElementTree(
+        ET.fromstring(
+            f'<body xmlns="{NAMESPACE[1:-1]}"><support>漢字</support></body>'
+        )
+    )
+
+    process_tree(tree, "add")
+
+    support = tree.find(f".//{NAMESPACE}support")
+    assert support.find(f"{NAMESPACE}ruby") is not None
+
+
 def test_add_preserves_malformed_ruby(caplog):
     tree = ET.ElementTree(
         ET.fromstring(
@@ -193,8 +228,7 @@ def test_add_preserves_malformed_ruby(caplog):
     )
 
     with caplog.at_level("WARNING"):
-        assert extract_publisher_ruby(tree) == []
-    process_tree(tree, "add")
+        process_tree(tree, "add")
 
     ruby = tree.find(f".//{NAMESPACE}ruby")
     assert "Preserving unsupported publisher ruby" in caplog.text
