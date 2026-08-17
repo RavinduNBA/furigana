@@ -18,5 +18,12 @@ mkdir -p "$NOTES/run-a" "$NOTES/run-b"
 .venv/bin/python scripts/render_study_notes.py "$OUT/run-a/annotation-plan.json" "$NOTES/run-b/study-notes.xhtml"
 cmp "$NOTES/run-a/study-notes.xhtml" "$NOTES/run-b/study-notes.xhtml"
 cmp "$NOTES/run-a/study-notes.xhtml" "$NOTES_GOLDEN"
-.venv/bin/python -m pytest -q tests/test_study_plan.py tests/test_study_notes.py
+LINKED=$OUT/linked
+LINKED_GOLDEN=tests/phase4_golden/linked-v1
+mkdir -p "$LINKED/run-a" "$LINKED/run-b"
+.venv/bin/python scripts/render_linked_study_notes.py artifacts/phase2/fixture.epub artifacts/phase2/run-a/book.json "$OUT/run-a/annotation-plan.json" "$LINKED/run-a"
+.venv/bin/python scripts/render_linked_study_notes.py artifacts/phase2/fixture.epub artifacts/phase2/run-a/book.json "$OUT/run-a/annotation-plan.json" "$LINKED/run-b"
+diff -ru "$LINKED/run-a" "$LINKED/run-b"
+diff -ru "$LINKED_GOLDEN" "$LINKED/run-a"
+.venv/bin/python -m pytest -q tests/test_study_plan.py tests/test_study_notes.py tests/test_linked_output.py
 echo "Phase 4 regression passed; artifacts retained under $OUT/"

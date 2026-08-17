@@ -1,0 +1,41 @@
+{
+  "documents": [
+    "EPUB/text/chapter-01.xhtml",
+    "EPUB/text/chapter-02.xhtml",
+    "EPUB/text/study-notes.xhtml"
+  ],
+  "expected": {
+    "backlinks": 6,
+    "contexts": 6,
+    "forward_links": 6,
+    "note_sections": 5
+  },
+  "review_cases": [
+    {
+      "surface": "良い天気だ",
+      "source": "chapter-01.xhtml",
+      "context": "「今日は良い天気だね」と彼女は言った。"
+    },
+    {
+      "surface": "言葉",
+      "preserved_parent": "em",
+      "context": "強調された言葉と、句読点——そして English text."
+    },
+    {
+      "surface": "表舞台",
+      "occurrences": 2,
+      "publisher_ruby_preserved": true,
+      "shared_note": "note-study-item-0003"
+    },
+    {
+      "surface": "雪乃",
+      "publisher_ruby_preserved": true,
+      "context": "名前は雪乃。"
+    },
+    {
+      "surface": "振り返っ",
+      "context": "怪訝な顔で振り返った。"
+    }
+  ],
+  "version": 1
+}

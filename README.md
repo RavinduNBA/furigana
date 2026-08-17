@@ -341,3 +341,34 @@ Its minimal inline CSS is scoped to `study-notes` and `study-note` classes.
 This slice deliberately remains standalone: it does not modify source chapters,
 add links/backlinks, update OPF/navigation, or package a new EPUB. Review the
 rendered result with `docs/phase4-study-notes-review-checklist.md`.
+
+### Standalone linked XHTML set
+
+Generate linked chapter copies plus contextual note backlinks:
+
+~~~bash
+.venv/bin/python scripts/render_linked_study_notes.py \
+  artifacts/phase2/fixture.epub \
+  artifacts/phase2/run-a/book.json \
+  artifacts/phase4/run-a/annotation-plan.json \
+  artifacts/phase4/linked/manual
+~~~
+
+The renderer also accepts an extracted EPUB directory as its first argument.
+It writes chapter copies at their canonical source paths and
+`EPUB/text/study-notes.xhtml` beneath the output directory. The originals are
+never changed. Six legal-fixture occurrences receive unique source anchors,
+forward links, exact canonical context sentences, and ordered backlinks to five
+notes.
+
+Plain selections must occupy one unambiguous XHTML text slot. Publisher-ruby
+selections wrap the complete existing ruby element, preserving its rt/rp and
+children. Existing links, emphasis, IDs, namespaces, and visible text are
+validated after rendering. Unsafe paths, nested links/ruby, offset mismatches,
+ambiguous DOM mappings, overlaps, and broken generated references are rejected.
+
+The Phase 4 gate creates byte-identical linked run-A/run-B trees under
+`artifacts/phase4/linked/` and compares all three XHTML files strictly with
+`tests/phase4_golden/linked-v1/`. This remains an unpackaged output: OPF,
+spine, navigation, resources, archive metadata, and the input EPUB are
+unchanged. Review with `docs/phase4-linked-output-review-checklist.md`.
