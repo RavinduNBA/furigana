@@ -519,3 +519,35 @@ Review with `docs/phase6-context-retrieval-review-checklist.md`.
 
 This slice has no summaries, entity resolution, terminology decisions,
 semantic retrieval, provider calls, network access, or rendering changes.
+
+### Recurring-term and entity evidence
+
+Build the schema-v1 evidence report from validated Phase 6/3/5 inputs:
+
+    .venv/bin/python scripts/build_context_evidence.py build \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase3/jmnedict/run-a/vocabulary.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      artifacts/phase6/evidence/manual/evidence.json
+
+The default minimum occurrence count is 2. Override it explicitly with
+--minimum-occurrences. Evidence groups use exact compatible lemma, normalized
+expression, JMnedict identity, or publisher surface/reading keys. They preserve
+first-seen source order, exact occurrence references and offsets, ordered
+chapter counts, provenance, and deterministic hashes.
+
+JMdict vocabulary, JMdict expressions, JMnedict names, publisher-backed
+vocabulary, and publisher-backed names remain distinct. Different publisher
+readings never merge. Single-occurrence groups remain visible but are marked
+ineligible with safe insufficient-recurrence diagnostics.
+
+This report is evidence only. It does not choose a preferred English label,
+resolve aliases or entities, copy full context sentences, generate summaries,
+or invoke a provider. Publisher and user provenance still outrank dictionary,
+book-context, and model evidence. Disabled or failed generation preserves the
+approved Phase 5 plan byte-for-byte.
+
+The enhanced ./scripts/phase6-regression.sh generates evidence twice, compares
+it strictly with tests/phase6_golden/evidence-v1.json, exercises thresholds 1
+and 2, and retains artifacts under artifacts/phase6/evidence/. Review with
+docs/phase6-evidence-review-checklist.md.

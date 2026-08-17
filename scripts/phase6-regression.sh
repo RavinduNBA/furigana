@@ -15,6 +15,8 @@ PLAN="artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
 QUERIES="tests/phase6_golden/retrieval-queries-v1.json"
 
 mkdir -p "$OUT/run-a" "$OUT/run-b" "$OUT/disabled" "$OUT/failure"
+mkdir -p "$OUT/evidence/run-a" "$OUT/evidence/run-b" "$OUT/evidence/minimum-one"
+mkdir -p "$OUT/evidence/disabled" "$OUT/evidence/failure"
 
 "$PYTHON" scripts/build_book_context.py build "$BOOK" "$VOCABULARY" "$PLAN" "$OUT/run-a/context-index.json"
 "$PYTHON" scripts/build_book_context.py build "$BOOK" "$VOCABULARY" "$PLAN" "$OUT/run-b/context-index.json"
@@ -31,5 +33,16 @@ cmp "$OUT/run-a/retrieval.json" tests/phase6_golden/retrieval-v1.json
 cmp "$PLAN" "$OUT/disabled/annotation-plan.json"
 cmp "$PLAN" "$OUT/failure/annotation-plan.json"
 
-"$PYTEST" -q tests/test_book_context.py
+"$PYTHON" scripts/build_context_evidence.py build "$OUT/run-a/context-index.json" "$VOCABULARY" "$PLAN" "$OUT/evidence/run-a/evidence.json"
+"$PYTHON" scripts/build_context_evidence.py build "$OUT/run-b/context-index.json" "$VOCABULARY" "$PLAN" "$OUT/evidence/run-b/evidence.json"
+cmp "$OUT/evidence/run-a/evidence.json" "$OUT/evidence/run-b/evidence.json"
+cmp "$OUT/evidence/run-a/evidence.json" tests/phase6_golden/evidence-v1.json
+
+"$PYTHON" scripts/build_context_evidence.py build "$OUT/run-a/context-index.json" "$VOCABULARY" "$PLAN" "$OUT/evidence/minimum-one/evidence.json" --minimum-occurrences 1
+"$PYTHON" scripts/build_context_evidence.py fallback "$PLAN" "$OUT/evidence/disabled/report.json" "$OUT/evidence/disabled/annotation-plan.json"
+"$PYTHON" scripts/build_context_evidence.py fallback "$PLAN" "$OUT/evidence/failure/report.json" "$OUT/evidence/failure/annotation-plan.json" --reason corrupt-input
+cmp "$PLAN" "$OUT/evidence/disabled/annotation-plan.json"
+cmp "$PLAN" "$OUT/evidence/failure/annotation-plan.json"
+
+"$PYTEST" -q tests/test_book_context.py tests/test_context_evidence.py
 echo "Phase 6 regression passed; artifacts retained under $OUT"
