@@ -1,0 +1,485 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "requests": [
+    {
+      "authoritative_reading": "よいてんき",
+      "block_id": "ch-0001-b-0002",
+      "candidate_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004-cand",
+        "ch-0001-b-0002-s-0001-tok-0005-cand",
+        "ch-0001-b-0002-s-0001-tok-0006-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "containing_sentence": "「今日は良い天気だね」と彼女は言った。",
+      "context": [
+        {
+          "id": "ch-0001-b-0002-s-0001",
+          "text": "「今日は良い天気だね」と彼女は言った。"
+        }
+      ],
+      "context_hash": "cce6dbcd19e348caf1932100f9608565469d2a9c398fa3a2a0965d99488d17d4",
+      "dictionary_entries": [
+        {
+          "entry_id": "jmdict-1008",
+          "matched_by": "lemma",
+          "matched_form": "良い天気",
+          "readings": [
+            {
+              "no_kanji": false,
+              "text": "よいてんき",
+              "written_restrictions": []
+            }
+          ],
+          "senses": [
+            {
+              "glosses": [
+                "fine weather"
+              ],
+              "id": "jmdict-1008-sense-0001",
+              "index": 1,
+              "parts_of_speech": [
+                "n"
+              ],
+              "reading_restrictions": [],
+              "written_restrictions": []
+            }
+          ],
+          "sequence": 1008,
+          "written_forms": [
+            "良い天気"
+          ]
+        }
+      ],
+      "dictionary_kind": "jmdict",
+      "dictionary_only_meaning": "fine weather",
+      "dictionary_provenance": {
+        "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+        "dataset_version": "2026-08-16",
+        "format_version": 1,
+        "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+      },
+      "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+      "id": "enrichment-request-0001",
+      "item_id": "study-item-0001",
+      "item_kind": "expression",
+      "lemma": null,
+      "name_id": null,
+      "normalized_form": "良い天気",
+      "occurrence_ids": [
+        "study-item-0001-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "model"
+      ],
+      "prompt_version": "phase5-local-context-v1",
+      "publisher_ruby_id": null,
+      "reading_source": "JMdict",
+      "response_schema_version": 1,
+      "schema_version": 1,
+      "sentence_id": "ch-0001-b-0002-s-0001",
+      "surface": "良い天気だ",
+      "token_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004",
+        "ch-0001-b-0002-s-0001-tok-0005",
+        "ch-0001-b-0002-s-0001-tok-0006"
+      ],
+      "tokenizer_provenance": {
+        "dictionary": "MeCab system dictionary",
+        "dictionary_version": "102",
+        "name": "MeCab",
+        "version": "1.0.12",
+        "wrapper": "furigana",
+        "wrapper_version": "0.5"
+      }
+    },
+    {
+      "authoritative_reading": "ことば",
+      "block_id": "ch-0001-b-0003",
+      "candidate_ids": [
+        "ch-0001-b-0003-s-0001-tok-0005-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "containing_sentence": "強調された言葉と、句読点——そして English text.",
+      "context": [
+        {
+          "id": "ch-0001-b-0003-s-0001",
+          "text": "強調された言葉と、句読点——そして English text."
+        }
+      ],
+      "context_hash": "13ec9ab50ca88607a9318393bb2ac727e67477ac0eb4e8245bd04f3a8dd34f81",
+      "dictionary_entries": [
+        {
+          "entry_id": "jmdict-1001",
+          "matched_by": "lemma",
+          "matched_form": "言葉",
+          "readings": [
+            {
+              "no_kanji": false,
+              "text": "ことば",
+              "written_restrictions": []
+            }
+          ],
+          "senses": [
+            {
+              "glosses": [
+                "language",
+                "word"
+              ],
+              "id": "jmdict-1001-sense-0001",
+              "index": 1,
+              "parts_of_speech": [
+                "n"
+              ],
+              "reading_restrictions": [],
+              "written_restrictions": []
+            },
+            {
+              "glosses": [
+                "expression"
+              ],
+              "id": "jmdict-1001-sense-0002",
+              "index": 2,
+              "parts_of_speech": [
+                "n"
+              ],
+              "reading_restrictions": [],
+              "written_restrictions": []
+            }
+          ],
+          "sequence": 1001,
+          "written_forms": [
+            "言葉"
+          ]
+        }
+      ],
+      "dictionary_kind": "jmdict",
+      "dictionary_only_meaning": "language",
+      "dictionary_provenance": {
+        "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+        "dataset_version": "2026-08-16",
+        "format_version": 1,
+        "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+      },
+      "expression_id": null,
+      "id": "enrichment-request-0002",
+      "item_id": "study-item-0002",
+      "item_kind": "vocabulary",
+      "lemma": "言葉",
+      "name_id": null,
+      "normalized_form": null,
+      "occurrence_ids": [
+        "study-item-0002-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "model"
+      ],
+      "prompt_version": "phase5-local-context-v1",
+      "publisher_ruby_id": null,
+      "reading_source": "JMdict",
+      "response_schema_version": 1,
+      "schema_version": 1,
+      "sentence_id": "ch-0001-b-0003-s-0001",
+      "surface": "言葉",
+      "token_ids": [
+        "ch-0001-b-0003-s-0001-tok-0005"
+      ],
+      "tokenizer_provenance": {
+        "dictionary": "MeCab system dictionary",
+        "dictionary_version": "102",
+        "name": "MeCab",
+        "version": "1.0.12",
+        "wrapper": "furigana",
+        "wrapper_version": "0.5"
+      }
+    },
+    {
+      "authoritative_reading": "おもてぶたい",
+      "block_id": "ch-0001-b-0004",
+      "candidate_ids": [
+        "ch-0001-b-0004-s-0001-tok-0003-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "containing_sentence": "舞台は表舞台だった。",
+      "context": [
+        {
+          "id": "ch-0001-b-0004-s-0001",
+          "text": "舞台は表舞台だった。"
+        },
+        {
+          "id": "ch-0001-b-0004-s-0002",
+          "text": "表舞台の漢字。"
+        }
+      ],
+      "context_hash": "f45f708f2666620100eb8f70561c92a1db8d9197d55c916ee7a2846630e1e409",
+      "dictionary_entries": [
+        {
+          "entry_id": "jmdict-1006",
+          "matched_by": "lemma",
+          "matched_form": "表舞台",
+          "readings": [
+            {
+              "no_kanji": false,
+              "text": "おもてぶたい",
+              "written_restrictions": []
+            }
+          ],
+          "senses": [
+            {
+              "glosses": [
+                "public stage"
+              ],
+              "id": "jmdict-1006-sense-0001",
+              "index": 1,
+              "parts_of_speech": [
+                "n"
+              ],
+              "reading_restrictions": [],
+              "written_restrictions": []
+            }
+          ],
+          "sequence": 1006,
+          "written_forms": [
+            "表舞台"
+          ]
+        }
+      ],
+      "dictionary_kind": "jmdict",
+      "dictionary_only_meaning": "public stage",
+      "dictionary_provenance": {
+        "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+        "dataset_version": "2026-08-16",
+        "format_version": 1,
+        "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+      },
+      "expression_id": null,
+      "id": "enrichment-request-0003",
+      "item_id": "study-item-0003",
+      "item_kind": "vocabulary",
+      "lemma": "表舞台",
+      "name_id": null,
+      "normalized_form": null,
+      "occurrence_ids": [
+        "study-item-0003-occ-0001",
+        "study-item-0003-occ-0002"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "model"
+      ],
+      "prompt_version": "phase5-local-context-v1",
+      "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+      "reading_source": "publisher",
+      "response_schema_version": 1,
+      "schema_version": 1,
+      "sentence_id": "ch-0001-b-0004-s-0001",
+      "surface": "表舞台",
+      "token_ids": [
+        "ch-0001-b-0004-s-0001-tok-0003"
+      ],
+      "tokenizer_provenance": {
+        "dictionary": "MeCab system dictionary",
+        "dictionary_version": "102",
+        "name": "MeCab",
+        "version": "1.0.12",
+        "wrapper": "furigana",
+        "wrapper_version": "0.5"
+      }
+    },
+    {
+      "authoritative_reading": "ゆきの",
+      "block_id": "ch-0002-b-0002",
+      "candidate_ids": [
+        "ch-0002-b-0002-s-0001-tok-0003-cand"
+      ],
+      "chapter_id": "ch-0002",
+      "containing_sentence": "名前は雪乃。",
+      "context": [
+        {
+          "id": "ch-0002-b-0002-s-0001",
+          "text": "名前は雪乃。"
+        },
+        {
+          "id": "ch-0002-b-0002-s-0002",
+          "text": "怪訝な顔で振り返った。"
+        }
+      ],
+      "context_hash": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e",
+      "dictionary_entries": [
+        {
+          "entry_id": "jmnedict-2001",
+          "matched_by": "surface",
+          "matched_form": "雪乃",
+          "readings": [
+            {
+              "text": "ゆきの",
+              "written_restrictions": []
+            }
+          ],
+          "sequence": 2001,
+          "translations": [
+            {
+              "id": "jmnedict-2001-translation-0001",
+              "index": 1,
+              "name_types": [
+                "person",
+                "female given name"
+              ],
+              "translations": [
+                "Yukino",
+                "Yuki-no"
+              ]
+            }
+          ],
+          "written_forms": [
+            "雪乃"
+          ]
+        }
+      ],
+      "dictionary_kind": "jmnedict",
+      "dictionary_only_meaning": "Yukino (person; female given name)",
+      "dictionary_provenance": {
+        "dataset_id": "furiganalyse-synthetic-jmnedict",
+        "dataset_version": "2026-08-16",
+        "format_version": 1,
+        "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+      },
+      "expression_id": null,
+      "id": "enrichment-request-0004",
+      "item_id": "study-item-0004",
+      "item_kind": "name",
+      "lemma": null,
+      "name_id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+      "normalized_form": null,
+      "occurrence_ids": [
+        "study-item-0004-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "model"
+      ],
+      "prompt_version": "phase5-local-context-v1",
+      "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+      "reading_source": "publisher",
+      "response_schema_version": 1,
+      "schema_version": 1,
+      "sentence_id": "ch-0002-b-0002-s-0001",
+      "surface": "雪乃",
+      "token_ids": [
+        "ch-0002-b-0002-s-0001-tok-0003"
+      ],
+      "tokenizer_provenance": {
+        "dictionary": "MeCab system dictionary",
+        "dictionary_version": "102",
+        "name": "MeCab",
+        "version": "1.0.12",
+        "wrapper": "furigana",
+        "wrapper_version": "0.5"
+      }
+    },
+    {
+      "authoritative_reading": "ふりかえる",
+      "block_id": "ch-0002-b-0002",
+      "candidate_ids": [
+        "ch-0002-b-0002-s-0002-tok-0005-cand"
+      ],
+      "chapter_id": "ch-0002",
+      "containing_sentence": "怪訝な顔で振り返った。",
+      "context": [
+        {
+          "id": "ch-0002-b-0002-s-0001",
+          "text": "名前は雪乃。"
+        },
+        {
+          "id": "ch-0002-b-0002-s-0002",
+          "text": "怪訝な顔で振り返った。"
+        }
+      ],
+      "context_hash": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e",
+      "dictionary_entries": [
+        {
+          "entry_id": "jmdict-1002",
+          "matched_by": "lemma",
+          "matched_form": "振り返る",
+          "readings": [
+            {
+              "no_kanji": false,
+              "text": "ふりかえる",
+              "written_restrictions": []
+            }
+          ],
+          "senses": [
+            {
+              "glosses": [
+                "to turn around"
+              ],
+              "id": "jmdict-1002-sense-0001",
+              "index": 1,
+              "parts_of_speech": [
+                "v5r"
+              ],
+              "reading_restrictions": [],
+              "written_restrictions": []
+            }
+          ],
+          "sequence": 1002,
+          "written_forms": [
+            "振り返る"
+          ]
+        }
+      ],
+      "dictionary_kind": "jmdict",
+      "dictionary_only_meaning": "to turn around",
+      "dictionary_provenance": {
+        "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+        "dataset_version": "2026-08-16",
+        "format_version": 1,
+        "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+      },
+      "expression_id": null,
+      "id": "enrichment-request-0005",
+      "item_id": "study-item-0005",
+      "item_kind": "vocabulary",
+      "lemma": "振り返る",
+      "name_id": null,
+      "normalized_form": null,
+      "occurrence_ids": [
+        "study-item-0005-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "model"
+      ],
+      "prompt_version": "phase5-local-context-v1",
+      "publisher_ruby_id": null,
+      "reading_source": "JMdict",
+      "response_schema_version": 1,
+      "schema_version": 1,
+      "sentence_id": "ch-0002-b-0002-s-0002",
+      "surface": "振り返っ",
+      "token_ids": [
+        "ch-0002-b-0002-s-0002-tok-0005"
+      ],
+      "tokenizer_provenance": {
+        "dictionary": "MeCab system dictionary",
+        "dictionary_version": "102",
+        "name": "MeCab",
+        "version": "1.0.12",
+        "wrapper": "furigana",
+        "wrapper_version": "0.5"
+      }
+    }
+  ],
+  "schema_version": 1
+}

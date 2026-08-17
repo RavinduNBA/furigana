@@ -384,3 +384,24 @@ entry after chapter 2 while preserving unrelated resources. ZIP timestamps,
 permissions, ordering, compression, and the first uncompressed mimetype entry
 are deterministic. See `docs/phase4-packaged-epub-review-checklist.md` for
 the next manual Calibre review.
+
+## Phase 5 controlled local-context enrichment
+
+Phase 5 starts with provider-neutral schema v1 request packets, strict response
+validation, deterministic per-response cache files, and dictionary-only
+fallback. Enrichment is disabled unless both a local provider and cache path are
+explicitly supplied. Run `./scripts/phase5-regression.sh`.
+
+Each selected item receives at most the containing sentence plus one adjacent
+sentence on either side from the same block. Requests contain ordered supplied
+JMdict senses or JMnedict translations, provenance, stable IDs, and a context
+hash; they never contain the complete book. Cache keys include provider/model,
+prompt and response-schema versions, item, candidates, and context hash.
+
+The only provider in this slice is a local scripted test provider. Invalid,
+timed-out, unavailable, or corrupt responses produce concise diagnostics and
+retain dictionary-only meanings. Publisher/user provenance outranks dictionary,
+which outranks model phrasing. No SDK, network call, API key, XHTML mutation, or
+model-produced markup is supported. Artifacts are retained under
+`artifacts/phase5/`; review with
+`docs/phase5-request-fallback-review-checklist.md`.
