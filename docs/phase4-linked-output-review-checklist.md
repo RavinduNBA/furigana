@@ -13,4 +13,14 @@ Review `artifacts/phase4/linked/run-a/EPUB/text/` against
 - [ ] No nested anchors or ruby, broken generated links, or JavaScript appear.
 - [ ] Run-A, run-B, and all three checked-in golden XHTML files are byte-identical.
 
-Review record: pending.
+## Review record
+
+- Date: 2026-08-17
+- Commit reviewed: `ca21c0e7a209a4f0a1930187eee9c40203d73596`
+- Reviewer: Ravindu
+- Result: PASS
+- Notes: Machine checks confirmed valid XHTML, deterministic run-A/run-B/golden
+  identity, six resolving forward links and backlinks, exact canonical contexts,
+  stable anchors, and preserved publisher ruby, markup, links, and visible text.
+  The reviewer successfully navigated 良い天気だ and publisher-ruby 表舞台 to
+  their notes and back to the exact source occurrences.
