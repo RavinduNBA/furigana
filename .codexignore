@@ -1,10 +1,10 @@
-# Phase 5: controlled LLM enrichment
+# Phase 6: book context and consistency
 #
 # Review and adjust this file when moving to another phase. Keep implementation.md,
-# README.md, pyproject.toml, canonical/vocabulary/annotation models, JMdict and
-# JMnedict providers, known-word/provenance policy, and new Phase 5 context,
-# prompt-schema, provider, cache, fallback, script, test, fixture, golden, and
-# review files visible.
+# README.md, pyproject.toml, canonical/vocabulary/dictionary/enriched-plan models,
+# provenance and precedence policy, context/prompt schemas, cache and fallback
+# validation, and new Phase 6 context, terminology, entity, summary, retrieval,
+# consistency, script, test, fixture, golden, and checklist files visible.
 
 # Repository internals, local environments, and caches
 .git/
@@ -14,7 +14,11 @@
 **/__pycache__/
 *.py[cod]
 
-# Generated reports, model responses, and production/local datasets
+# Credentials, generated output, model caches, and production/local datasets
+.env
+.env.*
+*.pem
+*.key
 artifacts/
 analysis/
 reports/
@@ -22,16 +26,19 @@ data/
 *.sqlite3
 *.cache
 
-# Completed Phase 0-4 review documents and golden artifacts
+# Completed Phase 0-5 review documents and golden artifacts
 docs/phase0-*
 docs/phase1-*
 docs/phase2-*
 docs/phase3-*
 docs/phase4-*
+docs/phase5-*
 tests/golden/
 tests/phase3_golden/
+tests/phase4_golden/
+tests/phase5_golden/
 
-# Completed Phase 0-4 regression workflows and focused tests
+# Completed Phase 0-5 workflows and rendering/packaging surfaces
 scripts/phase0_*
 scripts/phase0-*
 scripts/phase1_*
@@ -42,23 +49,26 @@ scripts/phase3_*
 scripts/phase3-*
 scripts/phase4_*
 scripts/phase4-*
+scripts/phase5_*
+scripts/phase5-*
 scripts/create_study_plan.py
+scripts/render_study_notes.py
+scripts/render_linked_study_notes.py
+scripts/package_study_epub.py
+furiganalyse/study_notes.py
+furiganalyse/linked_output.py
+furiganalyse/epub_packaging.py
 tests/test_phase0_epub.py
-tests/test_book_analysis.py
-tests/test_vocabulary_analysis.py
-tests/test_jmdict.py
-tests/test_jmnedict.py
-tests/test_study_plan.py
+tests/test_enriched_rendering.py
+tests/test_study_notes.py
+tests/test_linked_output.py
+tests/test_epub_packaging.py
 
-# Completed Phase 4 rendering and packaging implementation
-
-# Unrelated output surfaces and later-phase work
+# Deployment and unrelated later-phase/output work
+Dockerfile
+Dockerrun.aws.json
+docker-compose.yml
 furiganalyse/apkg_format.py
 furiganalyse/app.py
 furiganalyse/txt_format.py
 furiganalyse/words_lists/
-
-# Deployment configuration is outside Phase 5 enrichment
-Dockerfile
-Dockerrun.aws.json
-docker-compose.yml
