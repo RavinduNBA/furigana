@@ -16,4 +16,14 @@ Review `artifacts/phase4/notes/run-a/study-notes.xhtml` against
 - [ ] The document contains no links, backlinks, or ruby markup in this slice.
 - [ ] Run-A, run-B, and the checked-in XHTML golden are byte-identical.
 
-Review record: pending.
+## Review record
+
+- Date: 2026-08-17
+- Commit reviewed: `58bf0c44e9b78732df2a6cab472a8b039c9cc974`
+- Reviewer: Ravindu
+- Result: PASS
+- Notes: Machine checks confirmed valid deterministic XHTML, five ordered notes,
+  exact plan mappings and dictionary references, scoped CSS, publisher-reading
+  preservation, prohibited-element absence, and byte-identical run-A, run-B,
+  and golden output. The reviewer visually approved readability, labels,
+  meanings, and styling.
