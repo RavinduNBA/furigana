@@ -11,5 +11,12 @@ mkdir -p "$OUT/run-a" "$OUT/run-b"
 .venv/bin/python scripts/create_study_plan.py "$SOURCE" "$OUT/run-b/annotation-plan.json"
 cmp "$OUT/run-a/annotation-plan.json" "$OUT/run-b/annotation-plan.json"
 cmp "$OUT/run-a/annotation-plan.json" "$GOLDEN"
-.venv/bin/python -m pytest -q tests/test_study_plan.py
+NOTES=$OUT/notes
+NOTES_GOLDEN=tests/phase4_golden/study-notes-v1.xhtml
+mkdir -p "$NOTES/run-a" "$NOTES/run-b"
+.venv/bin/python scripts/render_study_notes.py "$OUT/run-a/annotation-plan.json" "$NOTES/run-a/study-notes.xhtml"
+.venv/bin/python scripts/render_study_notes.py "$OUT/run-a/annotation-plan.json" "$NOTES/run-b/study-notes.xhtml"
+cmp "$NOTES/run-a/study-notes.xhtml" "$NOTES/run-b/study-notes.xhtml"
+cmp "$NOTES/run-a/study-notes.xhtml" "$NOTES_GOLDEN"
+.venv/bin/python -m pytest -q tests/test_study_plan.py tests/test_study_notes.py
 echo "Phase 4 regression passed; artifacts retained under $OUT/"

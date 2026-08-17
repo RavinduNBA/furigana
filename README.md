@@ -314,3 +314,30 @@ vocabulary, and repeated lexical items retain ordered occurrence references.
 This baseline does not perform contextual sense ranking, learner adaptation, or
 EPUB rendering. Review it with
 `docs/phase4-annotation-plan-review-checklist.md`.
+
+### Standalone study-note XHTML
+
+Render a validated annotation plan without reparsing the EPUB:
+
+~~~bash
+.venv/bin/python scripts/render_study_notes.py \
+  artifacts/phase4/run-a/annotation-plan.json \
+  artifacts/phase4/notes/study-notes.xhtml
+~~~
+
+The enhanced `./scripts/phase4-regression.sh` gate renders two copies under
+`artifacts/phase4/notes/run-a/` and `run-b/`, requires byte identity with
+`tests/phase4_golden/study-notes-v1.xhtml`, strictly parses the XHTML, and
+runs focused plan and rendering tests. The legal fixture produces five ordered
+note sections with stable plan-provided anchors.
+
+Each section identifies vocabulary, expressions, or proper names and shows the
+authoritative reading, dictionary-only meaning, occurrence count, dataset
+identity/version, and selected entry plus sense or translation reference.
+Names use JMnedict translations and remain distinct from ordinary vocabulary.
+Publisher readings are rendered as text; this document creates no ruby markup.
+Its minimal inline CSS is scoped to `study-notes` and `study-note` classes.
+
+This slice deliberately remains standalone: it does not modify source chapters,
+add links/backlinks, update OPF/navigation, or package a new EPUB. Review the
+rendered result with `docs/phase4-study-notes-review-checklist.md`.
