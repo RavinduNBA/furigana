@@ -13,4 +13,14 @@ Review `artifacts/phase4/run-a/annotation-plan.json` against `tests/phase4_golde
 - [ ] Unmatched and incompatible candidates are excluded with concise diagnostics.
 - [ ] Run-A, run-B, and the checked-in golden plan are byte-identical.
 
-Review record: pending.
+## Review record
+
+- Date: 2026-08-17
+- Commit reviewed: `9d49edadddefd019230bd40b616856bde0c7c0c4`
+- Reviewer: Ravindu
+- Result: PASS
+- Notes: Machine checks confirmed schema/provenance, 5 items, 6 occurrences,
+  52 diagnostics, deterministic IDs/order, exact source references and offsets,
+  publisher-ruby protection, limits, non-overlap, and byte-identical run-A,
+  run-B, and golden output. The reviewer approved all five dictionary-only
+  display meanings.
