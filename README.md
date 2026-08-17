@@ -291,3 +291,96 @@ publisher-candidate diagnostics. Review schema v4 with
 `docs/phase3-jmnedict-report-review-checklist.md`. Production JMnedict data
 must be obtained, licensed, pinned, and stored locally; none is downloaded or
 committed by this project.
+
+## Phase 4 annotation planning
+
+Phase 4 starts with deterministic dictionary-only study selection from the
+Phase 3 schema-v4 report; it does not reparse or modify EPUB XHTML. Run:
+
+~~~bash
+./scripts/phase4-regression.sh
+~~~
+
+The gate runs Phase 3 first, generates the plan twice, requires byte identity
+with `tests/phase4_golden/annotation-plan-v1.json`, and runs focused Phase 4
+tests. Outputs remain under `artifacts/phase4/`.
+
+The legal fixture selects 5 unique items from 6 occurrences and records 52
+exclusion diagnostics. The default limit is 10 unique items per primary
+chapter; override it with `scripts/create_study_plan.py --per-chapter-limit N`.
+Selection uses the first compatible source-ordered entry and sense or
+translation. Publisher readings remain authoritative, names stay distinct from
+vocabulary, and repeated lexical items retain ordered occurrence references.
+This baseline does not perform contextual sense ranking, learner adaptation, or
+EPUB rendering. Review it with
+`docs/phase4-annotation-plan-review-checklist.md`.
+
+### Standalone study-note XHTML
+
+Render a validated annotation plan without reparsing the EPUB:
+
+~~~bash
+.venv/bin/python scripts/render_study_notes.py \
+  artifacts/phase4/run-a/annotation-plan.json \
+  artifacts/phase4/notes/study-notes.xhtml
+~~~
+
+The enhanced `./scripts/phase4-regression.sh` gate renders two copies under
+`artifacts/phase4/notes/run-a/` and `run-b/`, requires byte identity with
+`tests/phase4_golden/study-notes-v1.xhtml`, strictly parses the XHTML, and
+runs focused plan and rendering tests. The legal fixture produces five ordered
+note sections with stable plan-provided anchors.
+
+Each section identifies vocabulary, expressions, or proper names and shows the
+authoritative reading, dictionary-only meaning, occurrence count, dataset
+identity/version, and selected entry plus sense or translation reference.
+Names use JMnedict translations and remain distinct from ordinary vocabulary.
+Publisher readings are rendered as text; this document creates no ruby markup.
+Its minimal inline CSS is scoped to `study-notes` and `study-note` classes.
+
+This slice deliberately remains standalone: it does not modify source chapters,
+add links/backlinks, update OPF/navigation, or package a new EPUB. Review the
+rendered result with `docs/phase4-study-notes-review-checklist.md`.
+
+### Standalone linked XHTML set
+
+Generate linked chapter copies plus contextual note backlinks:
+
+~~~bash
+.venv/bin/python scripts/render_linked_study_notes.py \
+  artifacts/phase2/fixture.epub \
+  artifacts/phase2/run-a/book.json \
+  artifacts/phase4/run-a/annotation-plan.json \
+  artifacts/phase4/linked/manual
+~~~
+
+The renderer also accepts an extracted EPUB directory as its first argument.
+It writes chapter copies at their canonical source paths and
+`EPUB/text/study-notes.xhtml` beneath the output directory. The originals are
+never changed. Six legal-fixture occurrences receive unique source anchors,
+forward links, exact canonical context sentences, and ordered backlinks to five
+notes.
+
+Plain selections must occupy one unambiguous XHTML text slot. Publisher-ruby
+selections wrap the complete existing ruby element, preserving its rt/rp and
+children. Existing links, emphasis, IDs, namespaces, and visible text are
+validated after rendering. Unsafe paths, nested links/ruby, offset mismatches,
+ambiguous DOM mappings, overlaps, and broken generated references are rejected.
+
+The Phase 4 gate creates byte-identical linked run-A/run-B trees under
+`artifacts/phase4/linked/` and compares all three XHTML files strictly with
+`tests/phase4_golden/linked-v1/`. This remains an unpackaged output: OPF,
+spine, navigation, resources, archive metadata, and the input EPUB are
+unchanged. Review with `docs/phase4-linked-output-review-checklist.md`.
+
+### Deterministic study EPUB
+
+Package the linked output with `scripts/package_study_epub.py INPUT BOOK_JSON
+PLAN_JSON OUTPUT.epub`. The Phase 4 gate retains byte-identical outputs under
+`artifacts/phase4/epub/`, validates archive structure and every internal
+reference, and runs focused packaging tests. The packager adds one
+`furiganalyse-study-notes` manifest/spine item and one “Study Notes” TOC
+entry after chapter 2 while preserving unrelated resources. ZIP timestamps,
+permissions, ordering, compression, and the first uncompressed mimetype entry
+are deterministic. See `docs/phase4-packaged-epub-review-checklist.md` for
+the next manual Calibre review.

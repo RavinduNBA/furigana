@@ -1,11 +1,12 @@
-# Phase 3: vocabulary candidates and dictionary lookup report
+# Phase 4: dictionary-only clickable study notes
 #
 # Review and adjust this file whenever the project moves to another phase.
-# Keep README.md, implementation.md, pyproject.toml, poetry.lock,
-# furiganalyse/book_analysis.py, tokenizer/vocabulary/dictionary modules,
-# their focused tests, and new Phase 3 files available for the current work.
+# Keep the roadmap/metadata, canonical and vocabulary models, dictionary
+# providers, EPUB traversal/rendering, publisher-ruby protection, legal EPUB
+# fixtures, CSS/templates, navigation/link validation, and new Phase 4 files
+# visible.
 
-# Repository internals and local tooling
+# Repository internals, caches, and local environments
 .git/
 .venv/
 .pytest_cache/
@@ -13,36 +14,42 @@
 **/__pycache__/
 *.py[cod]
 
-# Generated regression and extraction output
+# Generated output and local/production datasets
 artifacts/
+analysis/
 reports/
+data/
+*.sqlite3
 
-# Completed Phase 0 through Phase 2 material
+# Completed Phase 0 through Phase 3 review records and golden reports
 docs/phase0-*
 docs/phase1-*
 docs/phase2-*
+docs/phase3-*
+tests/golden/
+tests/phase3_golden/
+
+# Completed phase-specific regression entry points
 scripts/phase0_*
 scripts/phase0-*
 scripts/phase1_*
 scripts/phase1-*
 scripts/phase2_*
 scripts/phase2-*
-scripts/extract_book.py
-tests/phase0_*
-tests/test_phase0_*
-tests/test_book_analysis.py
-tests/golden/
+scripts/phase3-*
 
-# Application and output surfaces outside the Phase 3 report slice
-assets/
-furiganalyse/templates/
+# Completed Phase 3 focused tests; core models/providers remain visible
+tests/test_vocabulary_analysis.py
+tests/test_jmdict.py
+tests/test_jmnedict.py
+
+# Later or unrelated output surfaces
 furiganalyse/apkg_format.py
 furiganalyse/app.py
-furiganalyse/epub_format.py
-furiganalyse/params.py
 furiganalyse/txt_format.py
+furiganalyse/words_lists/
 
-# Deployment configuration is unrelated to Phase 3 analysis
+# Deployment configuration is unrelated to Phase 4 rendering
 Dockerfile
 Dockerrun.aws.json
 docker-compose.yml

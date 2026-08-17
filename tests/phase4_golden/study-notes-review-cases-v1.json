@@ -1,0 +1,43 @@
+{
+  "document": {
+    "language": "en",
+    "note_count": 5,
+    "title": "Study Notes",
+    "version": 1
+  },
+  "notes": [
+    {
+      "anchor": "note-study-item-0001",
+      "kind": "Expression",
+      "form": "Normalized form: 良い天気",
+      "heading": "良い天気だ【よいてんき】",
+      "meaning": "fine weather"
+    },
+    {
+      "anchor": "note-study-item-0002",
+      "kind": "Vocabulary",
+      "heading": "言葉【ことば】",
+      "meaning": "language"
+    },
+    {
+      "anchor": "note-study-item-0003",
+      "kind": "Vocabulary",
+      "heading": "表舞台【おもてぶたい】",
+      "meaning": "public stage",
+      "occurrences": 2
+    },
+    {
+      "anchor": "note-study-item-0004",
+      "kind": "Proper name",
+      "heading": "雪乃【ゆきの】",
+      "meaning": "Yukino (person; female given name)"
+    },
+    {
+      "anchor": "note-study-item-0005",
+      "kind": "Vocabulary",
+      "form": "Lemma: 振り返る",
+      "heading": "振り返っ【ふりかえる】",
+      "meaning": "to turn around"
+    }
+  ]
+}

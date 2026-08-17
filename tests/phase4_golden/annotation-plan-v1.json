@@ -1,0 +1,675 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "config": {
+    "per_chapter_item_limit": 10
+  },
+  "diagnostics": [
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0001",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0001-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0002",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0001-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0003",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0001-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0004",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0001-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0005",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0006",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0007",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0007-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0008",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0009-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0009",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0010-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0010",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0011-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0011",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0012-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0012",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0002-s-0001-tok-0013-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0013",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0014",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0015",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0016",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0017",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0006-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0018",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0008-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0019",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0003-s-0001-tok-0010-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0020",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0021",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0022",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0023",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0001-tok-0005-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0024",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0002-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0025",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0004-s-0002-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0026",
+      "reason": "phase3-name-publisher-reading-mismatch-or-no-match",
+      "source_id": "ch-0001-b-0004-s-0003-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0027",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0005-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0028",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0005-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0029",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0005-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "id": "plan-diagnostic-0030",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0001-b-0005-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0031",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0001-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0032",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0001-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0033",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0001-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0034",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0001-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0035",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0036",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0037",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0002-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0038",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0002-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0039",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0002-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0040",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0002-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0041",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0002-s-0002-tok-0006-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0042",
+      "reason": "phase3-name-publisher-reading-mismatch-or-no-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0043",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0044",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0045",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0046",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0005-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0047",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0003-s-0001-tok-0006-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0048",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0005-s-0001-tok-0001-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0049",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0005-s-0001-tok-0002-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0050",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0005-s-0001-tok-0003-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0051",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0005-s-0001-tok-0004-cand"
+    },
+    {
+      "chapter_id": "ch-0002",
+      "id": "plan-diagnostic-0052",
+      "reason": "no-compatible-dictionary-match",
+      "source_id": "ch-0002-b-0005-s-0001-tok-0005-cand"
+    }
+  ],
+  "dictionary": {
+    "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+    "dataset_version": "2026-08-16",
+    "format_version": 1,
+    "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+  },
+  "items": [
+    {
+      "block_id": "ch-0001-b-0002",
+      "candidate_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004-cand",
+        "ch-0001-b-0002-s-0001-tok-0005-cand",
+        "ch-0001-b-0002-s-0001-tok-0006-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "dictionary_dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+      "dictionary_dataset_version": "2026-08-16",
+      "display_meaning": "fine weather",
+      "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+      "id": "study-item-0001",
+      "kind": "expression",
+      "lemma": null,
+      "name_id": null,
+      "normalized_form": "良い天気",
+      "note_anchor_id": "note-study-item-0001",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 9,
+          "block_id": "ch-0001-b-0002",
+          "block_start": 4,
+          "candidate_ids": [
+            "ch-0001-b-0002-s-0001-tok-0004-cand",
+            "ch-0001-b-0002-s-0001-tok-0005-cand",
+            "ch-0001-b-0002-s-0001-tok-0006-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+          "id": "study-item-0001-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 9,
+          "sentence_id": "ch-0001-b-0002-s-0001",
+          "sentence_start": 4,
+          "source_anchor_id": "src-study-item-0001-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0002-s-0001-tok-0004",
+            "ch-0001-b-0002-s-0001-tok-0005",
+            "ch-0001-b-0002-s-0001-tok-0006"
+          ]
+        }
+      ],
+      "publisher_ruby_id": null,
+      "reading": "よいてんき",
+      "reading_source": "JMdict",
+      "selected_entry_id": "jmdict-1008",
+      "selected_sense_id": "jmdict-1008-sense-0001",
+      "selected_translation_id": null,
+      "selection_reason": "longest-expression-first-compatible-sense",
+      "sentence_id": "ch-0001-b-0002-s-0001",
+      "source_entry_ids": [
+        "jmdict-1008"
+      ],
+      "source_sense_ids": [
+        "jmdict-1008-sense-0001"
+      ],
+      "source_translation_ids": [],
+      "surface": "良い天気だ",
+      "token_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004",
+        "ch-0001-b-0002-s-0001-tok-0005",
+        "ch-0001-b-0002-s-0001-tok-0006"
+      ]
+    },
+    {
+      "block_id": "ch-0001-b-0003",
+      "candidate_ids": [
+        "ch-0001-b-0003-s-0001-tok-0005-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "dictionary_dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+      "dictionary_dataset_version": "2026-08-16",
+      "display_meaning": "language",
+      "expression_id": null,
+      "id": "study-item-0002",
+      "kind": "vocabulary",
+      "lemma": "言葉",
+      "name_id": null,
+      "normalized_form": null,
+      "note_anchor_id": "note-study-item-0002",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 7,
+          "block_id": "ch-0001-b-0003",
+          "block_start": 5,
+          "candidate_ids": [
+            "ch-0001-b-0003-s-0001-tok-0005-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0002-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 7,
+          "sentence_id": "ch-0001-b-0003-s-0001",
+          "sentence_start": 5,
+          "source_anchor_id": "src-study-item-0002-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0003-s-0001-tok-0005"
+          ]
+        }
+      ],
+      "publisher_ruby_id": null,
+      "reading": "ことば",
+      "reading_source": "JMdict",
+      "selected_entry_id": "jmdict-1001",
+      "selected_sense_id": "jmdict-1001-sense-0001",
+      "selected_translation_id": null,
+      "selection_reason": "first-compatible-jmdict-entry-and-sense",
+      "sentence_id": "ch-0001-b-0003-s-0001",
+      "source_entry_ids": [
+        "jmdict-1001"
+      ],
+      "source_sense_ids": [
+        "jmdict-1001-sense-0001",
+        "jmdict-1001-sense-0002"
+      ],
+      "source_translation_ids": [],
+      "surface": "言葉",
+      "token_ids": [
+        "ch-0001-b-0003-s-0001-tok-0005"
+      ]
+    },
+    {
+      "block_id": "ch-0001-b-0004",
+      "candidate_ids": [
+        "ch-0001-b-0004-s-0001-tok-0003-cand"
+      ],
+      "chapter_id": "ch-0001",
+      "dictionary_dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+      "dictionary_dataset_version": "2026-08-16",
+      "display_meaning": "public stage",
+      "expression_id": null,
+      "id": "study-item-0003",
+      "kind": "vocabulary",
+      "lemma": "表舞台",
+      "name_id": null,
+      "normalized_form": null,
+      "note_anchor_id": "note-study-item-0003",
+      "occurrences": [
+        {
+          "annotation_target": "preserved_publisher_ruby",
+          "block_end": 6,
+          "block_id": "ch-0001-b-0004",
+          "block_start": 3,
+          "candidate_ids": [
+            "ch-0001-b-0004-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0003-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+          "sentence_end": 6,
+          "sentence_id": "ch-0001-b-0004-s-0001",
+          "sentence_start": 3,
+          "source_anchor_id": "src-study-item-0003-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0004-s-0001-tok-0003"
+          ]
+        },
+        {
+          "annotation_target": "preserved_publisher_ruby",
+          "block_end": 14,
+          "block_id": "ch-0001-b-0004",
+          "block_start": 11,
+          "candidate_ids": [
+            "ch-0001-b-0004-s-0002-tok-0001-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0003-occ-0002",
+          "name_id": null,
+          "occurrence_number": 2,
+          "publisher_ruby_id": "ch-0001-b-0004-r-0002",
+          "sentence_end": 3,
+          "sentence_id": "ch-0001-b-0004-s-0002",
+          "sentence_start": 0,
+          "source_anchor_id": "src-study-item-0003-occ-0002",
+          "token_ids": [
+            "ch-0001-b-0004-s-0002-tok-0001"
+          ]
+        }
+      ],
+      "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+      "reading": "おもてぶたい",
+      "reading_source": "publisher",
+      "selected_entry_id": "jmdict-1006",
+      "selected_sense_id": "jmdict-1006-sense-0001",
+      "selected_translation_id": null,
+      "selection_reason": "first-compatible-jmdict-entry-and-sense",
+      "sentence_id": "ch-0001-b-0004-s-0001",
+      "source_entry_ids": [
+        "jmdict-1006"
+      ],
+      "source_sense_ids": [
+        "jmdict-1006-sense-0001"
+      ],
+      "source_translation_ids": [],
+      "surface": "表舞台",
+      "token_ids": [
+        "ch-0001-b-0004-s-0001-tok-0003"
+      ]
+    },
+    {
+      "block_id": "ch-0002-b-0002",
+      "candidate_ids": [
+        "ch-0002-b-0002-s-0001-tok-0003-cand"
+      ],
+      "chapter_id": "ch-0002",
+      "dictionary_dataset_id": "furiganalyse-synthetic-jmnedict",
+      "dictionary_dataset_version": "2026-08-16",
+      "display_meaning": "Yukino (person; female given name)",
+      "expression_id": null,
+      "id": "study-item-0004",
+      "kind": "name",
+      "lemma": null,
+      "name_id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+      "normalized_form": null,
+      "note_anchor_id": "note-study-item-0004",
+      "occurrences": [
+        {
+          "annotation_target": "preserved_publisher_ruby",
+          "block_end": 5,
+          "block_id": "ch-0002-b-0002",
+          "block_start": 3,
+          "candidate_ids": [
+            "ch-0002-b-0002-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0002",
+          "expression_id": null,
+          "id": "study-item-0004-occ-0001",
+          "name_id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+          "occurrence_number": 1,
+          "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+          "sentence_end": 5,
+          "sentence_id": "ch-0002-b-0002-s-0001",
+          "sentence_start": 3,
+          "source_anchor_id": "src-study-item-0004-occ-0001",
+          "token_ids": [
+            "ch-0002-b-0002-s-0001-tok-0003"
+          ]
+        }
+      ],
+      "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+      "reading": "ゆきの",
+      "reading_source": "publisher",
+      "selected_entry_id": "jmnedict-2001",
+      "selected_sense_id": null,
+      "selected_translation_id": "jmnedict-2001-translation-0001",
+      "selection_reason": "first-compatible-jmnedict-entry-and-translation",
+      "sentence_id": "ch-0002-b-0002-s-0001",
+      "source_entry_ids": [
+        "jmnedict-2001"
+      ],
+      "source_sense_ids": [],
+      "source_translation_ids": [
+        "jmnedict-2001-translation-0001"
+      ],
+      "surface": "雪乃",
+      "token_ids": [
+        "ch-0002-b-0002-s-0001-tok-0003"
+      ]
+    },
+    {
+      "block_id": "ch-0002-b-0002",
+      "candidate_ids": [
+        "ch-0002-b-0002-s-0002-tok-0005-cand"
+      ],
+      "chapter_id": "ch-0002",
+      "dictionary_dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+      "dictionary_dataset_version": "2026-08-16",
+      "display_meaning": "to turn around",
+      "expression_id": null,
+      "id": "study-item-0005",
+      "kind": "vocabulary",
+      "lemma": "振り返る",
+      "name_id": null,
+      "normalized_form": null,
+      "note_anchor_id": "note-study-item-0005",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 15,
+          "block_id": "ch-0002-b-0002",
+          "block_start": 11,
+          "candidate_ids": [
+            "ch-0002-b-0002-s-0002-tok-0005-cand"
+          ],
+          "chapter_id": "ch-0002",
+          "expression_id": null,
+          "id": "study-item-0005-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 9,
+          "sentence_id": "ch-0002-b-0002-s-0002",
+          "sentence_start": 5,
+          "source_anchor_id": "src-study-item-0005-occ-0001",
+          "token_ids": [
+            "ch-0002-b-0002-s-0002-tok-0005"
+          ]
+        }
+      ],
+      "publisher_ruby_id": null,
+      "reading": "ふりかえる",
+      "reading_source": "JMdict",
+      "selected_entry_id": "jmdict-1002",
+      "selected_sense_id": "jmdict-1002-sense-0001",
+      "selected_translation_id": null,
+      "selection_reason": "first-compatible-jmdict-entry-and-sense",
+      "sentence_id": "ch-0002-b-0002-s-0002",
+      "source_entry_ids": [
+        "jmdict-1002"
+      ],
+      "source_sense_ids": [
+        "jmdict-1002-sense-0001"
+      ],
+      "source_translation_ids": [],
+      "surface": "振り返っ",
+      "token_ids": [
+        "ch-0002-b-0002-s-0002-tok-0005"
+      ]
+    }
+  ],
+  "name_dictionary": {
+    "dataset_id": "furiganalyse-synthetic-jmnedict",
+    "dataset_version": "2026-08-16",
+    "format_version": 1,
+    "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+  },
+  "schema_version": 1,
+  "source_report_schema_version": 4,
+  "tokenizer": {
+    "dictionary": "MeCab system dictionary",
+    "dictionary_version": "102",
+    "name": "MeCab",
+    "version": "1.0.12",
+    "wrapper": "furigana",
+    "wrapper_version": "0.5"
+  }
+}
