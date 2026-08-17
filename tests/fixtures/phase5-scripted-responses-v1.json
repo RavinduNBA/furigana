@@ -16,7 +16,7 @@
   "enrichment-request-0002": {
     "ambiguity_note": null,
     "context_hash": "13ec9ab50ca88607a9318393bb2ac727e67477ac0eb4e8245bd04f3a8dd34f81",
-    "display_meaning": "word; language",
+    "display_meaning": "word",
     "item_id": "study-item-0002",
     "model_id": "scripted-v1",
     "prompt_version": "phase5-local-context-v1",
@@ -58,7 +58,7 @@
   "enrichment-request-0005": {
     "ambiguity_note": null,
     "context_hash": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e",
-    "display_meaning": "to look back",
+    "display_meaning": "to turn around",
     "item_id": "study-item-0005",
     "model_id": "scripted-v1",
     "prompt_version": "phase5-local-context-v1",

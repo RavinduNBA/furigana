@@ -93,6 +93,17 @@ def test_valid_scripted_response_and_cache_hit(requests, tmp_path):
     assert second["results"][0]["source"] == "cache" and provider.calls == [q["id"]]
 
 
+def test_reviewed_contextual_meanings_are_selected(requests, tmp_path):
+    scripted = load("tests/fixtures/phase5-scripted-responses-v1.json")
+    reviewed = load("tests/phase5_golden/review-cases-v1.json")
+    provider = ScriptedProvider(scripted)
+    report = enrich_requests(requests, provider, tmp_path)
+    meanings = {result["item_id"]: result["display_meaning"] for result in report["results"]}
+    assert meanings["study-item-0002"] == "word"
+    assert meanings["study-item-0005"] == "to turn around"
+    assert [item.get("scripted_meaning") for item in reviewed["items"] if item["surface"] in {"言葉", "振り返っ"}] == ["word", "to turn around"]
+
+
 def test_cache_key_changes_with_context_or_provider(requests):
     q = requests["requests"][0]
     a = ScriptedProvider({})
