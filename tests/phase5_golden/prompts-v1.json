@@ -1,0 +1,805 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "prompts": [
+    {
+      "content": {
+        "context": [
+          {
+            "id": "ch-0001-b-0002-s-0001",
+            "text": "「今日は良い天気だね」と彼女は言った。"
+          }
+        ],
+        "dictionary": {
+          "entries": [
+            {
+              "entry_id": "jmdict-1008",
+              "matched_by": "lemma",
+              "matched_form": "良い天気",
+              "readings": [
+                {
+                  "no_kanji": false,
+                  "text": "よいてんき",
+                  "written_restrictions": []
+                }
+              ],
+              "senses": [
+                {
+                  "glosses": [
+                    "fine weather"
+                  ],
+                  "id": "jmdict-1008-sense-0001",
+                  "index": 1,
+                  "parts_of_speech": [
+                    "n"
+                  ],
+                  "reading_restrictions": [],
+                  "written_restrictions": []
+                }
+              ],
+              "sequence": 1008,
+              "written_forms": [
+                "良い天気"
+              ]
+            }
+          ],
+          "kind": "jmdict",
+          "provenance": {
+            "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+            "dataset_version": "2026-08-16",
+            "format_version": 1,
+            "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+          }
+        },
+        "instructions": [
+          "Select exactly one supplied entry and one compatible supplied sense or translation.",
+          "Return a short context-sensitive meaning supported by that supplied record.",
+          "Keep names as names and preserve the authoritative reading.",
+          "Return only the required JSON object; do not return markup or URLs."
+        ],
+        "precedence": [
+          "publisher",
+          "user",
+          "dictionary",
+          "model"
+        ],
+        "prompt_version": "phase5-local-context-v1",
+        "requested_response_schema_version": 1,
+        "response_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "ambiguity_note": {
+              "maxLength": 160,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "context_hash": {
+              "const": "cce6dbcd19e348caf1932100f9608565469d2a9c398fa3a2a0965d99488d17d4"
+            },
+            "display_meaning": {
+              "maxLength": 120,
+              "type": "string"
+            },
+            "item_id": {
+              "const": "study-item-0001"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "const": "phase5-local-context-v1"
+            },
+            "provider_id": {
+              "const": "openai-compatible"
+            },
+            "request_id": {
+              "const": "enrichment-request-0001"
+            },
+            "schema_version": {
+              "const": 1
+            },
+            "selected_entry_id": {
+              "type": "string"
+            },
+            "selected_sense_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "selected_translation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "request_id",
+            "item_id",
+            "context_hash",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "display_meaning",
+            "ambiguity_note",
+            "provider_id",
+            "model_id",
+            "prompt_version"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1,
+        "study_item": {
+          "authoritative_reading": "よいてんき",
+          "item_id": "study-item-0001",
+          "kind": "expression",
+          "lemma": null,
+          "normalized_form": "良い天気",
+          "request_id": "enrichment-request-0001",
+          "surface": "良い天気だ"
+        },
+        "tokenizer_provenance": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "id": "enrichment-prompt-0001",
+      "prompt_hash": "5170b484e8c055b7c1f3407e7b436a5f88e840eebbe038eb1038a41f3c8d3909",
+      "prompt_version": "phase5-local-context-v1",
+      "request_id": "enrichment-request-0001",
+      "schema_version": 1
+    },
+    {
+      "content": {
+        "context": [
+          {
+            "id": "ch-0001-b-0003-s-0001",
+            "text": "強調された言葉と、句読点——そして English text."
+          }
+        ],
+        "dictionary": {
+          "entries": [
+            {
+              "entry_id": "jmdict-1001",
+              "matched_by": "lemma",
+              "matched_form": "言葉",
+              "readings": [
+                {
+                  "no_kanji": false,
+                  "text": "ことば",
+                  "written_restrictions": []
+                }
+              ],
+              "senses": [
+                {
+                  "glosses": [
+                    "language",
+                    "word"
+                  ],
+                  "id": "jmdict-1001-sense-0001",
+                  "index": 1,
+                  "parts_of_speech": [
+                    "n"
+                  ],
+                  "reading_restrictions": [],
+                  "written_restrictions": []
+                },
+                {
+                  "glosses": [
+                    "expression"
+                  ],
+                  "id": "jmdict-1001-sense-0002",
+                  "index": 2,
+                  "parts_of_speech": [
+                    "n"
+                  ],
+                  "reading_restrictions": [],
+                  "written_restrictions": []
+                }
+              ],
+              "sequence": 1001,
+              "written_forms": [
+                "言葉"
+              ]
+            }
+          ],
+          "kind": "jmdict",
+          "provenance": {
+            "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+            "dataset_version": "2026-08-16",
+            "format_version": 1,
+            "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+          }
+        },
+        "instructions": [
+          "Select exactly one supplied entry and one compatible supplied sense or translation.",
+          "Return a short context-sensitive meaning supported by that supplied record.",
+          "Keep names as names and preserve the authoritative reading.",
+          "Return only the required JSON object; do not return markup or URLs."
+        ],
+        "precedence": [
+          "publisher",
+          "user",
+          "dictionary",
+          "model"
+        ],
+        "prompt_version": "phase5-local-context-v1",
+        "requested_response_schema_version": 1,
+        "response_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "ambiguity_note": {
+              "maxLength": 160,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "context_hash": {
+              "const": "13ec9ab50ca88607a9318393bb2ac727e67477ac0eb4e8245bd04f3a8dd34f81"
+            },
+            "display_meaning": {
+              "maxLength": 120,
+              "type": "string"
+            },
+            "item_id": {
+              "const": "study-item-0002"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "const": "phase5-local-context-v1"
+            },
+            "provider_id": {
+              "const": "openai-compatible"
+            },
+            "request_id": {
+              "const": "enrichment-request-0002"
+            },
+            "schema_version": {
+              "const": 1
+            },
+            "selected_entry_id": {
+              "type": "string"
+            },
+            "selected_sense_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "selected_translation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "request_id",
+            "item_id",
+            "context_hash",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "display_meaning",
+            "ambiguity_note",
+            "provider_id",
+            "model_id",
+            "prompt_version"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1,
+        "study_item": {
+          "authoritative_reading": "ことば",
+          "item_id": "study-item-0002",
+          "kind": "vocabulary",
+          "lemma": "言葉",
+          "normalized_form": null,
+          "request_id": "enrichment-request-0002",
+          "surface": "言葉"
+        },
+        "tokenizer_provenance": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "id": "enrichment-prompt-0002",
+      "prompt_hash": "fd2387cc506c4ab9977e3c3e258741a4c4e58e3b78182dcd9c05cf943c74b2a5",
+      "prompt_version": "phase5-local-context-v1",
+      "request_id": "enrichment-request-0002",
+      "schema_version": 1
+    },
+    {
+      "content": {
+        "context": [
+          {
+            "id": "ch-0001-b-0004-s-0001",
+            "text": "舞台は表舞台だった。"
+          },
+          {
+            "id": "ch-0001-b-0004-s-0002",
+            "text": "表舞台の漢字。"
+          }
+        ],
+        "dictionary": {
+          "entries": [
+            {
+              "entry_id": "jmdict-1006",
+              "matched_by": "lemma",
+              "matched_form": "表舞台",
+              "readings": [
+                {
+                  "no_kanji": false,
+                  "text": "おもてぶたい",
+                  "written_restrictions": []
+                }
+              ],
+              "senses": [
+                {
+                  "glosses": [
+                    "public stage"
+                  ],
+                  "id": "jmdict-1006-sense-0001",
+                  "index": 1,
+                  "parts_of_speech": [
+                    "n"
+                  ],
+                  "reading_restrictions": [],
+                  "written_restrictions": []
+                }
+              ],
+              "sequence": 1006,
+              "written_forms": [
+                "表舞台"
+              ]
+            }
+          ],
+          "kind": "jmdict",
+          "provenance": {
+            "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+            "dataset_version": "2026-08-16",
+            "format_version": 1,
+            "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+          }
+        },
+        "instructions": [
+          "Select exactly one supplied entry and one compatible supplied sense or translation.",
+          "Return a short context-sensitive meaning supported by that supplied record.",
+          "Keep names as names and preserve the authoritative reading.",
+          "Return only the required JSON object; do not return markup or URLs."
+        ],
+        "precedence": [
+          "publisher",
+          "user",
+          "dictionary",
+          "model"
+        ],
+        "prompt_version": "phase5-local-context-v1",
+        "requested_response_schema_version": 1,
+        "response_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "ambiguity_note": {
+              "maxLength": 160,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "context_hash": {
+              "const": "f45f708f2666620100eb8f70561c92a1db8d9197d55c916ee7a2846630e1e409"
+            },
+            "display_meaning": {
+              "maxLength": 120,
+              "type": "string"
+            },
+            "item_id": {
+              "const": "study-item-0003"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "const": "phase5-local-context-v1"
+            },
+            "provider_id": {
+              "const": "openai-compatible"
+            },
+            "request_id": {
+              "const": "enrichment-request-0003"
+            },
+            "schema_version": {
+              "const": 1
+            },
+            "selected_entry_id": {
+              "type": "string"
+            },
+            "selected_sense_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "selected_translation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "request_id",
+            "item_id",
+            "context_hash",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "display_meaning",
+            "ambiguity_note",
+            "provider_id",
+            "model_id",
+            "prompt_version"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1,
+        "study_item": {
+          "authoritative_reading": "おもてぶたい",
+          "item_id": "study-item-0003",
+          "kind": "vocabulary",
+          "lemma": "表舞台",
+          "normalized_form": null,
+          "request_id": "enrichment-request-0003",
+          "surface": "表舞台"
+        },
+        "tokenizer_provenance": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "id": "enrichment-prompt-0003",
+      "prompt_hash": "be2f5763a186fc5ca6696672c8b2cb706a257491c927709adb84f467f1fde59b",
+      "prompt_version": "phase5-local-context-v1",
+      "request_id": "enrichment-request-0003",
+      "schema_version": 1
+    },
+    {
+      "content": {
+        "context": [
+          {
+            "id": "ch-0002-b-0002-s-0001",
+            "text": "名前は雪乃。"
+          },
+          {
+            "id": "ch-0002-b-0002-s-0002",
+            "text": "怪訝な顔で振り返った。"
+          }
+        ],
+        "dictionary": {
+          "entries": [
+            {
+              "entry_id": "jmnedict-2001",
+              "matched_by": "surface",
+              "matched_form": "雪乃",
+              "readings": [
+                {
+                  "text": "ゆきの",
+                  "written_restrictions": []
+                }
+              ],
+              "sequence": 2001,
+              "translations": [
+                {
+                  "id": "jmnedict-2001-translation-0001",
+                  "index": 1,
+                  "name_types": [
+                    "person",
+                    "female given name"
+                  ],
+                  "translations": [
+                    "Yukino",
+                    "Yuki-no"
+                  ]
+                }
+              ],
+              "written_forms": [
+                "雪乃"
+              ]
+            }
+          ],
+          "kind": "jmnedict",
+          "provenance": {
+            "dataset_id": "furiganalyse-synthetic-jmnedict",
+            "dataset_version": "2026-08-16",
+            "format_version": 1,
+            "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+          }
+        },
+        "instructions": [
+          "Select exactly one supplied entry and one compatible supplied sense or translation.",
+          "Return a short context-sensitive meaning supported by that supplied record.",
+          "Keep names as names and preserve the authoritative reading.",
+          "Return only the required JSON object; do not return markup or URLs."
+        ],
+        "precedence": [
+          "publisher",
+          "user",
+          "dictionary",
+          "model"
+        ],
+        "prompt_version": "phase5-local-context-v1",
+        "requested_response_schema_version": 1,
+        "response_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "ambiguity_note": {
+              "maxLength": 160,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "context_hash": {
+              "const": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e"
+            },
+            "display_meaning": {
+              "maxLength": 120,
+              "type": "string"
+            },
+            "item_id": {
+              "const": "study-item-0004"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "const": "phase5-local-context-v1"
+            },
+            "provider_id": {
+              "const": "openai-compatible"
+            },
+            "request_id": {
+              "const": "enrichment-request-0004"
+            },
+            "schema_version": {
+              "const": 1
+            },
+            "selected_entry_id": {
+              "type": "string"
+            },
+            "selected_sense_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "selected_translation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "request_id",
+            "item_id",
+            "context_hash",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "display_meaning",
+            "ambiguity_note",
+            "provider_id",
+            "model_id",
+            "prompt_version"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1,
+        "study_item": {
+          "authoritative_reading": "ゆきの",
+          "item_id": "study-item-0004",
+          "kind": "name",
+          "lemma": null,
+          "normalized_form": null,
+          "request_id": "enrichment-request-0004",
+          "surface": "雪乃"
+        },
+        "tokenizer_provenance": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "id": "enrichment-prompt-0004",
+      "prompt_hash": "4d4065e4fc20b23c4695524fb71c96978f17c54495cf92f9af0999cd05c87332",
+      "prompt_version": "phase5-local-context-v1",
+      "request_id": "enrichment-request-0004",
+      "schema_version": 1
+    },
+    {
+      "content": {
+        "context": [
+          {
+            "id": "ch-0002-b-0002-s-0001",
+            "text": "名前は雪乃。"
+          },
+          {
+            "id": "ch-0002-b-0002-s-0002",
+            "text": "怪訝な顔で振り返った。"
+          }
+        ],
+        "dictionary": {
+          "entries": [
+            {
+              "entry_id": "jmdict-1002",
+              "matched_by": "lemma",
+              "matched_form": "振り返る",
+              "readings": [
+                {
+                  "no_kanji": false,
+                  "text": "ふりかえる",
+                  "written_restrictions": []
+                }
+              ],
+              "senses": [
+                {
+                  "glosses": [
+                    "to turn around"
+                  ],
+                  "id": "jmdict-1002-sense-0001",
+                  "index": 1,
+                  "parts_of_speech": [
+                    "v5r"
+                  ],
+                  "reading_restrictions": [],
+                  "written_restrictions": []
+                }
+              ],
+              "sequence": 1002,
+              "written_forms": [
+                "振り返る"
+              ]
+            }
+          ],
+          "kind": "jmdict",
+          "provenance": {
+            "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+            "dataset_version": "2026-08-16",
+            "format_version": 1,
+            "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+          }
+        },
+        "instructions": [
+          "Select exactly one supplied entry and one compatible supplied sense or translation.",
+          "Return a short context-sensitive meaning supported by that supplied record.",
+          "Keep names as names and preserve the authoritative reading.",
+          "Return only the required JSON object; do not return markup or URLs."
+        ],
+        "precedence": [
+          "publisher",
+          "user",
+          "dictionary",
+          "model"
+        ],
+        "prompt_version": "phase5-local-context-v1",
+        "requested_response_schema_version": 1,
+        "response_contract": {
+          "additionalProperties": false,
+          "properties": {
+            "ambiguity_note": {
+              "maxLength": 160,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "context_hash": {
+              "const": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e"
+            },
+            "display_meaning": {
+              "maxLength": 120,
+              "type": "string"
+            },
+            "item_id": {
+              "const": "study-item-0005"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "const": "phase5-local-context-v1"
+            },
+            "provider_id": {
+              "const": "openai-compatible"
+            },
+            "request_id": {
+              "const": "enrichment-request-0005"
+            },
+            "schema_version": {
+              "const": 1
+            },
+            "selected_entry_id": {
+              "type": "string"
+            },
+            "selected_sense_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "selected_translation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "request_id",
+            "item_id",
+            "context_hash",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "display_meaning",
+            "ambiguity_note",
+            "provider_id",
+            "model_id",
+            "prompt_version"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1,
+        "study_item": {
+          "authoritative_reading": "ふりかえる",
+          "item_id": "study-item-0005",
+          "kind": "vocabulary",
+          "lemma": "振り返る",
+          "normalized_form": null,
+          "request_id": "enrichment-request-0005",
+          "surface": "振り返っ"
+        },
+        "tokenizer_provenance": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "id": "enrichment-prompt-0005",
+      "prompt_hash": "25b1f7438d29fc450598b713898bad5d01b4472e14ac260608bd0a6bede02377",
+      "prompt_version": "phase5-local-context-v1",
+      "request_id": "enrichment-request-0005",
+      "schema_version": 1
+    }
+  ],
+  "schema_version": 1
+}

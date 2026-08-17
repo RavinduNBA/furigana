@@ -203,8 +203,7 @@ def cache_key(request, provider):
         }
         for entry in request["dictionary_entries"]
     ]
-    return _sha(
-        {
+    identity = {
             "provider": provider.provider_id,
             "model": provider.model_id,
             "prompt_version": request["prompt_version"],
@@ -213,7 +212,11 @@ def cache_key(request, provider):
             "candidates": candidates,
             "context_hash": request["context_hash"],
         }
-    )
+    prompt_hash = getattr(provider, "prompt_hash_for", None)
+    if prompt_hash is not None:
+        identity["prompt_hash"] = prompt_hash(request)
+        identity["provider_config_version"] = provider.provider_config_version
+    return _sha(identity)
 
 
 def validate_response(request, response, provider):

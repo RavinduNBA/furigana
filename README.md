@@ -405,3 +405,34 @@ which outranks model phrasing. No SDK, network call, API key, XHTML mutation, or
 model-produced markup is supported. Artifacts are retained under
 `artifacts/phase5/`; review with
 `docs/phase5-request-fallback-review-checklist.md`.
+
+### Deterministic prompts and opt-in provider boundary
+
+Render the validated requests without invoking a provider using
+`scripts/render_enrichment_prompts.py REQUESTS_JSON OUTPUT_JSON`. Prompt packets
+contain only the selected item, bounded same-block context, ordered supplied
+dictionary records, provenance, precedence, and a strict response contract.
+Their canonical content is hashed and covered by
+`tests/phase5_golden/prompts-v1.json`.
+
+`OpenAICompatibleProvider` is disabled unless a caller explicitly supplies a
+model, credential, cache directory, and transport. The regression gate injects
+only a local fake transport; it performs no network request and uses no real
+credential. The optional SDK transport is imported lazily, uses a fixed timeout,
+bounded output, deterministic settings, and no automatic retries. The core,
+scripted provider, cache-only mode, and dictionary fallback do not require the
+SDK. Credentials are confined to the executable transport boundary and are
+excluded from prompts, cache keys, reports, diagnostics, and logs.
+
+Production-shaped invocation is intentionally explicit:
+`scripts/run_openai_enrichment.py REQUESTS_JSON OUTPUT_JSON --enable-openai-compatible
+--model MODEL --cache-dir CACHE_DIR`. It reads the credential from
+`OPENAI_API_KEY` by default (or the name supplied with `--api-key-env`) only at
+the CLI boundary. The optional `openai` package must be installed separately;
+it is not required or exercised by the regression suite.
+
+Run `./scripts/phase5-regression.sh`; provider artifacts are retained under
+`artifacts/phase5/provider/`. Review them with
+`docs/phase5-provider-prompt-review-checklist.md`. Transport errors, refusals,
+malformed JSON, invalid references, and unsupported responses are never cached
+and retain dictionary-only meanings.
