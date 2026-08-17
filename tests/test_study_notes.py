@@ -87,7 +87,7 @@ def test_styles_are_scoped_to_study_note_classes(plan):
 @pytest.mark.parametrize(
     ("mutate", "message"),
     [
-        (lambda p: p.update(schema_version=2), "schema v1"),
+        (lambda p: p.update(schema_version=3), "schema v1 or v2"),
         (lambda p: p["items"][0].update(kind="grammar"), "Unsupported item kind"),
         (lambda p: p["items"][0].update(display_meaning=""), "Missing display_meaning"),
         (

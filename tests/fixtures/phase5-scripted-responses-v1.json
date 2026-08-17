@@ -1,0 +1,72 @@
+{
+  "enrichment-request-0001": {
+    "ambiguity_note": null,
+    "context_hash": "cce6dbcd19e348caf1932100f9608565469d2a9c398fa3a2a0965d99488d17d4",
+    "display_meaning": "pleasant weather",
+    "item_id": "study-item-0001",
+    "model_id": "scripted-v1",
+    "prompt_version": "phase5-local-context-v1",
+    "provider_id": "scripted-local",
+    "request_id": "enrichment-request-0001",
+    "schema_version": 1,
+    "selected_entry_id": "jmdict-1008",
+    "selected_sense_id": "jmdict-1008-sense-0001",
+    "selected_translation_id": null
+  },
+  "enrichment-request-0002": {
+    "ambiguity_note": null,
+    "context_hash": "13ec9ab50ca88607a9318393bb2ac727e67477ac0eb4e8245bd04f3a8dd34f81",
+    "display_meaning": "word",
+    "item_id": "study-item-0002",
+    "model_id": "scripted-v1",
+    "prompt_version": "phase5-local-context-v1",
+    "provider_id": "scripted-local",
+    "request_id": "enrichment-request-0002",
+    "schema_version": 1,
+    "selected_entry_id": "jmdict-1001",
+    "selected_sense_id": "jmdict-1001-sense-0001",
+    "selected_translation_id": null
+  },
+  "enrichment-request-0003": {
+    "ambiguity_note": null,
+    "context_hash": "f45f708f2666620100eb8f70561c92a1db8d9197d55c916ee7a2846630e1e409",
+    "display_meaning": "public stage",
+    "item_id": "study-item-0003",
+    "model_id": "scripted-v1",
+    "prompt_version": "phase5-local-context-v1",
+    "provider_id": "scripted-local",
+    "request_id": "enrichment-request-0003",
+    "schema_version": 1,
+    "selected_entry_id": "jmdict-1006",
+    "selected_sense_id": "jmdict-1006-sense-0001",
+    "selected_translation_id": null
+  },
+  "enrichment-request-0004": {
+    "ambiguity_note": null,
+    "context_hash": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e",
+    "display_meaning": "Yukino (female given name)",
+    "item_id": "study-item-0004",
+    "model_id": "scripted-v1",
+    "prompt_version": "phase5-local-context-v1",
+    "provider_id": "scripted-local",
+    "request_id": "enrichment-request-0004",
+    "schema_version": 1,
+    "selected_entry_id": "jmnedict-2001",
+    "selected_sense_id": null,
+    "selected_translation_id": "jmnedict-2001-translation-0001"
+  },
+  "enrichment-request-0005": {
+    "ambiguity_note": null,
+    "context_hash": "e4d8bce30845d5bc41e7bb99bf5be502b26cc4632cae585dc55a0e58c22d7b1e",
+    "display_meaning": "to turn around",
+    "item_id": "study-item-0005",
+    "model_id": "scripted-v1",
+    "prompt_version": "phase5-local-context-v1",
+    "provider_id": "scripted-local",
+    "request_id": "enrichment-request-0005",
+    "schema_version": 1,
+    "selected_entry_id": "jmdict-1002",
+    "selected_sense_id": "jmdict-1002-sense-0001",
+    "selected_translation_id": null
+  }
+}

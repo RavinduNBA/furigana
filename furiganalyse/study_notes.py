@@ -14,6 +14,7 @@ DOCUMENT_VERSION = 1
 SUPPORTED_KINDS = {"vocabulary", "expression", "name"}
 ANCHOR_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9._:-]*$")
 INVALID_XML = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]")
+HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 KIND_LABELS = {
     "vocabulary": "Vocabulary",
     "expression": "Expression",
@@ -55,9 +56,92 @@ def _strings(value: Any, field: str) -> list[str]:
     return result
 
 
+def _validate_enriched_metadata(plan: dict[str, Any]) -> None:
+    expected = {
+        "schema_version",
+        "source_report_schema_version",
+        "source_annotation_plan_schema_version",
+        "book_id",
+        "config",
+        "tokenizer",
+        "dictionary",
+        "name_dictionary",
+        "items",
+        "diagnostics",
+        "enrichments",
+        "enrichment_diagnostics",
+    }
+    if set(plan) != expected or plan.get("source_annotation_plan_schema_version") != 1:
+        raise StudyNoteError("Invalid enriched annotation-plan schema")
+    items = {item.get("id"): item for item in plan.get("items", [])}
+    enrichments = plan.get("enrichments")
+    diagnostics = plan.get("enrichment_diagnostics")
+    if not isinstance(enrichments, list) or not isinstance(diagnostics, list):
+        raise StudyNoteError("Missing enrichment audit records")
+    previous_item = -1
+    for number, record in enumerate(enrichments, 1):
+        required = {
+            "id",
+            "item_id",
+            "request_id",
+            "dictionary_only_display_meaning",
+            "display_meaning",
+            "ambiguity_note",
+            "selected_entry_id",
+            "selected_sense_id",
+            "selected_translation_id",
+            "prompt_version",
+            "response_schema_version",
+            "context_hash",
+            "provider_id",
+            "model_id",
+            "cache_key",
+            "cache_status",
+            "meaning_provenance",
+            "precedence",
+        }
+        if (
+            set(record) != required
+            or record.get("id") != f"plan-enrichment-{number:04d}"
+        ):
+            raise StudyNoteError("Invalid enrichment audit record")
+        item = items.get(record.get("item_id"))
+        if item is None or item.get("display_meaning") != record.get("display_meaning"):
+            raise StudyNoteError("Enrichment meaning/item mismatch")
+        item_position = int(item["id"].rsplit("-", 1)[1])
+        if item_position <= previous_item:
+            raise StudyNoteError("Unordered enrichment records")
+        previous_item = item_position
+        if (
+            record.get("selected_entry_id") not in item.get("source_entry_ids", [])
+            or record.get("selected_sense_id") != item.get("selected_sense_id")
+            or record.get("selected_translation_id")
+            != item.get("selected_translation_id")
+            or record.get("cache_status") not in {"miss", "hit"}
+            or record.get("meaning_provenance")
+            not in {"validated-model", "validated-cache"}
+            or record.get("precedence") != ["publisher", "user", "dictionary", "model"]
+            or not HEX_SHA256.fullmatch(str(record.get("context_hash", "")))
+            or not HEX_SHA256.fullmatch(str(record.get("cache_key", "")))
+        ):
+            raise StudyNoteError("Invalid enrichment provenance or references")
+        _text(record.get("dictionary_only_display_meaning"), "original meaning")
+        _text(record.get("provider_id"), "provider ID")
+        _text(record.get("model_id"), "model ID")
+    for number, diagnostic in enumerate(diagnostics, 1):
+        if (
+            set(diagnostic) != {"id", "item_id", "request_id", "reason"}
+            or diagnostic.get("id") != f"plan-enrichment-diagnostic-{number:04d}"
+            or diagnostic.get("item_id") not in items
+        ):
+            raise StudyNoteError("Invalid enrichment diagnostic")
+
+
 def validate_annotation_plan_for_notes(plan: dict[str, Any]) -> None:
-    if not isinstance(plan, dict) or plan.get("schema_version") != 1:
-        raise StudyNoteError("Study notes require annotation-plan schema v1")
+    if not isinstance(plan, dict) or plan.get("schema_version") not in {1, 2}:
+        raise StudyNoteError("Study notes require annotation-plan schema v1 or v2")
+    if plan["schema_version"] == 2:
+        _validate_enriched_metadata(plan)
     _text(plan.get("book_id"), "book ID")
     items = plan.get("items")
     if not isinstance(items, list):

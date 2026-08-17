@@ -384,3 +384,93 @@ entry after chapter 2 while preserving unrelated resources. ZIP timestamps,
 permissions, ordering, compression, and the first uncompressed mimetype entry
 are deterministic. See `docs/phase4-packaged-epub-review-checklist.md` for
 the next manual Calibre review.
+
+## Phase 5 controlled local-context enrichment
+
+Phase 5 starts with provider-neutral schema v1 request packets, strict response
+validation, deterministic per-response cache files, and dictionary-only
+fallback. Enrichment is disabled unless both a local provider and cache path are
+explicitly supplied. Run `./scripts/phase5-regression.sh`.
+
+Each selected item receives at most the containing sentence plus one adjacent
+sentence on either side from the same block. Requests contain ordered supplied
+JMdict senses or JMnedict translations, provenance, stable IDs, and a context
+hash; they never contain the complete book. Cache keys include provider/model,
+prompt and response-schema versions, item, candidates, and context hash.
+
+The only provider in this slice is a local scripted test provider. Invalid,
+timed-out, unavailable, or corrupt responses produce concise diagnostics and
+retain dictionary-only meanings. Publisher/user provenance outranks dictionary,
+which outranks model phrasing. No SDK, network call, API key, XHTML mutation, or
+model-produced markup is supported. Artifacts are retained under
+`artifacts/phase5/`; review with
+`docs/phase5-request-fallback-review-checklist.md`.
+
+### Deterministic prompts and opt-in provider boundary
+
+Render the validated requests without invoking a provider using
+`scripts/render_enrichment_prompts.py REQUESTS_JSON OUTPUT_JSON`. Prompt packets
+contain only the selected item, bounded same-block context, ordered supplied
+dictionary records, provenance, precedence, and a strict response contract.
+Their canonical content is hashed and covered by
+`tests/phase5_golden/prompts-v1.json`.
+
+`OpenAICompatibleProvider` is disabled unless a caller explicitly supplies a
+model, credential, cache directory, and transport. The regression gate injects
+only a local fake transport; it performs no network request and uses no real
+credential. The optional SDK transport is imported lazily, uses a fixed timeout,
+bounded output, deterministic settings, and no automatic retries. The core,
+scripted provider, cache-only mode, and dictionary fallback do not require the
+SDK. Credentials are confined to the executable transport boundary and are
+excluded from prompts, cache keys, reports, diagnostics, and logs.
+
+Production-shaped invocation is intentionally explicit:
+`scripts/run_openai_enrichment.py REQUESTS_JSON OUTPUT_JSON --enable-openai-compatible
+--model MODEL --cache-dir CACHE_DIR`. It reads the credential from
+`OPENAI_API_KEY` by default (or the name supplied with `--api-key-env`) only at
+the CLI boundary. The optional `openai` package must be installed separately;
+it is not required or exercised by the regression suite.
+
+Run `./scripts/phase5-regression.sh`; provider artifacts are retained under
+`artifacts/phase5/provider/`. Review them with
+`docs/phase5-provider-prompt-review-checklist.md`. Transport errors, refusals,
+malformed JSON, invalid references, and unsupported responses are never cached
+and retain dictionary-only meanings.
+
+### Applying validated meanings to the annotation plan
+
+Use `scripts/apply_enrichment_plan.py PLAN REQUESTS ENRICHMENT_REPORT
+ENRICHED_OUTPUT FALLBACK_OUTPUT` to apply already validated model or cache
+results. The applicator performs no linguistic analysis, prompt rendering,
+provider invocation, network access, or EPUB work. Schema-v2 output preserves
+the Phase 4 item/occurrence order and protected metadata while retaining an
+audit record containing the original dictionary meaning, selected dictionary
+references, context hash, prompt/schema versions, cache identity, provider,
+model, and provenance precedence.
+
+Only the short display meaning and optional ambiguity note are model-controlled.
+Publisher readings, item kinds, source references, offsets, occurrences, and
+anchors cannot change. Mixed reports retain dictionary meanings for failed or
+missing items. If no validated enrichment is accepted, both output paths are
+byte-identical copies of the Phase 4 plan. The regression gate retains reviewed
+output under `artifacts/phase5/enriched-plan/`; see
+`docs/phase5-enriched-plan-review-checklist.md`.
+
+### Rendering enriched study notes
+
+The existing note, linked-XHTML, and EPUB commands accept either the unchanged
+Phase 4 schema-v1 plan or a strictly validated Phase 5 schema-v2 plan. Both use
+the same rendering path. Schema v2 changes only the active reader-facing note
+meanings: `fine weather` becomes `pleasant weather`, `language` becomes `word`,
+and the name label becomes `Yukino (female given name)`.
+
+Provider/model identities, cache keys, context hashes, prompt versions,
+dictionary-only audit meanings, and ambiguity metadata are never rendered.
+Publisher ruby, contexts, links, backlinks, anchors, styles, resources,
+navigation, spine, and deterministic packaging remain unchanged. Schema-v1 and
+disabled/failure plans reproduce the Phase 4 XHTML and EPUB bytes exactly.
+
+`./scripts/phase5-regression.sh` retains enriched standalone XHTML, linked
+documents, and byte-identical EPUBs under `artifacts/phase5/rendered/`. Review
+with `docs/phase5-enriched-rendering-review-checklist.md`; Calibre verification
+is a separate acceptance step.
