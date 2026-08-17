@@ -372,3 +372,15 @@ The Phase 4 gate creates byte-identical linked run-A/run-B trees under
 `tests/phase4_golden/linked-v1/`. This remains an unpackaged output: OPF,
 spine, navigation, resources, archive metadata, and the input EPUB are
 unchanged. Review with `docs/phase4-linked-output-review-checklist.md`.
+
+### Deterministic study EPUB
+
+Package the linked output with `scripts/package_study_epub.py INPUT BOOK_JSON
+PLAN_JSON OUTPUT.epub`. The Phase 4 gate retains byte-identical outputs under
+`artifacts/phase4/epub/`, validates archive structure and every internal
+reference, and runs focused packaging tests. The packager adds one
+`furiganalyse-study-notes` manifest/spine item and one “Study Notes” TOC
+entry after chapter 2 while preserving unrelated resources. ZIP timestamps,
+permissions, ordering, compression, and the first uncompressed mimetype entry
+are deterministic. See `docs/phase4-packaged-epub-review-checklist.md` for
+the next manual Calibre review.

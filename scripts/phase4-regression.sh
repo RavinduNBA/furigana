@@ -25,5 +25,11 @@ mkdir -p "$LINKED/run-a" "$LINKED/run-b"
 .venv/bin/python scripts/render_linked_study_notes.py artifacts/phase2/fixture.epub artifacts/phase2/run-a/book.json "$OUT/run-a/annotation-plan.json" "$LINKED/run-b"
 diff -ru "$LINKED/run-a" "$LINKED/run-b"
 diff -ru "$LINKED_GOLDEN" "$LINKED/run-a"
-.venv/bin/python -m pytest -q tests/test_study_plan.py tests/test_study_notes.py tests/test_linked_output.py
+EPUB_OUT=$OUT/epub
+mkdir -p "$EPUB_OUT"
+.venv/bin/python scripts/package_study_epub.py artifacts/phase2/fixture.epub artifacts/phase2/run-a/book.json "$OUT/run-a/annotation-plan.json" "$EPUB_OUT/run-a.epub"
+.venv/bin/python scripts/package_study_epub.py artifacts/phase2/fixture.epub artifacts/phase2/run-a/book.json "$OUT/run-a/annotation-plan.json" "$EPUB_OUT/run-b.epub"
+cmp "$EPUB_OUT/run-a.epub" "$EPUB_OUT/run-b.epub"
+.venv/bin/python -c "from tests.phase0_epub import validate_epub; import sys; e=validate_epub('$EPUB_OUT/run-a.epub'); print(e); sys.exit(bool(e))"
+.venv/bin/python -m pytest -q tests/test_study_plan.py tests/test_study_notes.py tests/test_linked_output.py tests/test_epub_packaging.py
 echo "Phase 4 regression passed; artifacts retained under $OUT/"
