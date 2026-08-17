@@ -4,7 +4,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$ROOT"
 ./scripts/phase4-regression.sh
 OUT=artifacts/phase5
-rm -rf "$OUT/run-a" "$OUT/run-b" "$OUT/cache-a" "$OUT/cache-b" "$OUT/cache-failure" "$OUT/provider"
+rm -rf "$OUT/run-a" "$OUT/run-b" "$OUT/cache-a" "$OUT/cache-b" "$OUT/cache-failure" "$OUT/provider" "$OUT/enriched-plan"
 mkdir -p "$OUT/run-a" "$OUT/run-b" "$OUT/cache-a" "$OUT/cache-b"
 ARGS="artifacts/phase2/run-a/book.json artifacts/phase3/jmnedict/run-a/vocabulary.json artifacts/phase4/run-a/annotation-plan.json"
 .venv/bin/python scripts/enrich_study_plan.py $ARGS "$OUT/run-a/requests.json" "$OUT/run-a/disabled.json" --fallback-plan-output "$OUT/run-a/fallback-plan.json"
@@ -28,5 +28,21 @@ cmp "$OUT/provider/run-a/prompts.json" tests/phase5_golden/prompts-v1.json
 cmp "$OUT/provider/run-a/report.json" "$OUT/provider/run-b/report.json"
 .venv/bin/python scripts/run_fake_openai_provider.py "$OUT/run-a/requests.json" tests/fixtures/phase5-failing-responses-v1.json "$OUT/provider/run-a/cache-hit-prompts.json" "$OUT/provider/run-a/cache-hit.json" --cache-dir "$OUT/provider/cache-a"
 .venv/bin/python scripts/run_fake_openai_provider.py "$OUT/run-a/requests.json" tests/fixtures/phase5-failing-responses-v1.json "$OUT/provider/run-a/failure-prompts.json" "$OUT/provider/run-a/failure.json" --cache-dir "$OUT/provider/cache-failure"
-.venv/bin/python -m pytest -q tests/test_enrichment.py tests/test_enrichment_provider.py
-echo "Phase 5 request, prompt, fake-provider cache, and fallback regression passed. Artifacts: $OUT"
+mkdir -p "$OUT/enriched-plan/run-a" "$OUT/enriched-plan/run-b"
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-a/requests.json" "$OUT/provider/run-a/report.json" "$OUT/enriched-plan/run-a/annotation-plan.json" "$OUT/enriched-plan/run-a/fallback-plan.json"
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-b/requests.json" "$OUT/provider/run-b/report.json" "$OUT/enriched-plan/run-b/annotation-plan.json" "$OUT/enriched-plan/run-b/fallback-plan.json"
+cmp "$OUT/enriched-plan/run-a/annotation-plan.json" "$OUT/enriched-plan/run-b/annotation-plan.json"
+cmp "$OUT/enriched-plan/run-a/annotation-plan.json" tests/phase5_golden/enriched-plan-v2.json
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-a/requests.json" "$OUT/run-a/disabled.json" "$OUT/enriched-plan/disabled.json" "$OUT/enriched-plan/disabled-fallback.json"
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-a/requests.json" "$OUT/provider/run-a/failure.json" "$OUT/enriched-plan/failure.json" "$OUT/enriched-plan/failure-fallback.json"
+cmp "$OUT/enriched-plan/disabled.json" artifacts/phase4/run-a/annotation-plan.json
+cmp "$OUT/enriched-plan/disabled-fallback.json" artifacts/phase4/run-a/annotation-plan.json
+cmp "$OUT/enriched-plan/failure.json" artifacts/phase4/run-a/annotation-plan.json
+cmp "$OUT/enriched-plan/failure-fallback.json" artifacts/phase4/run-a/annotation-plan.json
+.venv/bin/python scripts/build_mixed_enrichment_report.py "$OUT/provider/run-a/report.json" "$OUT/provider/run-a/failure.json" "$OUT/enriched-plan/mixed-report-a.json"
+.venv/bin/python scripts/build_mixed_enrichment_report.py "$OUT/provider/run-b/report.json" "$OUT/provider/run-a/failure.json" "$OUT/enriched-plan/mixed-report-b.json"
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-a/requests.json" "$OUT/enriched-plan/mixed-report-a.json" "$OUT/enriched-plan/mixed-a.json" "$OUT/enriched-plan/mixed-fallback-a.json"
+.venv/bin/python scripts/apply_enrichment_plan.py artifacts/phase4/run-a/annotation-plan.json "$OUT/run-b/requests.json" "$OUT/enriched-plan/mixed-report-b.json" "$OUT/enriched-plan/mixed-b.json" "$OUT/enriched-plan/mixed-fallback-b.json"
+cmp "$OUT/enriched-plan/mixed-a.json" "$OUT/enriched-plan/mixed-b.json"
+.venv/bin/python -m pytest -q tests/test_enrichment.py tests/test_enrichment_provider.py tests/test_enriched_plan.py
+echo "Phase 5 request, provider, and enriched-plan regression passed. Artifacts: $OUT"

@@ -436,3 +436,22 @@ Run `./scripts/phase5-regression.sh`; provider artifacts are retained under
 `docs/phase5-provider-prompt-review-checklist.md`. Transport errors, refusals,
 malformed JSON, invalid references, and unsupported responses are never cached
 and retain dictionary-only meanings.
+
+### Applying validated meanings to the annotation plan
+
+Use `scripts/apply_enrichment_plan.py PLAN REQUESTS ENRICHMENT_REPORT
+ENRICHED_OUTPUT FALLBACK_OUTPUT` to apply already validated model or cache
+results. The applicator performs no linguistic analysis, prompt rendering,
+provider invocation, network access, or EPUB work. Schema-v2 output preserves
+the Phase 4 item/occurrence order and protected metadata while retaining an
+audit record containing the original dictionary meaning, selected dictionary
+references, context hash, prompt/schema versions, cache identity, provider,
+model, and provenance precedence.
+
+Only the short display meaning and optional ambiguity note are model-controlled.
+Publisher readings, item kinds, source references, offsets, occurrences, and
+anchors cannot change. Mixed reports retain dictionary meanings for failed or
+missing items. If no validated enrichment is accepted, both output paths are
+byte-identical copies of the Phase 4 plan. The regression gate retains reviewed
+output under `artifacts/phase5/enriched-plan/`; see
+`docs/phase5-enriched-plan-review-checklist.md`.
