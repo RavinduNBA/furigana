@@ -30,7 +30,6 @@ docs/phase3-*
 docs/phase4-*
 tests/golden/
 tests/phase3_golden/
-tests/phase4_golden/
 
 # Completed Phase 0-4 regression workflows and focused tests
 scripts/phase0_*
@@ -44,23 +43,14 @@ scripts/phase3-*
 scripts/phase4_*
 scripts/phase4-*
 scripts/create_study_plan.py
-scripts/render_study_notes.py
-scripts/render_linked_study_notes.py
-scripts/package_study_epub.py
 tests/test_phase0_epub.py
 tests/test_book_analysis.py
 tests/test_vocabulary_analysis.py
 tests/test_jmdict.py
 tests/test_jmnedict.py
 tests/test_study_plan.py
-tests/test_study_notes.py
-tests/test_linked_output.py
-tests/test_epub_packaging.py
 
 # Completed Phase 4 rendering and packaging implementation
-furiganalyse/study_notes.py
-furiganalyse/linked_output.py
-furiganalyse/epub_packaging.py
 
 # Unrelated output surfaces and later-phase work
 furiganalyse/apkg_format.py

@@ -455,3 +455,22 @@ missing items. If no validated enrichment is accepted, both output paths are
 byte-identical copies of the Phase 4 plan. The regression gate retains reviewed
 output under `artifacts/phase5/enriched-plan/`; see
 `docs/phase5-enriched-plan-review-checklist.md`.
+
+### Rendering enriched study notes
+
+The existing note, linked-XHTML, and EPUB commands accept either the unchanged
+Phase 4 schema-v1 plan or a strictly validated Phase 5 schema-v2 plan. Both use
+the same rendering path. Schema v2 changes only the active reader-facing note
+meanings: `fine weather` becomes `pleasant weather`, `language` becomes `word`,
+and the name label becomes `Yukino (female given name)`.
+
+Provider/model identities, cache keys, context hashes, prompt versions,
+dictionary-only audit meanings, and ambiguity metadata are never rendered.
+Publisher ruby, contexts, links, backlinks, anchors, styles, resources,
+navigation, spine, and deterministic packaging remain unchanged. Schema-v1 and
+disabled/failure plans reproduce the Phase 4 XHTML and EPUB bytes exactly.
+
+`./scripts/phase5-regression.sh` retains enriched standalone XHTML, linked
+documents, and byte-identical EPUBs under `artifacts/phase5/rendered/`. Review
+with `docs/phase5-enriched-rendering-review-checklist.md`; Calibre verification
+is a separate acceptance step.
