@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "expected": {
+    "index_records": 13,
+    "study_items": 5,
+    "study_occurrences": 6,
+    "retrieval_results": 6,
+    "default_scope": "block",
+    "default_previous": 1,
+    "default_following": 1,
+    "default_sentence_budget": 3,
+    "default_character_budget": 500,
+    "precedence": ["publisher", "user", "dictionary", "book_context", "model"]
+  },
+  "cases": [
+    {
+      "item_id": "study-item-0001",
+      "surface": "良い天気だ",
+      "kind": "expression",
+      "containing_sentence": "「今日は良い天気だね」と彼女は言った。"
+    },
+    {
+      "item_id": "study-item-0002",
+      "surface": "言葉",
+      "kind": "vocabulary",
+      "containing_sentence": "強調された言葉と、句読点——そして English text."
+    },
+    {
+      "item_id": "study-item-0003",
+      "surface": "表舞台",
+      "kind": "vocabulary",
+      "occurrence_ids": ["study-item-0003-occ-0001", "study-item-0003-occ-0002"],
+      "authoritative_reading": "おもてぶたい",
+      "reading_source": "publisher"
+    },
+    {
+      "item_id": "study-item-0004",
+      "surface": "雪乃",
+      "kind": "name",
+      "containing_sentence": "名前は雪乃。",
+      "authoritative_reading": "ゆきの",
+      "reading_source": "publisher"
+    },
+    {
+      "item_id": "study-item-0005",
+      "surface": "振り返っ",
+      "kind": "vocabulary",
+      "containing_sentence": "怪訝な顔で振り返った。"
+    },
+    {
+      "boundary": "block",
+      "query_item_id": "study-item-0002",
+      "excluded_sentence_id": "ch-0001-b-0002-s-0001"
+    },
+    {
+      "boundary": "chapter",
+      "query_item_id": "study-item-0005",
+      "excluded_chapter_id": "ch-0001"
+    }
+  ]
+}

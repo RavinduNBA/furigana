@@ -1,0 +1,458 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+  "results": [
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 19,
+      "contexts": [
+        {
+          "block_id": "ch-0001-b-0002",
+          "chapter_id": "ch-0001",
+          "reason": "containing",
+          "record_id": "book-context-record-0002",
+          "sentence_id": "ch-0001-b-0002-s-0001",
+          "source_anchor": null,
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "「今日は良い天気だね」と彼女は言った。"
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0001",
+        "occurrence_id": null,
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0001-occ-0001",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "37e7030153139a272e497bf609c83c822abb718bf6fc164241d288730428b2f0",
+      "result_hash": "0f5acaa8f4d3f540a65f7545f17363774d78f6bf17cb22c67ee4bb299339e17e",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "よいてんき",
+        "block_end": 9,
+        "block_start": 4,
+        "candidate_ids": [
+          "ch-0001-b-0002-s-0001-tok-0004-cand",
+          "ch-0001-b-0002-s-0001-tok-0005-cand",
+          "ch-0001-b-0002-s-0001-tok-0006-cand"
+        ],
+        "dictionary_kind": "jmdict",
+        "entry_ids": [
+          "jmdict-1008"
+        ],
+        "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+        "item_id": "study-item-0001",
+        "item_kind": "expression",
+        "name_id": null,
+        "occurrence_id": "study-item-0001-occ-0001",
+        "publisher_ruby_id": null,
+        "reading_source": "JMdict",
+        "sense_ids": [
+          "jmdict-1008-sense-0001"
+        ],
+        "sentence_end": 9,
+        "sentence_start": 4,
+        "surface": "良い天気だ",
+        "token_ids": [
+          "ch-0001-b-0002-s-0001-tok-0004",
+          "ch-0001-b-0002-s-0001-tok-0005",
+          "ch-0001-b-0002-s-0001-tok-0006"
+        ],
+        "translation_ids": []
+      }
+    },
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 31,
+      "contexts": [
+        {
+          "block_id": "ch-0001-b-0003",
+          "chapter_id": "ch-0001",
+          "reason": "containing",
+          "record_id": "book-context-record-0003",
+          "sentence_id": "ch-0001-b-0003-s-0001",
+          "source_anchor": null,
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "強調された言葉と、句読点——そして English text."
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0002",
+        "occurrence_id": null,
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0002-occ-0001",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "eb1aea6478239ae2ca85878fd39111a4621e65742db493e0f06333cef037f81a",
+      "result_hash": "cd180762296e1f0f85bd016d7676cacebbadc04dadcd04a9e74b6f52e6286b5e",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "ことば",
+        "block_end": 7,
+        "block_start": 5,
+        "candidate_ids": [
+          "ch-0001-b-0003-s-0001-tok-0005-cand"
+        ],
+        "dictionary_kind": "jmdict",
+        "entry_ids": [
+          "jmdict-1001"
+        ],
+        "expression_id": null,
+        "item_id": "study-item-0002",
+        "item_kind": "vocabulary",
+        "name_id": null,
+        "occurrence_id": "study-item-0002-occ-0001",
+        "publisher_ruby_id": null,
+        "reading_source": "JMdict",
+        "sense_ids": [
+          "jmdict-1001-sense-0001",
+          "jmdict-1001-sense-0002"
+        ],
+        "sentence_end": 7,
+        "sentence_start": 5,
+        "surface": "言葉",
+        "token_ids": [
+          "ch-0001-b-0003-s-0001-tok-0005"
+        ],
+        "translation_ids": []
+      }
+    },
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 17,
+      "contexts": [
+        {
+          "block_id": "ch-0001-b-0004",
+          "chapter_id": "ch-0001",
+          "reason": "containing",
+          "record_id": "book-context-record-0004",
+          "sentence_id": "ch-0001-b-0004-s-0001",
+          "source_anchor": "publisher-ruby-cases",
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "舞台は表舞台だった。"
+        },
+        {
+          "block_id": "ch-0001-b-0004",
+          "chapter_id": "ch-0001",
+          "reason": "following",
+          "record_id": "book-context-record-0005",
+          "sentence_id": "ch-0001-b-0004-s-0002",
+          "source_anchor": "publisher-ruby-cases",
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "表舞台の漢字。"
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0003",
+        "occurrence_id": "study-item-0003-occ-0001",
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0003-occ-0001",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "fe11d452995d123e107a937ff23e8221b37a6606cfe58ac72ecd5ca995ef48b0",
+      "result_hash": "00f55b48510d555ac2c4cfa374f7f8adae5ad39d3a94b4c8d595f0cac1c0b926",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "おもてぶたい",
+        "block_end": 6,
+        "block_start": 3,
+        "candidate_ids": [
+          "ch-0001-b-0004-s-0001-tok-0003-cand"
+        ],
+        "dictionary_kind": "jmdict",
+        "entry_ids": [
+          "jmdict-1006"
+        ],
+        "expression_id": null,
+        "item_id": "study-item-0003",
+        "item_kind": "vocabulary",
+        "name_id": null,
+        "occurrence_id": "study-item-0003-occ-0001",
+        "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+        "reading_source": "publisher",
+        "sense_ids": [
+          "jmdict-1006-sense-0001"
+        ],
+        "sentence_end": 6,
+        "sentence_start": 3,
+        "surface": "表舞台",
+        "token_ids": [
+          "ch-0001-b-0004-s-0001-tok-0003"
+        ],
+        "translation_ids": []
+      }
+    },
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 19,
+      "contexts": [
+        {
+          "block_id": "ch-0001-b-0004",
+          "chapter_id": "ch-0001",
+          "reason": "previous",
+          "record_id": "book-context-record-0004",
+          "sentence_id": "ch-0001-b-0004-s-0001",
+          "source_anchor": "publisher-ruby-cases",
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "舞台は表舞台だった。"
+        },
+        {
+          "block_id": "ch-0001-b-0004",
+          "chapter_id": "ch-0001",
+          "reason": "containing",
+          "record_id": "book-context-record-0005",
+          "sentence_id": "ch-0001-b-0004-s-0002",
+          "source_anchor": "publisher-ruby-cases",
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "表舞台の漢字。"
+        },
+        {
+          "block_id": "ch-0001-b-0004",
+          "chapter_id": "ch-0001",
+          "reason": "following",
+          "record_id": "book-context-record-0006",
+          "sentence_id": "ch-0001-b-0004-s-0003",
+          "source_anchor": "publisher-ruby-cases",
+          "source_path": "EPUB/text/chapter-01.xhtml",
+          "text": "第一"
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0003",
+        "occurrence_id": "study-item-0003-occ-0002",
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0003-occ-0002",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "0d298bf76ec9bd0c36b2316ca0fcac3223d9f1f7d99a0144d51aca89de4fbc73",
+      "result_hash": "fe20dd3aa2468d5f48f4a965bace59d150308ac4de48072d4829c18e1f52c068",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "おもてぶたい",
+        "block_end": 14,
+        "block_start": 11,
+        "candidate_ids": [
+          "ch-0001-b-0004-s-0002-tok-0001-cand"
+        ],
+        "dictionary_kind": "jmdict",
+        "entry_ids": [
+          "jmdict-1006"
+        ],
+        "expression_id": null,
+        "item_id": "study-item-0003",
+        "item_kind": "vocabulary",
+        "name_id": null,
+        "occurrence_id": "study-item-0003-occ-0002",
+        "publisher_ruby_id": "ch-0001-b-0004-r-0002",
+        "reading_source": "publisher",
+        "sense_ids": [
+          "jmdict-1006-sense-0001"
+        ],
+        "sentence_end": 3,
+        "sentence_start": 0,
+        "surface": "表舞台",
+        "token_ids": [
+          "ch-0001-b-0004-s-0002-tok-0001"
+        ],
+        "translation_ids": []
+      }
+    },
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 17,
+      "contexts": [
+        {
+          "block_id": "ch-0002-b-0002",
+          "chapter_id": "ch-0002",
+          "reason": "containing",
+          "record_id": "book-context-record-0009",
+          "sentence_id": "ch-0002-b-0002-s-0001",
+          "source_anchor": "answer",
+          "source_path": "EPUB/text/chapter-02.xhtml",
+          "text": "名前は雪乃。"
+        },
+        {
+          "block_id": "ch-0002-b-0002",
+          "chapter_id": "ch-0002",
+          "reason": "following",
+          "record_id": "book-context-record-0010",
+          "sentence_id": "ch-0002-b-0002-s-0002",
+          "source_anchor": "answer",
+          "source_path": "EPUB/text/chapter-02.xhtml",
+          "text": "怪訝な顔で振り返った。"
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0004",
+        "occurrence_id": null,
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0004-occ-0001",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "23a437b46d268387f3688ac332025f7187b668ec3b93ca1b3fb1b7a26ca54ced",
+      "result_hash": "6efe914c8f98874ccf80d8f3501a93882c3dc743fffa853f2238ac0569de45a9",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "ゆきの",
+        "block_end": 5,
+        "block_start": 3,
+        "candidate_ids": [
+          "ch-0002-b-0002-s-0001-tok-0003-cand"
+        ],
+        "dictionary_kind": "jmnedict",
+        "entry_ids": [
+          "jmnedict-2001"
+        ],
+        "expression_id": null,
+        "item_id": "study-item-0004",
+        "item_kind": "name",
+        "name_id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+        "occurrence_id": "study-item-0004-occ-0001",
+        "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+        "reading_source": "publisher",
+        "sense_ids": [],
+        "sentence_end": 5,
+        "sentence_start": 3,
+        "surface": "雪乃",
+        "token_ids": [
+          "ch-0002-b-0002-s-0001-tok-0003"
+        ],
+        "translation_ids": [
+          "jmnedict-2001-translation-0001"
+        ]
+      }
+    },
+    {
+      "book_id": "urn:uuid:furiganalyse-phase-0",
+      "character_count": 17,
+      "contexts": [
+        {
+          "block_id": "ch-0002-b-0002",
+          "chapter_id": "ch-0002",
+          "reason": "previous",
+          "record_id": "book-context-record-0009",
+          "sentence_id": "ch-0002-b-0002-s-0001",
+          "source_anchor": "answer",
+          "source_path": "EPUB/text/chapter-02.xhtml",
+          "text": "名前は雪乃。"
+        },
+        {
+          "block_id": "ch-0002-b-0002",
+          "chapter_id": "ch-0002",
+          "reason": "containing",
+          "record_id": "book-context-record-0010",
+          "sentence_id": "ch-0002-b-0002-s-0002",
+          "source_anchor": "answer",
+          "source_path": "EPUB/text/chapter-02.xhtml",
+          "text": "怪訝な顔で振り返った。"
+        }
+      ],
+      "index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "query": {
+        "character_budget": 500,
+        "following": 1,
+        "item_id": "study-item-0005",
+        "occurrence_id": null,
+        "previous": 1,
+        "resolved_occurrence_id": "study-item-0005-occ-0001",
+        "scope": "block",
+        "sentence_budget": 3
+      },
+      "query_hash": "41fdc62649bb43f354dcc29b7ec96598568dbe8c9ded5dba062a54cbe6b5f8fb",
+      "result_hash": "306f28e47804dfa6a1b5abd8ef31684d1357f75ec4975dc1db2f8968d28d64b7",
+      "schema_version": 1,
+      "target": {
+        "authoritative_reading": "ふりかえる",
+        "block_end": 15,
+        "block_start": 11,
+        "candidate_ids": [
+          "ch-0002-b-0002-s-0002-tok-0005-cand"
+        ],
+        "dictionary_kind": "jmdict",
+        "entry_ids": [
+          "jmdict-1002"
+        ],
+        "expression_id": null,
+        "item_id": "study-item-0005",
+        "item_kind": "vocabulary",
+        "name_id": null,
+        "occurrence_id": "study-item-0005-occ-0001",
+        "publisher_ruby_id": null,
+        "reading_source": "JMdict",
+        "sense_ids": [
+          "jmdict-1002-sense-0001"
+        ],
+        "sentence_end": 9,
+        "sentence_start": 5,
+        "surface": "振り返っ",
+        "token_ids": [
+          "ch-0002-b-0002-s-0002-tok-0005"
+        ],
+        "translation_ids": []
+      }
+    }
+  ],
+  "schema_version": 1
+}

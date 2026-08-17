@@ -474,3 +474,48 @@ disabled/failure plans reproduce the Phase 4 XHTML and EPUB bytes exactly.
 documents, and byte-identical EPUBs under `artifacts/phase5/rendered/`. Review
 with `docs/phase5-enriched-rendering-review-checklist.md`; Calibre verification
 is a separate acceptance step.
+
+## Phase 6 deterministic book context
+
+Phase 6 begins with a provider-free sentence index over the validated canonical
+book, schema-v4 vocabulary report, and schema-v2 enriched annotation plan. It
+does not reparse XHTML or repeat linguistic analysis. Build the schema-v1 index:
+
+    .venv/bin/python scripts/build_book_context.py build \
+      artifacts/phase2/run-a/book.json \
+      artifacts/phase3/jmnedict/run-a/vocabulary.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      artifacts/phase6/manual/context-index.json
+
+Retrieve the reviewed item/occurrence queries:
+
+    .venv/bin/python scripts/build_book_context.py retrieve \
+      artifacts/phase6/manual/context-index.json \
+      tests/phase6_golden/retrieval-queries-v1.json \
+      artifacts/phase6/manual/retrieval.json
+
+Default retrieval includes the exact containing sentence and at most one
+previous and following sentence from the same block. Explicit chapter scope may
+cross blocks but never chapters. Sentence and character budgets retain whole
+sentences only, preserve canonical order, and never return the complete book in
+one result.
+
+The index preserves source IDs, offsets, selected item/occurrence references,
+JMdict/JMnedict separation, publisher ruby, tokenizer and dictionary
+provenance, and stable source/query/result hashes. Precedence is publisher,
+user-approved terminology, dictionary, book context, then model evidence.
+Book context cannot change approved meanings, readings, dictionary records, or
+the Phase 5 plan.
+
+Context is disabled unless explicitly built and queried. Disabled, corrupt, or
+incompatible input produces no augmentation; fallback plans remain byte-for-byte
+identical to Phase 5. Safe diagnostics contain reason codes rather than raw
+context, paths, credentials, or exceptions.
+
+Run `./scripts/phase6-regression.sh`. It runs the Phase 5 gate first, verifies
+byte-identical index/retrieval output against checked-in goldens, checks
+disabled/failure identity, and retains artifacts under `artifacts/phase6/`.
+Review with `docs/phase6-context-retrieval-review-checklist.md`.
+
+This slice has no summaries, entity resolution, terminology decisions,
+semantic retrieval, provider calls, network access, or rendering changes.
