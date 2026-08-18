@@ -1,0 +1,8 @@
+{
+  "dataset_id": "invalid-synthetic-grammar",
+  "dataset_version": "1",
+  "fixture_notice": "Synthetic invalid test fixture.",
+  "rules": [],
+  "schema_version": 99,
+  "source_provenance": "synthetic invalid fixture"
+}

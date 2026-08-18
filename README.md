@@ -658,3 +658,39 @@ requests, annotation plans, XHTML, or EPUB output. Disabled or failed operation
 preserves Phase 5 request and plan bytes exactly. Artifacts are retained under
 artifacts/phase6/manifest/ and reviewed with
 docs/phase6-context-manifest-review-checklist.md.
+## Phase 7 curated grammar candidates
+
+Phase 7 begins with a deterministic grammar-analysis layer over the existing
+canonical book, schema-v4 vocabulary report, and schema-v2 annotation plan. It
+does not reparse XHTML or modify vocabulary, study plans, notes, or EPUB files.
+
+The initial dataset is a deliberately small synthetic fixture, not a production
+grammar resource. Rules use exact ordered token surfaces, never cross sentence,
+block, or chapter boundaries, and never inspect publisher `rt`/`rp` text.
+Competing matches resolve by longest exact span, explicit rule priority, curated
+rule order, and canonical source order. Vocabulary overlaps are retained only as
+references in a separate grammar report.
+
+Run the complete gate:
+
+```bash
+./scripts/phase7-regression.sh
+```
+
+Direct CLI usage:
+
+```bash
+.venv/bin/python scripts/analyze_grammar.py \\
+  --book artifacts/phase7/run-a/inputs/book.json \\
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \\
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \\
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \\
+  --output artifacts/phase7/run-a/grammar.json
+```
+
+The gate retains deterministic reports, disabled/failure diagnostics, and
+compatibility copies under `artifacts/phase7/`. Grammar is disabled unless an
+explicit local dataset is supplied. Invalid inputs fail safely, and fallback
+plans remain byte-identical. Current limitations include exact synthetic rules
+only: no production dataset, fuzzy matching, model inference, grammar notes,
+link rendering, or EPUB changes.
