@@ -1,0 +1,205 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "character_budget": 500,
+  "diagnostics": [],
+  "include_previous": true,
+  "record_budget": 2,
+  "report_hash": "abdbc6ede2e6d4a59bd9b97da1fdbf1aa6116a87baf06cc19dd5f61a971411de",
+  "results": [
+    {
+      "authoritative_reading": "よいてんき",
+      "chapter_id": "ch-0001",
+      "context_record_id": "book-context-lexical-0001",
+      "decision_id": null,
+      "effective_terminology": null,
+      "evidence_group_id": "evidence-group-0001",
+      "evidence_kind": "jmdict_expression",
+      "id": "context-augmentation-0001",
+      "item_id": "study-item-0001",
+      "manifest_hash": "560d13d103b1e9792756355422b2929bbbcad053577ce2bb68aece3a94b5f9b2",
+      "occurrence_ids": [
+        "study-item-0001-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "reading_source": "JMdict",
+      "request_id": "enrichment-request-0001",
+      "result_hash": "cf317baae3cd155cb18ed8cadfa67cf7b88d918cad166f4c2f3b6c668a30518e",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "target",
+          "source": "user",
+          "summary": "Good weather, a word, and the public arena are observed."
+        }
+      ],
+      "terminology_source": null
+    },
+    {
+      "authoritative_reading": "ことば",
+      "chapter_id": "ch-0001",
+      "context_record_id": "book-context-lexical-0002",
+      "decision_id": null,
+      "effective_terminology": null,
+      "evidence_group_id": "evidence-group-0002",
+      "evidence_kind": "jmdict_vocabulary",
+      "id": "context-augmentation-0002",
+      "item_id": "study-item-0002",
+      "manifest_hash": "560d13d103b1e9792756355422b2929bbbcad053577ce2bb68aece3a94b5f9b2",
+      "occurrence_ids": [
+        "study-item-0002-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "reading_source": "JMdict",
+      "request_id": "enrichment-request-0002",
+      "result_hash": "0ce181a8558d56159617cf744d9ea8925acfaae556804171db5d578a26470135",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "target",
+          "source": "user",
+          "summary": "Good weather, a word, and the public arena are observed."
+        }
+      ],
+      "terminology_source": null
+    },
+    {
+      "authoritative_reading": "おもてぶたい",
+      "chapter_id": "ch-0001",
+      "context_record_id": "book-context-lexical-0003",
+      "decision_id": "terminology-decision-0001",
+      "effective_terminology": "public arena",
+      "evidence_group_id": "evidence-group-0003",
+      "evidence_kind": "publisher_ruby_vocabulary",
+      "id": "context-augmentation-0003",
+      "item_id": "study-item-0003",
+      "manifest_hash": "560d13d103b1e9792756355422b2929bbbcad053577ce2bb68aece3a94b5f9b2",
+      "occurrence_ids": [
+        "study-item-0003-occ-0001",
+        "study-item-0003-occ-0002"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "reading_source": "publisher",
+      "request_id": "enrichment-request-0003",
+      "result_hash": "7970c07cb75bbdaa01f682c6c8ac9a6d1e1d083589eb2a711eb3cbd63beade97",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "target",
+          "source": "user",
+          "summary": "Good weather, a word, and the public arena are observed."
+        }
+      ],
+      "terminology_source": "user"
+    },
+    {
+      "authoritative_reading": "ゆきの",
+      "chapter_id": "ch-0002",
+      "context_record_id": "book-context-lexical-0004",
+      "decision_id": "terminology-decision-0002",
+      "effective_terminology": null,
+      "evidence_group_id": "evidence-group-0004",
+      "evidence_kind": "publisher_ruby_name",
+      "id": "context-augmentation-0004",
+      "item_id": "study-item-0004",
+      "manifest_hash": "560d13d103b1e9792756355422b2929bbbcad053577ce2bb68aece3a94b5f9b2",
+      "occurrence_ids": [
+        "study-item-0004-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "reading_source": "publisher",
+      "request_id": "enrichment-request-0004",
+      "result_hash": "00daa582f9e4ccd1f16c61b84e76341e0959fafa89d11c861d5f758d4177ce90",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "previous",
+          "source": "user",
+          "summary": "Good weather, a word, and the public arena are observed."
+        },
+        {
+          "chapter_id": "ch-0002",
+          "decision_id": "chapter-summary-decision-0002",
+          "inclusion_reason": "target",
+          "source": "user",
+          "summary": "Yukino and turning around are observed."
+        }
+      ],
+      "terminology_source": null
+    },
+    {
+      "authoritative_reading": "ふりかえる",
+      "chapter_id": "ch-0002",
+      "context_record_id": "book-context-lexical-0005",
+      "decision_id": null,
+      "effective_terminology": null,
+      "evidence_group_id": "evidence-group-0005",
+      "evidence_kind": "jmdict_vocabulary",
+      "id": "context-augmentation-0005",
+      "item_id": "study-item-0005",
+      "manifest_hash": "560d13d103b1e9792756355422b2929bbbcad053577ce2bb68aece3a94b5f9b2",
+      "occurrence_ids": [
+        "study-item-0005-occ-0001"
+      ],
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "reading_source": "JMdict",
+      "request_id": "enrichment-request-0005",
+      "result_hash": "8b8d6f380c73e014afb46d9de0e0f2dd81c26b6f67756deef82791c36ac2512b",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "previous",
+          "source": "user",
+          "summary": "Good weather, a word, and the public arena are observed."
+        },
+        {
+          "chapter_id": "ch-0002",
+          "decision_id": "chapter-summary-decision-0002",
+          "inclusion_reason": "target",
+          "source": "user",
+          "summary": "Yukino and turning around are observed."
+        }
+      ],
+      "terminology_source": null
+    }
+  ],
+  "schema_version": 1,
+  "source_hashes": {
+    "manifest": "a7365e2931b77344595a926f4852c47dd2a3839a1cf74807531e71dcc5cfc6be",
+    "requests": "4fde47fcd0962b4f7e02fe44e1b88920cc4c259885ad062884bbc0f194f93e2f"
+  }
+}

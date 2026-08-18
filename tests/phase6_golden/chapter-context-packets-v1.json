@@ -1,0 +1,245 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "packets": [
+    {
+      "chapter_id": "ch-0001",
+      "chapter_order": 1,
+      "character_count": 80,
+      "dictionary_provenance": {
+        "jmdict": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "jmnedict": {
+          "dataset_id": "furiganalyse-synthetic-jmnedict",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+        }
+      },
+      "effective_terminology": [
+        {
+          "decision_id": "terminology-decision-0001",
+          "evidence_group_id": "evidence-group-0003",
+          "source": "user",
+          "term": "public stage",
+          "terminology_result_id": "terminology-result-0003"
+        }
+      ],
+      "evidence_group_ids": [
+        "evidence-group-0001",
+        "evidence-group-0002",
+        "evidence-group-0003"
+      ],
+      "id": "chapter-context-packet-0001",
+      "jmdict_references": {
+        "entry_ids": [
+          "jmdict-1008",
+          "jmdict-1001",
+          "jmdict-1006"
+        ],
+        "sense_ids": [
+          "jmdict-1008-sense-0001",
+          "jmdict-1001-sense-0001",
+          "jmdict-1001-sense-0002",
+          "jmdict-1006-sense-0001"
+        ]
+      },
+      "jmnedict_references": {
+        "entry_ids": [],
+        "translation_ids": []
+      },
+      "packet_hash": "83e11b9ec6952f095ebb2e3105e03702148b32d5cd981b925d478dd624f6d7d9",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "proper_name_group_ids": [],
+      "publisher_ruby": [
+        {
+          "id": "ch-0001-b-0004-r-0001",
+          "reading": "おもてぶたい",
+          "source": "publisher",
+          "source_anchor": "publisher-grouped",
+          "surface": "表舞台"
+        },
+        {
+          "id": "ch-0001-b-0004-r-0002",
+          "reading": "おもてぶたい",
+          "source": "publisher",
+          "source_anchor": "publisher-nested",
+          "surface": "表舞台"
+        },
+        {
+          "id": "ch-0001-b-0004-r-0003",
+          "reading": "ファースト",
+          "source": "publisher",
+          "source_anchor": "publisher-unusual",
+          "surface": "第一"
+        }
+      ],
+      "recurring_term_group_ids": [
+        "evidence-group-0003"
+      ],
+      "sentence_count": 7,
+      "sentence_record_ids": [
+        "book-context-record-0001",
+        "book-context-record-0002",
+        "book-context-record-0003",
+        "book-context-record-0004",
+        "book-context-record-0005",
+        "book-context-record-0006",
+        "book-context-record-0007"
+      ],
+      "source_hashes": {
+        "context_index": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "evidence_report": "7ec507df03380cedaa9307c96283eba10652179f52a9d6dc9a77a29565477262",
+        "terminology_report": "972b9ee185fc151b633bf7cd1ad06d94e9052db1f896e16ca959a3734429cdcb"
+      },
+      "source_path": "EPUB/text/chapter-01.xhtml",
+      "study_item_ids": [
+        "study-item-0001",
+        "study-item-0002",
+        "study-item-0003"
+      ],
+      "study_occurrence_ids": [
+        "study-item-0001-occ-0001",
+        "study-item-0002-occ-0001",
+        "study-item-0003-occ-0001",
+        "study-item-0003-occ-0002"
+      ],
+      "terminology_decision_ids": [
+        "terminology-decision-0001"
+      ],
+      "terminology_result_ids": [
+        "terminology-result-0001",
+        "terminology-result-0002",
+        "terminology-result-0003"
+      ]
+    },
+    {
+      "chapter_id": "ch-0002",
+      "chapter_order": 2,
+      "character_count": 88,
+      "dictionary_provenance": {
+        "jmdict": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "jmnedict": {
+          "dataset_id": "furiganalyse-synthetic-jmnedict",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+        }
+      },
+      "effective_terminology": [],
+      "evidence_group_ids": [
+        "evidence-group-0004",
+        "evidence-group-0005"
+      ],
+      "id": "chapter-context-packet-0002",
+      "jmdict_references": {
+        "entry_ids": [
+          "jmdict-1002"
+        ],
+        "sense_ids": [
+          "jmdict-1002-sense-0001"
+        ]
+      },
+      "jmnedict_references": {
+        "entry_ids": [
+          "jmnedict-2001"
+        ],
+        "translation_ids": [
+          "jmnedict-2001-translation-0001"
+        ]
+      },
+      "packet_hash": "7561e78560710e6e7fc23ab066c6bbd01fdd504fd008e148bc247937c6a16a8f",
+      "precedence": [
+        "publisher",
+        "user",
+        "dictionary",
+        "book_context",
+        "model"
+      ],
+      "proper_name_group_ids": [
+        "evidence-group-0004"
+      ],
+      "publisher_ruby": [
+        {
+          "id": "ch-0002-b-0002-r-0001",
+          "reading": "ゆきの",
+          "source": "publisher",
+          "source_anchor": "publisher-fallback",
+          "surface": "雪乃"
+        },
+        {
+          "id": "ch-0002-b-0003-r-0001",
+          "reading": null,
+          "source": "publisher",
+          "source_anchor": "publisher-malformed",
+          "surface": "未知"
+        }
+      ],
+      "recurring_term_group_ids": [],
+      "sentence_count": 6,
+      "sentence_record_ids": [
+        "book-context-record-0008",
+        "book-context-record-0009",
+        "book-context-record-0010",
+        "book-context-record-0011",
+        "book-context-record-0012",
+        "book-context-record-0013"
+      ],
+      "source_hashes": {
+        "context_index": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "evidence_report": "7ec507df03380cedaa9307c96283eba10652179f52a9d6dc9a77a29565477262",
+        "terminology_report": "972b9ee185fc151b633bf7cd1ad06d94e9052db1f896e16ca959a3734429cdcb"
+      },
+      "source_path": "EPUB/text/chapter-02.xhtml",
+      "study_item_ids": [
+        "study-item-0004",
+        "study-item-0005"
+      ],
+      "study_occurrence_ids": [
+        "study-item-0004-occ-0001",
+        "study-item-0005-occ-0001"
+      ],
+      "terminology_decision_ids": [
+        "terminology-decision-0002"
+      ],
+      "terminology_result_ids": [
+        "terminology-result-0004",
+        "terminology-result-0005"
+      ]
+    }
+  ],
+  "precedence": [
+    "publisher",
+    "user",
+    "dictionary",
+    "book_context",
+    "model"
+  ],
+  "schema_version": 1,
+  "source_hashes": {
+    "context_index": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+    "evidence_report": "7ec507df03380cedaa9307c96283eba10652179f52a9d6dc9a77a29565477262",
+    "terminology_report": "972b9ee185fc151b633bf7cd1ad06d94e9052db1f896e16ca959a3734429cdcb"
+  },
+  "source_schemas": {
+    "context_index": 1,
+    "evidence_report": 1,
+    "terminology_report": 1
+  }
+}

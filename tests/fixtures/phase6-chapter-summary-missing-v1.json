@@ -1,0 +1,24 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "decisions": [
+    {
+      "chapter_id": "ch-0001",
+      "decision_hash": "9e0e242b58cafcbc71df6d2ecbbdebf80f85f71d7c0cab9071776fc4df0fb6ca",
+      "evidence_group_ids": ["evidence-group-0001", "evidence-group-0002", "evidence-group-0003"],
+      "id": "chapter-summary-decision-0001",
+      "packet_id": "chapter-context-packet-0001",
+      "provenance": "user",
+      "review_date": "2026-08-18",
+      "reviewer": "Synthetic fixture reviewer",
+      "reviewer_note": "Synthetic test-fixture summary; not a real user approval.",
+      "source_packet_hash": "83e11b9ec6952f095ebb2e3105e03702148b32d5cd981b925d478dd624f6d7d9",
+      "status": "approved",
+      "summary": "Good weather, a word, and the public stage are observed.",
+      "summary_schema_version": 1,
+      "terminology_decision_ids": ["terminology-decision-0001"]
+    }
+  ],
+  "fixture_notice": "Synthetic test-fixture decisions only; not real user approvals.",
+  "registry_id": "furiganalyse-phase6-synthetic-missing-summary-v1",
+  "schema_version": 1
+}

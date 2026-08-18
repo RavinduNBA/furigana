@@ -474,3 +474,187 @@ disabled/failure plans reproduce the Phase 4 XHTML and EPUB bytes exactly.
 documents, and byte-identical EPUBs under `artifacts/phase5/rendered/`. Review
 with `docs/phase5-enriched-rendering-review-checklist.md`; Calibre verification
 is a separate acceptance step.
+
+## Phase 6 deterministic book context
+
+Phase 6 begins with a provider-free sentence index over the validated canonical
+book, schema-v4 vocabulary report, and schema-v2 enriched annotation plan. It
+does not reparse XHTML or repeat linguistic analysis. Build the schema-v1 index:
+
+    .venv/bin/python scripts/build_book_context.py build \
+      artifacts/phase2/run-a/book.json \
+      artifacts/phase3/jmnedict/run-a/vocabulary.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      artifacts/phase6/manual/context-index.json
+
+Retrieve the reviewed item/occurrence queries:
+
+    .venv/bin/python scripts/build_book_context.py retrieve \
+      artifacts/phase6/manual/context-index.json \
+      tests/phase6_golden/retrieval-queries-v1.json \
+      artifacts/phase6/manual/retrieval.json
+
+Default retrieval includes the exact containing sentence and at most one
+previous and following sentence from the same block. Explicit chapter scope may
+cross blocks but never chapters. Sentence and character budgets retain whole
+sentences only, preserve canonical order, and never return the complete book in
+one result.
+
+The index preserves source IDs, offsets, selected item/occurrence references,
+JMdict/JMnedict separation, publisher ruby, tokenizer and dictionary
+provenance, and stable source/query/result hashes. Precedence is publisher,
+user-approved terminology, dictionary, book context, then model evidence.
+Book context cannot change approved meanings, readings, dictionary records, or
+the Phase 5 plan.
+
+Context is disabled unless explicitly built and queried. Disabled, corrupt, or
+incompatible input produces no augmentation; fallback plans remain byte-for-byte
+identical to Phase 5. Safe diagnostics contain reason codes rather than raw
+context, paths, credentials, or exceptions.
+
+Run `./scripts/phase6-regression.sh`. It runs the Phase 5 gate first, verifies
+byte-identical index/retrieval output against checked-in goldens, checks
+disabled/failure identity, and retains artifacts under `artifacts/phase6/`.
+Review with `docs/phase6-context-retrieval-review-checklist.md`.
+
+This slice has no summaries, entity resolution, terminology decisions,
+semantic retrieval, provider calls, network access, or rendering changes.
+
+### Recurring-term and entity evidence
+
+Build the schema-v1 evidence report from validated Phase 6/3/5 inputs:
+
+    .venv/bin/python scripts/build_context_evidence.py build \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase3/jmnedict/run-a/vocabulary.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      artifacts/phase6/evidence/manual/evidence.json
+
+The default minimum occurrence count is 2. Override it explicitly with
+--minimum-occurrences. Evidence groups use exact compatible lemma, normalized
+expression, JMnedict identity, or publisher surface/reading keys. They preserve
+first-seen source order, exact occurrence references and offsets, ordered
+chapter counts, provenance, and deterministic hashes.
+
+JMdict vocabulary, JMdict expressions, JMnedict names, publisher-backed
+vocabulary, and publisher-backed names remain distinct. Different publisher
+readings never merge. Single-occurrence groups remain visible but are marked
+ineligible with safe insufficient-recurrence diagnostics.
+
+This report is evidence only. It does not choose a preferred English label,
+resolve aliases or entities, copy full context sentences, generate summaries,
+or invoke a provider. Publisher and user provenance still outrank dictionary,
+book-context, and model evidence. Disabled or failed generation preserves the
+approved Phase 5 plan byte-for-byte.
+
+The enhanced ./scripts/phase6-regression.sh generates evidence twice, compares
+it strictly with tests/phase6_golden/evidence-v1.json, exercises thresholds 1
+and 2, and retains artifacts under artifacts/phase6/evidence/. Review with
+docs/phase6-evidence-review-checklist.md.
+
+### Explicit user terminology registry
+
+Terminology decisions are never inferred. A schema-v1 registry must be supplied
+explicitly and every decision records a user reviewer, approval date, evidence
+hash, source item/dictionary references, authoritative reading, status, and
+decision hash.
+
+Allowed statuses are approved, rejected, and deferred. Only approved decisions
+produce an effective terminology term. Rejected and deferred decisions remain
+auditable with no effective term. Publisher readings always remain unchanged
+and outrank user terminology; user-approved terminology outranks dictionary,
+book-context, and model suggestions.
+
+Build the consistency report:
+
+    .venv/bin/python scripts/build_terminology_consistency.py build \
+      artifacts/phase6/evidence/run-a/evidence.json \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      tests/fixtures/phase6-terminology-registry-v1.json \
+      artifacts/phase6/terminology/manual/consistency.json
+
+The reviewed fixture explicitly approves 表舞台 as public stage and defers
+雪乃. No decision exists for the three single-occurrence groups. Reports retain
+all source occurrences and evidence provenance without mutating Phase 5 active
+meanings. A differing approved term produces an audit diagnostic only.
+
+Stale hashes, unknown groups, unsafe terms, invalid status/term combinations,
+and source mismatches are rejected. Disabled or failed operation produces no
+terminology augmentation and preserves the Phase 5 plan byte-for-byte.
+
+The enhanced ./scripts/phase6-regression.sh retains terminology outputs under
+artifacts/phase6/terminology/ and compares the reviewed output with
+tests/phase6_golden/terminology-consistency-v1.json. Review with
+docs/phase6-terminology-review-checklist.md.
+
+This slice performs no automatic terminology selection, entity resolution,
+alias merging, summaries, provider calls, network access, or rendering.
+
+### Explicit chapter summaries and bounded retrieval
+
+Build reference-only chapter packets from the validated context, evidence, and
+terminology reports:
+
+    .venv/bin/python scripts/build_chapter_summaries.py packets \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase6/evidence/run-a/evidence.json \
+      artifacts/phase6/terminology/run-a/consistency.json \
+      artifacts/phase6/summaries/manual/packets.json
+
+Packets preserve canonical chapter order, sentence-record IDs, selected items
+and occurrences, evidence and terminology references, publisher readings,
+dictionary provenance, precedence, and stable hashes. They do not copy chapter
+text. JMdict vocabulary/expressions and JMnedict names remain separate.
+
+Chapter summaries are never generated automatically. The report command
+requires an explicit local registry with approved, rejected, or deferred
+decisions. Only an approved decision supplies effective summary text. The
+checked-in registry is clearly labeled synthetic test-fixture data: chapter 1
+has one short approved fixture summary and chapter 2 is deferred.
+
+    .venv/bin/python scripts/build_chapter_summaries.py report \
+      artifacts/phase6/summaries/manual/packets.json \
+      tests/fixtures/phase6-chapter-summary-registry-v1.json \
+      artifacts/phase6/summaries/manual/summary.json
+
+The retrieve command resolves a chapter, study item, or occurrence. It returns
+only approved summaries, optionally includes one previous approved chapter,
+never includes a following chapter by default, and applies complete-summary
+count and character budgets.
+
+Disabled, stale, invalid, or corrupt operation preserves the approved Phase 5
+plan byte-for-byte and emits safe reason codes without chapter text, paths,
+credentials, cache data, or exceptions. The Phase 6 gate retains artifacts
+under artifacts/phase6/summaries/; review them with
+docs/phase6-chapter-summary-review-checklist.md.
+
+This slice performs no automatic summarization, provider calls, book-wide
+summaries, entity resolution, semantic retrieval, or rendering.
+
+### Editable book-context manifest
+
+The final Phase 6 integration composes the validated context index, evidence,
+terminology, chapter packets, and summary report into a deterministic
+reference-only manifest. It preserves chapter order, recurring terms, proper
+names, publisher readings, explicit decisions, provenance, and hashes without
+copying complete chapter text.
+
+Use scripts/build_context_manifest.py to build or validate a manifest, rehash
+explicit local edits, export terminology and summary registries, and produce
+bounded per-item augmentation for existing Phase 5 requests. Only decision
+status, approved short text, reviewer note, reviewer identity, and review date
+are editable. Protected source and dictionary fields are rejected if changed.
+
+The checked-in edited manifest is synthetic fixture data. It changes 表舞台 to
+“public arena” and approves a short chapter-2 fixture summary while preserving
+publisher readings and JMdict/JMnedict separation. Exported registries rebuild
+the existing deterministic terminology and summary reports.
+
+Augmentation returns only the lexical or name record matching each study item,
+the target approved chapter summary, and optionally one previous approved
+summary. It never changes Phase 5 sentence context, prompts, cache keys,
+requests, annotation plans, XHTML, or EPUB output. Disabled or failed operation
+preserves Phase 5 request and plan bytes exactly. Artifacts are retained under
+artifacts/phase6/manifest/ and reviewed with
+docs/phase6-context-manifest-review-checklist.md.

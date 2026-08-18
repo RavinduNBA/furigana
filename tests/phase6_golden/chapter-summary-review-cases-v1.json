@@ -1,0 +1,27 @@
+{
+  "expected": {
+    "approved_summaries": 1,
+    "chapters": 2,
+    "deferred_summaries": 1,
+    "packets": 2,
+    "retrieval_queries": 3
+  },
+  "fixture_notice": "Synthetic review data only; not a real user approval.",
+  "review_cases": [
+    {
+      "chapter_id": "ch-0001",
+      "decision_status": "approved",
+      "effective_summary": "Good weather, a word, and the public stage are observed.",
+      "evidence_group_ids": ["evidence-group-0001", "evidence-group-0002", "evidence-group-0003"],
+      "terminology_decision_ids": ["terminology-decision-0001"]
+    },
+    {
+      "chapter_id": "ch-0002",
+      "decision_status": "deferred",
+      "effective_summary": null,
+      "evidence_group_ids": ["evidence-group-0004", "evidence-group-0005"],
+      "terminology_decision_ids": ["terminology-decision-0002"]
+    }
+  ],
+  "schema_version": 1
+}

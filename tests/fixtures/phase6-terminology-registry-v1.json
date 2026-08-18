@@ -1,0 +1,59 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "decisions": [
+    {
+      "approval_date": "2026-08-18",
+      "approved_term": "public stage",
+      "authoritative_reading": "おもてぶたい",
+      "decision_hash": "f8fe56607b72f6ce76207c6f5b1dc901a99ceedc87b6e45fefdaae5950558473",
+      "evidence_group_id": "evidence-group-0003",
+      "evidence_kind": "publisher_ruby_vocabulary",
+      "id": "terminology-decision-0001",
+      "provenance": "user",
+      "reading_source": "publisher",
+      "registry_schema_version": 1,
+      "reviewer": "Ravindu",
+      "reviewer_note": "Approved existing reviewed terminology.",
+      "source_entry_ids": [
+        "jmdict-1006"
+      ],
+      "source_evidence_hash": "ee39dd0721b3d72780027c7207d435888434f0432a87d6ea40e1ce8db97b0677",
+      "source_item_ids": [
+        "study-item-0003"
+      ],
+      "source_sense_ids": [
+        "jmdict-1006-sense-0001"
+      ],
+      "source_translation_ids": [],
+      "status": "approved"
+    },
+    {
+      "approval_date": "2026-08-18",
+      "approved_term": null,
+      "authoritative_reading": "ゆきの",
+      "decision_hash": "086224b45772bef4736aa2ce41d2b7cff8c41decde3dd3f5795d9f7965ad5a89",
+      "evidence_group_id": "evidence-group-0004",
+      "evidence_kind": "publisher_ruby_name",
+      "id": "terminology-decision-0002",
+      "provenance": "user",
+      "reading_source": "publisher",
+      "registry_schema_version": 1,
+      "reviewer": "Ravindu",
+      "reviewer_note": "Name terminology deferred for later review.",
+      "source_entry_ids": [
+        "jmnedict-2001"
+      ],
+      "source_evidence_hash": "354b0af543c517a1e2526ddd6e693cee596dce242753644b7ea92aa624a84875",
+      "source_item_ids": [
+        "study-item-0004"
+      ],
+      "source_sense_ids": [],
+      "source_translation_ids": [
+        "jmnedict-2001-translation-0001"
+      ],
+      "status": "deferred"
+    }
+  ],
+  "registry_id": "furiganalyse-phase6-reviewed-terminology-v1",
+  "schema_version": 1
+}

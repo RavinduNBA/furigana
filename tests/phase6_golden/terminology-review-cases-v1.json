@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "expected": {
+    "results": 5,
+    "decisions": 2,
+    "approved_decisions": 1,
+    "deferred_decisions": 1,
+    "automatic_decisions": 0,
+    "diagnostics": 0
+  },
+  "cases": [
+    {
+      "surface": "良い天気だ",
+      "decision_status": null,
+      "approved_term": null,
+      "consistency_status": "single-occurrence-observation"
+    },
+    {
+      "surface": "言葉",
+      "decision_status": null,
+      "approved_term": null,
+      "consistency_status": "single-occurrence-observation"
+    },
+    {
+      "surface": "表舞台",
+      "decision_status": "approved",
+      "approved_term": "public stage",
+      "terminology_source": "user",
+      "consistency_status": "consistent-user-approved",
+      "occurrences": 2,
+      "reading": "おもてぶたい"
+    },
+    {
+      "surface": "雪乃",
+      "decision_status": "deferred",
+      "approved_term": null,
+      "consistency_status": "deferred-by-user",
+      "evidence_kind": "publisher_ruby_name",
+      "reading": "ゆきの"
+    },
+    {
+      "surface": "振り返っ",
+      "decision_status": null,
+      "approved_term": null,
+      "consistency_status": "single-occurrence-observation"
+    }
+  ]
+}

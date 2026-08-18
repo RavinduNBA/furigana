@@ -1,0 +1,29 @@
+{
+  "queries": [
+    {
+      "character_budget": 500,
+      "id": "summary-query-0001",
+      "include_previous": false,
+      "summary_budget": 1,
+      "target_id": "ch-0001",
+      "target_type": "chapter"
+    },
+    {
+      "character_budget": 500,
+      "id": "summary-query-0002",
+      "include_previous": true,
+      "summary_budget": 2,
+      "target_id": "study-item-0004",
+      "target_type": "item"
+    },
+    {
+      "character_budget": 500,
+      "id": "summary-query-0003",
+      "include_previous": true,
+      "summary_budget": 2,
+      "target_id": "study-item-0005-occ-0001",
+      "target_type": "occurrence"
+    }
+  ],
+  "schema_version": 1
+}

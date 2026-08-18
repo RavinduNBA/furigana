@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "expected": {
+    "groups": 5,
+    "occurrences": 6,
+    "minimum_occurrences": 2,
+    "eligible_groups": 1,
+    "diagnostics": 4,
+    "preferred_terminology_fields": 0
+  },
+  "cases": [
+    {
+      "surface": "良い天気だ",
+      "evidence_kind": "jmdict_expression",
+      "normalized_form": "良い天気",
+      "occurrences": 1,
+      "eligible": false
+    },
+    {
+      "surface": "言葉",
+      "evidence_kind": "jmdict_vocabulary",
+      "lemma": "言葉",
+      "occurrences": 1,
+      "eligible": false
+    },
+    {
+      "surface": "表舞台",
+      "evidence_kind": "publisher_ruby_vocabulary",
+      "lemma": "表舞台",
+      "reading": "おもてぶたい",
+      "publisher_ruby_ids": [
+        "ch-0001-b-0004-r-0001",
+        "ch-0001-b-0004-r-0002"
+      ],
+      "occurrences": 2,
+      "eligible": true
+    },
+    {
+      "surface": "雪乃",
+      "evidence_kind": "publisher_ruby_name",
+      "reading": "ゆきの",
+      "translation_id": "jmnedict-2001-translation-0001",
+      "occurrences": 1,
+      "eligible": false
+    },
+    {
+      "surface": "振り返っ",
+      "evidence_kind": "jmdict_vocabulary",
+      "lemma": "振り返る",
+      "occurrences": 1,
+      "eligible": false
+    }
+  ]
+}
