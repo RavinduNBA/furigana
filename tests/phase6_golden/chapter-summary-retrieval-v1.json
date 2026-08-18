@@ -1,0 +1,80 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "diagnostics": [],
+  "results": [
+    {
+      "character_budget": 500,
+      "id": "summary-retrieval-result-0001",
+      "include_previous": false,
+      "query_hash": "e780689022cc856b9b9714c101177617fcba29ec912210d6c82ebfe5fae0b133",
+      "query_id": "summary-query-0001",
+      "result_hash": "47af3732b17a9971100158fe455556180a586f4a828f56d189a4bd1734492b19",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "target",
+          "packet_id": "chapter-context-packet-0001",
+          "source": "user",
+          "summary": "Good weather, a word, and the public stage are observed.",
+          "summary_result_id": "chapter-summary-result-0001"
+        }
+      ],
+      "summary_budget": 1,
+      "target_chapter_id": "ch-0001",
+      "target_id": "ch-0001",
+      "target_type": "chapter"
+    },
+    {
+      "character_budget": 500,
+      "id": "summary-retrieval-result-0002",
+      "include_previous": true,
+      "query_hash": "fc6452c4254e67975058788904f57de3de0e0473498d5b7a5550297d4377bb71",
+      "query_id": "summary-query-0002",
+      "result_hash": "6ec361c85649f955f9016b1fd72de0c4771ffbf1192789a18e6a1ddce6703b0c",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "previous",
+          "packet_id": "chapter-context-packet-0001",
+          "source": "user",
+          "summary": "Good weather, a word, and the public stage are observed.",
+          "summary_result_id": "chapter-summary-result-0001"
+        }
+      ],
+      "summary_budget": 2,
+      "target_chapter_id": "ch-0002",
+      "target_id": "study-item-0004",
+      "target_type": "item"
+    },
+    {
+      "character_budget": 500,
+      "id": "summary-retrieval-result-0003",
+      "include_previous": true,
+      "query_hash": "1255722bf09b8a2fce36b28bc0f9f5a46b1e2fe81f7a84f9752f0619574813be",
+      "query_id": "summary-query-0003",
+      "result_hash": "0d09c8a52f3fb4ac76795484b4299d6c9005c8dbace41319a5af525d30912117",
+      "summaries": [
+        {
+          "chapter_id": "ch-0001",
+          "decision_id": "chapter-summary-decision-0001",
+          "inclusion_reason": "previous",
+          "packet_id": "chapter-context-packet-0001",
+          "source": "user",
+          "summary": "Good weather, a word, and the public stage are observed.",
+          "summary_result_id": "chapter-summary-result-0001"
+        }
+      ],
+      "summary_budget": 2,
+      "target_chapter_id": "ch-0002",
+      "target_id": "study-item-0005-occ-0001",
+      "target_type": "occurrence"
+    }
+  ],
+  "schema_version": 1,
+  "source_hashes": {
+    "chapter_packets": "5db525b1691c8cbe04cdf412602871f0e0e8ecd98931c599f16336b3ef66dbf7",
+    "summary_report": "34152af0595b21eef8807197d88ed9691a145f5b8141e190551f344d364d9a8b"
+  }
+}

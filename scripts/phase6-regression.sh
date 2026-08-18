@@ -21,6 +21,10 @@ mkdir -p "$OUT/terminology/run-a" "$OUT/terminology/run-b"
 mkdir -p "$OUT/terminology/rejected" "$OUT/terminology/disabled"
 mkdir -p "$OUT/terminology/stale" "$OUT/terminology/invalid"
 mkdir -p "$OUT/terminology/failure"
+mkdir -p "$OUT/summaries/run-a" "$OUT/summaries/run-b"
+mkdir -p "$OUT/summaries/rejected" "$OUT/summaries/missing"
+mkdir -p "$OUT/summaries/disabled" "$OUT/summaries/stale"
+mkdir -p "$OUT/summaries/invalid" "$OUT/summaries/failure"
 
 "$PYTHON" scripts/build_book_context.py build "$BOOK" "$VOCABULARY" "$PLAN" "$OUT/run-a/context-index.json"
 "$PYTHON" scripts/build_book_context.py build "$BOOK" "$VOCABULARY" "$PLAN" "$OUT/run-b/context-index.json"
@@ -63,5 +67,31 @@ cmp "$PLAN" "$OUT/terminology/stale/annotation-plan.json"
 cmp "$PLAN" "$OUT/terminology/invalid/annotation-plan.json"
 cmp "$PLAN" "$OUT/terminology/failure/annotation-plan.json"
 
-"$PYTEST" -q tests/test_book_context.py tests/test_context_evidence.py tests/test_terminology.py
+"$PYTHON" scripts/build_chapter_summaries.py packets "$OUT/run-a/context-index.json" "$OUT/evidence/run-a/evidence.json" "$OUT/terminology/run-a/consistency.json" "$OUT/summaries/run-a/packets.json"
+"$PYTHON" scripts/build_chapter_summaries.py packets "$OUT/run-b/context-index.json" "$OUT/evidence/run-b/evidence.json" "$OUT/terminology/run-b/consistency.json" "$OUT/summaries/run-b/packets.json"
+cmp "$OUT/summaries/run-a/packets.json" "$OUT/summaries/run-b/packets.json"
+cmp "$OUT/summaries/run-a/packets.json" tests/phase6_golden/chapter-context-packets-v1.json
+
+"$PYTHON" scripts/build_chapter_summaries.py report "$OUT/summaries/run-a/packets.json" tests/fixtures/phase6-chapter-summary-registry-v1.json "$OUT/summaries/run-a/summary.json"
+"$PYTHON" scripts/build_chapter_summaries.py report "$OUT/summaries/run-b/packets.json" tests/fixtures/phase6-chapter-summary-registry-v1.json "$OUT/summaries/run-b/summary.json"
+cmp "$OUT/summaries/run-a/summary.json" "$OUT/summaries/run-b/summary.json"
+cmp "$OUT/summaries/run-a/summary.json" tests/phase6_golden/chapter-summary-report-v1.json
+
+"$PYTHON" scripts/build_chapter_summaries.py retrieve "$OUT/summaries/run-a/packets.json" "$OUT/summaries/run-a/summary.json" tests/phase6_golden/chapter-summary-queries-v1.json "$OUT/summaries/run-a/retrieval.json"
+"$PYTHON" scripts/build_chapter_summaries.py retrieve "$OUT/summaries/run-b/packets.json" "$OUT/summaries/run-b/summary.json" tests/phase6_golden/chapter-summary-queries-v1.json "$OUT/summaries/run-b/retrieval.json"
+cmp "$OUT/summaries/run-a/retrieval.json" "$OUT/summaries/run-b/retrieval.json"
+cmp "$OUT/summaries/run-a/retrieval.json" tests/phase6_golden/chapter-summary-retrieval-v1.json
+
+"$PYTHON" scripts/build_chapter_summaries.py report "$OUT/summaries/run-a/packets.json" tests/fixtures/phase6-chapter-summary-rejected-v1.json "$OUT/summaries/rejected/summary.json"
+"$PYTHON" scripts/build_chapter_summaries.py report "$OUT/summaries/run-a/packets.json" tests/fixtures/phase6-chapter-summary-missing-v1.json "$OUT/summaries/missing/summary.json"
+"$PYTHON" scripts/build_chapter_summaries.py fallback "$PLAN" "$OUT/summaries/disabled/report.json" "$OUT/summaries/disabled/annotation-plan.json"
+"$PYTHON" scripts/build_chapter_summaries.py fallback "$PLAN" "$OUT/summaries/stale/report.json" "$OUT/summaries/stale/annotation-plan.json" --reason stale-packet-hash
+"$PYTHON" scripts/build_chapter_summaries.py fallback "$PLAN" "$OUT/summaries/invalid/report.json" "$OUT/summaries/invalid/annotation-plan.json" --reason invalid-registry
+"$PYTHON" scripts/build_chapter_summaries.py fallback "$PLAN" "$OUT/summaries/failure/report.json" "$OUT/summaries/failure/annotation-plan.json" --reason corrupt-registry
+cmp "$PLAN" "$OUT/summaries/disabled/annotation-plan.json"
+cmp "$PLAN" "$OUT/summaries/stale/annotation-plan.json"
+cmp "$PLAN" "$OUT/summaries/invalid/annotation-plan.json"
+cmp "$PLAN" "$OUT/summaries/failure/annotation-plan.json"
+
+"$PYTEST" -q tests/test_book_context.py tests/test_context_evidence.py tests/test_terminology.py tests/test_chapter_summaries.py
 echo "Phase 6 regression passed; artifacts retained under $OUT"

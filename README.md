@@ -590,3 +590,44 @@ docs/phase6-terminology-review-checklist.md.
 
 This slice performs no automatic terminology selection, entity resolution,
 alias merging, summaries, provider calls, network access, or rendering.
+
+### Explicit chapter summaries and bounded retrieval
+
+Build reference-only chapter packets from the validated context, evidence, and
+terminology reports:
+
+    .venv/bin/python scripts/build_chapter_summaries.py packets \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase6/evidence/run-a/evidence.json \
+      artifacts/phase6/terminology/run-a/consistency.json \
+      artifacts/phase6/summaries/manual/packets.json
+
+Packets preserve canonical chapter order, sentence-record IDs, selected items
+and occurrences, evidence and terminology references, publisher readings,
+dictionary provenance, precedence, and stable hashes. They do not copy chapter
+text. JMdict vocabulary/expressions and JMnedict names remain separate.
+
+Chapter summaries are never generated automatically. The report command
+requires an explicit local registry with approved, rejected, or deferred
+decisions. Only an approved decision supplies effective summary text. The
+checked-in registry is clearly labeled synthetic test-fixture data: chapter 1
+has one short approved fixture summary and chapter 2 is deferred.
+
+    .venv/bin/python scripts/build_chapter_summaries.py report \
+      artifacts/phase6/summaries/manual/packets.json \
+      tests/fixtures/phase6-chapter-summary-registry-v1.json \
+      artifacts/phase6/summaries/manual/summary.json
+
+The retrieve command resolves a chapter, study item, or occurrence. It returns
+only approved summaries, optionally includes one previous approved chapter,
+never includes a following chapter by default, and applies complete-summary
+count and character budgets.
+
+Disabled, stale, invalid, or corrupt operation preserves the approved Phase 5
+plan byte-for-byte and emits safe reason codes without chapter text, paths,
+credentials, cache data, or exceptions. The Phase 6 gate retains artifacts
+under artifacts/phase6/summaries/; review them with
+docs/phase6-chapter-summary-review-checklist.md.
+
+This slice performs no automatic summarization, provider calls, book-wide
+summaries, entity resolution, semantic retrieval, or rendering.
