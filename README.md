@@ -551,3 +551,42 @@ The enhanced ./scripts/phase6-regression.sh generates evidence twice, compares
 it strictly with tests/phase6_golden/evidence-v1.json, exercises thresholds 1
 and 2, and retains artifacts under artifacts/phase6/evidence/. Review with
 docs/phase6-evidence-review-checklist.md.
+
+### Explicit user terminology registry
+
+Terminology decisions are never inferred. A schema-v1 registry must be supplied
+explicitly and every decision records a user reviewer, approval date, evidence
+hash, source item/dictionary references, authoritative reading, status, and
+decision hash.
+
+Allowed statuses are approved, rejected, and deferred. Only approved decisions
+produce an effective terminology term. Rejected and deferred decisions remain
+auditable with no effective term. Publisher readings always remain unchanged
+and outrank user terminology; user-approved terminology outranks dictionary,
+book-context, and model suggestions.
+
+Build the consistency report:
+
+    .venv/bin/python scripts/build_terminology_consistency.py build \
+      artifacts/phase6/evidence/run-a/evidence.json \
+      artifacts/phase6/run-a/context-index.json \
+      artifacts/phase5/enriched-plan/run-a/annotation-plan.json \
+      tests/fixtures/phase6-terminology-registry-v1.json \
+      artifacts/phase6/terminology/manual/consistency.json
+
+The reviewed fixture explicitly approves 表舞台 as public stage and defers
+雪乃. No decision exists for the three single-occurrence groups. Reports retain
+all source occurrences and evidence provenance without mutating Phase 5 active
+meanings. A differing approved term produces an audit diagnostic only.
+
+Stale hashes, unknown groups, unsafe terms, invalid status/term combinations,
+and source mismatches are rejected. Disabled or failed operation produces no
+terminology augmentation and preserves the Phase 5 plan byte-for-byte.
+
+The enhanced ./scripts/phase6-regression.sh retains terminology outputs under
+artifacts/phase6/terminology/ and compares the reviewed output with
+tests/phase6_golden/terminology-consistency-v1.json. Review with
+docs/phase6-terminology-review-checklist.md.
+
+This slice performs no automatic terminology selection, entity resolution,
+alias merging, summaries, provider calls, network access, or rendering.
