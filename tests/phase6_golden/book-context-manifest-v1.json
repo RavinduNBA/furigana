@@ -1,0 +1,709 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "chapters": [
+    {
+      "chapter_id": "ch-0001",
+      "chapter_order": 1,
+      "effective_summary": "Good weather, a word, and the public stage are observed.",
+      "effective_summary_source": "user",
+      "evidence_group_ids": [
+        "evidence-group-0001",
+        "evidence-group-0002",
+        "evidence-group-0003"
+      ],
+      "id": "book-context-chapter-0001",
+      "packet_hash": "83e11b9ec6952f095ebb2e3105e03702148b32d5cd981b925d478dd624f6d7d9",
+      "packet_id": "chapter-context-packet-0001",
+      "publisher_ruby": [
+        {
+          "id": "ch-0001-b-0004-r-0001",
+          "reading": "おもてぶたい",
+          "source": "publisher",
+          "source_anchor": "publisher-grouped",
+          "surface": "表舞台"
+        },
+        {
+          "id": "ch-0001-b-0004-r-0002",
+          "reading": "おもてぶたい",
+          "source": "publisher",
+          "source_anchor": "publisher-nested",
+          "surface": "表舞台"
+        },
+        {
+          "id": "ch-0001-b-0004-r-0003",
+          "reading": "ファースト",
+          "source": "publisher",
+          "source_anchor": "publisher-unusual",
+          "surface": "第一"
+        }
+      ],
+      "record_hash": "c69365fdcbb74617a9ab5faa77e97b4381912c2300f0bf452926c5c80c79f2b5",
+      "sentence_count": 7,
+      "sentence_record_ids": [
+        "book-context-record-0001",
+        "book-context-record-0002",
+        "book-context-record-0003",
+        "book-context-record-0004",
+        "book-context-record-0005",
+        "book-context-record-0006",
+        "book-context-record-0007"
+      ],
+      "source_path": "EPUB/text/chapter-01.xhtml",
+      "study_item_ids": [
+        "study-item-0001",
+        "study-item-0002",
+        "study-item-0003"
+      ],
+      "study_occurrence_ids": [
+        "study-item-0001-occ-0001",
+        "study-item-0002-occ-0001",
+        "study-item-0003-occ-0001",
+        "study-item-0003-occ-0002"
+      ],
+      "summary_decision_id": "chapter-summary-decision-0001",
+      "summary_status": "approved",
+      "terminology_result_ids": [
+        "terminology-result-0001",
+        "terminology-result-0002",
+        "terminology-result-0003"
+      ]
+    },
+    {
+      "chapter_id": "ch-0002",
+      "chapter_order": 2,
+      "effective_summary": null,
+      "effective_summary_source": null,
+      "evidence_group_ids": [
+        "evidence-group-0004",
+        "evidence-group-0005"
+      ],
+      "id": "book-context-chapter-0002",
+      "packet_hash": "7561e78560710e6e7fc23ab066c6bbd01fdd504fd008e148bc247937c6a16a8f",
+      "packet_id": "chapter-context-packet-0002",
+      "publisher_ruby": [
+        {
+          "id": "ch-0002-b-0002-r-0001",
+          "reading": "ゆきの",
+          "source": "publisher",
+          "source_anchor": "publisher-fallback",
+          "surface": "雪乃"
+        },
+        {
+          "id": "ch-0002-b-0003-r-0001",
+          "reading": null,
+          "source": "publisher",
+          "source_anchor": "publisher-malformed",
+          "surface": "未知"
+        }
+      ],
+      "record_hash": "4d7f994524bd0270296a48804e6c75bc19bbfa37f28875a4d9fa11406d8f229e",
+      "sentence_count": 6,
+      "sentence_record_ids": [
+        "book-context-record-0008",
+        "book-context-record-0009",
+        "book-context-record-0010",
+        "book-context-record-0011",
+        "book-context-record-0012",
+        "book-context-record-0013"
+      ],
+      "source_path": "EPUB/text/chapter-02.xhtml",
+      "study_item_ids": [
+        "study-item-0004",
+        "study-item-0005"
+      ],
+      "study_occurrence_ids": [
+        "study-item-0004-occ-0001",
+        "study-item-0005-occ-0001"
+      ],
+      "summary_decision_id": "chapter-summary-decision-0002",
+      "summary_status": "deferred",
+      "terminology_result_ids": [
+        "terminology-result-0004",
+        "terminology-result-0005"
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "dictionary_provenance": {
+    "jmdict": {
+      "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+      "dataset_version": "2026-08-16",
+      "format_version": 1,
+      "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+    },
+    "jmnedict": {
+      "dataset_id": "furiganalyse-synthetic-jmnedict",
+      "dataset_version": "2026-08-16",
+      "format_version": 1,
+      "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+    }
+  },
+  "manifest_hash": "19053306dd1abad0605cfa591dc047bc1f764c5b81f0ad31f30d092b354b0da3",
+  "manifest_id": "furiganalyse-book-context-v1",
+  "precedence": [
+    "publisher",
+    "user",
+    "dictionary",
+    "book_context",
+    "model"
+  ],
+  "proper_names": [
+    {
+      "authoritative_reading": "ゆきの",
+      "book_occurrence_count": 1,
+      "chapter_occurrence_counts": [
+        {
+          "chapter_id": "ch-0002",
+          "count": 1
+        }
+      ],
+      "decision_id": "terminology-decision-0002",
+      "decision_status": "deferred",
+      "effective_term": null,
+      "effective_term_source": null,
+      "entry_ids": [
+        "jmnedict-2001"
+      ],
+      "evidence_group_id": "evidence-group-0004",
+      "evidence_hash": "354b0af543c517a1e2526ddd6e693cee596dce242753644b7ea92aa624a84875",
+      "evidence_kind": "publisher_ruby_name",
+      "id": "book-context-lexical-0004",
+      "item_ids": [
+        "study-item-0004"
+      ],
+      "lemma": null,
+      "normalized_form": null,
+      "occurrences": [
+        {
+          "block_end": 5,
+          "block_id": "ch-0002-b-0002",
+          "block_start": 3,
+          "candidate_ids": [
+            "ch-0002-b-0002-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0002",
+          "entry_ids": [
+            "jmnedict-2001"
+          ],
+          "expression_id": null,
+          "id": "evidence-occurrence-0005",
+          "item_id": "study-item-0004",
+          "name_id": "ch-0002-b-0002-s-0001-tok-0003-cand-name",
+          "publisher_ruby_id": "ch-0002-b-0002-r-0001",
+          "record_id": "book-context-record-0009",
+          "sense_ids": [],
+          "sentence_end": 5,
+          "sentence_id": "ch-0002-b-0002-s-0001",
+          "sentence_start": 3,
+          "source_occurrence_id": "study-item-0004-occ-0001",
+          "token_ids": [
+            "ch-0002-b-0002-s-0001-tok-0003"
+          ],
+          "translation_ids": [
+            "jmnedict-2001-translation-0001"
+          ]
+        }
+      ],
+      "provenance": {
+        "context_index_hash": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "dictionary": {
+          "dataset_id": "furiganalyse-synthetic-jmnedict",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "64ad15610f2c9b717c33ffae86504fb4e4f1136860269f33c027b57fef86f7ca"
+        },
+        "enriched_annotation_plan_schema_version": 2,
+        "enrichment_ids": [
+          "plan-enrichment-0004"
+        ],
+        "tokenizer": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "reading_source": "publisher",
+      "record_hash": "4d4b0671d3ad3100e1d830b5279fa00d586fcf51c70eac22b89f1ae451390c3f",
+      "sense_ids": [],
+      "surface_forms": [
+        "雪乃"
+      ],
+      "translation_ids": [
+        "jmnedict-2001-translation-0001"
+      ]
+    }
+  ],
+  "recurring_terms": [
+    {
+      "authoritative_reading": "よいてんき",
+      "book_occurrence_count": 1,
+      "chapter_occurrence_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 1
+        }
+      ],
+      "decision_id": null,
+      "decision_status": null,
+      "effective_term": null,
+      "effective_term_source": null,
+      "entry_ids": [
+        "jmdict-1008"
+      ],
+      "evidence_group_id": "evidence-group-0001",
+      "evidence_hash": "81b4913ee96e5a5e69cfff2337b54781946ad9b57cea10b8a80704d3121e89d4",
+      "evidence_kind": "jmdict_expression",
+      "id": "book-context-lexical-0001",
+      "item_ids": [
+        "study-item-0001"
+      ],
+      "lemma": null,
+      "normalized_form": "良い天気",
+      "occurrences": [
+        {
+          "block_end": 9,
+          "block_id": "ch-0001-b-0002",
+          "block_start": 4,
+          "candidate_ids": [
+            "ch-0001-b-0002-s-0001-tok-0004-cand",
+            "ch-0001-b-0002-s-0001-tok-0005-cand",
+            "ch-0001-b-0002-s-0001-tok-0006-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "entry_ids": [
+            "jmdict-1008"
+          ],
+          "expression_id": "ch-0001-b-0002-s-0001-expr-0001",
+          "id": "evidence-occurrence-0001",
+          "item_id": "study-item-0001",
+          "name_id": null,
+          "publisher_ruby_id": null,
+          "record_id": "book-context-record-0002",
+          "sense_ids": [
+            "jmdict-1008-sense-0001"
+          ],
+          "sentence_end": 9,
+          "sentence_id": "ch-0001-b-0002-s-0001",
+          "sentence_start": 4,
+          "source_occurrence_id": "study-item-0001-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0002-s-0001-tok-0004",
+            "ch-0001-b-0002-s-0001-tok-0005",
+            "ch-0001-b-0002-s-0001-tok-0006"
+          ],
+          "translation_ids": []
+        }
+      ],
+      "provenance": {
+        "context_index_hash": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "dictionary": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "enriched_annotation_plan_schema_version": 2,
+        "enrichment_ids": [
+          "plan-enrichment-0001"
+        ],
+        "tokenizer": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "reading_source": "JMdict",
+      "record_hash": "b25757b730898d03b6fd2503b7d018399717fb1df607e66f1e292a571e6d69c4",
+      "sense_ids": [
+        "jmdict-1008-sense-0001"
+      ],
+      "surface_forms": [
+        "良い天気だ"
+      ],
+      "translation_ids": []
+    },
+    {
+      "authoritative_reading": "ことば",
+      "book_occurrence_count": 1,
+      "chapter_occurrence_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 1
+        }
+      ],
+      "decision_id": null,
+      "decision_status": null,
+      "effective_term": null,
+      "effective_term_source": null,
+      "entry_ids": [
+        "jmdict-1001"
+      ],
+      "evidence_group_id": "evidence-group-0002",
+      "evidence_hash": "267ea6e2e2874ac31ba23e53fdc85bd9e6fe206c23d8c5a0aa7d2fbe7fb64af2",
+      "evidence_kind": "jmdict_vocabulary",
+      "id": "book-context-lexical-0002",
+      "item_ids": [
+        "study-item-0002"
+      ],
+      "lemma": "言葉",
+      "normalized_form": null,
+      "occurrences": [
+        {
+          "block_end": 7,
+          "block_id": "ch-0001-b-0003",
+          "block_start": 5,
+          "candidate_ids": [
+            "ch-0001-b-0003-s-0001-tok-0005-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "entry_ids": [
+            "jmdict-1001"
+          ],
+          "expression_id": null,
+          "id": "evidence-occurrence-0002",
+          "item_id": "study-item-0002",
+          "name_id": null,
+          "publisher_ruby_id": null,
+          "record_id": "book-context-record-0003",
+          "sense_ids": [
+            "jmdict-1001-sense-0001",
+            "jmdict-1001-sense-0002"
+          ],
+          "sentence_end": 7,
+          "sentence_id": "ch-0001-b-0003-s-0001",
+          "sentence_start": 5,
+          "source_occurrence_id": "study-item-0002-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0003-s-0001-tok-0005"
+          ],
+          "translation_ids": []
+        }
+      ],
+      "provenance": {
+        "context_index_hash": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "dictionary": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "enriched_annotation_plan_schema_version": 2,
+        "enrichment_ids": [
+          "plan-enrichment-0002"
+        ],
+        "tokenizer": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "reading_source": "JMdict",
+      "record_hash": "54cf983c34b5cae4424827ea74041eeb7d1d729554660985e17a9470a126f440",
+      "sense_ids": [
+        "jmdict-1001-sense-0001",
+        "jmdict-1001-sense-0002"
+      ],
+      "surface_forms": [
+        "言葉"
+      ],
+      "translation_ids": []
+    },
+    {
+      "authoritative_reading": "おもてぶたい",
+      "book_occurrence_count": 2,
+      "chapter_occurrence_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 2
+        }
+      ],
+      "decision_id": "terminology-decision-0001",
+      "decision_status": "approved",
+      "effective_term": "public stage",
+      "effective_term_source": "user",
+      "entry_ids": [
+        "jmdict-1006"
+      ],
+      "evidence_group_id": "evidence-group-0003",
+      "evidence_hash": "ee39dd0721b3d72780027c7207d435888434f0432a87d6ea40e1ce8db97b0677",
+      "evidence_kind": "publisher_ruby_vocabulary",
+      "id": "book-context-lexical-0003",
+      "item_ids": [
+        "study-item-0003"
+      ],
+      "lemma": "表舞台",
+      "normalized_form": null,
+      "occurrences": [
+        {
+          "block_end": 6,
+          "block_id": "ch-0001-b-0004",
+          "block_start": 3,
+          "candidate_ids": [
+            "ch-0001-b-0004-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "entry_ids": [
+            "jmdict-1006"
+          ],
+          "expression_id": null,
+          "id": "evidence-occurrence-0003",
+          "item_id": "study-item-0003",
+          "name_id": null,
+          "publisher_ruby_id": "ch-0001-b-0004-r-0001",
+          "record_id": "book-context-record-0004",
+          "sense_ids": [
+            "jmdict-1006-sense-0001"
+          ],
+          "sentence_end": 6,
+          "sentence_id": "ch-0001-b-0004-s-0001",
+          "sentence_start": 3,
+          "source_occurrence_id": "study-item-0003-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0004-s-0001-tok-0003"
+          ],
+          "translation_ids": []
+        },
+        {
+          "block_end": 14,
+          "block_id": "ch-0001-b-0004",
+          "block_start": 11,
+          "candidate_ids": [
+            "ch-0001-b-0004-s-0002-tok-0001-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "entry_ids": [
+            "jmdict-1006"
+          ],
+          "expression_id": null,
+          "id": "evidence-occurrence-0004",
+          "item_id": "study-item-0003",
+          "name_id": null,
+          "publisher_ruby_id": "ch-0001-b-0004-r-0002",
+          "record_id": "book-context-record-0005",
+          "sense_ids": [
+            "jmdict-1006-sense-0001"
+          ],
+          "sentence_end": 3,
+          "sentence_id": "ch-0001-b-0004-s-0002",
+          "sentence_start": 0,
+          "source_occurrence_id": "study-item-0003-occ-0002",
+          "token_ids": [
+            "ch-0001-b-0004-s-0002-tok-0001"
+          ],
+          "translation_ids": []
+        }
+      ],
+      "provenance": {
+        "context_index_hash": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "dictionary": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "enriched_annotation_plan_schema_version": 2,
+        "enrichment_ids": [
+          "plan-enrichment-0003"
+        ],
+        "tokenizer": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "reading_source": "publisher",
+      "record_hash": "f5fb298b59cb2e04fc969d674d404de7e00eacd535482c7773946dc52af98bed",
+      "sense_ids": [
+        "jmdict-1006-sense-0001"
+      ],
+      "surface_forms": [
+        "表舞台"
+      ],
+      "translation_ids": []
+    },
+    {
+      "authoritative_reading": "ふりかえる",
+      "book_occurrence_count": 1,
+      "chapter_occurrence_counts": [
+        {
+          "chapter_id": "ch-0002",
+          "count": 1
+        }
+      ],
+      "decision_id": null,
+      "decision_status": null,
+      "effective_term": null,
+      "effective_term_source": null,
+      "entry_ids": [
+        "jmdict-1002"
+      ],
+      "evidence_group_id": "evidence-group-0005",
+      "evidence_hash": "58622c1ddc4c4fe1ae444d1f7361d251f26e6ba11151d8e3e3c5f77bb70f87d8",
+      "evidence_kind": "jmdict_vocabulary",
+      "id": "book-context-lexical-0005",
+      "item_ids": [
+        "study-item-0005"
+      ],
+      "lemma": "振り返る",
+      "normalized_form": null,
+      "occurrences": [
+        {
+          "block_end": 15,
+          "block_id": "ch-0002-b-0002",
+          "block_start": 11,
+          "candidate_ids": [
+            "ch-0002-b-0002-s-0002-tok-0005-cand"
+          ],
+          "chapter_id": "ch-0002",
+          "entry_ids": [
+            "jmdict-1002"
+          ],
+          "expression_id": null,
+          "id": "evidence-occurrence-0006",
+          "item_id": "study-item-0005",
+          "name_id": null,
+          "publisher_ruby_id": null,
+          "record_id": "book-context-record-0010",
+          "sense_ids": [
+            "jmdict-1002-sense-0001"
+          ],
+          "sentence_end": 9,
+          "sentence_id": "ch-0002-b-0002-s-0002",
+          "sentence_start": 5,
+          "source_occurrence_id": "study-item-0005-occ-0001",
+          "token_ids": [
+            "ch-0002-b-0002-s-0002-tok-0005"
+          ],
+          "translation_ids": []
+        }
+      ],
+      "provenance": {
+        "context_index_hash": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+        "context_index_source_input_hash": "cd4d62384bcbd945efd46da7cb373f5638cc73fa763b383f955a191c47fdeaa9",
+        "dictionary": {
+          "dataset_id": "furiganalyse-synthetic-jmdict-expressions",
+          "dataset_version": "2026-08-16",
+          "format_version": 1,
+          "sha256": "d6c7684e1d58abc65d07bed5525a7c216c617466a5cc988ef2955e1108d4b169"
+        },
+        "enriched_annotation_plan_schema_version": 2,
+        "enrichment_ids": [
+          "plan-enrichment-0005"
+        ],
+        "tokenizer": {
+          "dictionary": "MeCab system dictionary",
+          "dictionary_version": "102",
+          "name": "MeCab",
+          "version": "1.0.12",
+          "wrapper": "furigana",
+          "wrapper_version": "0.5"
+        }
+      },
+      "reading_source": "JMdict",
+      "record_hash": "fad6308a296de87728dadee6cf3c5d25cd0bb86076700106bbd5e71f80cc8c07",
+      "sense_ids": [
+        "jmdict-1002-sense-0001"
+      ],
+      "surface_forms": [
+        "振り返っ"
+      ],
+      "translation_ids": []
+    }
+  ],
+  "schema_version": 1,
+  "source_hashes": {
+    "chapter_packets": "5db525b1691c8cbe04cdf412602871f0e0e8ecd98931c599f16336b3ef66dbf7",
+    "context_index": "bb8435d4ffffa4f12a9fb0b07ee0ccdcb445f959de3d8ee4f09de961483be67a",
+    "evidence_report": "7ec507df03380cedaa9307c96283eba10652179f52a9d6dc9a77a29565477262",
+    "summary_report": "34152af0595b21eef8807197d88ed9691a145f5b8141e190551f344d364d9a8b",
+    "terminology_report": "972b9ee185fc151b633bf7cd1ad06d94e9052db1f896e16ca959a3734429cdcb"
+  },
+  "source_schemas": {
+    "chapter_packets": 1,
+    "context_index": 1,
+    "evidence_report": 1,
+    "summary_report": 1,
+    "terminology_report": 1
+  },
+  "summary_decisions": [
+    {
+      "chapter_id": "ch-0001",
+      "evidence_group_ids": [
+        "evidence-group-0001",
+        "evidence-group-0002",
+        "evidence-group-0003"
+      ],
+      "id": "chapter-summary-decision-0001",
+      "packet_id": "chapter-context-packet-0001",
+      "provenance": "source-report",
+      "record_hash": "5935cfb2802083b54ad1b01b74b9e6840a88d5b04ecaedcb6822a968023377e1",
+      "review_date": null,
+      "reviewer": null,
+      "reviewer_note": null,
+      "status": "approved",
+      "summary": "Good weather, a word, and the public stage are observed.",
+      "terminology_decision_ids": [
+        "terminology-decision-0001"
+      ]
+    },
+    {
+      "chapter_id": "ch-0002",
+      "evidence_group_ids": [
+        "evidence-group-0004",
+        "evidence-group-0005"
+      ],
+      "id": "chapter-summary-decision-0002",
+      "packet_id": "chapter-context-packet-0002",
+      "provenance": "source-report",
+      "record_hash": "8f82823002b4da70a93783df1b48be1090dc51d82b3106e36d92530bb51da73a",
+      "review_date": null,
+      "reviewer": null,
+      "reviewer_note": null,
+      "status": "deferred",
+      "summary": null,
+      "terminology_decision_ids": [
+        "terminology-decision-0002"
+      ]
+    }
+  ],
+  "terminology_decisions": [
+    {
+      "approved_term": "public stage",
+      "evidence_group_id": "evidence-group-0003",
+      "id": "terminology-decision-0001",
+      "provenance": "source-report",
+      "record_hash": "86c79d5761243d0b1c5dbef974ad55264c20beadf3ef9845684f3faa5726636f",
+      "review_date": null,
+      "reviewer": null,
+      "reviewer_note": null,
+      "status": "approved"
+    },
+    {
+      "approved_term": null,
+      "evidence_group_id": "evidence-group-0004",
+      "id": "terminology-decision-0002",
+      "provenance": "source-report",
+      "record_hash": "924d225004cfd007aa5d307ba859c20b29ceb16eb83e4cb242735357f9e10e45",
+      "review_date": null,
+      "reviewer": null,
+      "reviewer_note": null,
+      "status": "deferred"
+    }
+  ]
+}

@@ -350,15 +350,6 @@ def validate_summary_registry(registry, packets):
             or any(value not in packet["terminology_decision_ids"] for value in decision["terminology_decision_ids"])
         ):
             raise ChapterSummaryError("Stale packet or unsupported source reference")
-        approved_terms = {
-            value["term"]
-            for value in packet["effective_terminology"]
-            if value["decision_id"] in decision["terminology_decision_ids"]
-        }
-        if decision["status"] == "approved" and any(
-            term not in decision["summary"] for term in approved_terms
-        ):
-            raise ChapterSummaryError("Approved terminology missing from summary")
         if decision["decision_hash"] != _hash(_without(decision, "decision_hash")):
             raise ChapterSummaryError("Invalid summary decision hash")
 

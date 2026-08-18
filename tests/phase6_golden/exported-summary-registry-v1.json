@@ -1,0 +1,51 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-0",
+  "decisions": [
+    {
+      "chapter_id": "ch-0001",
+      "decision_hash": "2a0574940949f2b5067440daf47e986ee0e9f5c79ecc145ddee5b4c1d3a3a0de",
+      "evidence_group_ids": [
+        "evidence-group-0001",
+        "evidence-group-0002",
+        "evidence-group-0003"
+      ],
+      "id": "chapter-summary-decision-0001",
+      "packet_id": "chapter-context-packet-0001",
+      "provenance": "user",
+      "review_date": "2026-08-18",
+      "reviewer": "Synthetic fixture reviewer",
+      "reviewer_note": "Synthetic exported summary decision; not real user approval.",
+      "source_packet_hash": "83e11b9ec6952f095ebb2e3105e03702148b32d5cd981b925d478dd624f6d7d9",
+      "status": "approved",
+      "summary": "Good weather, a word, and the public arena are observed.",
+      "summary_schema_version": 1,
+      "terminology_decision_ids": [
+        "terminology-decision-0001"
+      ]
+    },
+    {
+      "chapter_id": "ch-0002",
+      "decision_hash": "117d6ee32a6cf5a04f093ff13e2b86b177be1ea9132f41c7b160d60c1cd1efca",
+      "evidence_group_ids": [
+        "evidence-group-0004",
+        "evidence-group-0005"
+      ],
+      "id": "chapter-summary-decision-0002",
+      "packet_id": "chapter-context-packet-0002",
+      "provenance": "user",
+      "review_date": "2026-08-18",
+      "reviewer": "Synthetic fixture reviewer",
+      "reviewer_note": "Synthetic exported summary decision; not real user approval.",
+      "source_packet_hash": "7561e78560710e6e7fc23ab066c6bbd01fdd504fd008e148bc247937c6a16a8f",
+      "status": "approved",
+      "summary": "Yukino and turning around are observed.",
+      "summary_schema_version": 1,
+      "terminology_decision_ids": [
+        "terminology-decision-0002"
+      ]
+    }
+  ],
+  "fixture_notice": "Synthetic edited test fixture; not real user approval.",
+  "registry_id": "phase6-exported-summaries-v1",
+  "schema_version": 1
+}

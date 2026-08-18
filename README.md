@@ -631,3 +631,30 @@ docs/phase6-chapter-summary-review-checklist.md.
 
 This slice performs no automatic summarization, provider calls, book-wide
 summaries, entity resolution, semantic retrieval, or rendering.
+
+### Editable book-context manifest
+
+The final Phase 6 integration composes the validated context index, evidence,
+terminology, chapter packets, and summary report into a deterministic
+reference-only manifest. It preserves chapter order, recurring terms, proper
+names, publisher readings, explicit decisions, provenance, and hashes without
+copying complete chapter text.
+
+Use scripts/build_context_manifest.py to build or validate a manifest, rehash
+explicit local edits, export terminology and summary registries, and produce
+bounded per-item augmentation for existing Phase 5 requests. Only decision
+status, approved short text, reviewer note, reviewer identity, and review date
+are editable. Protected source and dictionary fields are rejected if changed.
+
+The checked-in edited manifest is synthetic fixture data. It changes 表舞台 to
+“public arena” and approves a short chapter-2 fixture summary while preserving
+publisher readings and JMdict/JMnedict separation. Exported registries rebuild
+the existing deterministic terminology and summary reports.
+
+Augmentation returns only the lexical or name record matching each study item,
+the target approved chapter summary, and optionally one previous approved
+summary. It never changes Phase 5 sentence context, prompts, cache keys,
+requests, annotation plans, XHTML, or EPUB output. Disabled or failed operation
+preserves Phase 5 request and plan bytes exactly. Artifacts are retained under
+artifacts/phase6/manifest/ and reviewed with
+docs/phase6-context-manifest-review-checklist.md.

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "fixture_notice": "Synthetic edit and review data only; not real user approval.",
+  "expected": {
+    "chapters": 2,
+    "recurring_terms": 4,
+    "proper_names": 1,
+    "requests": 5,
+    "edited_term": "public arena",
+    "edited_chapter_2_summary": "Yukino and turning around are observed."
+  }
+}
