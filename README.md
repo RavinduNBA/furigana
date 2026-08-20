@@ -694,3 +694,33 @@ explicit local dataset is supplied. Invalid inputs fail safely, and fallback
 plans remain byte-identical. Current limitations include exact synthetic rules
 only: no production dataset, fuzzy matching, model inference, grammar notes,
 link rendering, or EPUB changes.
+
+### Grammar study-item and overlap planning
+
+The grammar-plan layer consumes the validated grammar report without repeating
+detection. It selects the five primary synthetic rules, deduplicates repeated
+rules while retaining occurrences, and excludes the standalone synthetic
+`〜て` mechanics rule unless test-only inclusion is explicit. The default
+per-chapter grammar-item limit is four.
+
+Overlap records classify grammar spans as containing, contained by, exactly
+matching, partially overlapping, non-overlapping, or publisher-ruby protected.
+Existing vocabulary links always win: containing and exact matches become
+grammar-note references, unsafe partial overlaps reject only the grammar link,
+and publisher ruby is preserved. These are future link dispositions only; this
+slice does not render anchors, XHTML, CSS, notes, or EPUB content.
+
+```bash
+.venv/bin/python scripts/create_grammar_plan.py \\
+  --book artifacts/phase7/run-a/inputs/book.json \\
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \\
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \\
+  --grammar-report artifacts/phase7/run-a/grammar.json \\
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \\
+  --output artifacts/phase7/grammar-plan/run-a/plan.json \\
+  --enabled
+```
+
+The enhanced gate retains plans, limit cases, test-only synthetic inclusion,
+safe fallback reports, and compatibility evidence under
+`artifacts/phase7/grammar-plan/`.

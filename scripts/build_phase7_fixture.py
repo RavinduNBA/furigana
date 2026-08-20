@@ -140,13 +140,74 @@ def build(spec):
         "name_dictionary_matches": [],
         "name_diagnostics": [],
     }
+    def study_occurrence(item_number, occurrence_number, block_number, start, end, token_numbers, *, publisher=False):
+        sentence_id = f"ch-0001-b-{block_number:04d}-s-0001"
+        token_ids = [f"{sentence_id}-tok-{number:04d}" for number in token_numbers]
+        return {
+            "id": f"study-item-{item_number:04d}-occ-{occurrence_number:04d}",
+            "occurrence_number": occurrence_number,
+            "chapter_id": "ch-0001",
+            "block_id": f"ch-0001-b-{block_number:04d}",
+            "sentence_id": sentence_id,
+            "sentence_start": start,
+            "sentence_end": end,
+            "block_start": start,
+            "block_end": end,
+            "token_ids": token_ids,
+            "candidate_ids": [f"{token_id}-cand" for token_id in token_ids],
+            "expression_id": None,
+            "name_id": None,
+            "publisher_ruby_id": (
+                f"ch-0001-b-{block_number:04d}-r-0001" if publisher else None
+            ),
+            "source_anchor_id": f"src-study-item-{item_number:04d}-occ-{occurrence_number:04d}",
+            "annotation_target": "preserved_publisher_ruby" if publisher else "text",
+        }
+
+    plan_items = [
+        {
+            "id": "study-item-0001",
+            "kind": "vocabulary",
+            "surface": "読ん",
+            "note_anchor_id": "note-study-item-0001",
+            "occurrences": [study_occurrence(1, 1, 1, 2, 4, [3])],
+        },
+        {
+            "id": "study-item-0002",
+            "kind": "expression",
+            "surface": "忘れてしまう",
+            "note_anchor_id": "note-study-item-0002",
+            "occurrences": [study_occurrence(2, 1, 4, 0, 6, [1, 2, 3])],
+        },
+        {
+            "id": "study-item-0003",
+            "kind": "vocabulary",
+            "surface": "毎日読む",
+            "note_anchor_id": "note-study-item-0003",
+            "occurrences": [study_occurrence(3, 1, 3, 0, 4, [1, 2])],
+        },
+        {
+            "id": "study-item-0004",
+            "kind": "vocabulary",
+            "surface": "表舞台",
+            "note_anchor_id": "note-study-item-0004",
+            "occurrences": [study_occurrence(4, 1, 8, 0, 3, [1], publisher=True)],
+        },
+        {
+            "id": "study-item-0005",
+            "kind": "name",
+            "surface": "前",
+            "note_anchor_id": "note-study-item-0005",
+            "occurrences": [study_occurrence(5, 1, 2, 0, 1, [1])],
+        },
+    ]
     plan = {
         "schema_version": 2,
         "source_annotation_plan_schema_version": 1,
         "source_report_schema_version": 4,
         "book_id": spec["book_id"],
         "config": {"per_chapter_limit": 0},
-        "items": [],
+        "items": plan_items,
         "diagnostics": [],
         "enrichments": [],
         "enrichment_diagnostics": [],
