@@ -8,13 +8,14 @@ SPEC="$ROOT/tests/fixtures/phase7-passages-v1.json"
 DATASET="$ROOT/tests/fixtures/phase7-grammar-rules-v1.json"
 GOLDEN="$ROOT/tests/phase7_golden/grammar-candidates-v1.json"
 PLAN_GOLDEN="$ROOT/tests/phase7_golden/grammar-plan-v1.json"
+NOTES_GOLDEN="$ROOT/tests/phase7_golden/grammar-notes-v1.xhtml"
 COMPAT_BOOK="$ROOT/artifacts/phase2/run-a/book.json"
 COMPAT_VOCABULARY="$ROOT/artifacts/phase3/jmnedict/run-a/vocabulary.json"
 COMPAT_PLAN="$ROOT/artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
 
 "$ROOT/scripts/phase6-regression.sh"
 
-mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt"
+mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt"
 
 for run in run-a run-b; do
   "$PYTHON" "$ROOT/scripts/build_phase7_fixture.py" --spec "$SPEC" --output-dir "$ARTIFACTS/$run/inputs"
@@ -50,7 +51,7 @@ cmp "$ARTIFACTS/grammar-plan/run-a/plan.json" "$PLAN_GOLDEN"
 "$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$ARTIFACTS/run-a/inputs/book.json" --vocabulary "$ARTIFACTS/run-a/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/run-a/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/run-a/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/limit/plan.json" --enabled --per-chapter-limit 2
 
 "$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --dataset "$DATASET" --output "$ARTIFACTS/compatibility/legal-grammar.json"
-"$PYTHON" "$ROOT/scripts/build_phase7_plan_cases.py" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --stale-output "$ARTIFACTS/grammar-plan/stale/grammar.json"
+"$PYTHON" "$ROOT/scripts/build_phase7_plan_cases.py" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --stale-output "$ARTIFACTS/grammar-plan/stale/grammar.json" --grammar-plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --stale-plan-output "$ARTIFACTS/grammar-notes/stale/plan.json"
 
 "$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/disabled/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/disabled/annotation-plan.json"
 "$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ARTIFACTS/grammar-plan/stale/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/stale/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/stale/annotation-plan.json" --enabled --safe
@@ -64,5 +65,23 @@ cmp "$ARTIFACTS/grammar-plan/corrupt/annotation-plan.json" "$COMPAT_PLAN"
 cmp "$ARTIFACTS/compatibility/phase3-vocabulary-before.json" "$COMPAT_VOCABULARY"
 cmp "$ARTIFACTS/compatibility/phase5-plan-before.json" "$COMPAT_PLAN"
 
-"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/$run/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/$run/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/$run/report.json"
+done
+cmp "$ARTIFACTS/grammar-notes/run-a/grammar-notes.xhtml" "$ARTIFACTS/grammar-notes/run-b/grammar-notes.xhtml"
+cmp "$ARTIFACTS/grammar-notes/run-a/grammar-notes.xhtml" "$NOTES_GOLDEN"
+
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/include-synthetic/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/include-synthetic/grammar-notes.xhtml" --test-only-allow-synthetic-mechanics
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --disabled --safe-report "$ARTIFACTS/grammar-notes/disabled/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-notes/stale/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/stale/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/stale/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output "$ARTIFACTS/grammar-notes/invalid/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/invalid/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --output "$ARTIFACTS/grammar-notes/corrupt/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/corrupt/report.json"
+test ! -e "$ARTIFACTS/grammar-notes/disabled/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/stale/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/invalid/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/corrupt/grammar-notes.xhtml"
+cmp "$ROOT/artifacts/phase4/notes/run-a/study-notes.xhtml" "$ROOT/tests/phase4_golden/study-notes-v1.xhtml"
+cmp "$ROOT/artifacts/phase5/rendered/run-a/notes/study-notes.xhtml" "$ROOT/tests/phase5_golden/rendered-v2/study-notes.xhtml"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py"
 echo "Phase 7 regression passed; artifacts retained under artifacts/phase7/."

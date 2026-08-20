@@ -1,0 +1,31 @@
+{
+  "fixture_notice": "Synthetic standalone grammar-note rendering review; not production grammar approval.",
+  "expected": {
+    "notes": 5,
+    "occurrence_references": 7,
+    "links": 0,
+    "ruby_elements": 0
+  },
+  "ordered_keys": [
+    "〜ている",
+    "〜たことがある",
+    "〜ようにする",
+    "〜てしまう",
+    "〜なければならない"
+  ],
+  "review_cases": [
+    {
+      "key": "〜ている",
+      "occurrences": 3,
+      "publisher_protection_text": "publisher ruby preserved"
+    },
+    {
+      "key": "〜なければならない",
+      "usage_labels": ["neutral"]
+    }
+  ],
+  "excluded_default": {
+    "key": "〜て",
+    "reason": "synthetic-mechanics-rule"
+  }
+}

@@ -724,3 +724,30 @@ slice does not render anchors, XHTML, CSS, notes, or EPUB content.
 The enhanced gate retains plans, limit cases, test-only synthetic inclusion,
 safe fallback reports, and compatibility evidence under
 `artifacts/phase7/grammar-plan/`.
+
+### Standalone grammar study notes
+
+Render a validated grammar plan as deterministic grammar-only XHTML:
+
+```bash
+.venv/bin/python scripts/render_grammar_notes.py \
+  --plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --output artifacts/phase7/grammar-notes/run-a/grammar-notes.xhtml
+```
+
+The default document contains five notes in grammar-plan order. Each note shows
+the curated key, label, explanation, formation, optional usage labels, ordered
+occurrence references, dataset version, rule hash, and selection provenance.
+Stable `grammar-note-*` anchors and CSS scoped to `grammar-notes` and
+`grammar-study-note` classes are used only inside this standalone document.
+
+The synthetic `〜て` mechanics rule is rejected unless both the input plan and
+the explicitly test-only renderer option enable it. Publisher-ruby-adjacent
+occurrences are listed as protected references without copying `rt`/`rp` text
+or rendering ruby. This slice creates no source links, backlinks, combined
+vocabulary notes, chapter mutations, or EPUB changes. Disabled and invalid
+inputs produce safe diagnostics and no XHTML. Existing Phase 4/5 vocabulary
+notes remain byte-identical. Outputs are retained under
+`artifacts/phase7/grammar-notes/` and reviewed with
+`docs/phase7-grammar-notes-review-checklist.md`.
