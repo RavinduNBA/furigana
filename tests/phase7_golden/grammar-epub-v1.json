@@ -1,0 +1,163 @@
+{
+  "archive_members": [
+    "mimetype",
+    "EPUB/nav.xhtml",
+    "EPUB/package.opf",
+    "EPUB/text/grammar-01.xhtml",
+    "EPUB/text/grammar-02.xhtml",
+    "EPUB/text/grammar-notes.xhtml",
+    "EPUB/text/study-notes.xhtml",
+    "META-INF/container.xml"
+  ],
+  "compression": [
+    "stored",
+    "deflated",
+    "deflated",
+    "deflated",
+    "deflated",
+    "deflated",
+    "deflated",
+    "deflated"
+  ],
+  "container_path": "EPUB/package.opf",
+  "grammar_backlinks": 3,
+  "grammar_contexts": 7,
+  "grammar_forward_links": 3,
+  "grammar_notes": 5,
+  "manifest": [
+    {
+      "href": "nav.xhtml",
+      "id": "nav",
+      "media_type": "application/xhtml+xml",
+      "properties": "nav"
+    },
+    {
+      "href": "text/grammar-01.xhtml",
+      "id": "grammar-ch1",
+      "media_type": "application/xhtml+xml",
+      "properties": null
+    },
+    {
+      "href": "text/grammar-02.xhtml",
+      "id": "grammar-ch2",
+      "media_type": "application/xhtml+xml",
+      "properties": null
+    },
+    {
+      "href": "text/study-notes.xhtml",
+      "id": "furiganalyse-study-notes",
+      "media_type": "application/xhtml+xml",
+      "properties": null
+    },
+    {
+      "href": "text/grammar-notes.xhtml",
+      "id": "furiganalyse-grammar-notes",
+      "media_type": "application/xhtml+xml",
+      "properties": null
+    }
+  ],
+  "member_count": 8,
+  "navigation": [
+    "Synthetic Grammar Chapter 1",
+    "Synthetic Grammar Chapter 2",
+    "Study Notes",
+    "Grammar Study Notes"
+  ],
+  "navigation_hrefs": [
+    "text/grammar-01.xhtml",
+    "text/grammar-02.xhtml",
+    "text/study-notes.xhtml",
+    "text/grammar-notes.xhtml"
+  ],
+  "package_metadata": {
+    "identifier": "urn:uuid:furiganalyse-phase-7-synthetic",
+    "language": "ja",
+    "modified": "2026-08-20T00:00:00Z",
+    "title": "Furiganalyse Phase 7 Synthetic Grammar Fixture"
+  },
+  "permissions": [
+    "0o100644",
+    "0o100644",
+    "0o100644",
+    "0o100644",
+    "0o100644",
+    "0o100644",
+    "0o100644",
+    "0o100644"
+  ],
+  "schema_version": 1,
+  "sha256": "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619",
+  "spine": [
+    "grammar-ch1",
+    "grammar-ch2",
+    "furiganalyse-study-notes",
+    "furiganalyse-grammar-notes"
+  ],
+  "study_links": 5,
+  "timestamps": [
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ]
+  ]
+}

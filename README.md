@@ -780,3 +780,40 @@ set and emits only safe reason codes. It does not update OPF, navigation, CSS,
 archives, or EPUB packages. Deterministic outputs are retained under
 `artifacts/phase7/linked/` and reviewed with
 `docs/phase7-grammar-linked-output-review-checklist.md`.
+
+### Packaged grammar EPUB
+
+The packaging layer consumes the already validated linked XHTML and a minimal
+local vocabulary-only EPUB fixture. It does not rerun grammar or vocabulary
+analysis and copies the four approved XHTML members byte-for-byte.
+
+```bash
+.venv/bin/python scripts/build_phase7_epub_fixture.py \
+  --source-dir artifacts/phase7/linked/source-run-a \
+  --output artifacts/phase7/epub/vocabulary-only.epub
+
+.venv/bin/python scripts/package_grammar_epub.py \
+  --input-epub artifacts/phase7/epub/vocabulary-only.epub \
+  --linked-dir artifacts/phase7/linked/run-a \
+  --output artifacts/phase7/epub/run-a.epub \
+  --report artifacts/phase7/epub/run-a-report.json \
+  --enabled
+```
+
+The synthetic package has eight members. Its spine and TOC order are the two
+chapters, `Study Notes`, then `Grammar Study Notes`; the vocabulary and grammar
+note layers remain separate. The checked-in synthetic package SHA-256 is
+`df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619`.
+It retains five grammar notes, seven contexts, three grammar links and matching
+backlinks, five existing study links, and the publisher reading for 表舞台.
+
+ZIP ordering, timestamps, permissions, and compression are fixed. Every
+manifest, spine, navigation, XHTML, and fragment reference is validated before
+writing. Packaging is opt-in; disabled or invalid operation copies the
+vocabulary-only EPUB byte-for-byte and emits only a deterministic reason code.
+No credentials, provider metadata, remote resources, source paths, OPF dumps,
+or raw exceptions enter reports or reader content. The package remains a legal
+synthetic mechanics fixture, not production approval of the grammar dataset or
+the standalone synthetic `〜て` rule. Artifacts are retained under
+`artifacts/phase7/epub/` and await the separate Calibre review documented in
+`docs/phase7-packaged-epub-review-checklist.md`.

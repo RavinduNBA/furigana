@@ -1,0 +1,39 @@
+{
+  "fixture_notice": "Synthetic Phase 7 grammar EPUB; not production grammar approval.",
+  "archive_members": 8,
+  "spine": [
+    "grammar-ch1",
+    "grammar-ch2",
+    "furiganalyse-study-notes",
+    "furiganalyse-grammar-notes"
+  ],
+  "navigation": [
+    "Synthetic Grammar Chapter 1",
+    "Synthetic Grammar Chapter 2",
+    "Study Notes",
+    "Grammar Study Notes"
+  ],
+  "linked_occurrences": [
+    "grammar-occurrence-0002",
+    "grammar-occurrence-0005",
+    "grammar-occurrence-0008"
+  ],
+  "nonlinked_occurrences": {
+    "grammar-occurrence-0001": "reference only",
+    "grammar-occurrence-0003": "partial overlap rejected",
+    "grammar-occurrence-0004": "reference only",
+    "grammar-occurrence-0007": "publisher ruby preserved"
+  },
+  "counts": {
+    "grammar_notes": 5,
+    "grammar_contexts": 7,
+    "grammar_forward_links": 3,
+    "grammar_backlinks": 3,
+    "study_links": 5
+  },
+  "publisher_ruby": {
+    "id": "publisher-ruby-1-8-1",
+    "surface": "表舞台",
+    "reading": "おもてぶたい"
+  }
+}

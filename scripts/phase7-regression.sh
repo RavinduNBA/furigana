@@ -9,13 +9,14 @@ DATASET="$ROOT/tests/fixtures/phase7-grammar-rules-v1.json"
 GOLDEN="$ROOT/tests/phase7_golden/grammar-candidates-v1.json"
 PLAN_GOLDEN="$ROOT/tests/phase7_golden/grammar-plan-v1.json"
 NOTES_GOLDEN="$ROOT/tests/phase7_golden/grammar-notes-v1.xhtml"
+EPUB_GOLDEN="$ROOT/tests/phase7_golden/grammar-epub-v1.json"
 COMPAT_BOOK="$ROOT/artifacts/phase2/run-a/book.json"
 COMPAT_VOCABULARY="$ROOT/artifacts/phase3/jmnedict/run-a/vocabulary.json"
 COMPAT_PLAN="$ROOT/artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
 
 "$ROOT/scripts/phase6-regression.sh"
 
-mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt" "$ARTIFACTS/linked"
+mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt" "$ARTIFACTS/linked" "$ARTIFACTS/epub/cases" "$ARTIFACTS/epub/compatibility"
 
 for run in run-a run-b; do
   "$PYTHON" "$ROOT/scripts/build_phase7_fixture.py" --spec "$SPEC" --output-dir "$ARTIFACTS/$run/inputs" --source-dir "$ARTIFACTS/linked/source-$run"
@@ -102,5 +103,36 @@ diff -r "$ARTIFACTS/linked/ambiguous-source" "$ARTIFACTS/linked/ambiguous"
 cmp "$ROOT/artifacts/phase4/linked/run-a/EPUB/text/chapter-01.xhtml" "$ROOT/tests/phase4_golden/linked-v1/EPUB/text/chapter-01.xhtml"
 cmp "$ROOT/artifacts/phase5/rendered/run-a/linked/EPUB/text/study-notes.xhtml" "$ROOT/tests/phase5_golden/linked-v2/EPUB/text/study-notes.xhtml"
 
-"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py"
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_fixture.py" --source-dir "$ARTIFACTS/linked/source-run-a" --output "$ARTIFACTS/epub/vocabulary-only.epub"
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_fixture.py" --source-dir "$ARTIFACTS/linked/source-run-b" --output "$ARTIFACTS/epub/vocabulary-only-b.epub"
+cmp "$ARTIFACTS/epub/vocabulary-only.epub" "$ARTIFACTS/epub/vocabulary-only-b.epub"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --linked-dir "$ARTIFACTS/linked/$run" --output "$ARTIFACTS/epub/$run.epub" --report "$ARTIFACTS/epub/$run-report.json" --enabled
+  "$PYTHON" "$ROOT/scripts/inspect_grammar_epub.py" --epub "$ARTIFACTS/epub/$run.epub" --output "$ARTIFACTS/epub/$run-structure.json"
+done
+cmp "$ARTIFACTS/epub/run-a.epub" "$ARTIFACTS/epub/run-b.epub"
+cmp "$ARTIFACTS/epub/run-a-report.json" "$ARTIFACTS/epub/run-b-report.json"
+cmp "$ARTIFACTS/epub/run-a-structure.json" "$ARTIFACTS/epub/run-b-structure.json"
+cmp "$ARTIFACTS/epub/run-a-structure.json" "$EPUB_GOLDEN"
+
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_cases.py" --linked-dir "$ARTIFACTS/linked/run-a" --output-dir "$ARTIFACTS/epub/cases"
+"$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --output "$ARTIFACTS/epub/disabled.epub" --report "$ARTIFACTS/epub/disabled-report.json"
+for mode in stale invalid corrupt ambiguous unsafe broken-fragment; do
+  "$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --linked-dir "$ARTIFACTS/epub/cases/$mode" --output "$ARTIFACTS/epub/$mode.epub" --report "$ARTIFACTS/epub/$mode-report.json" --enabled
+done
+jq -e '.packaged == false and .diagnostics[0].reason == "disabled"' "$ARTIFACTS/epub/disabled-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "stale-input"' "$ARTIFACTS/epub/stale-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "invalid-input"' "$ARTIFACTS/epub/invalid-report.json" "$ARTIFACTS/epub/broken-fragment-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "corrupt-input"' "$ARTIFACTS/epub/corrupt-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "ambiguous-input"' "$ARTIFACTS/epub/ambiguous-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "unsafe-input"' "$ARTIFACTS/epub/unsafe-report.json" >/dev/null
+for mode in disabled stale invalid corrupt ambiguous unsafe broken-fragment; do
+  cmp "$ARTIFACTS/epub/vocabulary-only.epub" "$ARTIFACTS/epub/$mode.epub"
+done
+cp "$ROOT/artifacts/phase4/epub/run-a.epub" "$ARTIFACTS/epub/compatibility/phase4.epub"
+cp "$ROOT/artifacts/phase5/rendered/run-a.epub" "$ARTIFACTS/epub/compatibility/phase5.epub"
+cmp "$ARTIFACTS/epub/compatibility/phase4.epub" "$ROOT/artifacts/phase4/epub/run-b.epub"
+cmp "$ARTIFACTS/epub/compatibility/phase5.epub" "$ROOT/artifacts/phase5/rendered/run-b.epub"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py" "$ROOT/tests/test_grammar_epub.py"
 echo "Phase 7 regression passed; artifacts retained under artifacts/phase7/."
