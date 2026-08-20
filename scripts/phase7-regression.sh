@@ -15,10 +15,10 @@ COMPAT_PLAN="$ROOT/artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
 
 "$ROOT/scripts/phase6-regression.sh"
 
-mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt"
+mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt" "$ARTIFACTS/linked"
 
 for run in run-a run-b; do
-  "$PYTHON" "$ROOT/scripts/build_phase7_fixture.py" --spec "$SPEC" --output-dir "$ARTIFACTS/$run/inputs"
+  "$PYTHON" "$ROOT/scripts/build_phase7_fixture.py" --spec "$SPEC" --output-dir "$ARTIFACTS/$run/inputs" --source-dir "$ARTIFACTS/linked/source-$run"
   "$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$ARTIFACTS/$run/inputs/book.json" --vocabulary "$ARTIFACTS/$run/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/$run/inputs/annotation-plan.json" --dataset "$DATASET" --output "$ARTIFACTS/$run/grammar.json"
 done
 
@@ -83,5 +83,24 @@ test ! -e "$ARTIFACTS/grammar-notes/corrupt/grammar-notes.xhtml"
 cmp "$ROOT/artifacts/phase4/notes/run-a/study-notes.xhtml" "$ROOT/tests/phase4_golden/study-notes-v1.xhtml"
 cmp "$ROOT/artifacts/phase5/rendered/run-a/notes/study-notes.xhtml" "$ROOT/tests/phase5_golden/rendered-v2/study-notes.xhtml"
 
-"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-$run" --book "$ARTIFACTS/$run/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/$run/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/$run" --report "$ARTIFACTS/linked/$run-report.json"
+done
+diff -r "$ARTIFACTS/linked/run-a" "$ARTIFACTS/linked/run-b"
+diff -r "$ARTIFACTS/linked/run-a" "$ROOT/tests/phase7_golden/grammar-linked-v1"
+
+"$PYTHON" "$ROOT/scripts/build_phase7_link_cases.py" --source-dir "$ARTIFACTS/linked/source-run-a" --ambiguous-dir "$ARTIFACTS/linked/ambiguous-source"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --output-dir "$ARTIFACTS/linked/disabled" --report "$ARTIFACTS/linked/disabled-report.json" --disabled
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-notes/stale/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/stale" --report "$ARTIFACTS/linked/stale-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output-dir "$ARTIFACTS/linked/invalid" --report "$ARTIFACTS/linked/invalid-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --output-dir "$ARTIFACTS/linked/corrupt" --report "$ARTIFACTS/linked/corrupt-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/ambiguous-source" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/ambiguous" --report "$ARTIFACTS/linked/ambiguous-report.json"
+for mode in disabled stale invalid corrupt; do
+  diff -r "$ARTIFACTS/linked/source-run-a" "$ARTIFACTS/linked/$mode"
+done
+diff -r "$ARTIFACTS/linked/ambiguous-source" "$ARTIFACTS/linked/ambiguous"
+cmp "$ROOT/artifacts/phase4/linked/run-a/EPUB/text/chapter-01.xhtml" "$ROOT/tests/phase4_golden/linked-v1/EPUB/text/chapter-01.xhtml"
+cmp "$ROOT/artifacts/phase5/rendered/run-a/linked/EPUB/text/study-notes.xhtml" "$ROOT/tests/phase5_golden/linked-v2/EPUB/text/study-notes.xhtml"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py"
 echo "Phase 7 regression passed; artifacts retained under artifacts/phase7/."

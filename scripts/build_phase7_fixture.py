@@ -6,6 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from xml.etree import ElementTree as ET
+
+XHTML_NS = "http://www.w3.org/1999/xhtml"
+X = f"{{{XHTML_NS}}}"
+ET.register_namespace("", XHTML_NS)
 
 
 def _write(path: Path, value):
@@ -215,10 +220,86 @@ def build(spec):
     return book, vocabulary, plan
 
 
+def _append(parent, text, node=None):
+    if node is None:
+        if len(parent):
+            parent[-1].tail = (parent[-1].tail or "") + text
+        else:
+            parent.text = (parent.text or "") + text
+    else:
+        parent.append(node)
+
+
+def write_source_fixture(spec, plan, output_dir):
+    """Write deterministic synthetic XHTML with existing vocabulary links."""
+    occurrences = {
+        occurrence["block_id"]: (item, occurrence)
+        for item in plan["items"]
+        for occurrence in item["occurrences"]
+    }
+    for chapter_number, chapter in enumerate(spec["chapters"], 1):
+        root = ET.Element(X + "html", {"lang": "ja"})
+        head = ET.SubElement(root, X + "head")
+        ET.SubElement(head, X + "title").text = f"Synthetic grammar chapter {chapter_number}"
+        body = ET.SubElement(root, X + "body")
+        for block_number, block in enumerate(chapter["blocks"], 1):
+            block_id = f"ch-{chapter_number:04d}-b-{block_number:04d}"
+            paragraph = ET.SubElement(body, X + "p", {"id": f"grammar-block-{chapter_number}-{block_number}"})
+            linked = occurrences.get(block_id)
+            if linked is None:
+                span = ET.SubElement(paragraph, X + "span")
+                span.text = block["text"]
+                continue
+            item, occurrence = linked
+            start, end = occurrence["sentence_start"], occurrence["sentence_end"]
+            if start:
+                ET.SubElement(paragraph, X + "span").text = block["text"][:start]
+            anchor = ET.Element(X + "a", {
+                "id": occurrence["source_anchor_id"], "class": "study-link",
+                "href": f"study-notes.xhtml#{item['note_anchor_id']}",
+            })
+            if occurrence.get("publisher_ruby_id"):
+                ruby = ET.SubElement(anchor, X + "ruby", {"id": f"publisher-ruby-{chapter_number}-{block_number}-1"})
+                ruby.text = block["text"][start:end]
+                ET.SubElement(ruby, X + "rt").text = block["publisher_ruby"][0]["reading"]
+            else:
+                anchor.text = block["text"][start:end]
+            if item["id"] == "study-item-0001":
+                emphasis = ET.SubElement(paragraph, X + "em")
+                emphasis.append(anchor)
+            else:
+                paragraph.append(anchor)
+            if end < len(block["text"]):
+                ET.SubElement(paragraph, X + "span").text = block["text"][end:]
+        target = Path(output_dir) / chapter["source_path"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        ET.ElementTree(root).write(target, encoding="utf-8", xml_declaration=True)
+        with target.open("ab") as stream:
+            stream.write(b"\n")
+    notes = ET.Element(X + "html", {"lang": "ja"})
+    body = ET.SubElement(notes, X + "body")
+    chapter_paths = {chapter["id"]: chapter["source_path"] for chapter in spec["chapters"]}
+    for item in plan["items"]:
+        section = ET.SubElement(body, X + "section", {"id": item["note_anchor_id"], "data-item-id": item["id"]})
+        ET.SubElement(section, X + "h2").text = item["surface"]
+        for occurrence in item["occurrences"]:
+            link = ET.SubElement(section, X + "a", {
+                "class": "study-note__backlink",
+                "href": f"{Path(chapter_paths[occurrence['chapter_id']]).name}#{occurrence['source_anchor_id']}",
+            })
+            link.text = "return to vocabulary occurrence"
+    target = Path(output_dir) / "EPUB/text/study-notes.xhtml"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(notes).write(target, encoding="utf-8", xml_declaration=True)
+    with target.open("ab") as stream:
+        stream.write(b"\n")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", required=True)
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--source-dir")
     args = parser.parse_args()
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     book, vocabulary, plan = build(spec)
@@ -226,6 +307,8 @@ def main():
     _write(output / "book.json", book)
     _write(output / "vocabulary.json", vocabulary)
     _write(output / "annotation-plan.json", plan)
+    if args.source_dir:
+        write_source_fixture(spec, plan, args.source_dir)
 
 
 if __name__ == "__main__":

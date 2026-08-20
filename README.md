@@ -751,3 +751,32 @@ inputs produce safe diagnostics and no XHTML. Existing Phase 4/5 vocabulary
 notes remain byte-identical. Outputs are retained under
 `artifacts/phase7/grammar-notes/` and reviewed with
 `docs/phase7-grammar-notes-review-checklist.md`.
+
+### Linked grammar contexts
+
+Apply only the link dispositions already recorded in a validated grammar plan:
+
+```bash
+.venv/bin/python scripts/render_linked_grammar_notes.py \
+  --source-dir artifacts/phase7/linked/source \
+  --book artifacts/phase7/run-a/inputs/book.json \
+  --plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --output-dir artifacts/phase7/linked/run-a \
+  --report artifacts/phase7/linked/run-a-report.json
+```
+
+The synthetic baseline has seven contexts but only three safe grammar links and
+three matching backlinks. Direct and same-sentence non-overlapping occurrences
+are linked. Contains-vocabulary and exact-span cases remain note references,
+partial overlaps reject only grammar linking, and publisher-ruby cases remain
+nonlinked and protected. Existing vocabulary, expression, and name links are
+copied unchanged.
+
+The renderer maps exact canonical offsets to an explicit local XHTML directory,
+rejects ambiguous DOM insertion, validates every internal fragment, and never
+modifies input files. Disabled or failed operation reproduces the input linked
+set and emits only safe reason codes. It does not update OPF, navigation, CSS,
+archives, or EPUB packages. Deterministic outputs are retained under
+`artifacts/phase7/linked/` and reviewed with
+`docs/phase7-grammar-linked-output-review-checklist.md`.

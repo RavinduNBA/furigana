@@ -1,0 +1,20 @@
+{
+  "fixture_notice": "Synthetic linked grammar XHTML review; not production grammar approval.",
+  "expected": {
+    "documents": 4,
+    "grammar_forward_links": 3,
+    "grammar_backlinks": 3,
+    "grammar_contexts": 7,
+    "grammar_notes": 5,
+    "preserved_vocabulary_links": 5
+  },
+  "cases": [
+    {"source_id": "grammar-occurrence-0001", "disposition": "grammar-note-reference-only", "linked": false},
+    {"source_id": "grammar-occurrence-0002", "disposition": "separate-nonoverlapping-links", "linked": true},
+    {"source_id": "grammar-occurrence-0003", "disposition": "rejected-ambiguous-overlap", "linked": false},
+    {"source_id": "grammar-occurrence-0004", "disposition": "grammar-note-reference-only", "linked": false},
+    {"source_id": "grammar-occurrence-0005", "disposition": "grammar-link", "linked": true},
+    {"source_id": "grammar-occurrence-0007", "disposition": "publisher-ruby-preserved", "linked": false},
+    {"source_id": "grammar-occurrence-0008", "disposition": "grammar-link", "linked": true}
+  ]
+}
