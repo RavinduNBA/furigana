@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON="${PYTHON:-$ROOT/.venv/bin/python}"
+ARTIFACTS="$ROOT/artifacts/phase7"
+SPEC="$ROOT/tests/fixtures/phase7-passages-v1.json"
+DATASET="$ROOT/tests/fixtures/phase7-grammar-rules-v1.json"
+GOLDEN="$ROOT/tests/phase7_golden/grammar-candidates-v1.json"
+PLAN_GOLDEN="$ROOT/tests/phase7_golden/grammar-plan-v1.json"
+NOTES_GOLDEN="$ROOT/tests/phase7_golden/grammar-notes-v1.xhtml"
+EPUB_GOLDEN="$ROOT/tests/phase7_golden/grammar-epub-v1.json"
+EVALUATION_SOURCE="$ROOT/tests/fixtures/phase7-evaluation-source-v1.json"
+EVALUATION_CORPUS="$ROOT/tests/fixtures/phase7-evaluation-corpus-v1.json"
+EVALUATION_CONTROL="$ROOT/tests/fixtures/phase7-evaluation-control-v1.json"
+EVALUATION_GOLDEN="$ROOT/tests/phase7_golden/grammar-evaluation-v1.json"
+EVALUATION_MATRIX_GOLDEN="$ROOT/tests/phase7_golden/grammar-evaluation-disabled-matrix-v1.json"
+COMPAT_BOOK="$ROOT/artifacts/phase2/run-a/book.json"
+COMPAT_VOCABULARY="$ROOT/artifacts/phase3/jmnedict/run-a/vocabulary.json"
+COMPAT_PLAN="$ROOT/artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
+
+"$ROOT/scripts/phase6-regression.sh"
+
+mkdir -p "$ARTIFACTS/run-a" "$ARTIFACTS/run-b" "$ARTIFACTS/disabled" "$ARTIFACTS/invalid" "$ARTIFACTS/failure" "$ARTIFACTS/compatibility" "$ARTIFACTS/grammar-plan/run-a" "$ARTIFACTS/grammar-plan/run-b" "$ARTIFACTS/grammar-plan/include-synthetic" "$ARTIFACTS/grammar-plan/limit" "$ARTIFACTS/grammar-plan/disabled" "$ARTIFACTS/grammar-plan/stale" "$ARTIFACTS/grammar-plan/invalid" "$ARTIFACTS/grammar-plan/corrupt" "$ARTIFACTS/grammar-notes/run-a" "$ARTIFACTS/grammar-notes/run-b" "$ARTIFACTS/grammar-notes/include-synthetic" "$ARTIFACTS/grammar-notes/disabled" "$ARTIFACTS/grammar-notes/stale" "$ARTIFACTS/grammar-notes/invalid" "$ARTIFACTS/grammar-notes/corrupt" "$ARTIFACTS/linked" "$ARTIFACTS/epub/cases" "$ARTIFACTS/epub/compatibility"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase7_fixture.py" --spec "$SPEC" --output-dir "$ARTIFACTS/$run/inputs" --source-dir "$ARTIFACTS/linked/source-$run"
+  "$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$ARTIFACTS/$run/inputs/book.json" --vocabulary "$ARTIFACTS/$run/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/$run/inputs/annotation-plan.json" --dataset "$DATASET" --output "$ARTIFACTS/$run/grammar.json"
+done
+
+cmp "$ARTIFACTS/run-a/grammar.json" "$ARTIFACTS/run-b/grammar.json"
+cmp "$ARTIFACTS/run-a/grammar.json" "$GOLDEN"
+cmp "$ARTIFACTS/run-a/inputs/book.json" "$ARTIFACTS/run-b/inputs/book.json"
+cmp "$ARTIFACTS/run-a/inputs/vocabulary.json" "$ARTIFACTS/run-b/inputs/vocabulary.json"
+cmp "$ARTIFACTS/run-a/inputs/annotation-plan.json" "$ARTIFACTS/run-b/inputs/annotation-plan.json"
+
+cp "$COMPAT_VOCABULARY" "$ARTIFACTS/compatibility/phase3-vocabulary-before.json"
+cp "$COMPAT_PLAN" "$ARTIFACTS/compatibility/phase5-plan-before.json"
+
+"$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --output "$ARTIFACTS/disabled/report.json" --fallback-plan-output "$ARTIFACTS/disabled/annotation-plan.json" --disabled
+"$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output "$ARTIFACTS/invalid/report.json" --fallback-plan-output "$ARTIFACTS/invalid/annotation-plan.json" --safe
+"$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --dataset "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --output "$ARTIFACTS/failure/report.json" --fallback-plan-output "$ARTIFACTS/failure/annotation-plan.json" --safe
+
+cmp "$ARTIFACTS/disabled/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/invalid/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/failure/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/compatibility/phase3-vocabulary-before.json" "$COMPAT_VOCABULARY"
+cmp "$ARTIFACTS/compatibility/phase5-plan-before.json" "$COMPAT_PLAN"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$ARTIFACTS/$run/inputs/book.json" --vocabulary "$ARTIFACTS/$run/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/$run/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/$run/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/$run/plan.json" --enabled
+done
+cmp "$ARTIFACTS/grammar-plan/run-a/plan.json" "$ARTIFACTS/grammar-plan/run-b/plan.json"
+cmp "$ARTIFACTS/grammar-plan/run-a/plan.json" "$PLAN_GOLDEN"
+
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$ARTIFACTS/run-a/inputs/book.json" --vocabulary "$ARTIFACTS/run-a/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/run-a/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/run-a/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/include-synthetic/plan.json" --enabled --include-synthetic-mechanics --per-chapter-limit 5
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$ARTIFACTS/run-a/inputs/book.json" --vocabulary "$ARTIFACTS/run-a/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/run-a/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/run-a/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/limit/plan.json" --enabled --per-chapter-limit 2
+
+"$PYTHON" "$ROOT/scripts/analyze_grammar.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --dataset "$DATASET" --output "$ARTIFACTS/compatibility/legal-grammar.json"
+"$PYTHON" "$ROOT/scripts/build_phase7_plan_cases.py" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --stale-output "$ARTIFACTS/grammar-plan/stale/grammar.json" --grammar-plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --stale-plan-output "$ARTIFACTS/grammar-notes/stale/plan.json"
+
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/disabled/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/disabled/annotation-plan.json"
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ARTIFACTS/grammar-plan/stale/grammar.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/stale/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/stale/annotation-plan.json" --enabled --safe
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ARTIFACTS/compatibility/legal-grammar.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output "$ARTIFACTS/grammar-plan/invalid/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/invalid/annotation-plan.json" --enabled --safe
+"$PYTHON" "$ROOT/scripts/create_grammar_plan.py" --book "$COMPAT_BOOK" --vocabulary "$COMPAT_VOCABULARY" --annotation-plan "$COMPAT_PLAN" --grammar-report "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-plan/corrupt/report.json" --fallback-plan-output "$ARTIFACTS/grammar-plan/corrupt/annotation-plan.json" --enabled --safe
+
+cmp "$ARTIFACTS/grammar-plan/disabled/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/grammar-plan/stale/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/grammar-plan/invalid/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/grammar-plan/corrupt/annotation-plan.json" "$COMPAT_PLAN"
+cmp "$ARTIFACTS/compatibility/phase3-vocabulary-before.json" "$COMPAT_VOCABULARY"
+cmp "$ARTIFACTS/compatibility/phase5-plan-before.json" "$COMPAT_PLAN"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/$run/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/$run/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/$run/report.json"
+done
+cmp "$ARTIFACTS/grammar-notes/run-a/grammar-notes.xhtml" "$ARTIFACTS/grammar-notes/run-b/grammar-notes.xhtml"
+cmp "$ARTIFACTS/grammar-notes/run-a/grammar-notes.xhtml" "$NOTES_GOLDEN"
+
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/include-synthetic/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/include-synthetic/grammar-notes.xhtml" --test-only-allow-synthetic-mechanics
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --disabled --safe-report "$ARTIFACTS/grammar-notes/disabled/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-notes/stale/plan.json" --dataset "$DATASET" --output "$ARTIFACTS/grammar-notes/stale/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/stale/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output "$ARTIFACTS/grammar-notes/invalid/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/invalid/report.json"
+"$PYTHON" "$ROOT/scripts/render_grammar_notes.py" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --output "$ARTIFACTS/grammar-notes/corrupt/grammar-notes.xhtml" --safe-report "$ARTIFACTS/grammar-notes/corrupt/report.json"
+test ! -e "$ARTIFACTS/grammar-notes/disabled/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/stale/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/invalid/grammar-notes.xhtml"
+test ! -e "$ARTIFACTS/grammar-notes/corrupt/grammar-notes.xhtml"
+cmp "$ROOT/artifacts/phase4/notes/run-a/study-notes.xhtml" "$ROOT/tests/phase4_golden/study-notes-v1.xhtml"
+cmp "$ROOT/artifacts/phase5/rendered/run-a/notes/study-notes.xhtml" "$ROOT/tests/phase5_golden/rendered-v2/study-notes.xhtml"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-$run" --book "$ARTIFACTS/$run/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/$run/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/$run" --report "$ARTIFACTS/linked/$run-report.json"
+done
+diff -r "$ARTIFACTS/linked/run-a" "$ARTIFACTS/linked/run-b"
+diff -r "$ARTIFACTS/linked/run-a" "$ROOT/tests/phase7_golden/grammar-linked-v1"
+
+"$PYTHON" "$ROOT/scripts/build_phase7_link_cases.py" --source-dir "$ARTIFACTS/linked/source-run-a" --ambiguous-dir "$ARTIFACTS/linked/ambiguous-source"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --output-dir "$ARTIFACTS/linked/disabled" --report "$ARTIFACTS/linked/disabled-report.json" --disabled
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-notes/stale/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/stale" --report "$ARTIFACTS/linked/stale-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-invalid-v1.json" --output-dir "$ARTIFACTS/linked/invalid" --report "$ARTIFACTS/linked/invalid-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/source-run-a" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$ROOT/tests/fixtures/phase7-grammar-corrupt-v1.json" --output-dir "$ARTIFACTS/linked/corrupt" --report "$ARTIFACTS/linked/corrupt-report.json"
+"$PYTHON" "$ROOT/scripts/render_linked_grammar_notes.py" --source-dir "$ARTIFACTS/linked/ambiguous-source" --book "$ARTIFACTS/run-a/inputs/book.json" --plan "$ARTIFACTS/grammar-plan/run-a/plan.json" --dataset "$DATASET" --output-dir "$ARTIFACTS/linked/ambiguous" --report "$ARTIFACTS/linked/ambiguous-report.json"
+for mode in disabled stale invalid corrupt; do
+  diff -r "$ARTIFACTS/linked/source-run-a" "$ARTIFACTS/linked/$mode"
+done
+diff -r "$ARTIFACTS/linked/ambiguous-source" "$ARTIFACTS/linked/ambiguous"
+cmp "$ROOT/artifacts/phase4/linked/run-a/EPUB/text/chapter-01.xhtml" "$ROOT/tests/phase4_golden/linked-v1/EPUB/text/chapter-01.xhtml"
+cmp "$ROOT/artifacts/phase5/rendered/run-a/linked/EPUB/text/study-notes.xhtml" "$ROOT/tests/phase5_golden/linked-v2/EPUB/text/study-notes.xhtml"
+
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_fixture.py" --source-dir "$ARTIFACTS/linked/source-run-a" --output "$ARTIFACTS/epub/vocabulary-only.epub"
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_fixture.py" --source-dir "$ARTIFACTS/linked/source-run-b" --output "$ARTIFACTS/epub/vocabulary-only-b.epub"
+cmp "$ARTIFACTS/epub/vocabulary-only.epub" "$ARTIFACTS/epub/vocabulary-only-b.epub"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --linked-dir "$ARTIFACTS/linked/$run" --output "$ARTIFACTS/epub/$run.epub" --report "$ARTIFACTS/epub/$run-report.json" --enabled
+  "$PYTHON" "$ROOT/scripts/inspect_grammar_epub.py" --epub "$ARTIFACTS/epub/$run.epub" --output "$ARTIFACTS/epub/$run-structure.json"
+done
+cmp "$ARTIFACTS/epub/run-a.epub" "$ARTIFACTS/epub/run-b.epub"
+cmp "$ARTIFACTS/epub/run-a-report.json" "$ARTIFACTS/epub/run-b-report.json"
+cmp "$ARTIFACTS/epub/run-a-structure.json" "$ARTIFACTS/epub/run-b-structure.json"
+cmp "$ARTIFACTS/epub/run-a-structure.json" "$EPUB_GOLDEN"
+
+"$PYTHON" "$ROOT/scripts/build_phase7_epub_cases.py" --linked-dir "$ARTIFACTS/linked/run-a" --output-dir "$ARTIFACTS/epub/cases"
+"$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --output "$ARTIFACTS/epub/disabled.epub" --report "$ARTIFACTS/epub/disabled-report.json"
+for mode in stale invalid corrupt ambiguous unsafe broken-fragment; do
+  "$PYTHON" "$ROOT/scripts/package_grammar_epub.py" --input-epub "$ARTIFACTS/epub/vocabulary-only.epub" --linked-dir "$ARTIFACTS/epub/cases/$mode" --output "$ARTIFACTS/epub/$mode.epub" --report "$ARTIFACTS/epub/$mode-report.json" --enabled
+done
+jq -e '.packaged == false and .diagnostics[0].reason == "disabled"' "$ARTIFACTS/epub/disabled-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "stale-input"' "$ARTIFACTS/epub/stale-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "invalid-input"' "$ARTIFACTS/epub/invalid-report.json" "$ARTIFACTS/epub/broken-fragment-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "corrupt-input"' "$ARTIFACTS/epub/corrupt-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "ambiguous-input"' "$ARTIFACTS/epub/ambiguous-report.json" >/dev/null
+jq -e '.packaged == false and .diagnostics[0].reason == "unsafe-input"' "$ARTIFACTS/epub/unsafe-report.json" >/dev/null
+for mode in disabled stale invalid corrupt ambiguous unsafe broken-fragment; do
+  cmp "$ARTIFACTS/epub/vocabulary-only.epub" "$ARTIFACTS/epub/$mode.epub"
+done
+cp "$ROOT/artifacts/phase4/epub/run-a.epub" "$ARTIFACTS/epub/compatibility/phase4.epub"
+cp "$ROOT/artifacts/phase5/rendered/run-a.epub" "$ARTIFACTS/epub/compatibility/phase5.epub"
+cmp "$ARTIFACTS/epub/compatibility/phase4.epub" "$ROOT/artifacts/phase4/epub/run-b.epub"
+cmp "$ARTIFACTS/epub/compatibility/phase5.epub" "$ROOT/artifacts/phase5/rendered/run-b.epub"
+
+test "$(sha256sum "$ARTIFACTS/epub/run-a.epub" | cut -d' ' -f1)" = "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+
+mkdir -p "$ARTIFACTS/evaluation/run-a" "$ARTIFACTS/evaluation/run-b" "$ARTIFACTS/evaluation/cases"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase7_evaluation_fixture.py" --source "$EVALUATION_SOURCE" --dataset "$DATASET" --output-dir "$ARTIFACTS/evaluation/$run/inputs" --corpus-output "$ARTIFACTS/evaluation/$run/corpus.json"
+  "$PYTHON" "$ROOT/scripts/evaluate_grammar.py" --book "$ARTIFACTS/evaluation/$run/inputs/book.json" --vocabulary "$ARTIFACTS/evaluation/$run/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/evaluation/$run/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/evaluation/$run/inputs/grammar.json" --dataset "$DATASET" --corpus "$ARTIFACTS/evaluation/$run/corpus.json" --rule-control "$EVALUATION_CONTROL" --output "$ARTIFACTS/evaluation/$run/evaluation.json"
+done
+diff -r "$ARTIFACTS/evaluation/run-a/inputs" "$ARTIFACTS/evaluation/run-b/inputs"
+cmp "$ARTIFACTS/evaluation/run-a/corpus.json" "$ARTIFACTS/evaluation/run-b/corpus.json"
+cmp "$ARTIFACTS/evaluation/run-a/corpus.json" "$EVALUATION_CORPUS"
+cmp "$ARTIFACTS/evaluation/run-a/inputs/book.json" "$ROOT/tests/fixtures/phase7_evaluation/book.json"
+cmp "$ARTIFACTS/evaluation/run-a/evaluation.json" "$ARTIFACTS/evaluation/run-b/evaluation.json"
+cmp "$ARTIFACTS/evaluation/run-a/evaluation.json" "$EVALUATION_GOLDEN"
+jq -e '.metrics.true_positive_count == 20 and .metrics.false_positive_count == 0 and .metrics.false_negative_count == 0 and .metrics.true_negative_count == 12 and (.metrics.per_rule | all(.true_positive_count == 4 and .recall.numerator == 4 and .recall.denominator == 4))' "$ARTIFACTS/evaluation/run-a/evaluation.json" >/dev/null
+
+"$PYTHON" "$ROOT/scripts/build_phase7_evaluation_cases.py" --input-dir "$ARTIFACTS/evaluation/run-a/inputs" --dataset "$DATASET" --corpus "$EVALUATION_CORPUS" --control "$EVALUATION_CONTROL" --output-dir "$ARTIFACTS/evaluation/cases" --matrix-output "$ARTIFACTS/evaluation/disabled-matrix.json"
+cmp "$ARTIFACTS/evaluation/disabled-matrix.json" "$EVALUATION_MATRIX_GOLDEN"
+jq -e '.rows | length == 5 and all(.true_positive_count == 16 and (.excluded_case_ids | length) == 4 and (.unaffected_result_hashes | length) == 29)' "$ARTIFACTS/evaluation/disabled-matrix.json" >/dev/null
+jq -e '.diagnostics[0].reason == "disabled" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/disabled.json" >/dev/null
+jq -e '.diagnostics[0].reason == "stale-corpus-hash" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/stale.json" >/dev/null
+jq -e '.diagnostics[0].reason == "invalid-expected-offset" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/invalid.json" >/dev/null
+jq -e '.diagnostics[0].reason == "corrupt-corpus" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/corrupt.json" >/dev/null
+jq -e '.diagnostics[0].reason == "unknown-rule" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/unknown-rule.json" >/dev/null
+jq -e '.diagnostics[0].reason == "duplicate-disabled-rule" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/duplicate-rule.json" >/dev/null
+cmp "$ARTIFACTS/compatibility/phase3-vocabulary-before.json" "$COMPAT_VOCABULARY"
+cmp "$ARTIFACTS/compatibility/phase5-plan-before.json" "$COMPAT_PLAN"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py" "$ROOT/tests/test_grammar_epub.py" "$ROOT/tests/test_grammar_evaluation.py"
+echo "Phase 7 regression passed; artifacts retained under artifacts/phase7/."

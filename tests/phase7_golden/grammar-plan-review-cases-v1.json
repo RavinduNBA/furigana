@@ -1,0 +1,47 @@
+{
+  "fixture_notice": "Synthetic grammar-plan review fixture; not production grammar approval.",
+  "expected": {
+    "diagnostics": 6,
+    "items": 5,
+    "occurrences": 7,
+    "overlaps": 5
+  },
+  "selected_keys": [
+    "〜ている",
+    "〜たことがある",
+    "〜ようにする",
+    "〜てしまう",
+    "〜なければならない"
+  ],
+  "excluded_default": {
+    "canonical_key": "〜て",
+    "reason": "synthetic-mechanics-rule"
+  },
+  "review_cases": [
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0001",
+      "relationship": "contains-vocabulary",
+      "link_disposition": "grammar-note-reference-only"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0003",
+      "relationship": "partial-overlap",
+      "link_disposition": "rejected-ambiguous-overlap"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0004",
+      "relationship": "exact-span",
+      "link_disposition": "grammar-note-reference-only"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0005",
+      "relationship": "no-overlap",
+      "link_disposition": "grammar-link"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0007",
+      "relationship": "publisher-ruby-protected",
+      "link_disposition": "publisher-ruby-preserved"
+    }
+  ]
+}

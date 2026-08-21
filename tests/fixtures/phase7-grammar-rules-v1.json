@@ -1,0 +1,93 @@
+{
+  "dataset_id": "furiganalyse-synthetic-grammar",
+  "dataset_version": "2026-08-18",
+  "fixture_notice": "Synthetic test fixture; not a comprehensive grammar resource.",
+  "rules": [
+    {
+      "canonical_key": "〜ている",
+      "exclusion_patterns": [],
+      "explanation": "Marks an ongoing action or resulting state.",
+      "formation_patterns": ["verb te-form + いる"],
+      "hash": "d44b1b4772043d8335adbc249596989008768a4435c7ba043cefbf001468997e",
+      "id": "grammar-rule-0001",
+      "label": "ongoing or resulting state",
+      "positive_examples": ["読んでいる"],
+      "priority": 10,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["読んでいる"],
+      "usage_labels": []
+    },
+    {
+      "canonical_key": "〜たことがある",
+      "exclusion_patterns": [],
+      "explanation": "Marks past experience.",
+      "formation_patterns": ["verb past form + ことがある"],
+      "hash": "5ef13208b72448a957c660350e1aa69d9b8eea8993eaafb2e39862159c0425e4",
+      "id": "grammar-rule-0002",
+      "label": "past experience",
+      "positive_examples": ["読んだことがある"],
+      "priority": 20,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["読んだことがある"],
+      "usage_labels": []
+    },
+    {
+      "canonical_key": "〜なければならない",
+      "exclusion_patterns": [],
+      "explanation": "Marks obligation or necessity.",
+      "formation_patterns": ["negative conditional + ならない"],
+      "hash": "9c62406dcb4590017049d3006658de9cf1ee7cd8239d30fd5e2c303dcb65d17d",
+      "id": "grammar-rule-0003",
+      "label": "must; have to",
+      "positive_examples": ["行かなければならない"],
+      "priority": 30,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["行かなければならない"],
+      "usage_labels": ["neutral"]
+    },
+    {
+      "canonical_key": "〜ようにする",
+      "exclusion_patterns": [],
+      "explanation": "Marks a deliberate effort or habit.",
+      "formation_patterns": ["plain form + ようにする"],
+      "hash": "86915fff8eb1992a6970c8cfff78c81d69d9dceb70de72daed62229febedde3c",
+      "id": "grammar-rule-0004",
+      "label": "make an effort to",
+      "positive_examples": ["読むようにする"],
+      "priority": 40,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["読むようにする"],
+      "usage_labels": []
+    },
+    {
+      "canonical_key": "〜てしまう",
+      "exclusion_patterns": [],
+      "explanation": "Marks completion or an unintended result.",
+      "formation_patterns": ["verb te-form + しまう"],
+      "hash": "4a0b73d32ffecec3a0955b849dee740e6f4f09bbfe6702720e6044f41033b2c5",
+      "id": "grammar-rule-0005",
+      "label": "finish; unfortunately do",
+      "positive_examples": ["忘れてしまう"],
+      "priority": 50,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["忘れてしまう", "読んでしまう"],
+      "usage_labels": []
+    },
+    {
+      "canonical_key": "〜て",
+      "exclusion_patterns": [],
+      "explanation": "Synthetic shorter competing pattern.",
+      "formation_patterns": ["verb te-form"],
+      "hash": "566442b6ade199b6d7b89a75bcb39312cbd1af0b47f8eb72dc692fc47e339119",
+      "id": "grammar-rule-0006",
+      "label": "te-form connector",
+      "positive_examples": ["読んで"],
+      "priority": 1,
+      "source_provenance": "synthetic-curated-test-rule",
+      "surface_patterns": ["読んで"],
+      "usage_labels": []
+    }
+  ],
+  "schema_version": 1,
+  "source_provenance": "locally curated synthetic fixture"
+}

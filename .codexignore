@@ -1,10 +1,10 @@
-# Phase 6: book context and consistency
+# Phase 7: grammar expressions
 #
-# Review and adjust this file when moving to another phase. Keep implementation.md,
-# README.md, pyproject.toml, canonical/vocabulary/dictionary/enriched-plan models,
-# provenance and precedence policy, context/prompt schemas, cache and fallback
-# validation, and new Phase 6 context, terminology, entity, summary, retrieval,
-# consistency, script, test, fixture, golden, and checklist files visible.
+# Review and adjust this file again when moving to another phase. Keep the
+# roadmap, README, metadata, canonical/vocabulary/annotation models, rendering
+# and linked-output interfaces, publisher-ruby protection, offsets, anchors,
+# deterministic serialization, and new Phase 7 grammar/rule/rendering files
+# visible.
 
 # Repository internals, local environments, and caches
 .git/
@@ -26,19 +26,21 @@ data/
 *.sqlite3
 *.cache
 
-# Completed Phase 0-5 review documents and golden artifacts
+# Completed Phase 0-6 review documents
 docs/phase0-*
 docs/phase1-*
 docs/phase2-*
 docs/phase3-*
 docs/phase4-*
 docs/phase5-*
+docs/phase6-*
+
+# Completed goldens not needed for grammar/vocabulary rendering compatibility
 tests/golden/
 tests/phase3_golden/
-tests/phase4_golden/
-tests/phase5_golden/
+tests/phase6_golden/
 
-# Completed Phase 0-5 workflows and rendering/packaging surfaces
+# Completed Phase 0-6 regression workflows
 scripts/phase0_*
 scripts/phase0-*
 scripts/phase1_*
@@ -51,18 +53,8 @@ scripts/phase4_*
 scripts/phase4-*
 scripts/phase5_*
 scripts/phase5-*
-scripts/create_study_plan.py
-scripts/render_study_notes.py
-scripts/render_linked_study_notes.py
-scripts/package_study_epub.py
-furiganalyse/study_notes.py
-furiganalyse/linked_output.py
-furiganalyse/epub_packaging.py
-tests/test_phase0_epub.py
-tests/test_enriched_rendering.py
-tests/test_study_notes.py
-tests/test_linked_output.py
-tests/test_epub_packaging.py
+scripts/phase6_*
+scripts/phase6-*
 
 # Deployment and unrelated later-phase/output work
 Dockerfile
@@ -72,3 +64,8 @@ furiganalyse/apkg_format.py
 furiganalyse/app.py
 furiganalyse/txt_format.py
 furiganalyse/words_lists/
+
+# Learner-profile, adaptive-density, and Anki work remain out of Phase 7 scope
+**/*learner_profile*
+**/*adaptive_density*
+**/*anki*

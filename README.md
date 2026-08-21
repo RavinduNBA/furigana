@@ -658,3 +658,208 @@ requests, annotation plans, XHTML, or EPUB output. Disabled or failed operation
 preserves Phase 5 request and plan bytes exactly. Artifacts are retained under
 artifacts/phase6/manifest/ and reviewed with
 docs/phase6-context-manifest-review-checklist.md.
+## Phase 7 curated grammar candidates
+
+Phase 7 begins with a deterministic grammar-analysis layer over the existing
+canonical book, schema-v4 vocabulary report, and schema-v2 annotation plan. It
+does not reparse XHTML or modify vocabulary, study plans, notes, or EPUB files.
+
+The initial dataset is a deliberately small synthetic fixture, not a production
+grammar resource. Rules use exact ordered token surfaces, never cross sentence,
+block, or chapter boundaries, and never inspect publisher `rt`/`rp` text.
+Competing matches resolve by longest exact span, explicit rule priority, curated
+rule order, and canonical source order. Vocabulary overlaps are retained only as
+references in a separate grammar report.
+
+Run the complete gate:
+
+```bash
+./scripts/phase7-regression.sh
+```
+
+Direct CLI usage:
+
+```bash
+.venv/bin/python scripts/analyze_grammar.py \\
+  --book artifacts/phase7/run-a/inputs/book.json \\
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \\
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \\
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \\
+  --output artifacts/phase7/run-a/grammar.json
+```
+
+The gate retains deterministic reports, disabled/failure diagnostics, and
+compatibility copies under `artifacts/phase7/`. Grammar is disabled unless an
+explicit local dataset is supplied. Invalid inputs fail safely, and fallback
+plans remain byte-identical. Current limitations include exact synthetic rules
+only: no production dataset, fuzzy matching, model inference, grammar notes,
+link rendering, or EPUB changes.
+
+### Grammar study-item and overlap planning
+
+The grammar-plan layer consumes the validated grammar report without repeating
+detection. It selects the five primary synthetic rules, deduplicates repeated
+rules while retaining occurrences, and excludes the standalone synthetic
+`〜て` mechanics rule unless test-only inclusion is explicit. The default
+per-chapter grammar-item limit is four.
+
+Overlap records classify grammar spans as containing, contained by, exactly
+matching, partially overlapping, non-overlapping, or publisher-ruby protected.
+Existing vocabulary links always win: containing and exact matches become
+grammar-note references, unsafe partial overlaps reject only the grammar link,
+and publisher ruby is preserved. These are future link dispositions only; this
+slice does not render anchors, XHTML, CSS, notes, or EPUB content.
+
+```bash
+.venv/bin/python scripts/create_grammar_plan.py \\
+  --book artifacts/phase7/run-a/inputs/book.json \\
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \\
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \\
+  --grammar-report artifacts/phase7/run-a/grammar.json \\
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \\
+  --output artifacts/phase7/grammar-plan/run-a/plan.json \\
+  --enabled
+```
+
+The enhanced gate retains plans, limit cases, test-only synthetic inclusion,
+safe fallback reports, and compatibility evidence under
+`artifacts/phase7/grammar-plan/`.
+
+### Standalone grammar study notes
+
+Render a validated grammar plan as deterministic grammar-only XHTML:
+
+```bash
+.venv/bin/python scripts/render_grammar_notes.py \
+  --plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --output artifacts/phase7/grammar-notes/run-a/grammar-notes.xhtml
+```
+
+The default document contains five notes in grammar-plan order. Each note shows
+the curated key, label, explanation, formation, optional usage labels, ordered
+occurrence references, dataset version, rule hash, and selection provenance.
+Stable `grammar-note-*` anchors and CSS scoped to `grammar-notes` and
+`grammar-study-note` classes are used only inside this standalone document.
+
+The synthetic `〜て` mechanics rule is rejected unless both the input plan and
+the explicitly test-only renderer option enable it. Publisher-ruby-adjacent
+occurrences are listed as protected references without copying `rt`/`rp` text
+or rendering ruby. This slice creates no source links, backlinks, combined
+vocabulary notes, chapter mutations, or EPUB changes. Disabled and invalid
+inputs produce safe diagnostics and no XHTML. Existing Phase 4/5 vocabulary
+notes remain byte-identical. Outputs are retained under
+`artifacts/phase7/grammar-notes/` and reviewed with
+`docs/phase7-grammar-notes-review-checklist.md`.
+
+### Linked grammar contexts
+
+Apply only the link dispositions already recorded in a validated grammar plan:
+
+```bash
+.venv/bin/python scripts/render_linked_grammar_notes.py \
+  --source-dir artifacts/phase7/linked/source \
+  --book artifacts/phase7/run-a/inputs/book.json \
+  --plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --output-dir artifacts/phase7/linked/run-a \
+  --report artifacts/phase7/linked/run-a-report.json
+```
+
+The synthetic baseline has seven contexts but only three safe grammar links and
+three matching backlinks. Direct and same-sentence non-overlapping occurrences
+are linked. Contains-vocabulary and exact-span cases remain note references,
+partial overlaps reject only grammar linking, and publisher-ruby cases remain
+nonlinked and protected. Existing vocabulary, expression, and name links are
+copied unchanged.
+
+The renderer maps exact canonical offsets to an explicit local XHTML directory,
+rejects ambiguous DOM insertion, validates every internal fragment, and never
+modifies input files. Disabled or failed operation reproduces the input linked
+set and emits only safe reason codes. It does not update OPF, navigation, CSS,
+archives, or EPUB packages. Deterministic outputs are retained under
+`artifacts/phase7/linked/` and reviewed with
+`docs/phase7-grammar-linked-output-review-checklist.md`.
+
+### Packaged grammar EPUB
+
+The packaging layer consumes the already validated linked XHTML and a minimal
+local vocabulary-only EPUB fixture. It does not rerun grammar or vocabulary
+analysis and copies the four approved XHTML members byte-for-byte.
+
+```bash
+.venv/bin/python scripts/build_phase7_epub_fixture.py \
+  --source-dir artifacts/phase7/linked/source-run-a \
+  --output artifacts/phase7/epub/vocabulary-only.epub
+
+.venv/bin/python scripts/package_grammar_epub.py \
+  --input-epub artifacts/phase7/epub/vocabulary-only.epub \
+  --linked-dir artifacts/phase7/linked/run-a \
+  --output artifacts/phase7/epub/run-a.epub \
+  --report artifacts/phase7/epub/run-a-report.json \
+  --enabled
+```
+
+The synthetic package has eight members. Its spine and TOC order are the two
+chapters, `Study Notes`, then `Grammar Study Notes`; the vocabulary and grammar
+note layers remain separate. The checked-in synthetic package SHA-256 is
+`df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619`.
+It retains five grammar notes, seven contexts, three grammar links and matching
+backlinks, five existing study links, and the publisher reading for 表舞台.
+
+ZIP ordering, timestamps, permissions, and compression are fixed. Every
+manifest, spine, navigation, XHTML, and fragment reference is validated before
+writing. Packaging is opt-in; disabled or invalid operation copies the
+vocabulary-only EPUB byte-for-byte and emits only a deterministic reason code.
+No credentials, provider metadata, remote resources, source paths, OPF dumps,
+or raw exceptions enter reports or reader content. The package remains a legal
+synthetic mechanics fixture, not production approval of the grammar dataset or
+the standalone synthetic `〜て` rule. Artifacts are retained under
+`artifacts/phase7/epub/` and await the separate Calibre review documented in
+`docs/phase7-packaged-epub-review-checklist.md`.
+
+### Synthetic grammar evaluation
+
+Phase 7 also provides an opt-in, deterministic evaluator for checked-in
+synthetic ground truth. The corpus contains exactly 20 positive constructions
+(four for each primary curated rule) and 13 negative confounders. One negative
+is the explicitly excluded synthetic-mechanics competitor, leaving 12 scored
+true negatives. Expected rule,
+surface, source, token, and offset labels are fixture data; they are never
+derived from detector output.
+
+```bash
+.venv/bin/python scripts/evaluate_grammar.py \
+  --book artifacts/phase7/evaluation/run-a/inputs/book.json \
+  --vocabulary artifacts/phase7/evaluation/run-a/inputs/vocabulary.json \
+  --annotation-plan artifacts/phase7/evaluation/run-a/inputs/annotation-plan.json \
+  --grammar-report artifacts/phase7/evaluation/run-a/inputs/grammar.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --corpus tests/fixtures/phase7-evaluation-corpus-v1.json \
+  --rule-control tests/fixtures/phase7-evaluation-control-v1.json \
+  --output artifacts/phase7/evaluation/run-a/evaluation.json
+```
+
+Metrics are serialized as integer numerator/denominator pairs. The synthetic
+baseline records 20 TP, 0 FP, 0 FN, and 12 TN, with 4/4 recall for each primary
+rule. These perfect fixture metrics are regression evidence only and do not
+claim production precision, recall, or rule approval.
+
+Rule controls list explicit ordered `disabled_rule_ids` without editing the
+curated dataset. The synthetic `〜て` mechanics rule is disabled in the default
+profile and excluded from primary metrics. Disabling one primary rule excludes
+only its four labeled positives; unaffected result records remain byte-identical.
+Unknown, duplicate, stale, invalid, corrupt, or disabled inputs produce concise
+safe diagnostics and no scored cases. Reports contain bounded case references,
+not complete books, XHTML, EPUB content, credentials, provider data, paths,
+caches, or raw exceptions. Evaluation artifacts are retained under
+`artifacts/phase7/evaluation/` and reviewed with
+`docs/phase7-grammar-evaluation-review-checklist.md`.
+
+Phase 7 is complete: curated grammar detection, planning, standalone notes,
+linked contexts, and EPUB packaging are deterministic and remain separate from
+vocabulary, expressions, and proper names. Publisher ruby is authoritative,
+overlap dispositions are conservative, and rules are independently disableable.
+The synthetic evaluation records 20 TP, 0 FP, 0 FN, and 12 TN, but those perfect
+fixture metrics do not establish production accuracy. The synthetic `〜て`
+mechanics rule remains unapproved for production use.

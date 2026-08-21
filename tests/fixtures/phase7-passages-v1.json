@@ -1,0 +1,41 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "fixture_notice": "Synthetic legal Phase 7 grammar fixture.",
+  "chapters": [
+    {
+      "id": "ch-0001",
+      "source_path": "EPUB/text/grammar-01.xhtml",
+      "blocks": [
+        {"text": "本を読んでいる。", "tokens": ["本", "を", "読ん", "で", "いる", "。"]},
+        {"text": "前にも読んだことがある。", "tokens": ["前", "に", "も", "読ん", "だ", "こと", "が", "ある", "。"]},
+        {"text": "毎日読むようにする。", "tokens": ["毎日", "読む", "よう", "に", "する", "。"]},
+        {"text": "忘れてしまう。", "tokens": ["忘れ", "て", "しまう", "。"]},
+        {"text": "また読んでいる。", "tokens": ["また", "読ん", "で", "いる", "。"]},
+        {"text": "読んで。", "tokens": ["読ん", "で", "。"]},
+        {"text": "いる。", "tokens": ["いる", "。"]},
+        {
+          "text": "表舞台読んでいる。",
+          "tokens": ["表舞台", "読ん", "で", "いる", "。"],
+          "publisher_ruby": [{"surface": "表舞台", "reading": "おもてぶたい", "start": 0, "end": 3}]
+        },
+        {
+          "text": "読んでいる。",
+          "tokens": ["読ん", "で", "いる", "。"],
+          "publisher_ruby": [{"surface": "読んでいる", "reading": "よんでいる", "start": 0, "end": 6}]
+        }
+      ]
+    },
+    {
+      "id": "ch-0002",
+      "source_path": "EPUB/text/grammar-02.xhtml",
+      "blocks": [
+        {"text": "行かなければならない。", "tokens": ["行か", "なけれ", "ば", "なら", "ない", "。"]},
+        {
+          "text": "読んでしまう。",
+          "tokens": ["読ん", "で", "しまう", "。"],
+          "lexical_expression": "読んでしまう"
+        }
+      ]
+    }
+  ]
+}

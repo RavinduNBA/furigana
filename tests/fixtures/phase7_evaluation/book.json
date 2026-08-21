@@ -1,0 +1,619 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-evaluation-synthetic",
+  "chapters": [
+    {
+      "blocks": [
+        {
+          "id": "eval-ch-0001-b-0001",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0001-b-0001-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-1",
+          "text": "読んでいる。"
+        },
+        {
+          "id": "eval-ch-0001-b-0002",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 9,
+              "id": "eval-ch-0001-b-0002-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んだことがある。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-2",
+          "text": "読んだことがある。"
+        },
+        {
+          "id": "eval-ch-0001-b-0003",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 11,
+              "id": "eval-ch-0001-b-0003-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "行かなければならない。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-3",
+          "text": "行かなければならない。"
+        },
+        {
+          "id": "eval-ch-0001-b-0004",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 8,
+              "id": "eval-ch-0001-b-0004-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読むようにする。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-4",
+          "text": "読むようにする。"
+        },
+        {
+          "id": "eval-ch-0001-b-0005",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0001-b-0005-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "忘れてしまう。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-5",
+          "text": "忘れてしまう。"
+        },
+        {
+          "id": "eval-ch-0001-b-0006",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0001-b-0006-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-6",
+          "text": "読んでいる。"
+        },
+        {
+          "id": "eval-ch-0001-b-0007",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 9,
+              "id": "eval-ch-0001-b-0007-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んだことがある。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-7",
+          "text": "読んだことがある。"
+        },
+        {
+          "id": "eval-ch-0001-b-0008",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 11,
+              "id": "eval-ch-0001-b-0008-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "行かなければならない。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-8",
+          "text": "行かなければならない。"
+        },
+        {
+          "id": "eval-ch-0001-b-0009",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 8,
+              "id": "eval-ch-0001-b-0009-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読むようにする。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-9",
+          "text": "読むようにする。"
+        },
+        {
+          "id": "eval-ch-0001-b-0010",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0001-b-0010-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "忘れてしまう。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-1-10",
+          "text": "忘れてしまう。"
+        }
+      ],
+      "id": "eval-ch-0001",
+      "source_path": "EPUB/text/evaluation-01.xhtml",
+      "spine_index": 0,
+      "text": "読んでいる。\n読んだことがある。\n行かなければならない。\n読むようにする。\n忘れてしまう。\n読んでいる。\n読んだことがある。\n行かなければならない。\n読むようにする。\n忘れてしまう。"
+    },
+    {
+      "blocks": [
+        {
+          "id": "eval-ch-0002-b-0001",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0001-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-1",
+          "text": "読んでいる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0002",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 9,
+              "id": "eval-ch-0002-b-0002-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んだことがある。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-2",
+          "text": "読んだことがある。"
+        },
+        {
+          "id": "eval-ch-0002-b-0003",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 11,
+              "id": "eval-ch-0002-b-0003-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "行かなければならない。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-3",
+          "text": "行かなければならない。"
+        },
+        {
+          "id": "eval-ch-0002-b-0004",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 8,
+              "id": "eval-ch-0002-b-0004-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読むようにする。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-4",
+          "text": "読むようにする。"
+        },
+        {
+          "id": "eval-ch-0002-b-0005",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0005-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "忘れてしまう。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-5",
+          "text": "忘れてしまう。"
+        },
+        {
+          "id": "eval-ch-0002-b-0006",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0006-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-6",
+          "text": "読んでいる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0007",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 9,
+              "id": "eval-ch-0002-b-0007-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んだことがある。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-7",
+          "text": "読んだことがある。"
+        },
+        {
+          "id": "eval-ch-0002-b-0008",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 11,
+              "id": "eval-ch-0002-b-0008-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "行かなければならない。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-8",
+          "text": "行かなければならない。"
+        },
+        {
+          "id": "eval-ch-0002-b-0009",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 8,
+              "id": "eval-ch-0002-b-0009-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読むようにする。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-9",
+          "text": "読むようにする。"
+        },
+        {
+          "id": "eval-ch-0002-b-0010",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0010-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "忘れてしまう。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-10",
+          "text": "忘れてしまう。"
+        },
+        {
+          "id": "eval-ch-0002-b-0011",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 4,
+              "id": "eval-ch-0002-b-0011-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んで。",
+              "text_spans": []
+            },
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0011-s-0002",
+              "publisher_ruby": [],
+              "start": 4,
+              "text": "いる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-11",
+          "text": "読んで。いる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0012",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 3,
+              "id": "eval-ch-0002-b-0012-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んで",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-12",
+          "text": "読んで"
+        },
+        {
+          "id": "eval-ch-0002-b-0013",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 3,
+              "id": "eval-ch-0002-b-0013-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "いる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-13",
+          "text": "いる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0014",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0014-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読ん、でいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-14",
+          "text": "読ん、でいる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0015",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 4,
+              "id": "eval-ch-0002-b-0015-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んで。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-15",
+          "text": "読んで。"
+        },
+        {
+          "id": "eval-ch-0002-b-0016",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0016-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "今日は晴れ。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-16",
+          "text": "今日は晴れ。"
+        },
+        {
+          "id": "eval-ch-0002-b-0017",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0017-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んでしまう。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-17",
+          "text": "読んでしまう。"
+        },
+        {
+          "id": "eval-ch-0002-b-0018",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0018-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "雪乃が読む。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-18",
+          "text": "雪乃が読む。"
+        },
+        {
+          "id": "eval-ch-0002-b-0019",
+          "publisher_ruby": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0019-r-0001",
+              "reading": "よんでいる",
+              "source": "publisher",
+              "source_anchor": "evaluation-ruby-2-19-1",
+              "start": 0,
+              "surface": "読んでいる"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 6,
+              "id": "eval-ch-0002-b-0019-s-0001",
+              "publisher_ruby": [
+                "eval-ch-0002-b-0019-r-0001"
+              ],
+              "start": 0,
+              "text": "読んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-19",
+          "text": "読んでいる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0020",
+          "publisher_ruby": [
+            {
+              "end": 3,
+              "id": "eval-ch-0002-b-0020-r-0001",
+              "reading": "おもてぶたい",
+              "source": "publisher",
+              "source_anchor": "evaluation-ruby-2-20-1",
+              "start": 0,
+              "surface": "表舞台"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0020-s-0001",
+              "publisher_ruby": [
+                "eval-ch-0002-b-0020-r-0001"
+              ],
+              "start": 0,
+              "text": "表舞台に立つ。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-20",
+          "text": "表舞台に立つ。"
+        },
+        {
+          "id": "eval-ch-0002-b-0021",
+          "publisher_ruby": [
+            {
+              "end": 3,
+              "id": "eval-ch-0002-b-0021-r-0001",
+              "reading": "読んでいる",
+              "source": "publisher",
+              "source_anchor": "evaluation-ruby-2-21-1",
+              "start": 0,
+              "surface": "表舞台"
+            }
+          ],
+          "sentences": [
+            {
+              "end": 4,
+              "id": "eval-ch-0002-b-0021-s-0001",
+              "publisher_ruby": [
+                "eval-ch-0002-b-0021-r-0001"
+              ],
+              "start": 0,
+              "text": "表舞台。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-21",
+          "text": "表舞台。"
+        },
+        {
+          "id": "eval-ch-0002-b-0022",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 7,
+              "id": "eval-ch-0002-b-0022-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読 んでいる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-22",
+          "text": "読 んでいる。"
+        },
+        {
+          "id": "eval-ch-0002-b-0023",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 3,
+              "id": "eval-ch-0002-b-0023-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "読んで",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-2-23",
+          "text": "読んで"
+        }
+      ],
+      "id": "eval-ch-0002",
+      "source_path": "EPUB/text/evaluation-02.xhtml",
+      "spine_index": 1,
+      "text": "読んでいる。\n読んだことがある。\n行かなければならない。\n読むようにする。\n忘れてしまう。\n読んでいる。\n読んだことがある。\n行かなければならない。\n読むようにする。\n忘れてしまう。\n読んで。いる。\n読んで\nいる。\n読ん、でいる。\n読んで。\n今日は晴れ。\n読んでしまう。\n雪乃が読む。\n読んでいる。\n表舞台に立つ。\n表舞台。\n読 んでいる。\n読んで"
+    },
+    {
+      "blocks": [
+        {
+          "id": "eval-ch-0003-b-0001",
+          "publisher_ruby": [],
+          "sentences": [
+            {
+              "end": 3,
+              "id": "eval-ch-0003-b-0001-s-0001",
+              "publisher_ruby": [],
+              "start": 0,
+              "text": "いる。",
+              "text_spans": []
+            }
+          ],
+          "source_anchor": "evaluation-block-3-1",
+          "text": "いる。"
+        }
+      ],
+      "id": "eval-ch-0003",
+      "source_path": "EPUB/text/evaluation-03.xhtml",
+      "spine_index": 2,
+      "text": "いる。"
+    }
+  ],
+  "package_path": "EPUB/package.opf",
+  "schema_version": 2
+}

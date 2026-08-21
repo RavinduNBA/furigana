@@ -1,0 +1,19 @@
+{
+  "dataset_notice": "Synthetic review cases; not a comprehensive grammar resource.",
+  "expected_candidate_count": 6,
+  "expected_diagnostic_count": 7,
+  "expected_occurrence_count": 8,
+  "review_cases": [
+    {"canonical_key": "〜ている", "expected_count": 3, "expected_surfaces": ["読んでいる", "読んでいる", "読んでいる"], "review": "exact repeated ongoing-state form"},
+    {"canonical_key": "〜たことがある", "expected_count": 1, "expected_surfaces": ["読んだことがある"], "review": "exact past-experience form"},
+    {"canonical_key": "〜なければならない", "expected_count": 1, "expected_surfaces": ["行かなければならない"], "review": "exact obligation form"},
+    {"canonical_key": "〜ようにする", "expected_count": 1, "expected_surfaces": ["読むようにする"], "review": "exact deliberate-effort form"},
+    {"canonical_key": "〜てしまう", "expected_count": 1, "expected_surfaces": ["忘れてしまう"], "review": "exact completion or unintended-result form"},
+    {"canonical_key": "〜て", "expected_count": 1, "expected_surfaces": ["読んで"], "review": "short form retained only when no longer compatible match exists"}
+  ],
+  "required_diagnostics": [
+    "overlap-rejected-longest-specific-rule",
+    "publisher-ruby-protected",
+    "lexical-expression-not-grammar"
+  ]
+}

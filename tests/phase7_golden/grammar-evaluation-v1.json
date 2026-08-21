@@ -1,0 +1,916 @@
+{
+  "active_rule_ids": [
+    "grammar-rule-0001",
+    "grammar-rule-0002",
+    "grammar-rule-0003",
+    "grammar-rule-0004",
+    "grammar-rule-0005"
+  ],
+  "book_id": "urn:uuid:furiganalyse-phase-7-evaluation-synthetic",
+  "configuration": {
+    "disabled_rule_ids": [
+      "grammar-rule-0006"
+    ],
+    "fixture_notice": "Synthetic local evaluation rule control.",
+    "hash": "4bfdf4934223d6d21f5415d7a04d23cbc47d72a39ed0dd41355ff219b3881b8b",
+    "id": "phase7-evaluation-control-default",
+    "schema_version": 1
+  },
+  "corpus": {
+    "hash": "18dbd3c752d65264cb45ad0efba6bb42ad727b8025102dfe249e150ae8c2f87e",
+    "id": "furiganalyse-synthetic-grammar-evaluation",
+    "version": "2026-08-21"
+  },
+  "dataset": {
+    "hash": "3ad23f359dd764ab13136d2d6731c12734701ec0127fb60cf0e2a8d5d0333000",
+    "id": "furiganalyse-synthetic-grammar",
+    "provenance": "locally curated synthetic fixture",
+    "version": "2026-08-18"
+  },
+  "detector_version": "grammar-analysis-v1",
+  "diagnostics": [
+    {
+      "hash": "1f5bcffc2e12eca33066d0f6d4d1d648116c79241918b052636a5c30b409b105",
+      "id": "grammar-evaluation-diagnostic-0001",
+      "reason": "rule-disabled",
+      "rule_id": "grammar-rule-0006"
+    }
+  ],
+  "disabled_rule_ids": [
+    "grammar-rule-0006"
+  ],
+  "excluded_case_ids": [],
+  "hash": "3e997e5001fe81e2d1b19168f7584f7e96b198aae3e8bcdc34eb6e9746762baf",
+  "id": "grammar-evaluation-report-v1",
+  "metrics": {
+    "exact_match_accuracy": {
+      "denominator": 32,
+      "numerator": 32
+    },
+    "false_negative_count": 0,
+    "false_positive_count": 0,
+    "false_positive_rate": {
+      "denominator": 12,
+      "numerator": 0
+    },
+    "hash": "844a3c56a1ac3c2a7c3eb463acb16b159f7e3d0919176038db110ae11eedf12c",
+    "negative_categories": [
+      {
+        "category": "shorter-competing-pattern",
+        "count": 1
+      },
+      {
+        "category": "sentence-boundary-separation",
+        "count": 1
+      },
+      {
+        "category": "block-boundary-separation",
+        "count": 1
+      },
+      {
+        "category": "punctuation-interruption",
+        "count": 1
+      },
+      {
+        "category": "incomplete-formation",
+        "count": 1
+      },
+      {
+        "category": "ordinary-lexical-text",
+        "count": 1
+      },
+      {
+        "category": "jmdict-lexical-expression",
+        "count": 1
+      },
+      {
+        "category": "proper-name-adjacency",
+        "count": 1
+      },
+      {
+        "category": "publisher-ruby-covered",
+        "count": 1
+      },
+      {
+        "category": "publisher-ruby-adjacency",
+        "count": 1
+      },
+      {
+        "category": "rt-rp-only-text",
+        "count": 1
+      },
+      {
+        "category": "whitespace-interruption",
+        "count": 1
+      },
+      {
+        "category": "chapter-boundary-separation",
+        "count": 1
+      }
+    ],
+    "per_rule": [
+      {
+        "active": true,
+        "expected_positive_count": 4,
+        "false_negative_count": 0,
+        "false_positive_count": 0,
+        "precision": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "recall": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "rule_id": "grammar-rule-0001",
+        "scored_positive_count": 4,
+        "true_positive_count": 4
+      },
+      {
+        "active": true,
+        "expected_positive_count": 4,
+        "false_negative_count": 0,
+        "false_positive_count": 0,
+        "precision": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "recall": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "rule_id": "grammar-rule-0002",
+        "scored_positive_count": 4,
+        "true_positive_count": 4
+      },
+      {
+        "active": true,
+        "expected_positive_count": 4,
+        "false_negative_count": 0,
+        "false_positive_count": 0,
+        "precision": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "recall": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "rule_id": "grammar-rule-0003",
+        "scored_positive_count": 4,
+        "true_positive_count": 4
+      },
+      {
+        "active": true,
+        "expected_positive_count": 4,
+        "false_negative_count": 0,
+        "false_positive_count": 0,
+        "precision": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "recall": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "rule_id": "grammar-rule-0004",
+        "scored_positive_count": 4,
+        "true_positive_count": 4
+      },
+      {
+        "active": true,
+        "expected_positive_count": 4,
+        "false_negative_count": 0,
+        "false_positive_count": 0,
+        "precision": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "recall": {
+          "denominator": 4,
+          "numerator": 4
+        },
+        "rule_id": "grammar-rule-0005",
+        "scored_positive_count": 4,
+        "true_positive_count": 4
+      }
+    ],
+    "precision": {
+      "denominator": 20,
+      "numerator": 20
+    },
+    "recall": {
+      "denominator": 20,
+      "numerator": 20
+    },
+    "true_negative_count": 12,
+    "true_positive_count": 20
+  },
+  "results": [
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0001",
+          "chapter_id": "eval-ch-0001",
+          "hash": "39b282f6494998d4d3364c56c01e1768b419e8a0cc685c150d01c169049d2874",
+          "rule_id": "grammar-rule-0001",
+          "sentence_end": 5,
+          "sentence_id": "eval-ch-0001-b-0001-s-0001",
+          "sentence_start": 0,
+          "surface": "読んでいる"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0001"
+      ],
+      "case_hash": "68745eca5d2468ccba3836842b7fd00b4a9fe73dbcc3bc76c5c65c5be5ba7ba5",
+      "case_id": "grammar-eval-case-0001",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んでいる",
+      "hash": "1bd384c356e8bc64d42c703fb7268a24d373f13b3c3d7500174313aac323c278",
+      "id": "grammar-evaluation-result-0001",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "c8c91dc22b491714d645a8c98ced14cb1d185e62591d1ba465cd375463d75a08",
+      "case_id": "grammar-eval-case-0002",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0006",
+      "expected_surface": "読んで",
+      "hash": "b92ab2f099547302c320e40c3b6cb18bdae03c19ef0613ca7c88eb2583865abe",
+      "id": "grammar-evaluation-result-0002",
+      "outcome": "excluded-mechanics",
+      "reason": "synthetic-mechanics-disabled"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0002",
+          "chapter_id": "eval-ch-0001",
+          "hash": "4d6c0fb33f7832ceff553edec6477f6a201760f585977e9fcbdb3b4d18b4a951",
+          "rule_id": "grammar-rule-0002",
+          "sentence_end": 8,
+          "sentence_id": "eval-ch-0001-b-0002-s-0001",
+          "sentence_start": 0,
+          "surface": "読んだことがある"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0002"
+      ],
+      "case_hash": "6dca4bb4cceda2bd76a237f5a3195bb24751c595b0a0280196c38419e7742242",
+      "case_id": "grammar-eval-case-0003",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0002",
+      "expected_surface": "読んだことがある",
+      "hash": "8b36810f1a070deaeb2770178558f769428fcf55c626a862c31766059223a882",
+      "id": "grammar-evaluation-result-0003",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0003",
+          "chapter_id": "eval-ch-0001",
+          "hash": "5f2a01ee70643c9787537487615632a9526ce013bf35e32714f761c7118d2fae",
+          "rule_id": "grammar-rule-0003",
+          "sentence_end": 10,
+          "sentence_id": "eval-ch-0001-b-0003-s-0001",
+          "sentence_start": 0,
+          "surface": "行かなければならない"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0003"
+      ],
+      "case_hash": "eab8e7f3841dc3b1e4863bb1acaa1f78ed73e204cd71e567c0deb01ef37eda0c",
+      "case_id": "grammar-eval-case-0004",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0003",
+      "expected_surface": "行かなければならない",
+      "hash": "5be86857bdd4cab1484f5f778d21980fb79b1f737f5516a82b670c0006b063ce",
+      "id": "grammar-evaluation-result-0004",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0004",
+          "chapter_id": "eval-ch-0001",
+          "hash": "75dc55a6ba8bb5031c7a3cb33994310ec677133a3790e0bfcceb824c847b118d",
+          "rule_id": "grammar-rule-0004",
+          "sentence_end": 7,
+          "sentence_id": "eval-ch-0001-b-0004-s-0001",
+          "sentence_start": 0,
+          "surface": "読むようにする"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0004"
+      ],
+      "case_hash": "d895ed7b9f9d521291e25b84877f72da57bc42a9c774fab9cf596bb1c1ddd51a",
+      "case_id": "grammar-eval-case-0005",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0004",
+      "expected_surface": "読むようにする",
+      "hash": "203ac02077300325b57eb529fd8d58720dacfbf343f3fcd645017d2da895bbea",
+      "id": "grammar-evaluation-result-0005",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0005",
+          "chapter_id": "eval-ch-0001",
+          "hash": "c7cc8b99019f2a66798bfca29c0bfb96a88040fe13c8b30fec1a475e14b23f92",
+          "rule_id": "grammar-rule-0005",
+          "sentence_end": 6,
+          "sentence_id": "eval-ch-0001-b-0005-s-0001",
+          "sentence_start": 0,
+          "surface": "忘れてしまう"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0005"
+      ],
+      "case_hash": "7915b22cc0dc6e9eac5d1a25d70a0f87d318878c2029846f72a7946e41398e2a",
+      "case_id": "grammar-eval-case-0006",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0005",
+      "expected_surface": "忘れてしまう",
+      "hash": "15d207abad585d524abc5d012b12026ebb51d1867bfdecdac6f343d001f3ac46",
+      "id": "grammar-evaluation-result-0006",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0006",
+          "chapter_id": "eval-ch-0001",
+          "hash": "eb6982a911001bbdb5a06cf094960c2d1648a6500820fb3653ab5ec15b6491c6",
+          "rule_id": "grammar-rule-0001",
+          "sentence_end": 5,
+          "sentence_id": "eval-ch-0001-b-0006-s-0001",
+          "sentence_start": 0,
+          "surface": "読んでいる"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0006"
+      ],
+      "case_hash": "ee618470c2ee768f2ede6726c4e2af2152a9aaa745ee126899663a790d70442e",
+      "case_id": "grammar-eval-case-0007",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んでいる",
+      "hash": "b6ede87149f86bc443d40c767598fcf47922bcc1deb98b1a62c2322eb9e0ad4b",
+      "id": "grammar-evaluation-result-0007",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0007",
+          "chapter_id": "eval-ch-0001",
+          "hash": "29ee0303492d28629a977188432f3d47afe109323819c90c23eef8ab065ff3b7",
+          "rule_id": "grammar-rule-0002",
+          "sentence_end": 8,
+          "sentence_id": "eval-ch-0001-b-0007-s-0001",
+          "sentence_start": 0,
+          "surface": "読んだことがある"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0007"
+      ],
+      "case_hash": "e61600d4f559c917d60d664528f150767b0ae38909b89a725504427a4237465f",
+      "case_id": "grammar-eval-case-0008",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0002",
+      "expected_surface": "読んだことがある",
+      "hash": "f78cd0cbb129886d790057c92759df6ac7821c11fb5e35961c0334f6f45d93da",
+      "id": "grammar-evaluation-result-0008",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0008",
+          "chapter_id": "eval-ch-0001",
+          "hash": "66214dbb86b1dc00cb6c3830b8e7b2703f06d3a8639cc1b1d369f2ca0944b4d4",
+          "rule_id": "grammar-rule-0003",
+          "sentence_end": 10,
+          "sentence_id": "eval-ch-0001-b-0008-s-0001",
+          "sentence_start": 0,
+          "surface": "行かなければならない"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0008"
+      ],
+      "case_hash": "ef40000befbb109c1d9a66dfa534b9973a3653140d4557422abd23d2ecbe7eca",
+      "case_id": "grammar-eval-case-0009",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0003",
+      "expected_surface": "行かなければならない",
+      "hash": "22603c3c6e84daa9905de3b944efff77fd617caff1aa07b3d9c2fccd11afa374",
+      "id": "grammar-evaluation-result-0009",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0009",
+          "chapter_id": "eval-ch-0001",
+          "hash": "0dd34041de15c61f414e06b14c65379edb03f414c6a75b0a843f2e80abee0500",
+          "rule_id": "grammar-rule-0004",
+          "sentence_end": 7,
+          "sentence_id": "eval-ch-0001-b-0009-s-0001",
+          "sentence_start": 0,
+          "surface": "読むようにする"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0009"
+      ],
+      "case_hash": "ceb3c3a9bb4ead41ce9d94e7eb0da166e4377e600cfb7b26d8dbf5f37db4fe97",
+      "case_id": "grammar-eval-case-0010",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0004",
+      "expected_surface": "読むようにする",
+      "hash": "5395e5efae9c27f1930b141a68d78d9b94947237c563a09ec2236554f78369dd",
+      "id": "grammar-evaluation-result-0010",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0001-b-0010",
+          "chapter_id": "eval-ch-0001",
+          "hash": "d1fbddf05537f1067ea2f37d0eea834207815ac494ff0ced95d6a55efb020046",
+          "rule_id": "grammar-rule-0005",
+          "sentence_end": 6,
+          "sentence_id": "eval-ch-0001-b-0010-s-0001",
+          "sentence_start": 0,
+          "surface": "忘れてしまう"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0010"
+      ],
+      "case_hash": "6a208492ea79d30eb3a9820230234845da8199f5fae801c8072f29a0b21227a0",
+      "case_id": "grammar-eval-case-0011",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0005",
+      "expected_surface": "忘れてしまう",
+      "hash": "b819e2609f2dff9cf2230853463685fd71bd1caa5da5712907f87e915e30c74e",
+      "id": "grammar-evaluation-result-0011",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0001",
+          "chapter_id": "eval-ch-0002",
+          "hash": "b3cc6b623954f37d9cc9ef167674944a595cc338fe015414e6aacc157d6b5630",
+          "rule_id": "grammar-rule-0001",
+          "sentence_end": 5,
+          "sentence_id": "eval-ch-0002-b-0001-s-0001",
+          "sentence_start": 0,
+          "surface": "読んでいる"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0011"
+      ],
+      "case_hash": "aecf8f460d3b15c474f22e19ee4de0c414033e62448e39397c7c2c4f011dbc46",
+      "case_id": "grammar-eval-case-0012",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んでいる",
+      "hash": "9ea6ed40c061b502f101394d08fd2aa34dc8baabd3c4811b4cb616b3a91dfea9",
+      "id": "grammar-evaluation-result-0012",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0002",
+          "chapter_id": "eval-ch-0002",
+          "hash": "7ad5fe0bbfffaa104c60c542fed8385394caf6cfa4d1a651e32a887c39d634c0",
+          "rule_id": "grammar-rule-0002",
+          "sentence_end": 8,
+          "sentence_id": "eval-ch-0002-b-0002-s-0001",
+          "sentence_start": 0,
+          "surface": "読んだことがある"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0012"
+      ],
+      "case_hash": "fa4f186bacceff07fca4ba96ca57ea5477625fb02feacccdc4c5328fa7998e49",
+      "case_id": "grammar-eval-case-0013",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0002",
+      "expected_surface": "読んだことがある",
+      "hash": "747f1a10f4cb6fc8cbed4e0c5ca5f57ced8e4e6f1b6b5727476272597569271d",
+      "id": "grammar-evaluation-result-0013",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0003",
+          "chapter_id": "eval-ch-0002",
+          "hash": "e8bce42c3a1bb8bdb58f59c55dbc8a3abb5283c4db069a4bb725b1bd1c87e8b3",
+          "rule_id": "grammar-rule-0003",
+          "sentence_end": 10,
+          "sentence_id": "eval-ch-0002-b-0003-s-0001",
+          "sentence_start": 0,
+          "surface": "行かなければならない"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0013"
+      ],
+      "case_hash": "ef754b6cdcdc79c56da9fceb3357dece6303cb04fa0268a75b01c8a10eebf0af",
+      "case_id": "grammar-eval-case-0014",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0003",
+      "expected_surface": "行かなければならない",
+      "hash": "7148cf5686cbb8c0144107f0bee64810d70934553d62db6f01862609155de8ea",
+      "id": "grammar-evaluation-result-0014",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0004",
+          "chapter_id": "eval-ch-0002",
+          "hash": "105bcec46a49fbce2f8f80e96805d907581007be55bf72d26790b28584ec59f4",
+          "rule_id": "grammar-rule-0004",
+          "sentence_end": 7,
+          "sentence_id": "eval-ch-0002-b-0004-s-0001",
+          "sentence_start": 0,
+          "surface": "読むようにする"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0014"
+      ],
+      "case_hash": "da3e28e5072a25d91c64478b45f53a0d70346c055df86d2b7189074883c1852a",
+      "case_id": "grammar-eval-case-0015",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0004",
+      "expected_surface": "読むようにする",
+      "hash": "0d8c570592f7966b284e50a68b66a6acce3a978e95bc56a05888074eda7de3cc",
+      "id": "grammar-evaluation-result-0015",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0005",
+          "chapter_id": "eval-ch-0002",
+          "hash": "936d8e3e71c6ba4c7b70d3f3b6565e993d487af6ed17c23dbf21b492e1115a5e",
+          "rule_id": "grammar-rule-0005",
+          "sentence_end": 6,
+          "sentence_id": "eval-ch-0002-b-0005-s-0001",
+          "sentence_start": 0,
+          "surface": "忘れてしまう"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0015"
+      ],
+      "case_hash": "9f8b68b10f92adc5311eba0449923435017f08a7f406325899d0120cbf4609d2",
+      "case_id": "grammar-eval-case-0016",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0005",
+      "expected_surface": "忘れてしまう",
+      "hash": "9f10ed1de24e84078ec5e401bc67b890dd570f938282d04ffee282da99829200",
+      "id": "grammar-evaluation-result-0016",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0006",
+          "chapter_id": "eval-ch-0002",
+          "hash": "5b1c9b01dd51fb4e06f84701a1e5931bd20b4a68533dbef83ed52fd5d5a95641",
+          "rule_id": "grammar-rule-0001",
+          "sentence_end": 5,
+          "sentence_id": "eval-ch-0002-b-0006-s-0001",
+          "sentence_start": 0,
+          "surface": "読んでいる"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0016"
+      ],
+      "case_hash": "49ffbe47c1c36e67f2ee707932e3ff39f3e0dc3059fa47d49a28d880d7786877",
+      "case_id": "grammar-eval-case-0017",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んでいる",
+      "hash": "9b6bbe1100e32ee21fa72721c3f26fe4d5c33f9e5ea2a12427af39e3061cb566",
+      "id": "grammar-evaluation-result-0017",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0007",
+          "chapter_id": "eval-ch-0002",
+          "hash": "1ae150174362a07ea5c0ee95b63958079425c69ae7b1ba7cbd3b3ea81f47f0ea",
+          "rule_id": "grammar-rule-0002",
+          "sentence_end": 8,
+          "sentence_id": "eval-ch-0002-b-0007-s-0001",
+          "sentence_start": 0,
+          "surface": "読んだことがある"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0017"
+      ],
+      "case_hash": "51a942a7b252b84309c3e884b86be5b14395c3bb9a12564d2f0e0f2d80715c84",
+      "case_id": "grammar-eval-case-0018",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0002",
+      "expected_surface": "読んだことがある",
+      "hash": "71ca9628a474a0072f67a8fb8784a75f67f5248de59721fcd1e187d893d8977b",
+      "id": "grammar-evaluation-result-0018",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0008",
+          "chapter_id": "eval-ch-0002",
+          "hash": "b83dcda924d389de00c2748525ed19017cf81a5bddb3613c9a2d9bc74b45d9ef",
+          "rule_id": "grammar-rule-0003",
+          "sentence_end": 10,
+          "sentence_id": "eval-ch-0002-b-0008-s-0001",
+          "sentence_start": 0,
+          "surface": "行かなければならない"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0018"
+      ],
+      "case_hash": "b2fc36d2870f146621fb6f83929580183f640c91e05ac933f569040fc240df14",
+      "case_id": "grammar-eval-case-0019",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0003",
+      "expected_surface": "行かなければならない",
+      "hash": "226f197ebd3c7aae8bd9a94881385bb2c3480800b8b4e7adc0a07effd3801457",
+      "id": "grammar-evaluation-result-0019",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0009",
+          "chapter_id": "eval-ch-0002",
+          "hash": "dbcfad2cea3dc1054498056a81dcae87c36356122f9530054d41cf06acd07036",
+          "rule_id": "grammar-rule-0004",
+          "sentence_end": 7,
+          "sentence_id": "eval-ch-0002-b-0009-s-0001",
+          "sentence_start": 0,
+          "surface": "読むようにする"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0019"
+      ],
+      "case_hash": "7a694a3249d1add24fe4d99846f5280082c384b1264255297c58b65fddbaf0a4",
+      "case_id": "grammar-eval-case-0020",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0004",
+      "expected_surface": "読むようにする",
+      "hash": "1181e8febb61cad83930e118e7deccbaba8febc51acb401cf4d5c319395391b5",
+      "id": "grammar-evaluation-result-0020",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [
+        {
+          "block_id": "eval-ch-0002-b-0010",
+          "chapter_id": "eval-ch-0002",
+          "hash": "c2a9a0cffc1acc9b526a8ea0b4daa3eb2a0d06b016748fad172794648e7fbec6",
+          "rule_id": "grammar-rule-0005",
+          "sentence_end": 6,
+          "sentence_id": "eval-ch-0002-b-0010-s-0001",
+          "sentence_start": 0,
+          "surface": "忘れてしまう"
+        }
+      ],
+      "actual_occurrence_ids": [
+        "grammar-occurrence-0020"
+      ],
+      "case_hash": "505446dbfc838a296160f6f1dea03546c1f52ee41bf6703dc00506becfef8ec0",
+      "case_id": "grammar-eval-case-0021",
+      "classification": "positive",
+      "expected_rule_id": "grammar-rule-0005",
+      "expected_surface": "忘れてしまう",
+      "hash": "ea5897c33efc038e6781a938c7f7d96d37185e00b1786ef3c6b53e10dce10d8e",
+      "id": "grammar-evaluation-result-0021",
+      "outcome": "true-positive",
+      "reason": "exact-compatible-match"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "7a3d3e25d29c1d0f253afdcf7070342a1da385faeedc330058e5ff2e5f5dcacc",
+      "case_id": "grammar-eval-case-0022",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んで",
+      "hash": "2a54d5d5e85d8150d86b28262473cb5f07748bedcdc8596395cad0585480f619",
+      "id": "grammar-evaluation-result-0022",
+      "outcome": "true-negative",
+      "reason": "sentence-boundary"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "45738dfa0e2f10905d82273e22d8cffaf0f905c1fb1f0727fbdcd7a1613e3a44",
+      "case_id": "grammar-eval-case-0023",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んで",
+      "hash": "5f379be2269108a0ccfef3c8fad9d8525577557f306e46c57afa60acbe928f1a",
+      "id": "grammar-evaluation-result-0023",
+      "outcome": "true-negative",
+      "reason": "block-boundary"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "f0f93d944219bdcb555c7b503e891b362c00a8e1e34d81d1157099d79f7970d7",
+      "case_id": "grammar-eval-case-0024",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読ん、でいる",
+      "hash": "58c924c143e20b687ccb1aac6a3bee6672214f85a8251273646ffa12b1647618",
+      "id": "grammar-evaluation-result-0024",
+      "outcome": "true-negative",
+      "reason": "punctuation-interruption"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "bffb3d2ae703a3ce6b42f925c4eeb114abe1dab9e240bc97f34ad7711f19629e",
+      "case_id": "grammar-eval-case-0025",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んで",
+      "hash": "77f03ff8f8ed1217c4d1cdd08c1930778c1315149d2de0408b19985e41d2f884",
+      "id": "grammar-evaluation-result-0025",
+      "outcome": "true-negative",
+      "reason": "incomplete-formation"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "474cb772467a6b0240ed3416285656fbd4658f6a0d0c90ec58a2e96feacbbabb",
+      "case_id": "grammar-eval-case-0026",
+      "classification": "negative",
+      "expected_rule_id": null,
+      "expected_surface": null,
+      "hash": "fd2ee21de77abdbd2a4fca29b9615d75a22a34ec2038d2dbbe86595b3439169a",
+      "id": "grammar-evaluation-result-0026",
+      "outcome": "true-negative",
+      "reason": "ordinary-lexical-text"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "36d6d2976890c583bfefe5375f870f27d5a9300777be3efc6e567a67558bb752",
+      "case_id": "grammar-eval-case-0027",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0005",
+      "expected_surface": "読んでしまう",
+      "hash": "84da9c498acf1df97000b5f69eb21fa1b71ce95ad27d05dcddc9e0ebf68be2f6",
+      "id": "grammar-evaluation-result-0027",
+      "outcome": "true-negative",
+      "reason": "lexical-expression-not-grammar"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "d829076c2346584595b953a7b74e68bda57934c8e126036d1218f46c9dbd2908",
+      "case_id": "grammar-eval-case-0028",
+      "classification": "negative",
+      "expected_rule_id": null,
+      "expected_surface": null,
+      "hash": "218aa309fc7879c2ad456f78f978f14564d2c77a28522496a43f25615f2ea52f",
+      "id": "grammar-evaluation-result-0028",
+      "outcome": "true-negative",
+      "reason": "proper-name-separation"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "686fdacfc4d9ab4424959ccabffc9cb3f46981301465236b06282653efeaf6a4",
+      "case_id": "grammar-eval-case-0029",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んでいる",
+      "hash": "561d83e8fbc6c5cbe56a3803dd4c2f018071372ff4fb3b93f3df94c437232487",
+      "id": "grammar-evaluation-result-0029",
+      "outcome": "true-negative",
+      "reason": "publisher-ruby-protected"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "85d2428c8adfe0675738c74605e122672b6901e43ee7684b41ccaea7e3879a9f",
+      "case_id": "grammar-eval-case-0030",
+      "classification": "negative",
+      "expected_rule_id": null,
+      "expected_surface": null,
+      "hash": "21ee2e7170bac5a634201bcea2a58d9086a0de06dafb44421f264ebd75a58a19",
+      "id": "grammar-evaluation-result-0030",
+      "outcome": "true-negative",
+      "reason": "publisher-ruby-adjacency-no-match"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "2eacfddaa6d6f39376b1a94f225cc54bd192b1831bbfb6e74c494e1169987e44",
+      "case_id": "grammar-eval-case-0031",
+      "classification": "negative",
+      "expected_rule_id": null,
+      "expected_surface": null,
+      "hash": "a2adbd943af9d77c4dee6204d9be0d1f8c9cd0709cdd71d69ae893e17972933c",
+      "id": "grammar-evaluation-result-0031",
+      "outcome": "true-negative",
+      "reason": "rt-rp-excluded-from-canonical-text"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "7e616323941d2ded9ad04da70431e687a41d3218ffbf9cd4114f7abb71202cfc",
+      "case_id": "grammar-eval-case-0032",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読 んでいる",
+      "hash": "71f8ea3c834ba327526823a1cebc853e830e4a893d97edc8ab05d29713f01912",
+      "id": "grammar-evaluation-result-0032",
+      "outcome": "true-negative",
+      "reason": "whitespace-interruption"
+    },
+    {
+      "actual": [],
+      "actual_occurrence_ids": [],
+      "case_hash": "1b1e3f56d5a957448785543c820ac23c38c6d041406c271f8528366be1014218",
+      "case_id": "grammar-eval-case-0033",
+      "classification": "negative",
+      "expected_rule_id": "grammar-rule-0001",
+      "expected_surface": "読んで",
+      "hash": "2d89b789a7a2bd40f60744b9a39bb0abd7dd26e06ef7e9833a844c6b4c309749",
+      "id": "grammar-evaluation-result-0033",
+      "outcome": "true-negative",
+      "reason": "chapter-boundary"
+    }
+  ],
+  "schema_version": 1,
+  "scored_rule_ids": [
+    "grammar-rule-0001",
+    "grammar-rule-0002",
+    "grammar-rule-0003",
+    "grammar-rule-0004",
+    "grammar-rule-0005"
+  ],
+  "source_hashes": {
+    "annotation_plan": "942aa83d904b603aca37d005aa2a29621882821a1b4ef950f4f15aa41dae3549",
+    "canonical_book": "6e4ec2d08c71f4a0090c79eb83d735257e3d13bffaadab8e6ff422e9d66274af",
+    "grammar_dataset": "3ad23f359dd764ab13136d2d6731c12734701ec0127fb60cf0e2a8d5d0333000",
+    "grammar_report": "89a9a24a47955b6ffa00492d562edb531d89110ecb6bd5ce76fad3fd4d5550ca",
+    "vocabulary_report": "a0c84a7a54a1235bb6603a9902eef80de7870d510d710861b7e3cdb647c21475"
+  },
+  "unclaimed_actual_occurrence_ids": []
+}
