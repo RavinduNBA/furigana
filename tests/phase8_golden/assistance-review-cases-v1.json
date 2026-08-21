@@ -1,0 +1,35 @@
+{
+  "cases": [
+    {
+      "id": "phase8-review-reading-exposure",
+      "result_id": "assistance-result-0001",
+      "source": "exposure_policy",
+      "state": "hide-reading"
+    },
+    {
+      "id": "phase8-review-meaning-exposure",
+      "result_id": "assistance-result-0002",
+      "source": "exposure_policy",
+      "state": "hide-meaning"
+    },
+    {
+      "id": "phase8-review-publisher-ruby",
+      "protection": "preserved-authoritative",
+      "result_id": "assistance-result-0004"
+    },
+    {
+      "id": "phase8-review-name-separation",
+      "item_kind": "name",
+      "result_id": "assistance-result-0005"
+    },
+    {
+      "id": "phase8-review-grammar-override",
+      "result_id": "assistance-result-0007",
+      "source": "explicit_user_override",
+      "state": "show-grammar"
+    }
+  ],
+  "fixture_notice": "Synthetic manual-review references only.",
+  "hash": "35b2d1554600618f2329b34723c33870c2b236e50adc11ff1a5963c81bfb00a6",
+  "schema_version": 1
+}

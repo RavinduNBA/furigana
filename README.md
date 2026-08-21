@@ -863,3 +863,71 @@ overlap dispositions are conservative, and rules are independently disableable.
 The synthetic evaluation records 20 TP, 0 FP, 0 FN, and 12 TN, but those perfect
 fixture metrics do not establish production accuracy. The synthetic `〜て`
 mechanics rule remains unapproved for production use.
+
+Phase 8 learner-assistance selection
+------------------------------------
+
+The first Phase 8 slice adds a deterministic, non-rendering assistance layer.
+It consumes an explicit local learner profile, the schema-v4 vocabulary report,
+the approved schema-v2 annotation plan, and optionally a validated Phase 7
+grammar plan and explicit local exposure history. It does not alter those inputs
+or generate XHTML or EPUB content.
+
+Reading and meaning assistance are independent. Explicit profiles support all
+four combinations of `show-reading`/`hide-reading` and
+`show-meaning`/`hide-meaning`; grammar uses its own
+`show-grammar`/`hide-grammar` dimension. Publisher ruby remains visible and
+authoritative regardless of the generated-reading assistance state.
+
+The checked-in N5, N4, and N3 presets are small synthetic, explainable defaults,
+not learner diagnoses or production pedagogical claims. N5 shows all three
+assistance dimensions, N4 hides reading assistance while retaining meaning and
+grammar assistance, and N3 hides all three. Each preset records explicit
+frequency placeholders, exposure thresholds, rationale codes, provenance, and
+stable hashes.
+
+Decision precedence is publisher protection, explicit user override, preset
+policy, exposure evidence, frequency/familiarity evidence, dictionary, then
+model. Exposure is local and opt-in; a threshold can change only its configured
+reading, meaning, or grammar dimension. Overrides are item-specific, dated,
+reviewer-attributed, and dimension-specific. They never change dictionary data,
+approved meanings, item kinds, occurrences, offsets, anchors, or publisher ruby.
+
+Generate a report with:
+
+```bash
+.venv/bin/python scripts/create_assistance_selection.py \
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \
+  --grammar-plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --profile tests/fixtures/phase8/phase8-profile-baseline-v1.json \
+  --presets tests/fixtures/phase8/phase8-presets-v1.json \
+  --exposure-history tests/fixtures/phase8/phase8-exposure-history-v1.json \
+  --output artifacts/phase8/selection/run-a/assistance.json \
+  --enabled
+```
+
+Each result records the source item and occurrence references, authoritative
+reading provenance, an approved-meaning reference, independent assistance
+states, one effective source per applicable dimension, rationale codes,
+publisher-ruby protection, and a stable hash. It does not copy complete book or
+chapter text or create new readings, meanings, labels, or explanations.
+
+Run the complete gate with:
+
+```bash
+./scripts/phase8-regression.sh
+```
+
+The gate first runs Phase 7, then checks run-A/run-B/golden identity, all four
+state combinations, N5/N4/N3 differences, exposure thresholds, override
+precedence, publisher protection, safe failures, prior-artifact byte identity,
+and the approved Phase 7 EPUB checksum. Inspect retained output under
+`artifacts/phase8/selection/` and use
+`docs/phase8-learner-profile-review-checklist.md` for manual review.
+
+Selection is disabled unless an explicit valid profile is supplied. Disabled,
+corrupt, stale, or mismatched inputs produce bounded deterministic diagnostics
+and preserve supplied annotation and grammar plans byte-for-byte. The slice
+does not infer sensitive learner attributes, collect behavioral telemetry,
+invoke a provider, modify rendering, or implement adaptive ruby density.

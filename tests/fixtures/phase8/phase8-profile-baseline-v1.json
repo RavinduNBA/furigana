@@ -1,0 +1,69 @@
+{
+  "exposure_policy": {
+    "dimensions": [
+      "reading",
+      "meaning",
+      "grammar"
+    ],
+    "enabled": true
+  },
+  "grammar_assistance_policy": {
+    "state": "preset"
+  },
+  "hash": "d8e7bbbacb296aed6817f2cfd2b1b610c63118cf4bf8bfa860a812e39943b36b",
+  "id": "phase8-profile-baseline",
+  "label": "Synthetic N5 exposure and override baseline",
+  "meaning_assistance_policy": {
+    "state": "preset"
+  },
+  "overrides": [
+    {
+      "dimension": "reading",
+      "hash": "63a168cdcde5ac2bcaf779e06205fc84c96c75136d78e4ffec6e917c709406ec",
+      "id": "phase8-override-0001",
+      "provenance": "user",
+      "review_date": "2026-08-21",
+      "reviewer": "Synthetic Fixture Reviewer",
+      "reviewer_note": "Synthetic reading override.",
+      "state": "hide-reading",
+      "target_id": "study-item-0003",
+      "target_kind": "vocabulary"
+    },
+    {
+      "dimension": "meaning",
+      "hash": "64068aa966f85fe7b9367880e360f55278f26c8dec258a12a7ce9c7db35de94e",
+      "id": "phase8-override-0002",
+      "provenance": "user",
+      "review_date": "2026-08-21",
+      "reviewer": "Synthetic Fixture Reviewer",
+      "reviewer_note": "Synthetic meaning override.",
+      "state": "hide-meaning",
+      "target_id": "study-item-0004",
+      "target_kind": "vocabulary"
+    },
+    {
+      "dimension": "grammar",
+      "hash": "b47f15a82e1aeadc887a3ad6b034273d81aaf121f16d2e83274132dd5944a3d6",
+      "id": "phase8-override-0003",
+      "provenance": "user",
+      "review_date": "2026-08-21",
+      "reviewer": "Synthetic Fixture Reviewer",
+      "reviewer_note": "Synthetic grammar override.",
+      "state": "show-grammar",
+      "target_id": "grammar-item-0002",
+      "target_kind": "grammar"
+    }
+  ],
+  "preset_id": "phase8-preset-n5",
+  "provenance": "local-synthetic-fixture",
+  "reading_assistance_policy": {
+    "state": "preset"
+  },
+  "schema_version": 1,
+  "source_references": {
+    "annotation_plan_hash": "734404ae6a49a2999ad593f4312da283b417c3adf0b3462bc2e54bff21aa2fce",
+    "grammar_plan_hash": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848",
+    "preset_dataset_hash": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+    "vocabulary_hash": "4567f7fd3353344251671c47b3856ee2122f825a9308a9059e3b6f8ee952704f"
+  }
+}
