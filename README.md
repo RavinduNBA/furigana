@@ -817,3 +817,41 @@ synthetic mechanics fixture, not production approval of the grammar dataset or
 the standalone synthetic `〜て` rule. Artifacts are retained under
 `artifacts/phase7/epub/` and await the separate Calibre review documented in
 `docs/phase7-packaged-epub-review-checklist.md`.
+
+### Synthetic grammar evaluation
+
+Phase 7 also provides an opt-in, deterministic evaluator for checked-in
+synthetic ground truth. The corpus contains exactly 20 positive constructions
+(four for each primary curated rule) and 13 negative confounders. One negative
+is the explicitly excluded synthetic-mechanics competitor, leaving 12 scored
+true negatives. Expected rule,
+surface, source, token, and offset labels are fixture data; they are never
+derived from detector output.
+
+```bash
+.venv/bin/python scripts/evaluate_grammar.py \
+  --book artifacts/phase7/evaluation/run-a/inputs/book.json \
+  --vocabulary artifacts/phase7/evaluation/run-a/inputs/vocabulary.json \
+  --annotation-plan artifacts/phase7/evaluation/run-a/inputs/annotation-plan.json \
+  --grammar-report artifacts/phase7/evaluation/run-a/inputs/grammar.json \
+  --dataset tests/fixtures/phase7-grammar-rules-v1.json \
+  --corpus tests/fixtures/phase7-evaluation-corpus-v1.json \
+  --rule-control tests/fixtures/phase7-evaluation-control-v1.json \
+  --output artifacts/phase7/evaluation/run-a/evaluation.json
+```
+
+Metrics are serialized as integer numerator/denominator pairs. The synthetic
+baseline records 20 TP, 0 FP, 0 FN, and 12 TN, with 4/4 recall for each primary
+rule. These perfect fixture metrics are regression evidence only and do not
+claim production precision, recall, or rule approval.
+
+Rule controls list explicit ordered `disabled_rule_ids` without editing the
+curated dataset. The synthetic `〜て` mechanics rule is disabled in the default
+profile and excluded from primary metrics. Disabling one primary rule excludes
+only its four labeled positives; unaffected result records remain byte-identical.
+Unknown, duplicate, stale, invalid, corrupt, or disabled inputs produce concise
+safe diagnostics and no scored cases. Reports contain bounded case references,
+not complete books, XHTML, EPUB content, credentials, provider data, paths,
+caches, or raw exceptions. Evaluation artifacts are retained under
+`artifacts/phase7/evaluation/` and reviewed with
+`docs/phase7-grammar-evaluation-review-checklist.md`.

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "fixture_notice": "Synthetic manually reviewed evaluation cases; not production evidence.",
+  "baseline": {
+    "positive_count": 20,
+    "negative_count": 13,
+    "true_positives": 20,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_negatives": 12,
+    "primary_rule_positive_count": 4
+  },
+  "review_cases": [
+    {"case_id": "grammar-eval-case-0001", "rule_id": "grammar-rule-0001", "surface": "読んでいる", "judgment": "exact primary positive"},
+    {"case_id": "grammar-eval-case-0002", "rule_id": "grammar-rule-0006", "surface": "読んで", "judgment": "synthetic shorter competitor excluded"},
+    {"case_id": "grammar-eval-case-0003", "rule_id": "grammar-rule-0002", "surface": "読んだことがある", "judgment": "exact primary positive"},
+    {"case_id": "grammar-eval-case-0004", "rule_id": "grammar-rule-0003", "surface": "行かなければならない", "judgment": "exact primary positive"},
+    {"case_id": "grammar-eval-case-0005", "rule_id": "grammar-rule-0004", "surface": "読むようにする", "judgment": "exact primary positive"},
+    {"case_id": "grammar-eval-case-0006", "rule_id": "grammar-rule-0005", "surface": "忘れてしまう", "judgment": "exact primary positive"},
+    {"category": "sentence-block-chapter-boundaries", "case_ids": ["grammar-eval-case-0022", "grammar-eval-case-0023", "grammar-eval-case-0033"], "judgment": "no cross-boundary detection"},
+    {"category": "lexical-name-ruby-separation", "case_ids": ["grammar-eval-case-0027", "grammar-eval-case-0028", "grammar-eval-case-0029", "grammar-eval-case-0030", "grammar-eval-case-0031"], "judgment": "non-grammar evidence remains protected"}
+  ]
+}

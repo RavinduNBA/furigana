@@ -10,6 +10,11 @@ GOLDEN="$ROOT/tests/phase7_golden/grammar-candidates-v1.json"
 PLAN_GOLDEN="$ROOT/tests/phase7_golden/grammar-plan-v1.json"
 NOTES_GOLDEN="$ROOT/tests/phase7_golden/grammar-notes-v1.xhtml"
 EPUB_GOLDEN="$ROOT/tests/phase7_golden/grammar-epub-v1.json"
+EVALUATION_SOURCE="$ROOT/tests/fixtures/phase7-evaluation-source-v1.json"
+EVALUATION_CORPUS="$ROOT/tests/fixtures/phase7-evaluation-corpus-v1.json"
+EVALUATION_CONTROL="$ROOT/tests/fixtures/phase7-evaluation-control-v1.json"
+EVALUATION_GOLDEN="$ROOT/tests/phase7_golden/grammar-evaluation-v1.json"
+EVALUATION_MATRIX_GOLDEN="$ROOT/tests/phase7_golden/grammar-evaluation-disabled-matrix-v1.json"
 COMPAT_BOOK="$ROOT/artifacts/phase2/run-a/book.json"
 COMPAT_VOCABULARY="$ROOT/artifacts/phase3/jmnedict/run-a/vocabulary.json"
 COMPAT_PLAN="$ROOT/artifacts/phase5/enriched-plan/run-a/annotation-plan.json"
@@ -134,5 +139,32 @@ cp "$ROOT/artifacts/phase5/rendered/run-a.epub" "$ARTIFACTS/epub/compatibility/p
 cmp "$ARTIFACTS/epub/compatibility/phase4.epub" "$ROOT/artifacts/phase4/epub/run-b.epub"
 cmp "$ARTIFACTS/epub/compatibility/phase5.epub" "$ROOT/artifacts/phase5/rendered/run-b.epub"
 
-"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py" "$ROOT/tests/test_grammar_epub.py"
+test "$(sha256sum "$ARTIFACTS/epub/run-a.epub" | cut -d' ' -f1)" = "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+
+mkdir -p "$ARTIFACTS/evaluation/run-a" "$ARTIFACTS/evaluation/run-b" "$ARTIFACTS/evaluation/cases"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase7_evaluation_fixture.py" --source "$EVALUATION_SOURCE" --dataset "$DATASET" --output-dir "$ARTIFACTS/evaluation/$run/inputs" --corpus-output "$ARTIFACTS/evaluation/$run/corpus.json"
+  "$PYTHON" "$ROOT/scripts/evaluate_grammar.py" --book "$ARTIFACTS/evaluation/$run/inputs/book.json" --vocabulary "$ARTIFACTS/evaluation/$run/inputs/vocabulary.json" --annotation-plan "$ARTIFACTS/evaluation/$run/inputs/annotation-plan.json" --grammar-report "$ARTIFACTS/evaluation/$run/inputs/grammar.json" --dataset "$DATASET" --corpus "$ARTIFACTS/evaluation/$run/corpus.json" --rule-control "$EVALUATION_CONTROL" --output "$ARTIFACTS/evaluation/$run/evaluation.json"
+done
+diff -r "$ARTIFACTS/evaluation/run-a/inputs" "$ARTIFACTS/evaluation/run-b/inputs"
+cmp "$ARTIFACTS/evaluation/run-a/corpus.json" "$ARTIFACTS/evaluation/run-b/corpus.json"
+cmp "$ARTIFACTS/evaluation/run-a/corpus.json" "$EVALUATION_CORPUS"
+cmp "$ARTIFACTS/evaluation/run-a/inputs/book.json" "$ROOT/tests/fixtures/phase7_evaluation/book.json"
+cmp "$ARTIFACTS/evaluation/run-a/evaluation.json" "$ARTIFACTS/evaluation/run-b/evaluation.json"
+cmp "$ARTIFACTS/evaluation/run-a/evaluation.json" "$EVALUATION_GOLDEN"
+jq -e '.metrics.true_positive_count == 20 and .metrics.false_positive_count == 0 and .metrics.false_negative_count == 0 and .metrics.true_negative_count == 12 and (.metrics.per_rule | all(.true_positive_count == 4 and .recall.numerator == 4 and .recall.denominator == 4))' "$ARTIFACTS/evaluation/run-a/evaluation.json" >/dev/null
+
+"$PYTHON" "$ROOT/scripts/build_phase7_evaluation_cases.py" --input-dir "$ARTIFACTS/evaluation/run-a/inputs" --dataset "$DATASET" --corpus "$EVALUATION_CORPUS" --control "$EVALUATION_CONTROL" --output-dir "$ARTIFACTS/evaluation/cases" --matrix-output "$ARTIFACTS/evaluation/disabled-matrix.json"
+cmp "$ARTIFACTS/evaluation/disabled-matrix.json" "$EVALUATION_MATRIX_GOLDEN"
+jq -e '.rows | length == 5 and all(.true_positive_count == 16 and (.excluded_case_ids | length) == 4 and (.unaffected_result_hashes | length) == 29)' "$ARTIFACTS/evaluation/disabled-matrix.json" >/dev/null
+jq -e '.diagnostics[0].reason == "disabled" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/disabled.json" >/dev/null
+jq -e '.diagnostics[0].reason == "stale-corpus-hash" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/stale.json" >/dev/null
+jq -e '.diagnostics[0].reason == "invalid-expected-offset" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/invalid.json" >/dev/null
+jq -e '.diagnostics[0].reason == "corrupt-corpus" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/corrupt.json" >/dev/null
+jq -e '.diagnostics[0].reason == "unknown-rule" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/unknown-rule.json" >/dev/null
+jq -e '.diagnostics[0].reason == "duplicate-disabled-rule" and (.results | length) == 0' "$ARTIFACTS/evaluation/cases/duplicate-rule.json" >/dev/null
+cmp "$ARTIFACTS/compatibility/phase3-vocabulary-before.json" "$COMPAT_VOCABULARY"
+cmp "$ARTIFACTS/compatibility/phase5-plan-before.json" "$COMPAT_PLAN"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_grammar_analysis.py" "$ROOT/tests/test_grammar_plan.py" "$ROOT/tests/test_grammar_notes.py" "$ROOT/tests/test_grammar_linked_output.py" "$ROOT/tests/test_grammar_epub.py" "$ROOT/tests/test_grammar_evaluation.py"
 echo "Phase 7 regression passed; artifacts retained under artifacts/phase7/."

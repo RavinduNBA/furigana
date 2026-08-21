@@ -1,0 +1,9 @@
+{
+  "disabled_rule_ids": [
+    "grammar-rule-0006"
+  ],
+  "fixture_notice": "Synthetic local evaluation rule control.",
+  "hash": "4bfdf4934223d6d21f5415d7a04d23cbc47d72a39ed0dd41355ff219b3881b8b",
+  "id": "phase7-evaluation-control-default",
+  "schema_version": 1
+}

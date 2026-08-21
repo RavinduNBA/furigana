@@ -1,0 +1,57 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-evaluation-synthetic",
+  "fixture_notice": "Synthetic copyright-free Phase 7 grammar evaluation source; not production evidence.",
+  "version": "2026-08-21",
+  "chapters": [
+    {
+      "id": "eval-ch-0001",
+      "source_path": "EPUB/text/evaluation-01.xhtml",
+      "blocks": [
+        {"sentences": [{"text": "読んでいる。", "tokens": ["読ん", "で", "いる", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0001", "surface": "読んでいる"}, {"kind": "negative", "category": "shorter-competing-pattern", "rule_id": "grammar-rule-0006", "surface": "読んで", "expected_nonmatch_reason": "longest-match-selected-primary-rule"}]}]},
+        {"sentences": [{"text": "読んだことがある。", "tokens": ["読ん", "だ", "こと", "が", "ある", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0002", "surface": "読んだことがある"}]}]},
+        {"sentences": [{"text": "行かなければならない。", "tokens": ["行か", "なけれ", "ば", "なら", "ない", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0003", "surface": "行かなければならない"}]}]},
+        {"sentences": [{"text": "読むようにする。", "tokens": ["読む", "よう", "に", "する", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0004", "surface": "読むようにする"}]}]},
+        {"sentences": [{"text": "忘れてしまう。", "tokens": ["忘れ", "て", "しまう", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0005", "surface": "忘れてしまう"}]}]},
+        {"sentences": [{"text": "読んでいる。", "tokens": ["読ん", "で", "いる", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0001", "surface": "読んでいる"}]}]},
+        {"sentences": [{"text": "読んだことがある。", "tokens": ["読ん", "だ", "こと", "が", "ある", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0002", "surface": "読んだことがある"}]}]},
+        {"sentences": [{"text": "行かなければならない。", "tokens": ["行か", "なけれ", "ば", "なら", "ない", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0003", "surface": "行かなければならない"}]}]},
+        {"sentences": [{"text": "読むようにする。", "tokens": ["読む", "よう", "に", "する", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0004", "surface": "読むようにする"}]}]},
+        {"sentences": [{"text": "忘れてしまう。", "tokens": ["忘れ", "て", "しまう", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0005", "surface": "忘れてしまう"}]}]}
+      ]
+    },
+    {
+      "id": "eval-ch-0002",
+      "source_path": "EPUB/text/evaluation-02.xhtml",
+      "blocks": [
+        {"sentences": [{"text": "読んでいる。", "tokens": ["読ん", "で", "いる", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0001", "surface": "読んでいる"}]}]},
+        {"sentences": [{"text": "読んだことがある。", "tokens": ["読ん", "だ", "こと", "が", "ある", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0002", "surface": "読んだことがある"}]}]},
+        {"sentences": [{"text": "行かなければならない。", "tokens": ["行か", "なけれ", "ば", "なら", "ない", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0003", "surface": "行かなければならない"}]}]},
+        {"sentences": [{"text": "読むようにする。", "tokens": ["読む", "よう", "に", "する", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0004", "surface": "読むようにする"}]}]},
+        {"sentences": [{"text": "忘れてしまう。", "tokens": ["忘れ", "て", "しまう", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0005", "surface": "忘れてしまう"}]}]},
+        {"sentences": [{"text": "読んでいる。", "tokens": ["読ん", "で", "いる", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0001", "surface": "読んでいる"}]}]},
+        {"sentences": [{"text": "読んだことがある。", "tokens": ["読ん", "だ", "こと", "が", "ある", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0002", "surface": "読んだことがある"}]}]},
+        {"sentences": [{"text": "行かなければならない。", "tokens": ["行か", "なけれ", "ば", "なら", "ない", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0003", "surface": "行かなければならない"}]}]},
+        {"sentences": [{"text": "読むようにする。", "tokens": ["読む", "よう", "に", "する", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0004", "surface": "読むようにする"}]}]},
+        {"sentences": [{"text": "忘れてしまう。", "tokens": ["忘れ", "て", "しまう", "。"], "cases": [{"kind": "positive", "rule_id": "grammar-rule-0005", "surface": "忘れてしまう"}]}]},
+        {"sentences": [{"text": "読んで。", "tokens": ["読ん", "で", "。"], "cases": [{"kind": "negative", "category": "sentence-boundary-separation", "rule_id": "grammar-rule-0001", "surface": "読んで", "expected_nonmatch_reason": "sentence-boundary"}]}, {"text": "いる。", "tokens": ["いる", "。"]}]},
+        {"sentences": [{"text": "読んで", "tokens": ["読ん", "で"], "cases": [{"kind": "negative", "category": "block-boundary-separation", "rule_id": "grammar-rule-0001", "surface": "読んで", "expected_nonmatch_reason": "block-boundary"}]}]},
+        {"sentences": [{"text": "いる。", "tokens": ["いる", "。"]}]},
+        {"sentences": [{"text": "読ん、でいる。", "tokens": ["読ん", "、", "で", "いる", "。"], "cases": [{"kind": "negative", "category": "punctuation-interruption", "rule_id": "grammar-rule-0001", "surface": "読ん、でいる", "expected_nonmatch_reason": "punctuation-interruption"}]}]},
+        {"sentences": [{"text": "読んで。", "tokens": ["読ん", "で", "。"], "cases": [{"kind": "negative", "category": "incomplete-formation", "rule_id": "grammar-rule-0001", "surface": "読んで", "expected_nonmatch_reason": "incomplete-formation"}]}]},
+        {"sentences": [{"text": "今日は晴れ。", "tokens": ["今日", "は", "晴れ", "。"], "cases": [{"kind": "negative", "category": "ordinary-lexical-text", "rule_id": null, "surface": null, "expected_nonmatch_reason": "ordinary-lexical-text"}]}]},
+        {"lexical_expression": "読んでしまう", "sentences": [{"text": "読んでしまう。", "tokens": ["読ん", "で", "しまう", "。"], "cases": [{"kind": "negative", "category": "jmdict-lexical-expression", "rule_id": "grammar-rule-0005", "surface": "読んでしまう", "expected_nonmatch_reason": "lexical-expression-not-grammar"}]}]},
+        {"sentences": [{"text": "雪乃が読む。", "tokens": ["雪乃", "が", "読む", "。"], "cases": [{"kind": "negative", "category": "proper-name-adjacency", "rule_id": null, "surface": null, "expected_nonmatch_reason": "proper-name-separation"}]}]},
+        {"publisher_ruby": [{"surface": "読んでいる", "reading": "よんでいる", "start": 0, "end": 6}], "sentences": [{"text": "読んでいる。", "tokens": ["読ん", "で", "いる", "。"], "cases": [{"kind": "negative", "category": "publisher-ruby-covered", "rule_id": "grammar-rule-0001", "surface": "読んでいる", "expected_nonmatch_reason": "publisher-ruby-protected"}]}]},
+        {"publisher_ruby": [{"surface": "表舞台", "reading": "おもてぶたい", "start": 0, "end": 3}], "sentences": [{"text": "表舞台に立つ。", "tokens": ["表舞台", "に", "立つ", "。"], "cases": [{"kind": "negative", "category": "publisher-ruby-adjacency", "rule_id": null, "surface": null, "expected_nonmatch_reason": "publisher-ruby-adjacency-no-match"}]}]},
+        {"publisher_ruby": [{"surface": "表舞台", "reading": "読んでいる", "start": 0, "end": 3}], "sentences": [{"text": "表舞台。", "tokens": ["表舞台", "。"], "cases": [{"kind": "negative", "category": "rt-rp-only-text", "rule_id": null, "surface": null, "expected_nonmatch_reason": "rt-rp-excluded-from-canonical-text"}]}]},
+        {"sentences": [{"text": "読 んでいる。", "tokens": ["読", " ", "ん", "で", "いる", "。"], "cases": [{"kind": "negative", "category": "whitespace-interruption", "rule_id": "grammar-rule-0001", "surface": "読 んでいる", "expected_nonmatch_reason": "whitespace-interruption"}]}]},
+        {"sentences": [{"text": "読んで", "tokens": ["読ん", "で"], "cases": [{"kind": "negative", "category": "chapter-boundary-separation", "rule_id": "grammar-rule-0001", "surface": "読んで", "expected_nonmatch_reason": "chapter-boundary"}]}]}
+      ]
+    },
+    {
+      "id": "eval-ch-0003",
+      "source_path": "EPUB/text/evaluation-03.xhtml",
+      "blocks": [{"sentences": [{"text": "いる。", "tokens": ["いる", "。"]}]}]
+    }
+  ]
+}
