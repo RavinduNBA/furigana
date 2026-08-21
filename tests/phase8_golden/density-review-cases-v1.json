@@ -1,0 +1,139 @@
+{
+  "cases": [
+    {
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "selected-within-budget",
+        "reading": "suppressed-input-state"
+      },
+      "id": "density-review-case-0001",
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "present-meaning",
+        "reading": "suppress-reading"
+      },
+      "rationale_codes": [
+        "exposure-reading-threshold-met",
+        "preset-n5-threshold-3",
+        "preset-n5-meaning-default"
+      ],
+      "source_occurrence_id": "study-item-0001-occ-0001"
+    },
+    {
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-density-budget",
+        "reading": "suppressed-explicit-override"
+      },
+      "id": "density-review-case-0002",
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "suppress-reading"
+      },
+      "rationale_codes": [
+        "explicit-user-reading-override",
+        "preset-n5-meaning-default",
+        "meaning-density-budget-excluded"
+      ],
+      "source_occurrence_id": "study-item-0003-occ-0001"
+    },
+    {
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-explicit-override",
+        "reading": "publisher-ruby-preserved"
+      },
+      "id": "density-review-case-0003",
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "publisher-ruby-preserved"
+      },
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "explicit-user-meaning-override",
+        "publisher-ruby-preserved"
+      ],
+      "source_occurrence_id": "study-item-0004-occ-0001"
+    },
+    {
+      "density_decisions": {
+        "grammar": "selected-explicit-override-over-budget",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "id": "density-review-case-0004",
+      "planned_assistance": {
+        "grammar": "present-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "rationale_codes": [
+        "explicit-user-grammar-override",
+        "explicit-override-over-budget"
+      ],
+      "source_occurrence_id": "grammar-plan-occurrence-0002"
+    },
+    {
+      "density_decisions": {
+        "grammar": "grammar-partial-overlap-rejected",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "id": "density-review-case-0005",
+      "planned_assistance": {
+        "grammar": "suppress-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "source_occurrence_id": "grammar-plan-occurrence-0003"
+    },
+    {
+      "density_decisions": {
+        "grammar": "grammar-reference-only",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "id": "density-review-case-0006",
+      "planned_assistance": {
+        "grammar": "present-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "source_occurrence_id": "grammar-plan-occurrence-0004"
+    },
+    {
+      "density_decisions": {
+        "grammar": "publisher-adjacent-protected",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "id": "density-review-case-0007",
+      "planned_assistance": {
+        "grammar": "publisher-ruby-preserved",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "rationale_codes": [
+        "exposure-grammar-threshold-met",
+        "preset-n5-threshold-3",
+        "publisher-ruby-preserved"
+      ],
+      "source_occurrence_id": "grammar-plan-occurrence-0006"
+    }
+  ],
+  "character_counts": {
+    "ch-0001": 67,
+    "ch-0002": 18
+  },
+  "fixture_notice": "Synthetic manually reviewed density mechanics cases.",
+  "hash": "1fd2f29e911015a4c2bab476b209a3a477fafea43b4b92b50a3fbe687afc3b98",
+  "schema_version": 1
+}

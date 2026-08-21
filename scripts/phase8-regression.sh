@@ -142,3 +142,147 @@ test "$(sha256sum "$ROOT/artifacts/phase7/epub/run-a.epub" | cut -d' ' -f1)" = "
 
 "$PYTHON" -m pytest -q "$ROOT/tests/test_learner_profile.py"
 echo "Phase 8 assistance-selection regression passed; artifacts retained under artifacts/phase8/selection/."
+
+DENSITY="$ROOT/artifacts/phase8/density"
+DENSITY_FIXTURE="$ROOT/tests/fixtures/phase8-density-policies-v1.json"
+DENSITY_GOLDEN="$ROOT/tests/phase8_golden/per-occurrence-assistance-plan-v1.json"
+DENSITY_COMPARISON_GOLDEN="$ROOT/tests/phase8_golden/density-comparison-v1.json"
+DENSITY_REVIEW_GOLDEN="$ROOT/tests/phase8_golden/density-review-cases-v1.json"
+SOURCE_BOOK="$ROOT/artifacts/phase7/run-a/inputs/book.json"
+
+mkdir -p "$DENSITY/policies" "$DENSITY/run-a" "$DENSITY/run-b" \
+  "$DENSITY/profiles" "$DENSITY/cases/inputs" "$DENSITY/compatibility"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase8_density_policy.py" \
+    --output "$DENSITY/policies/$run.json"
+done
+cmp "$DENSITY/policies/run-a.json" "$DENSITY/policies/run-b.json"
+cmp "$DENSITY/policies/run-a.json" "$DENSITY_FIXTURE"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/create_assistance_density.py" \
+    --canonical-book "$SOURCE_BOOK" \
+    --annotation-plan "$SOURCE_PLAN" \
+    --grammar-plan "$SOURCE_GRAMMAR" \
+    --assistance-report "$ARTIFACTS/run-a/assistance.json" \
+    --density-policies "$DENSITY_FIXTURE" \
+    --policy-id phase8-density-n5 \
+    --output "$DENSITY/$run/density.json" --enabled
+done
+cmp "$DENSITY/run-a/density.json" "$DENSITY/run-b/density.json"
+cmp "$DENSITY/run-a/density.json" "$DENSITY_GOLDEN"
+
+for level in n5 n4 n3; do
+  "$PYTHON" "$ROOT/scripts/create_assistance_density.py" \
+    --canonical-book "$SOURCE_BOOK" \
+    --annotation-plan "$SOURCE_PLAN" \
+    --grammar-plan "$SOURCE_GRAMMAR" \
+    --assistance-report "$ARTIFACTS/profiles/$level.json" \
+    --density-policies "$DENSITY_FIXTURE" \
+    --policy-id "phase8-density-$level" \
+    --output "$DENSITY/profiles/$level.json" --enabled
+done
+
+"$PYTHON" "$ROOT/scripts/build_phase8_density_cases.py" \
+  --baseline "$DENSITY/run-a/density.json" \
+  --assistance "$ARTIFACTS/run-a/assistance.json" \
+  --n5 "$DENSITY/profiles/n5.json" \
+  --n4 "$DENSITY/profiles/n4.json" \
+  --n3 "$DENSITY/profiles/n3.json" \
+  --annotation-plan "$SOURCE_PLAN" \
+  --grammar-plan "$SOURCE_GRAMMAR" \
+  --policies "$DENSITY_FIXTURE" \
+  --comparison-output "$DENSITY/density-comparison.json" \
+  --review-output "$DENSITY/review-cases.json" \
+  --failure-dir "$DENSITY/cases/inputs"
+cmp "$DENSITY/density-comparison.json" "$DENSITY_COMPARISON_GOLDEN"
+cmp "$DENSITY/review-cases.json" "$DENSITY_REVIEW_GOLDEN"
+
+jq -e '
+  (.occurrence_plans | length) == 12 and
+  [.chapter_summaries[].canonical_character_count] == [67,18] and
+  (.occurrence_plans | map(.source_occurrence_id) | unique | length) == 12 and
+  any(.diagnostics[]; .reason == "budget-exclusion") and
+  any(.diagnostics[]; .reason == "explicit-override-over-budget") and
+  (.occurrence_plans[] | select(.source_occurrence_id == "study-item-0004-occ-0001") | .density_decisions.reading) == "publisher-ruby-preserved" and
+  (.occurrence_plans[] | select(.source_occurrence_id == "grammar-plan-occurrence-0003") | .density_decisions.grammar) == "grammar-partial-overlap-rejected" and
+  (.occurrence_plans[] | select(.source_occurrence_id == "grammar-plan-occurrence-0004") | .density_decisions.grammar) == "grammar-reference-only"
+' "$DENSITY/run-a/density.json" >/dev/null
+
+jq -e '
+  .profiles[0].selected_counts.reading >= .profiles[1].selected_counts.reading and
+  .profiles[1].selected_counts.reading >= .profiles[2].selected_counts.reading and
+  .profiles[0].selected_counts.meaning >= .profiles[1].selected_counts.meaning and
+  .profiles[1].selected_counts.meaning >= .profiles[2].selected_counts.meaning and
+  .profiles[0].selected_counts.grammar >= .profiles[1].selected_counts.grammar and
+  .profiles[1].selected_counts.grammar >= .profiles[2].selected_counts.grammar
+' "$DENSITY/density-comparison.json" >/dev/null
+
+run_density_failure() {
+  local name="$1"
+  local expected="$2"
+  local book="$3"
+  local annotation="$4"
+  local grammar="$5"
+  local assistance="$6"
+  local policies="$7"
+  mkdir -p "$DENSITY/cases/$name"
+  "$PYTHON" "$ROOT/scripts/create_assistance_density.py" \
+    --canonical-book "$book" --annotation-plan "$annotation" \
+    --grammar-plan "$grammar" --assistance-report "$assistance" \
+    --density-policies "$policies" --policy-id phase8-density-n5 \
+    --output "$DENSITY/cases/$name/report.json" \
+    --fallback-plan-output "$DENSITY/cases/$name/annotation-plan.json" \
+    --fallback-grammar-plan-output "$DENSITY/cases/$name/grammar-plan.json" \
+    --enabled --safe
+  jq -e --arg reason "$expected" '.occurrence_plans == [] and .chapter_summaries == [] and [.diagnostics[].reason] == [$reason]' "$DENSITY/cases/$name/report.json" >/dev/null
+  cmp "$DENSITY/cases/$name/annotation-plan.json" "$annotation"
+  cmp "$DENSITY/cases/$name/grammar-plan.json" "$grammar"
+}
+
+mkdir -p "$DENSITY/cases/disabled"
+"$PYTHON" "$ROOT/scripts/create_assistance_density.py" \
+  --canonical-book "$SOURCE_BOOK" --annotation-plan "$SOURCE_PLAN" \
+  --grammar-plan "$SOURCE_GRAMMAR" \
+  --output "$DENSITY/cases/disabled/report.json" \
+  --fallback-plan-output "$DENSITY/cases/disabled/annotation-plan.json" \
+  --fallback-grammar-plan-output "$DENSITY/cases/disabled/grammar-plan.json" --safe
+jq -e '.occurrence_plans == [] and [.diagnostics[].reason] == ["disabled"]' "$DENSITY/cases/disabled/report.json" >/dev/null
+cmp "$DENSITY/cases/disabled/annotation-plan.json" "$SOURCE_PLAN"
+cmp "$DENSITY/cases/disabled/grammar-plan.json" "$SOURCE_GRAMMAR"
+
+run_density_failure stale source-hash-mismatch "$SOURCE_BOOK" "$SOURCE_PLAN" "$SOURCE_GRAMMAR" "$DENSITY/cases/inputs/stale-assistance.json" "$DENSITY_FIXTURE"
+run_density_failure invalid invalid-density-target "$SOURCE_BOOK" "$SOURCE_PLAN" "$SOURCE_GRAMMAR" "$ARTIFACTS/run-a/assistance.json" "$DENSITY/cases/inputs/invalid-policies.json"
+run_density_failure unknown-occurrence unknown-occurrence "$SOURCE_BOOK" "$SOURCE_PLAN" "$SOURCE_GRAMMAR" "$DENSITY/cases/inputs/unknown-assistance.json" "$DENSITY_FIXTURE"
+run_density_failure publisher-conflict publisher-ruby-suppression-attempt "$SOURCE_BOOK" "$DENSITY/cases/inputs/publisher-conflict-plan.json" "$SOURCE_GRAMMAR" "$DENSITY/cases/inputs/publisher-conflict-assistance.json" "$DENSITY_FIXTURE"
+run_density_failure grammar-conflict grammar-disposition-conflict "$SOURCE_BOOK" "$SOURCE_PLAN" "$DENSITY/cases/inputs/grammar-conflict-plan.json" "$DENSITY/cases/inputs/grammar-conflict-assistance.json" "$DENSITY_FIXTURE"
+
+mkdir -p "$DENSITY/cases/corrupt"
+"$PYTHON" "$ROOT/scripts/create_assistance_density.py" \
+  --canonical-book "$SOURCE_BOOK" --annotation-plan "$SOURCE_PLAN" \
+  --grammar-plan "$SOURCE_GRAMMAR" \
+  --assistance-report "$DENSITY/cases/inputs/corrupt.json" \
+  --density-policies "$DENSITY_FIXTURE" \
+  --output "$DENSITY/cases/corrupt/report.json" \
+  --fallback-plan-output "$DENSITY/cases/corrupt/annotation-plan.json" \
+  --fallback-grammar-plan-output "$DENSITY/cases/corrupt/grammar-plan.json" \
+  --enabled --safe
+jq -e '.occurrence_plans == [] and [.diagnostics[].reason] == ["corrupt-input"]' "$DENSITY/cases/corrupt/report.json" >/dev/null
+cmp "$DENSITY/cases/corrupt/annotation-plan.json" "$SOURCE_PLAN"
+cmp "$DENSITY/cases/corrupt/grammar-plan.json" "$SOURCE_GRAMMAR"
+
+cp "$SOURCE_PLAN" "$DENSITY/compatibility/phase5-plan.json"
+cp "$COMPAT_PLAN" "$DENSITY/compatibility/phase5-approved-plan.json"
+cp "$SOURCE_GRAMMAR" "$DENSITY/compatibility/phase7-grammar-plan.json"
+cp "$ARTIFACTS/run-a/assistance.json" "$DENSITY/compatibility/phase8-assistance.json"
+cp "$COMPAT_VOCABULARY" "$DENSITY/compatibility/phase3-vocabulary.json"
+cmp "$DENSITY/compatibility/phase5-plan.json" "$SOURCE_PLAN"
+cmp "$DENSITY/compatibility/phase5-approved-plan.json" "$COMPAT_PLAN"
+cmp "$DENSITY/compatibility/phase7-grammar-plan.json" "$SOURCE_GRAMMAR"
+cmp "$DENSITY/compatibility/phase8-assistance.json" "$ARTIFACTS/run-a/assistance.json"
+cmp "$DENSITY/compatibility/phase3-vocabulary.json" "$COMPAT_VOCABULARY"
+test "$(sha256sum "$ROOT/artifacts/phase7/epub/run-a.epub" | cut -d' ' -f1)" = "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+
+"$PYTHON" -m pytest -q "$ROOT/tests/test_learner_profile.py" "$ROOT/tests/test_assistance_density.py"
+echo "Phase 8 adaptive-density regression passed; artifacts retained under artifacts/phase8/density/."

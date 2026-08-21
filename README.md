@@ -931,3 +931,59 @@ corrupt, stale, or mismatched inputs produce bounded deterministic diagnostics
 and preserve supplied annotation and grammar plans byte-for-byte. The slice
 does not infer sensitive learner attributes, collect behavioral telemetry,
 invoke a provider, modify rendering, or implement adaptive ruby density.
+
+Phase 8 per-occurrence density planning
+---------------------------------------
+
+The second Phase 8 slice schedules the already selected reading, meaning, and
+grammar assistance states per source occurrence. It consumes only the validated
+canonical book, enriched annotation plan, optional grammar plan, assistance
+selection report, and an explicit local density-policy dataset. It does not
+re-run linguistic analysis or modify XHTML, links, notes, or EPUB files.
+
+The checked-in synthetic N5, N4, and N3 policies use independent integer
+budgets for reading, meaning, and grammar. N5 has targets of 8, 7, and 6 actions
+per 1,000 canonical characters; N4 uses 4, 4, and 2 (10 total); N3 uses 2, 2,
+and 1. Budgets use ceiling arithmetic, explicit chapter minimums and maximums,
+and canonical source-order tie-breaking. These values exercise deterministic
+mechanics only and are not production pedagogical recommendations.
+
+Publisher ruby is always preserved, never consumes generated-reading density,
+and cannot be removed by a hidden reading state. Explicit hide overrides always
+suppress their named dimension. Explicit show overrides remain selected even
+when the normal chapter budget is exhausted, with deterministic over-budget
+evidence. Repeated occurrences remain separate and the first eligible source
+occurrence is preferred. Grammar reference-only, rejected partial-overlap, and
+publisher-protected dispositions remain authoritative.
+
+Generate the baseline plan with:
+
+```bash
+.venv/bin/python scripts/create_assistance_density.py \
+  --canonical-book artifacts/phase7/run-a/inputs/book.json \
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \
+  --grammar-plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --assistance-report artifacts/phase8/selection/run-a/assistance.json \
+  --density-policies tests/fixtures/phase8-density-policies-v1.json \
+  --policy-id phase8-density-n5 \
+  --output artifacts/phase8/density/run-a/density.json \
+  --enabled
+```
+
+Each occurrence plan records stable source references, input and planned states,
+one decision per applicable dimension, chapter budgets, override/exposure
+references, rationale codes, publisher protection, and a stable hash. Chapter
+summaries record canonical character counts and selected/suppressed counts and
+references without copying chapter text.
+
+`./scripts/phase8-regression.sh` checks run identity, strict goldens, integer
+budgets, N5/N4/N3 monotonicity, dimension independence, overrides, repetition,
+publisher protection, grammar dispositions, safe fallback, and prior-phase byte
+identity. Artifacts are retained under `artifacts/phase8/density/`; use
+`docs/phase8-adaptive-density-review-checklist.md` for manual review.
+
+Planning is disabled without explicit valid inputs. Disabled, stale, invalid,
+corrupt, or mismatched inputs emit concise deterministic diagnostics and preserve
+the supplied annotation and grammar plans byte-for-byte. The report is a
+presentation plan only: suppressed assistance is not deleted knowledge, and no
+learner attributes or inferred behavioral telemetry are collected.
