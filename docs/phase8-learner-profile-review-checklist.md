@@ -4,28 +4,28 @@ Use the retained artifacts under `artifacts/phase8/selection/`. The presets and 
 
 ## Machine verification
 
-- [ ] Run-A, run-B, and `assistance-selection-v1.json` are byte-identical.
-- [ ] Profile, preset, override, exposure, result, configuration, diagnostic, and report hashes validate.
-- [ ] Source vocabulary schema is 4, annotation-plan schema is 2, and optional grammar-plan schema is 1.
-- [ ] Source hashes and book identity match exactly.
-- [ ] Result order is five Phase 5-style study items followed by five Phase 7 grammar items.
-- [ ] All four reading/meaning combinations are represented by explicit profiles.
-- [ ] Grammar assistance remains independent of reading and meaning assistance.
-- [ ] N5 provides the most assistance, N4 moderately less, and N3 the least.
-- [ ] Every preset difference has explicit defaults, thresholds, and rationale codes.
-- [ ] Reading exposure changes only reading assistance.
-- [ ] Meaning exposure changes only meaning assistance.
-- [ ] Grammar exposure changes only grammar assistance.
-- [ ] Explicit reading, meaning, and grammar overrides outrank preset/exposure results.
-- [ ] Each effective dimension has exactly one recorded winning source.
-- [ ] Vocabulary, JMdict expressions, JMnedict names, and grammar remain separate.
-- [ ] Publisher-ruby-backed vocabulary and publisher-adjacent grammar remain `preserved-authoritative` even when reading assistance is hidden.
-- [ ] No dictionary reading, approved meaning, item kind, occurrence, offset, anchor, or source record is rewritten.
-- [ ] Disabled, stale, invalid, corrupt, duplicate, unknown, dimension-mismatch, and publisher-suppression paths have deterministic safe diagnostics.
-- [ ] Every fallback annotation plan and grammar plan is byte-identical to its input.
-- [ ] Phase 3 vocabulary and Phase 5 enriched-plan compatibility artifacts are byte-identical.
-- [ ] The approved Phase 7 EPUB checksum remains `df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619`.
-- [ ] No XHTML, EPUB, provider, model, cache, prompt, credential, path, or complete-book data appears.
+- [x] Run-A, run-B, and `assistance-selection-v1.json` are byte-identical.
+- [x] Profile, preset, override, exposure, result, configuration, diagnostic, and report hashes validate.
+- [x] Source vocabulary schema is 4, annotation-plan schema is 2, and optional grammar-plan schema is 1.
+- [x] Source hashes and book identity match exactly.
+- [x] Result order is five Phase 5-style study items followed by five Phase 7 grammar items.
+- [x] All four reading/meaning combinations are represented by explicit profiles.
+- [x] Grammar assistance remains independent of reading and meaning assistance.
+- [x] N5 provides the most assistance, N4 moderately less, and N3 the least.
+- [x] Every preset difference has explicit defaults, thresholds, and rationale codes.
+- [x] Reading exposure changes only reading assistance.
+- [x] Meaning exposure changes only meaning assistance.
+- [x] Grammar exposure changes only grammar assistance.
+- [x] Explicit reading, meaning, and grammar overrides outrank preset/exposure results.
+- [x] Each effective dimension has exactly one recorded winning source.
+- [x] Vocabulary, JMdict expressions, JMnedict names, and grammar remain separate.
+- [x] Publisher-ruby-backed vocabulary and publisher-adjacent grammar remain `preserved-authoritative` even when reading assistance is hidden.
+- [x] No dictionary reading, approved meaning, item kind, occurrence, offset, anchor, or source record is rewritten.
+- [x] Disabled, stale, invalid, corrupt, duplicate, unknown, dimension-mismatch, and publisher-suppression paths have deterministic safe diagnostics.
+- [x] Every fallback annotation plan and grammar plan is byte-identical to its input.
+- [x] Phase 3 vocabulary and Phase 5 enriched-plan compatibility artifacts are byte-identical.
+- [x] The approved Phase 7 EPUB checksum remains `df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619`.
+- [x] No XHTML, EPUB, provider, model, cache, prompt, credential, path, or complete-book data appears.
 
 ## Manual review
 
@@ -39,10 +39,10 @@ Use the retained artifacts under `artifacts/phase8/selection/`. The presets and 
 
 ## Result
 
-- Date:
-- Commit:
-- Reviewer:
-- Machine verification:
-- Manual review:
-- Result: PENDING
-- Notes:
+- Date: 2026-08-21
+- Commit: `57dff4321573ad6492198d2316b49d9203dd9372`
+- Reviewer: Ravindu
+- Machine verification: PASS — deterministic identity, hashes, ordering, precedence, diagnostics, fallback identity, and Phase 3/5/7 compatibility were verified.
+- Manual review: PASS — assistance dimensions, synthetic presets, exposure behavior, explicit overrides, evidence-kind separation, and publisher precedence were approved.
+- Result: PASS
+- Notes: N5, N4, and N3 are synthetic explainable defaults, not learner diagnoses or pedagogically validated JLPT placement. Exposure history is explicit local fixture data, not inferred behavioral telemetry. Hidden assistance is presentation suppression only; it does not delete readings, meanings, grammar evidence, or knowledge records. The reviewed artifacts evidence no provider, SDK, network, XHTML/link mutation, EPUB packaging, Calibre, or dictionary-source activity.
