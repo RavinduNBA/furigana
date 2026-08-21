@@ -1,10 +1,9 @@
-# Phase 7: grammar expressions
+# Phase 8: independent learner profile and adaptive density
 #
-# Review and adjust this file again when moving to another phase. Keep the
-# roadmap, README, metadata, canonical/vocabulary/annotation models, rendering
-# and linked-output interfaces, publisher-ruby protection, offsets, anchors,
-# deterministic serialization, and new Phase 7 grammar/rule/rendering files
-# visible.
+# Keep project metadata, the canonical/vocabulary/dictionary/annotation/grammar
+# interfaces, publisher-ruby and link preservation, deterministic serializers,
+# JLPT preset inputs, and new Phase 8 profile/state/exposure/density files
+# visible. Review this scope again before Phase 9.
 
 # Repository internals, local environments, and caches
 .git/
@@ -26,7 +25,7 @@ data/
 *.sqlite3
 *.cache
 
-# Completed Phase 0-6 review documents
+# Completed Phase 0-7 review records
 docs/phase0-*
 docs/phase1-*
 docs/phase2-*
@@ -34,13 +33,29 @@ docs/phase3-*
 docs/phase4-*
 docs/phase5-*
 docs/phase6-*
+docs/phase7-*
 
-# Completed goldens not needed for grammar/vocabulary rendering compatibility
-tests/golden/
-tests/phase3_golden/
-tests/phase6_golden/
+# Completed review-only and bulky goldens; retain compact compatibility models
+tests/phase3_golden/*review*
+tests/phase4_golden/*review*
+tests/phase5_golden/*review*
+tests/phase5_golden/prompts-v1.json
+tests/phase5_golden/provider-review-cases-v1.json
+tests/phase5_golden/requests-v1.json
+tests/phase6_golden/*review*
+tests/phase6_golden/retrieval-queries-v1.json
+tests/phase6_golden/retrieval-v1.json
+tests/phase6_golden/evidence-v1.json
+tests/phase6_golden/chapter-context-packets-v1.json
+tests/phase6_golden/chapter-summary-queries-v1.json
+tests/phase6_golden/chapter-summary-retrieval-v1.json
+tests/phase7_golden/*review*
+tests/phase7_golden/grammar-candidates-v1.json
+tests/phase7_golden/grammar-evaluation-v1.json
+tests/phase7_golden/grammar-evaluation-disabled-matrix-v1.json
+tests/phase7_golden/grammar-epub-v1.json
 
-# Completed Phase 0-6 regression workflows
+# Completed regression entry points other than the immediate Phase 7 baseline
 scripts/phase0_*
 scripts/phase0-*
 scripts/phase1_*
@@ -56,16 +71,35 @@ scripts/phase5-*
 scripts/phase6_*
 scripts/phase6-*
 
-# Deployment and unrelated later-phase/output work
+# Completed provider, evaluation, packaging, and fixture-generation machinery
+furiganalyse/enrichment_provider.py
+furiganalyse/grammar_analysis.py
+furiganalyse/grammar_epub.py
+furiganalyse/grammar_evaluation.py
+scripts/analyze_grammar.py
+scripts/build_phase7_*
+scripts/evaluate_grammar.py
+scripts/inspect_grammar_epub.py
+scripts/package_grammar_epub.py
+scripts/run_fake_openai_provider.py
+scripts/run_openai_enrichment.py
+
+# Deployment, web application, unrelated formats, and future Anki work
 Dockerfile
 Dockerrun.aws.json
 docker-compose.yml
 furiganalyse/apkg_format.py
 furiganalyse/app.py
 furiganalyse/txt_format.py
-furiganalyse/words_lists/
-
-# Learner-profile, adaptive-density, and Anki work remain out of Phase 7 scope
-**/*learner_profile*
-**/*adaptive_density*
+furiganalyse/templates/
 **/*anki*
+
+# Production-size and completed synthetic evaluation fixtures
+tests/fixtures/phase5-*-responses-v1.json
+tests/fixtures/phase7-evaluation-*
+tests/fixtures/phase7_evaluation/
+tests/fixtures/phase7-grammar-corrupt-v1.json
+tests/fixtures/phase7-grammar-invalid-v1.json
+
+# The future dictionary-source assessment remains visible intentionally:
+# docs/jmdict-simplified-source-assessment.md
