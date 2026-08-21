@@ -855,3 +855,11 @@ not complete books, XHTML, EPUB content, credentials, provider data, paths,
 caches, or raw exceptions. Evaluation artifacts are retained under
 `artifacts/phase7/evaluation/` and reviewed with
 `docs/phase7-grammar-evaluation-review-checklist.md`.
+
+Phase 7 is complete: curated grammar detection, planning, standalone notes,
+linked contexts, and EPUB packaging are deterministic and remain separate from
+vocabulary, expressions, and proper names. Publisher ruby is authoritative,
+overlap dispositions are conservative, and rules are independently disableable.
+The synthetic evaluation records 20 TP, 0 FP, 0 FN, and 12 TN, but those perfect
+fixture metrics do not establish production accuracy. The synthetic `〜て`
+mechanics rule remains unapproved for production use.
