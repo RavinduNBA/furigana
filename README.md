@@ -1079,3 +1079,15 @@ This legal synthetic fixture demonstrates deterministic mechanics only. It is
 not a pedagogical recommendation, JLPT assessment, production dictionary
 approval, or statement about a real learner. Packaging does not run Calibre or
 modify OPF, navigation, XHTML, or EPUB inputs in place.
+
+Phase 8 is complete. It provides deterministic learner profiles, all four
+independent reading/meaning combinations, and independent grammar assistance.
+Synthetic N5/N4/N3 presets are explainable defaults rather than diagnoses;
+explicit overrides outrank preset, explicit local exposure, and density
+heuristics. Per-occurrence reading, meaning, and grammar budgets are separate,
+publisher ruby remains authoritative, and suppressed assistance is omitted
+rather than concealed or deleted. Adaptive XHTML and EPUB packaging preserve
+separate Study Notes and Grammar Study Notes. The approved synthetic adaptive
+EPUB SHA-256 is
+`2e8e5853af1bb2b25b3f4cd2283dd755baff251b5896f0ddbcee3fb95b7d7749`.
+These synthetic mechanics do not establish pedagogical or JLPT validity.
