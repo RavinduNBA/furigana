@@ -1,0 +1,16 @@
+{
+  "fixture_notice": "Synthetic adaptive-rendering mechanics only; not a learner assessment or pedagogical recommendation.",
+  "schema_version": 1,
+  "cases": [
+    {"id": "adaptive-review-reading-presented", "occurrence_id": "study-item-0005-occ-0001", "expected_action": "reading-presented", "surface": "前", "reading": "まえ"},
+    {"id": "adaptive-review-reading-suppressed", "occurrence_id": "study-item-0003-occ-0001", "expected_action": "reading-suppressed", "surface": "毎日読む"},
+    {"id": "adaptive-review-reading-unavailable", "occurrence_id": "study-item-0002-occ-0001", "expected_action": "reading-unavailable", "surface": "忘れてしまう"},
+    {"id": "adaptive-review-meaning-presented", "occurrence_id": "study-item-0001-occ-0001", "expected_action": "meaning-presented", "meaning": "to read"},
+    {"id": "adaptive-review-meaning-density-suppressed", "occurrence_id": "study-item-0005-occ-0001", "expected_action": "meaning-suppressed"},
+    {"id": "adaptive-review-grammar-override", "occurrence_id": "grammar-plan-occurrence-0002", "expected_action": "grammar-presented"},
+    {"id": "adaptive-review-grammar-reference", "occurrence_id": "grammar-plan-occurrence-0001", "expected_action": "grammar-reference-only"},
+    {"id": "adaptive-review-grammar-partial", "occurrence_id": "grammar-plan-occurrence-0003", "expected_action": "grammar-partial-overlap-rejected"},
+    {"id": "adaptive-review-publisher-vocabulary", "occurrence_id": "study-item-0004-occ-0001", "expected_action": "publisher-ruby-preserved", "surface": "表舞台", "reading": "おもてぶたい"},
+    {"id": "adaptive-review-publisher-grammar", "occurrence_id": "grammar-plan-occurrence-0006", "expected_action": "publisher-adjacent-protected"}
+  ]
+}

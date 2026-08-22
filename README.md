@@ -987,3 +987,46 @@ corrupt, or mismatched inputs emit concise deterministic diagnostics and preserv
 the supplied annotation and grammar plans byte-for-byte. The report is a
 presentation plan only: suppressed assistance is not deleted knowledge, and no
 learner attributes or inferred behavioral telemetry are collected.
+
+Phase 8 adaptive linked-XHTML rendering
+---------------------------------------
+
+The adaptive renderer consumes only validated canonical, annotation, grammar,
+assistance-selection, density-plan, and linked-XHTML inputs. It copies the
+linked XHTML into an explicit output directory and applies the per-occurrence
+plan without recalculating profiles, exposure, overrides, budgets, or overlap
+dispositions.
+
+```bash
+.venv/bin/python scripts/render_adaptive_assistance.py \
+  --source-dir tests/fixtures/phase8_rendering/source \
+  --canonical-book tests/fixtures/phase8_rendering/book.json \
+  --annotation-plan tests/fixtures/phase8_rendering/annotation-plan.json \
+  --grammar-plan tests/fixtures/phase8_rendering/grammar-plan.json \
+  --assistance-report tests/fixtures/phase8_rendering/assistance.json \
+  --density-plan tests/fixtures/phase8_rendering/density.json \
+  --output-dir artifacts/phase8/rendered/run-a \
+  --report artifacts/phase8/rendered/run-a-report.json \
+  --enabled
+```
+
+Approved non-publisher readings may be rendered as Furiganalyse-owned ruby;
+missing approved readings are deterministic no-ops. Meanings come only from an
+approved annotation-plan reference. Suppressed readings and meanings are absent
+from learner-facing markup rather than hidden with CSS, attributes, comments,
+or metadata. Stable item/note anchors remain for reversibility.
+
+Publisher ruby is never removed or rewritten and does not become generated
+assistance. Existing vocabulary, expression, and proper-name links are
+preserved. Grammar links follow the validated disposition: selected links may
+remain, while suppressed, reference-only, partial-overlap, and publisher-
+protected occurrences cannot be promoted or nested.
+
+The rendering report records bounded IDs, hashes, actions, and safe diagnostics;
+it does not copy unrelated context or expose suppressed content. Disabled and
+safe-failure operation reproduces the linked input byte-for-byte. Artifacts are
+retained under `artifacts/phase8/rendered/` and reviewed with
+`docs/phase8-adaptive-rendering-review-checklist.md`. The checked-in values are
+legal synthetic mechanics data, not production readings, meanings, density
+recommendations, learner diagnoses, or JLPT validation. This slice does not
+modify or package an EPUB.

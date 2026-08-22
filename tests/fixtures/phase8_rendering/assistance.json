@@ -1,0 +1,369 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "configuration": {
+    "enabled": true,
+    "exposure_enabled": true,
+    "hash": "ef490e692d991445a40d48e79d5b7005a5915d234ec6d22e5f4b4967d85237d0"
+  },
+  "diagnostics": [],
+  "hash": "4ca0be052332c6e6ab89afee16e5a22b0a3a7a151ae1f90847995a226071f29e",
+  "precedence": [
+    "publisher",
+    "explicit_user_override",
+    "preset",
+    "exposure_policy",
+    "frequency_or_familiarity_evidence",
+    "dictionary",
+    "model"
+  ],
+  "preset_dataset": {
+    "hash": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+    "id": "furiganalyse-synthetic-learner-presets",
+    "version": "2026-08-21"
+  },
+  "profile": {
+    "hash": "eab0e0c1413bdc6f67156a8a40fe87904649a92f0a3b3a845bf54c40138e8cc7",
+    "id": "phase8-profile-adaptive-rendering"
+  },
+  "report_id": "assistance-selection-report-v1",
+  "results": [
+    {
+      "approved_meaning_reference": {
+        "item_id": "study-item-0001",
+        "selected_entry_id": "entry-0001",
+        "selected_sense_id": "sense-0001",
+        "selected_translation_id": null
+      },
+      "authoritative_reading": "よん",
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "exposure_policy"
+      },
+      "exposure_ids": [
+        "phase8-exposure-0001"
+      ],
+      "grammar_assistance": null,
+      "hash": "a5544becf3c7550f2dbe6caa090f774b381f45096dab7384a2de083ed7fa118f",
+      "id": "assistance-result-0001",
+      "item_kind": "vocabulary",
+      "meaning_assistance": "show-meaning",
+      "occurrence_ids": [
+        "study-item-0001-occ-0001"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "exposure-reading-threshold-met",
+        "preset-n5-threshold-3",
+        "preset-n5-meaning-default"
+      ],
+      "reading_assistance": "hide-reading",
+      "reading_source": "local-synthetic-approved-reading",
+      "source_item_id": "study-item-0001"
+    },
+    {
+      "approved_meaning_reference": {
+        "item_id": "study-item-0002",
+        "selected_entry_id": "entry-0002",
+        "selected_sense_id": "sense-0002",
+        "selected_translation_id": null
+      },
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "exposure_policy",
+        "reading": "preset"
+      },
+      "exposure_ids": [
+        "phase8-exposure-0002"
+      ],
+      "grammar_assistance": null,
+      "hash": "615113d34c011bfa378118cca38661d70b6c059e622abf1edfab7c45d1b6e175",
+      "id": "assistance-result-0002",
+      "item_kind": "expression",
+      "meaning_assistance": "hide-meaning",
+      "occurrence_ids": [
+        "study-item-0002-occ-0001"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "exposure-meaning-threshold-met",
+        "preset-n5-threshold-3"
+      ],
+      "reading_assistance": "show-reading",
+      "reading_source": null,
+      "source_item_id": "study-item-0002"
+    },
+    {
+      "approved_meaning_reference": {
+        "item_id": "study-item-0003",
+        "selected_entry_id": "entry-0003",
+        "selected_sense_id": "sense-0003",
+        "selected_translation_id": null
+      },
+      "authoritative_reading": "まいにちよむ",
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "explicit_user_override"
+      },
+      "exposure_ids": [],
+      "grammar_assistance": null,
+      "hash": "b936aef41a6e53e002f2dee17142353c7a7a4b7ada1bdc341c1e181e2b120727",
+      "id": "assistance-result-0003",
+      "item_kind": "vocabulary",
+      "meaning_assistance": "show-meaning",
+      "occurrence_ids": [
+        "study-item-0003-occ-0001"
+      ],
+      "override_ids": [
+        "phase8-override-0001"
+      ],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "explicit-user-reading-override",
+        "preset-n5-meaning-default"
+      ],
+      "reading_assistance": "hide-reading",
+      "reading_source": "local-synthetic-approved-reading",
+      "source_item_id": "study-item-0003"
+    },
+    {
+      "approved_meaning_reference": {
+        "item_id": "study-item-0004",
+        "selected_entry_id": "entry-0004",
+        "selected_sense_id": "sense-0004",
+        "selected_translation_id": null
+      },
+      "authoritative_reading": "おもてぶたい",
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "explicit_user_override",
+        "reading": "preset"
+      },
+      "exposure_ids": [],
+      "grammar_assistance": null,
+      "hash": "ed6f0ce86e497ca71d3ed0ad2a1d7f67abf99ea35d83d7040b3ce60a43bfd9a2",
+      "id": "assistance-result-0004",
+      "item_kind": "vocabulary",
+      "meaning_assistance": "hide-meaning",
+      "occurrence_ids": [
+        "study-item-0004-occ-0001"
+      ],
+      "override_ids": [
+        "phase8-override-0002"
+      ],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "preserved-authoritative",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "explicit-user-meaning-override",
+        "publisher-ruby-preserved"
+      ],
+      "reading_assistance": "show-reading",
+      "reading_source": "publisher",
+      "source_item_id": "study-item-0004"
+    },
+    {
+      "approved_meaning_reference": {
+        "item_id": "study-item-0005",
+        "selected_entry_id": null,
+        "selected_sense_id": null,
+        "selected_translation_id": "translation-0005"
+      },
+      "authoritative_reading": "まえ",
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "preset"
+      },
+      "exposure_ids": [],
+      "grammar_assistance": null,
+      "hash": "f21653bcda101c9199ff8feed332252e2922f7291cfe7466ebf74a0d29202b5b",
+      "id": "assistance-result-0005",
+      "item_kind": "name",
+      "meaning_assistance": "show-meaning",
+      "occurrence_ids": [
+        "study-item-0005-occ-0001"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "preset-n5-meaning-default"
+      ],
+      "reading_assistance": "show-reading",
+      "reading_source": "local-synthetic-approved-name-reading",
+      "source_item_id": "study-item-0005"
+    },
+    {
+      "approved_meaning_reference": null,
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0003"
+      ],
+      "grammar_assistance": "show-grammar",
+      "hash": "f8c9be87bcfb613fe9d9c85483c299be79d26f36c8c49f2531c88c356d7c1ff1",
+      "id": "assistance-result-0006",
+      "item_kind": "grammar",
+      "meaning_assistance": null,
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0001",
+        "grammar-plan-occurrence-0005",
+        "grammar-plan-occurrence-0006"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "preserved-authoritative",
+      "rationale_codes": [
+        "preset-n5-grammar-default",
+        "exposure-grammar-below-threshold",
+        "publisher-ruby-preserved"
+      ],
+      "reading_assistance": null,
+      "reading_source": null,
+      "source_item_id": "grammar-item-0001"
+    },
+    {
+      "approved_meaning_reference": null,
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": "explicit_user_override",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0004"
+      ],
+      "grammar_assistance": "show-grammar",
+      "hash": "8a99478590efe887f669340eae8e658af35938223cdd4b9c2845261615d8b743",
+      "id": "assistance-result-0007",
+      "item_kind": "grammar",
+      "meaning_assistance": null,
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0002"
+      ],
+      "override_ids": [
+        "phase8-override-0003"
+      ],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "explicit-user-grammar-override"
+      ],
+      "reading_assistance": null,
+      "reading_source": null,
+      "source_item_id": "grammar-item-0002"
+    },
+    {
+      "approved_meaning_reference": null,
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_assistance": "show-grammar",
+      "hash": "0dc292d420fff119825954366e2b719beed375f61e2f9b29f7531cdf8bb724bc",
+      "id": "assistance-result-0008",
+      "item_kind": "grammar",
+      "meaning_assistance": null,
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0003"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "reading_assistance": null,
+      "reading_source": null,
+      "source_item_id": "grammar-item-0003"
+    },
+    {
+      "approved_meaning_reference": null,
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_assistance": "show-grammar",
+      "hash": "69df266b291c2310d0382dd9811131c2c6b8ae1fc1251358cda9f1341edbc152",
+      "id": "assistance-result-0009",
+      "item_kind": "grammar",
+      "meaning_assistance": null,
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0004"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "reading_assistance": null,
+      "reading_source": null,
+      "source_item_id": "grammar-item-0004"
+    },
+    {
+      "approved_meaning_reference": null,
+      "authoritative_reading": null,
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_assistance": "show-grammar",
+      "hash": "6bac9be97801af37e0b7f50d5693b7db7533a071c1ba52c333eebf311760fea1",
+      "id": "assistance-result-0010",
+      "item_kind": "grammar",
+      "meaning_assistance": null,
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0007"
+      ],
+      "override_ids": [],
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_protection": "not-applicable",
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "reading_assistance": null,
+      "reading_source": null,
+      "source_item_id": "grammar-item-0005"
+    }
+  ],
+  "schema_version": 1,
+  "source_hashes": {
+    "annotation_plan": "5788d73a3bfd0994b93219d628024f1f4abae6492444042fc17197e08a8cbb70",
+    "exposure_history": "b0ecca0e7e1978b726d59736a1b45a9403c2def8f5ddaf4432dc63f2421a59ef",
+    "grammar_plan": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848",
+    "preset_dataset": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+    "profile": "eab0e0c1413bdc6f67156a8a40fe87904649a92f0a3b3a845bf54c40138e8cc7",
+    "vocabulary": "4567f7fd3353344251671c47b3856ee2122f825a9308a9059e3b6f8ee952704f"
+  },
+  "source_schema_versions": {
+    "annotation_plan": 2,
+    "exposure_history": 1,
+    "grammar_plan": 1,
+    "preset_dataset": 1,
+    "profile": 1,
+    "vocabulary": 4
+  }
+}

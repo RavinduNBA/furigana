@@ -1,0 +1,1039 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "chapter_summaries": [
+    {
+      "canonical_character_count": 67,
+      "chapter_id": "ch-0001",
+      "eligible_action_counts": {
+        "grammar": 4,
+        "meaning": 3,
+        "reading": 2
+      },
+      "explicit_override_over_budget_counts": {
+        "grammar": 1,
+        "meaning": 0,
+        "reading": 0
+      },
+      "hash": "055921c70140736dc6e4d690215150faa987061ed3131de6ba17d8334e17a8b1",
+      "id": "density-chapter-summary-0001",
+      "normal_budgets": {
+        "grammar": {
+          "chapter_id": "ch-0001",
+          "dimension": "grammar",
+          "final_budget": 1,
+          "hash": "6f383835ef615b4718b66494595c7ca99acb97d88a81ba3aeb1e4ad8e98f3a7f",
+          "id": "density-budget-0001-grammar",
+          "maximum": 4,
+          "minimum": 1,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 402
+        },
+        "meaning": {
+          "chapter_id": "ch-0001",
+          "dimension": "meaning",
+          "final_budget": 1,
+          "hash": "42a2d1aeecd3cb2fcb7dc3228bbf2d1a18f654b3a9aa1d19c7548fad9d418d7b",
+          "id": "density-budget-0001-meaning",
+          "maximum": 4,
+          "minimum": 1,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 469
+        },
+        "reading": {
+          "chapter_id": "ch-0001",
+          "dimension": "reading",
+          "final_budget": 2,
+          "hash": "6374ceb2a4611f3505523949272418b2c8076b07a9f6c81a77ff813734b3e3d6",
+          "id": "density-budget-0001-reading",
+          "maximum": 4,
+          "minimum": 2,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 536
+        }
+      },
+      "publisher_protected_count": 2,
+      "selected_action_counts": {
+        "grammar": 2,
+        "meaning": 1,
+        "reading": 2
+      },
+      "selected_occurrence_plan_ids": {
+        "grammar": [
+          "occurrence-assistance-plan-0001",
+          "occurrence-assistance-plan-0004"
+        ],
+        "meaning": [
+          "occurrence-assistance-plan-0002"
+        ],
+        "reading": [
+          "occurrence-assistance-plan-0003",
+          "occurrence-assistance-plan-0008"
+        ]
+      },
+      "suppressed_action_counts": {
+        "grammar": 4,
+        "meaning": 4,
+        "reading": 3
+      },
+      "suppressed_occurrence_plan_ids": {
+        "grammar": [
+          "occurrence-assistance-plan-0006",
+          "occurrence-assistance-plan-0007",
+          "occurrence-assistance-plan-0009",
+          "occurrence-assistance-plan-0011"
+        ],
+        "meaning": [
+          "occurrence-assistance-plan-0003",
+          "occurrence-assistance-plan-0005",
+          "occurrence-assistance-plan-0008",
+          "occurrence-assistance-plan-0010"
+        ],
+        "reading": [
+          "occurrence-assistance-plan-0002",
+          "occurrence-assistance-plan-0005",
+          "occurrence-assistance-plan-0010"
+        ]
+      }
+    },
+    {
+      "canonical_character_count": 18,
+      "chapter_id": "ch-0002",
+      "eligible_action_counts": {
+        "grammar": 1,
+        "meaning": 0,
+        "reading": 0
+      },
+      "explicit_override_over_budget_counts": {
+        "grammar": 0,
+        "meaning": 0,
+        "reading": 0
+      },
+      "hash": "8b3df51c4c5e83b0c0a812ed5f90a8810578d9c3231fe132055a5a86b9fbe7b3",
+      "id": "density-chapter-summary-0002",
+      "normal_budgets": {
+        "grammar": {
+          "chapter_id": "ch-0002",
+          "dimension": "grammar",
+          "final_budget": 1,
+          "hash": "41df124b28d025f98be38c015b90898ba0d45ef98418f245a852b5c3be28a0f2",
+          "id": "density-budget-0002-grammar",
+          "maximum": 4,
+          "minimum": 1,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 108
+        },
+        "meaning": {
+          "chapter_id": "ch-0002",
+          "dimension": "meaning",
+          "final_budget": 1,
+          "hash": "19277583576c0d8ede6b0f1304de720d80b6fcc4701424260ec4a5320909da77",
+          "id": "density-budget-0002-meaning",
+          "maximum": 4,
+          "minimum": 1,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 126
+        },
+        "reading": {
+          "chapter_id": "ch-0002",
+          "dimension": "reading",
+          "final_budget": 2,
+          "hash": "55f866631b2d4fececfa8e5ca9d121f88b5efe4b82cff77760dbf1b66ff36716",
+          "id": "density-budget-0002-reading",
+          "maximum": 4,
+          "minimum": 2,
+          "rounding_policy": "ceiling-integer",
+          "target_denominator": 1000,
+          "target_numerator": 144
+        }
+      },
+      "publisher_protected_count": 0,
+      "selected_action_counts": {
+        "grammar": 1,
+        "meaning": 0,
+        "reading": 0
+      },
+      "selected_occurrence_plan_ids": {
+        "grammar": [
+          "occurrence-assistance-plan-0012"
+        ],
+        "meaning": [],
+        "reading": []
+      },
+      "suppressed_action_counts": {
+        "grammar": 0,
+        "meaning": 0,
+        "reading": 0
+      },
+      "suppressed_occurrence_plan_ids": {
+        "grammar": [],
+        "meaning": [],
+        "reading": []
+      }
+    }
+  ],
+  "configuration": {
+    "enabled": true,
+    "hash": "b04c1d9eb325d83d524e6bc475271457117f00e2e77a4ce32e666a47f9e514cb",
+    "policy_id": "phase8-rendering-density-n5"
+  },
+  "diagnostics": [
+    {
+      "chapter_id": "ch-0001",
+      "dimension": "meaning",
+      "hash": "e2c820f6ff62a90cc7668cbd3d83a37c7725b521a4df457c1a4ed444ddaa794f",
+      "id": "density-diagnostic-0001",
+      "reason": "budget-exclusion",
+      "source_id": "study-item-0005-occ-0001"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "dimension": "grammar",
+      "hash": "71b29584931f9383208064422dbe63deeb775fa985847d0db94a557d79f49246",
+      "id": "density-diagnostic-0002",
+      "reason": "explicit-override-over-budget",
+      "source_id": "grammar-plan-occurrence-0002"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "dimension": "meaning",
+      "hash": "a8fcc61a67d045984a2259472ec5c2e7f831daa74300e2903ab76e3dd68cd47e",
+      "id": "density-diagnostic-0003",
+      "reason": "budget-exclusion",
+      "source_id": "study-item-0003-occ-0001"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "dimension": "grammar",
+      "hash": "df5c988a1d4fb73b9cbddfd86e5c9d9d8e13ecfdfba6dcba1d1f4f170fd4afbb",
+      "id": "density-diagnostic-0004",
+      "reason": "budget-exclusion",
+      "source_id": "grammar-plan-occurrence-0004"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "dimension": "grammar",
+      "hash": "123e9cfa611e5fbeab45889d65f1bfb05001fe32df44bbfc0a07c98019656219",
+      "id": "density-diagnostic-0005",
+      "reason": "budget-exclusion",
+      "source_id": "grammar-plan-occurrence-0005"
+    }
+  ],
+  "hash": "0511d98c8b0903386b28a36e82e8028aa42fbe963311fc56b045629f65d25b2c",
+  "occurrence_plans": [
+    {
+      "block_end": 7,
+      "block_id": "ch-0001-b-0001",
+      "block_start": 2,
+      "canonical_source_order": 1,
+      "chapter_budget_ids": {
+        "grammar": "density-budget-0001-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "grammar-reference-only",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": 1,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0003"
+      ],
+      "grammar_link_disposition": "grammar-note-reference-only",
+      "grammar_overlap_disposition": "contains-vocabulary",
+      "hash": "22fa0421d80322587d001d6ec0b49f4444c0e55d2184219691bffde53c3a3942",
+      "id": "occurrence-assistance-plan-0001",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "present-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-grammar-default",
+        "exposure-grammar-below-threshold",
+        "publisher-ruby-preserved"
+      ],
+      "sentence_end": 7,
+      "sentence_id": "ch-0001-b-0001-s-0001",
+      "sentence_record_id": "ch-0001-b-0001-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0001",
+      "source_item_id": "grammar-item-0001",
+      "source_occurrence_id": "grammar-plan-occurrence-0001",
+      "source_result_id": "assistance-result-0006",
+      "token_ids": [
+        "ch-0001-b-0001-s-0001-tok-0003",
+        "ch-0001-b-0001-s-0001-tok-0004",
+        "ch-0001-b-0001-s-0001-tok-0005"
+      ]
+    },
+    {
+      "block_end": 4,
+      "block_id": "ch-0001-b-0001",
+      "block_start": 2,
+      "canonical_source_order": 2,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": "density-budget-0001-meaning",
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "selected-within-budget",
+        "reading": "suppressed-input-state"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": 1,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "exposure_policy"
+      },
+      "exposure_ids": [
+        "phase8-exposure-0001"
+      ],
+      "grammar_link_disposition": null,
+      "grammar_overlap_disposition": null,
+      "hash": "a504e627df2130b5cfb0734d6bd9785a86f07bfead6dbd7f4685599ae5ad342d",
+      "id": "occurrence-assistance-plan-0002",
+      "input_assistance": {
+        "grammar": null,
+        "meaning": "show-meaning",
+        "reading": "hide-reading"
+      },
+      "item_kind": "vocabulary",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "present-meaning",
+        "reading": "suppress-reading"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "exposure-reading-threshold-met",
+        "preset-n5-threshold-3",
+        "preset-n5-meaning-default"
+      ],
+      "sentence_end": 4,
+      "sentence_id": "ch-0001-b-0001-s-0001",
+      "sentence_record_id": "ch-0001-b-0001-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "src-study-item-0001-occ-0001",
+      "source_item_id": "study-item-0001",
+      "source_occurrence_id": "study-item-0001-occ-0001",
+      "source_result_id": "assistance-result-0001",
+      "token_ids": [
+        "ch-0001-b-0001-s-0001-tok-0003"
+      ]
+    },
+    {
+      "block_end": 1,
+      "block_id": "ch-0001-b-0002",
+      "block_start": 0,
+      "canonical_source_order": 3,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": "density-budget-0001-meaning",
+        "reading": "density-budget-0001-reading"
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-density-budget",
+        "reading": "selected-within-budget"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": 2,
+        "reading": 1
+      },
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "preset"
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": null,
+      "grammar_overlap_disposition": null,
+      "hash": "b433644e5e3d48d78c65d47d59eb10ac2702ab1b6c24c7489a5e0aa70ce454c2",
+      "id": "occurrence-assistance-plan-0003",
+      "input_assistance": {
+        "grammar": null,
+        "meaning": "show-meaning",
+        "reading": "show-reading"
+      },
+      "item_kind": "name",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "present-reading"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "preset-n5-meaning-default",
+        "meaning-density-budget-excluded"
+      ],
+      "sentence_end": 1,
+      "sentence_id": "ch-0001-b-0002-s-0001",
+      "sentence_record_id": "ch-0001-b-0002-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "src-study-item-0005-occ-0001",
+      "source_item_id": "study-item-0005",
+      "source_occurrence_id": "study-item-0005-occ-0001",
+      "source_result_id": "assistance-result-0005",
+      "token_ids": [
+        "ch-0001-b-0002-s-0001-tok-0001"
+      ]
+    },
+    {
+      "block_end": 11,
+      "block_id": "ch-0001-b-0002",
+      "block_start": 3,
+      "canonical_source_order": 4,
+      "chapter_budget_ids": {
+        "grammar": "density-budget-0001-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "selected-explicit-override-over-budget",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": 2,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "explicit_user_override",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0004"
+      ],
+      "grammar_link_disposition": "separate-nonoverlapping-links",
+      "grammar_overlap_disposition": "no-overlap",
+      "hash": "4aebb2650498fb5c81abb433c8fb715d84aebee39f496d798ce4402bc9595b3e",
+      "id": "occurrence-assistance-plan-0004",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [
+        "phase8-override-0003"
+      ],
+      "planned_assistance": {
+        "grammar": "present-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "explicit-user-grammar-override",
+        "explicit-override-over-budget"
+      ],
+      "sentence_end": 11,
+      "sentence_id": "ch-0001-b-0002-s-0001",
+      "sentence_record_id": "ch-0001-b-0002-s-0001",
+      "sentence_start": 3,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0002",
+      "source_item_id": "grammar-item-0002",
+      "source_occurrence_id": "grammar-plan-occurrence-0002",
+      "source_result_id": "assistance-result-0007",
+      "token_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004",
+        "ch-0001-b-0002-s-0001-tok-0005",
+        "ch-0001-b-0002-s-0001-tok-0006",
+        "ch-0001-b-0002-s-0001-tok-0007",
+        "ch-0001-b-0002-s-0001-tok-0008"
+      ]
+    },
+    {
+      "block_end": 4,
+      "block_id": "ch-0001-b-0003",
+      "block_start": 0,
+      "canonical_source_order": 5,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": "density-budget-0001-meaning",
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-density-budget",
+        "reading": "suppressed-explicit-override"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": 3,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "preset",
+        "reading": "explicit_user_override"
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": null,
+      "grammar_overlap_disposition": null,
+      "hash": "f7981838726fa4b34eb1cfadbcca2dc0b4fb0e57c3e759295463b4a13f26c998",
+      "id": "occurrence-assistance-plan-0005",
+      "input_assistance": {
+        "grammar": null,
+        "meaning": "show-meaning",
+        "reading": "hide-reading"
+      },
+      "item_kind": "vocabulary",
+      "override_ids": [
+        "phase8-override-0001"
+      ],
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "suppress-reading"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "explicit-user-reading-override",
+        "preset-n5-meaning-default",
+        "meaning-density-budget-excluded"
+      ],
+      "sentence_end": 4,
+      "sentence_id": "ch-0001-b-0003-s-0001",
+      "sentence_record_id": "ch-0001-b-0003-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "src-study-item-0003-occ-0001",
+      "source_item_id": "study-item-0003",
+      "source_occurrence_id": "study-item-0003-occ-0001",
+      "source_result_id": "assistance-result-0003",
+      "token_ids": [
+        "ch-0001-b-0003-s-0001-tok-0001",
+        "ch-0001-b-0003-s-0001-tok-0002"
+      ]
+    },
+    {
+      "block_end": 9,
+      "block_id": "ch-0001-b-0003",
+      "block_start": 2,
+      "canonical_source_order": 6,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "grammar-partial-overlap-rejected",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": "rejected-ambiguous-overlap",
+      "grammar_overlap_disposition": "partial-overlap",
+      "hash": "928b967a994ea08edf571796446a75555a464a8aa70fd0a3cf285233be4ab710",
+      "id": "occurrence-assistance-plan-0006",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "suppress-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "sentence_end": 9,
+      "sentence_id": "ch-0001-b-0003-s-0001",
+      "sentence_record_id": "ch-0001-b-0003-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0003",
+      "source_item_id": "grammar-item-0003",
+      "source_occurrence_id": "grammar-plan-occurrence-0003",
+      "source_result_id": "assistance-result-0008",
+      "token_ids": [
+        "ch-0001-b-0003-s-0001-tok-0002",
+        "ch-0001-b-0003-s-0001-tok-0003",
+        "ch-0001-b-0003-s-0001-tok-0004",
+        "ch-0001-b-0003-s-0001-tok-0005"
+      ]
+    },
+    {
+      "block_end": 6,
+      "block_id": "ch-0001-b-0004",
+      "block_start": 0,
+      "canonical_source_order": 7,
+      "chapter_budget_ids": {
+        "grammar": "density-budget-0001-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "suppressed-density-budget",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": 3,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": "grammar-note-reference-only",
+      "grammar_overlap_disposition": "exact-span",
+      "hash": "7f88bd009d2ea8637f55e8beef4a4e297bc25641f04187b7af73cc936c666eed",
+      "id": "occurrence-assistance-plan-0007",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "suppress-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-grammar-default",
+        "grammar-density-budget-excluded"
+      ],
+      "sentence_end": 6,
+      "sentence_id": "ch-0001-b-0004-s-0001",
+      "sentence_record_id": "ch-0001-b-0004-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0004",
+      "source_item_id": "grammar-item-0004",
+      "source_occurrence_id": "grammar-plan-occurrence-0004",
+      "source_result_id": "assistance-result-0009",
+      "token_ids": [
+        "ch-0001-b-0004-s-0001-tok-0001",
+        "ch-0001-b-0004-s-0001-tok-0002",
+        "ch-0001-b-0004-s-0001-tok-0003"
+      ]
+    },
+    {
+      "block_end": 6,
+      "block_id": "ch-0001-b-0004",
+      "block_start": 0,
+      "canonical_source_order": 8,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": null,
+        "reading": "density-budget-0001-reading"
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-input-state",
+        "reading": "selected-within-budget"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": null,
+        "reading": 2
+      },
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "exposure_policy",
+        "reading": "preset"
+      },
+      "exposure_ids": [
+        "phase8-exposure-0002"
+      ],
+      "grammar_link_disposition": null,
+      "grammar_overlap_disposition": null,
+      "hash": "7098906f9875d3c08d111dc458cdf04fc8bc04b5ca414ce9554a0fe3d4357f5a",
+      "id": "occurrence-assistance-plan-0008",
+      "input_assistance": {
+        "grammar": null,
+        "meaning": "hide-meaning",
+        "reading": "show-reading"
+      },
+      "item_kind": "expression",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "present-reading"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "exposure-meaning-threshold-met",
+        "preset-n5-threshold-3"
+      ],
+      "sentence_end": 6,
+      "sentence_id": "ch-0001-b-0004-s-0001",
+      "sentence_record_id": "ch-0001-b-0004-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "src-study-item-0002-occ-0001",
+      "source_item_id": "study-item-0002",
+      "source_occurrence_id": "study-item-0002-occ-0001",
+      "source_result_id": "assistance-result-0002",
+      "token_ids": [
+        "ch-0001-b-0004-s-0001-tok-0001",
+        "ch-0001-b-0004-s-0001-tok-0002",
+        "ch-0001-b-0004-s-0001-tok-0003"
+      ]
+    },
+    {
+      "block_end": 7,
+      "block_id": "ch-0001-b-0005",
+      "block_start": 2,
+      "canonical_source_order": 9,
+      "chapter_budget_ids": {
+        "grammar": "density-budget-0001-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "suppressed-density-budget",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": 4,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0003"
+      ],
+      "grammar_link_disposition": "grammar-link",
+      "grammar_overlap_disposition": "no-overlap",
+      "hash": "7eefed1cc5680c52229bd025efef8dc80adfd3ad528ba2b37cc45ca87f33f8c3",
+      "id": "occurrence-assistance-plan-0009",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "suppress-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-grammar-default",
+        "exposure-grammar-below-threshold",
+        "publisher-ruby-preserved",
+        "grammar-density-budget-excluded"
+      ],
+      "sentence_end": 7,
+      "sentence_id": "ch-0001-b-0005-s-0001",
+      "sentence_record_id": "ch-0001-b-0005-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0005",
+      "source_item_id": "grammar-item-0001",
+      "source_occurrence_id": "grammar-plan-occurrence-0005",
+      "source_result_id": "assistance-result-0006",
+      "token_ids": [
+        "ch-0001-b-0005-s-0001-tok-0002",
+        "ch-0001-b-0005-s-0001-tok-0003",
+        "ch-0001-b-0005-s-0001-tok-0004"
+      ]
+    },
+    {
+      "block_end": 3,
+      "block_id": "ch-0001-b-0008",
+      "block_start": 0,
+      "canonical_source_order": 10,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "not-applicable",
+        "meaning": "suppressed-explicit-override",
+        "reading": "publisher-ruby-preserved"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": null,
+        "meaning": "explicit_user_override",
+        "reading": "publisher"
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": null,
+      "grammar_overlap_disposition": null,
+      "hash": "dd19294d2639549d6649716c76c5430f207f9c912d030a5c7b014d5f7ff35005",
+      "id": "occurrence-assistance-plan-0010",
+      "input_assistance": {
+        "grammar": null,
+        "meaning": "hide-meaning",
+        "reading": "show-reading"
+      },
+      "item_kind": "vocabulary",
+      "override_ids": [
+        "phase8-override-0002"
+      ],
+      "planned_assistance": {
+        "grammar": "not-applicable",
+        "meaning": "suppress-meaning",
+        "reading": "publisher-ruby-preserved"
+      },
+      "publisher_ruby_id": "ch-0001-b-0008-r-0001",
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-reading-default",
+        "explicit-user-meaning-override",
+        "publisher-ruby-preserved"
+      ],
+      "sentence_end": 3,
+      "sentence_id": "ch-0001-b-0008-s-0001",
+      "sentence_record_id": "ch-0001-b-0008-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "src-study-item-0004-occ-0001",
+      "source_item_id": "study-item-0004",
+      "source_occurrence_id": "study-item-0004-occ-0001",
+      "source_result_id": "assistance-result-0004",
+      "token_ids": [
+        "ch-0001-b-0008-s-0001-tok-0001"
+      ]
+    },
+    {
+      "block_end": 8,
+      "block_id": "ch-0001-b-0008",
+      "block_start": 3,
+      "canonical_source_order": 11,
+      "chapter_budget_ids": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0001",
+      "density_decisions": {
+        "grammar": "publisher-adjacent-protected",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": null,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "publisher",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [
+        "phase8-exposure-0003"
+      ],
+      "grammar_link_disposition": "publisher-ruby-preserved",
+      "grammar_overlap_disposition": "publisher-ruby-protected",
+      "hash": "da1978e47a10435770b90a4d58a0817ecc5d9fe1e8f58a3cfc711ca848bfa8d6",
+      "id": "occurrence-assistance-plan-0011",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "publisher-ruby-preserved",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "adjacent-preserved-publisher-ruby",
+      "rationale_codes": [
+        "preset-n5-grammar-default",
+        "exposure-grammar-below-threshold",
+        "publisher-ruby-preserved"
+      ],
+      "sentence_end": 8,
+      "sentence_id": "ch-0001-b-0008-s-0001",
+      "sentence_record_id": "ch-0001-b-0008-s-0001",
+      "sentence_start": 3,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0007",
+      "source_item_id": "grammar-item-0001",
+      "source_occurrence_id": "grammar-plan-occurrence-0006",
+      "source_result_id": "assistance-result-0006",
+      "token_ids": [
+        "ch-0001-b-0008-s-0001-tok-0002",
+        "ch-0001-b-0008-s-0001-tok-0003",
+        "ch-0001-b-0008-s-0001-tok-0004"
+      ]
+    },
+    {
+      "block_end": 10,
+      "block_id": "ch-0002-b-0001",
+      "block_start": 0,
+      "canonical_source_order": 12,
+      "chapter_budget_ids": {
+        "grammar": "density-budget-0002-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "chapter_id": "ch-0002",
+      "density_decisions": {
+        "grammar": "selected-within-budget",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "density_ranks": {
+        "grammar": 1,
+        "meaning": null,
+        "reading": null
+      },
+      "effective_sources": {
+        "grammar": "preset",
+        "meaning": null,
+        "reading": null
+      },
+      "exposure_ids": [],
+      "grammar_link_disposition": "grammar-link",
+      "grammar_overlap_disposition": "no-overlap",
+      "hash": "c1465e51705520b0c6a3be01f6c137e25ebff06e2ec7d0b052b215c332598ed7",
+      "id": "occurrence-assistance-plan-0012",
+      "input_assistance": {
+        "grammar": "show-grammar",
+        "meaning": null,
+        "reading": null
+      },
+      "item_kind": "grammar",
+      "override_ids": [],
+      "planned_assistance": {
+        "grammar": "present-grammar",
+        "meaning": "not-applicable",
+        "reading": "not-applicable"
+      },
+      "publisher_ruby_id": null,
+      "publisher_ruby_interaction": "none",
+      "rationale_codes": [
+        "preset-n5-grammar-default"
+      ],
+      "sentence_end": 10,
+      "sentence_id": "ch-0002-b-0001-s-0001",
+      "sentence_record_id": "ch-0002-b-0001-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0008",
+      "source_item_id": "grammar-item-0005",
+      "source_occurrence_id": "grammar-plan-occurrence-0007",
+      "source_result_id": "assistance-result-0010",
+      "token_ids": [
+        "ch-0002-b-0001-s-0001-tok-0001",
+        "ch-0002-b-0001-s-0001-tok-0002",
+        "ch-0002-b-0001-s-0001-tok-0003",
+        "ch-0002-b-0001-s-0001-tok-0004",
+        "ch-0002-b-0001-s-0001-tok-0005"
+      ]
+    }
+  ],
+  "policy": {
+    "dataset_id": "furiganalyse-synthetic-rendering-density-policy",
+    "dataset_version": "2026-08-22",
+    "policy_hash": "79659774521d72ca8c51801b317ab2a6d48e5a07107ab18a8d55bbfc287bf146",
+    "policy_id": "phase8-rendering-density-n5",
+    "preset_id": "phase8-preset-n5"
+  },
+  "precedence": [
+    "publisher",
+    "explicit_user_override",
+    "input_assistance_state",
+    "chapter_density_policy",
+    "exposure_evidence",
+    "canonical_source_order"
+  ],
+  "report_id": "per-occurrence-assistance-plan-v1",
+  "schema_version": 1,
+  "source_hashes": {
+    "annotation_plan": "5788d73a3bfd0994b93219d628024f1f4abae6492444042fc17197e08a8cbb70",
+    "assistance_report": "4ca0be052332c6e6ab89afee16e5a22b0a3a7a151ae1f90847995a226071f29e",
+    "canonical_book": "f36d8d46b175cae78160fba0a8c604d1b33bf60137b23e14e1741cb91a129688",
+    "density_policy_dataset": "9d84680e2daec9682f6b838ce037707499f2089e2dc18580dc3f48ef0a62c34f",
+    "grammar_plan": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848"
+  },
+  "source_schema_versions": {
+    "annotation_plan": 2,
+    "assistance_report": 1,
+    "canonical_book": 2,
+    "density_policy": 1,
+    "grammar_plan": 1
+  }
+}

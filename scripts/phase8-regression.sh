@@ -286,3 +286,121 @@ test "$(sha256sum "$ROOT/artifacts/phase7/epub/run-a.epub" | cut -d' ' -f1)" = "
 
 "$PYTHON" -m pytest -q "$ROOT/tests/test_learner_profile.py" "$ROOT/tests/test_assistance_density.py"
 echo "Phase 8 adaptive-density regression passed; artifacts retained under artifacts/phase8/density/."
+
+RENDERED="$ROOT/artifacts/phase8/rendered"
+RENDER_FIXTURE="$ROOT/tests/fixtures/phase8_rendering"
+RENDER_GOLDEN="$ROOT/tests/phase8_golden/adaptive-linked-v1"
+RENDER_REPORT_GOLDEN="$ROOT/tests/phase8_golden/adaptive-rendering-report-v1.json"
+
+mkdir -p "$RENDERED/fixtures" "$RENDERED/cases/inputs" "$RENDERED/compatibility"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase8_rendering_fixture.py" \
+    --output "$RENDERED/fixtures/$run"
+done
+diff -r "$RENDERED/fixtures/run-a" "$RENDERED/fixtures/run-b"
+diff -r "$RENDERED/fixtures/run-a" "$RENDER_FIXTURE"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/render_adaptive_assistance.py" \
+    --source-dir "$RENDER_FIXTURE/source" \
+    --canonical-book "$RENDER_FIXTURE/book.json" \
+    --annotation-plan "$RENDER_FIXTURE/annotation-plan.json" \
+    --grammar-plan "$RENDER_FIXTURE/grammar-plan.json" \
+    --assistance-report "$RENDER_FIXTURE/assistance.json" \
+    --density-plan "$RENDER_FIXTURE/density.json" \
+    --output-dir "$RENDERED/$run" \
+    --report "$RENDERED/$run-report.json" --enabled
+done
+diff -r "$RENDERED/run-a" "$RENDERED/run-b"
+diff -r "$RENDERED/run-a" "$RENDER_GOLDEN"
+cmp "$RENDERED/run-a-report.json" "$RENDERED/run-b-report.json"
+cmp "$RENDERED/run-a-report.json" "$RENDER_REPORT_GOLDEN"
+
+jq -e '
+  [.diagnostics[].reason] == ["missing-approved-reading"] and
+  (.document_results | length) == 4 and
+  (.occurrence_results | length) == 12 and
+  any(.occurrence_results[]; .reading_action == "reading-presented") and
+  any(.occurrence_results[]; .reading_action == "reading-unavailable") and
+  any(.occurrence_results[]; .meaning_action == "meaning-presented") and
+  any(.occurrence_results[]; .grammar_action == "grammar-reference-only") and
+  any(.occurrence_results[]; .grammar_action == "grammar-partial-overlap-rejected") and
+  any(.occurrence_results[]; .grammar_action == "publisher-adjacent-protected")
+' "$RENDERED/run-a-report.json" >/dev/null
+! rg -q 'to forget completely|to read every day|Mae \(synthetic name\)|display:none|data-meaning|<!--' "$RENDERED/run-a"
+rg -q '<ruby id="publisher-ruby-1-8-1">表舞台<rt>おもてぶたい</rt></ruby>' "$RENDERED/run-a/EPUB/text/grammar-01.xhtml"
+
+"$PYTHON" "$ROOT/scripts/build_phase8_rendering_cases.py" \
+  --fixture "$RENDER_FIXTURE" --output "$RENDERED/cases/inputs"
+
+run_render_failure() {
+  local name="$1"
+  local expected="$2"
+  local source="$3"
+  local assistance="$4"
+  local density="$5"
+  mkdir -p "$RENDERED/cases/$name"
+  "$PYTHON" "$ROOT/scripts/render_adaptive_assistance.py" \
+    --source-dir "$source" --canonical-book "$RENDER_FIXTURE/book.json" \
+    --annotation-plan "$RENDER_FIXTURE/annotation-plan.json" \
+    --grammar-plan "$RENDER_FIXTURE/grammar-plan.json" \
+    --assistance-report "$assistance" --density-plan "$density" \
+    --output-dir "$RENDERED/cases/$name/output" \
+    --report "$RENDERED/cases/$name/report.json" --enabled --safe
+  jq -e --arg reason "$expected" '.occurrence_results == [] and [.diagnostics[].reason] == [$reason]' "$RENDERED/cases/$name/report.json" >/dev/null
+  diff -r "$RENDERED/cases/$name/output" "$source"
+}
+
+mkdir -p "$RENDERED/cases/disabled"
+"$PYTHON" "$ROOT/scripts/render_adaptive_assistance.py" \
+  --source-dir "$RENDER_FIXTURE/source" --canonical-book "$RENDER_FIXTURE/book.json" \
+  --annotation-plan "$RENDER_FIXTURE/annotation-plan.json" \
+  --grammar-plan "$RENDER_FIXTURE/grammar-plan.json" \
+  --assistance-report "$RENDER_FIXTURE/assistance.json" \
+  --density-plan "$RENDER_FIXTURE/density.json" \
+  --output-dir "$RENDERED/cases/disabled/output" \
+  --report "$RENDERED/cases/disabled/report.json" --safe
+jq -e '.occurrence_results == [] and [.diagnostics[].reason] == ["disabled"]' "$RENDERED/cases/disabled/report.json" >/dev/null
+diff -r "$RENDERED/cases/disabled/output" "$RENDER_FIXTURE/source"
+
+for phase in phase4 phase5; do
+  if [[ "$phase" == phase4 ]]; then
+    linked_source="$ROOT/artifacts/phase4/linked/run-a"
+  else
+    linked_source="$ROOT/artifacts/phase5/rendered/run-a/linked"
+  fi
+  "$PYTHON" "$ROOT/scripts/render_adaptive_assistance.py" \
+    --source-dir "$linked_source" --canonical-book "$RENDER_FIXTURE/book.json" \
+    --annotation-plan "$RENDER_FIXTURE/annotation-plan.json" \
+    --assistance-report "$RENDER_FIXTURE/assistance.json" \
+    --density-plan "$RENDER_FIXTURE/density.json" \
+    --output-dir "$RENDERED/compatibility/$phase-linked" \
+    --report "$RENDERED/compatibility/$phase-disabled-report.json" --safe
+  diff -r "$RENDERED/compatibility/$phase-linked" "$linked_source"
+done
+
+run_render_failure stale source-hash-mismatch "$RENDER_FIXTURE/source" "$RENDER_FIXTURE/assistance.json" "$RENDERED/cases/inputs/stale-density.json"
+run_render_failure invalid unsupported-schema-or-field "$RENDER_FIXTURE/source" "$RENDERED/cases/inputs/invalid-assistance.json" "$RENDER_FIXTURE/density.json"
+run_render_failure ambiguous ambiguous-dom-mapping "$RENDERED/cases/inputs/ambiguous-source" "$RENDER_FIXTURE/assistance.json" "$RENDER_FIXTURE/density.json"
+run_render_failure publisher-conflict publisher-ruby-suppression-attempt "$RENDER_FIXTURE/source" "$RENDER_FIXTURE/assistance.json" "$RENDERED/cases/inputs/publisher-density.json"
+run_render_failure grammar-conflict grammar-disposition-conflict "$RENDER_FIXTURE/source" "$RENDER_FIXTURE/assistance.json" "$RENDERED/cases/inputs/grammar-density.json"
+run_render_failure broken-fragment broken-fragment "$RENDERED/cases/inputs/broken-source" "$RENDER_FIXTURE/assistance.json" "$RENDER_FIXTURE/density.json"
+run_render_failure corrupt corrupt-input "$RENDER_FIXTURE/source" "$RENDERED/cases/inputs/corrupt.json" "$RENDER_FIXTURE/density.json"
+
+cp "$COMPAT_VOCABULARY" "$RENDERED/compatibility/phase3-vocabulary.json"
+cp "$COMPAT_PLAN" "$RENDERED/compatibility/phase5-plan.json"
+cp "$SOURCE_GRAMMAR" "$RENDERED/compatibility/phase7-grammar-plan.json"
+cp "$ARTIFACTS/run-a/assistance.json" "$RENDERED/compatibility/phase8-assistance.json"
+cp "$DENSITY/run-a/density.json" "$RENDERED/compatibility/phase8-density.json"
+cmp "$RENDERED/compatibility/phase3-vocabulary.json" "$COMPAT_VOCABULARY"
+cmp "$RENDERED/compatibility/phase5-plan.json" "$COMPAT_PLAN"
+cmp "$RENDERED/compatibility/phase7-grammar-plan.json" "$SOURCE_GRAMMAR"
+cmp "$RENDERED/compatibility/phase8-assistance.json" "$ARTIFACTS/run-a/assistance.json"
+cmp "$RENDERED/compatibility/phase8-density.json" "$DENSITY/run-a/density.json"
+test "$(sha256sum "$ROOT/artifacts/phase7/epub/run-a.epub" | cut -d' ' -f1)" = "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+
+"$PYTHON" -m pytest -q \
+  "$ROOT/tests/test_learner_profile.py" \
+  "$ROOT/tests/test_assistance_density.py" \
+  "$ROOT/tests/test_adaptive_rendering.py"
+echo "Phase 8 adaptive-rendering regression passed; artifacts retained under artifacts/phase8/rendered/."
