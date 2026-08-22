@@ -1,9 +1,10 @@
-# Phase 8: independent learner profile and adaptive density
+# Phase 9: deterministic Anki export planning
 #
-# Keep project metadata, the canonical/vocabulary/dictionary/annotation/grammar
-# interfaces, publisher-ruby and link preservation, deterministic serializers,
-# JLPT preset inputs, and new Phase 8 profile/state/exposure/density files
-# visible. Review this scope again before Phase 9.
+# Keep project metadata and the canonical, dictionary, study-item, grammar,
+# learner-assistance, density, note, occurrence, anchor, provenance, and stable
+# serialization interfaces visible. Keep future Phase 9 deck/card/export-plan,
+# note-type, field, tag, media-reference, GUID, diagnostic, fixture, golden,
+# script, test, and checklist files visible. Review this scope before Phase 10.
 
 # Repository internals, local environments, and caches
 .git/
@@ -24,8 +25,12 @@ reports/
 data/
 *.sqlite3
 *.cache
+*.apkg
+*.colpkg
+*.anki2
 
-# Completed Phase 0-7 review records
+# Completed Phase 0-8 review records. The future dictionary-source assessment
+# remains visible because it defines a Phase 9 provenance boundary.
 docs/phase0-*
 docs/phase1-*
 docs/phase2-*
@@ -34,8 +39,11 @@ docs/phase4-*
 docs/phase5-*
 docs/phase6-*
 docs/phase7-*
+docs/phase8-*
+!docs/jmdict-simplified-source-assessment.md
 
-# Completed review-only and bulky goldens; retain compact compatibility models
+# Completed review-only and bulky goldens; retain compact source models and
+# compatibility fixtures needed to prove Phase 3-8 non-mutation.
 tests/phase3_golden/*review*
 tests/phase4_golden/*review*
 tests/phase5_golden/*review*
@@ -54,8 +62,24 @@ tests/phase7_golden/grammar-candidates-v1.json
 tests/phase7_golden/grammar-evaluation-v1.json
 tests/phase7_golden/grammar-evaluation-disabled-matrix-v1.json
 tests/phase7_golden/grammar-epub-v1.json
+tests/phase8_golden/*review*
+tests/phase8_golden/adaptive-linked-v1/
+tests/phase8_golden/adaptive-rendering-report-v1.json
+tests/phase8_golden/adaptive-epub-v1.json
+tests/phase8_golden/per-occurrence-assistance-plan-v1.json
+tests/phase8_golden/preset-comparison-v1.json
+tests/phase8_golden/density-comparison-v1.json
 
-# Completed regression entry points other than the immediate Phase 7 baseline
+# Completed synthetic rendering and packaging fixtures are large. Keep the
+# compact profiles, presets, exposure history, plans, and report interfaces.
+tests/fixtures/phase8_rendering/source/
+tests/fixtures/phase8_rendering/book.json
+tests/fixtures/phase8_rendering/density.json
+tests/fixtures/phase8-adaptive-epub-metadata-v1.json
+
+# Completed regression entry points other than the immediate Phase 7/8
+# compatibility gates. Phase 9 may run those gates without re-reading all
+# earlier fixture-generation machinery.
 scripts/phase0_*
 scripts/phase0-*
 scripts/phase1_*
@@ -70,29 +94,34 @@ scripts/phase5_*
 scripts/phase5-*
 scripts/phase6_*
 scripts/phase6-*
+scripts/build_phase7_*
+scripts/build_phase8_*
+scripts/analyze_grammar.py
+scripts/evaluate_grammar.py
+scripts/inspect_grammar_epub.py
+scripts/package_grammar_epub.py
+scripts/package_adaptive_epub.py
+scripts/render_adaptive_assistance.py
 
-# Completed provider, evaluation, packaging, and fixture-generation machinery
+# Completed provider, evaluation, and packaging machinery. Core dictionary,
+# annotation, note, grammar-plan, learner-profile, density, and serialization
+# interfaces remain visible for Phase 9 semantic preservation checks.
 furiganalyse/enrichment_provider.py
 furiganalyse/grammar_analysis.py
 furiganalyse/grammar_epub.py
 furiganalyse/grammar_evaluation.py
-scripts/analyze_grammar.py
-scripts/build_phase7_*
-scripts/evaluate_grammar.py
-scripts/inspect_grammar_epub.py
-scripts/package_grammar_epub.py
+furiganalyse/adaptive_epub.py
+furiganalyse/adaptive_rendering.py
 scripts/run_fake_openai_provider.py
 scripts/run_openai_enrichment.py
 
-# Deployment, web application, unrelated formats, and future Anki work
+# Deployment, web application, and unrelated formats
 Dockerfile
 Dockerrun.aws.json
 docker-compose.yml
-furiganalyse/apkg_format.py
 furiganalyse/app.py
 furiganalyse/txt_format.py
 furiganalyse/templates/
-**/*anki*
 
 # Production-size and completed synthetic evaluation fixtures
 tests/fixtures/phase5-*-responses-v1.json
@@ -101,5 +130,10 @@ tests/fixtures/phase7_evaluation/
 tests/fixtures/phase7-grammar-corrupt-v1.json
 tests/fixtures/phase7-grammar-invalid-v1.json
 
-# The future dictionary-source assessment remains visible intentionally:
-# docs/jmdict-simplified-source-assessment.md
+# Intentionally visible for Phase 9:
+# - implementation.md, README.md, pyproject.toml, project metadata
+# - furiganalyse/apkg_format.py and any future Anki/export modules
+# - canonical/vocabulary/dictionary/annotation/enriched/grammar interfaces
+# - learner-profile, assistance-selection, density, and study-note interfaces
+# - compact legal Phase 3-8 fixtures needed for deterministic compatibility
+# - all future Phase 9 scripts, tests, fixtures, goldens, and checklists
