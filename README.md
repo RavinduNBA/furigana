@@ -1030,3 +1030,52 @@ retained under `artifacts/phase8/rendered/` and reviewed with
 legal synthetic mechanics data, not production readings, meanings, density
 recommendations, learner diagnoses, or JLPT validation. This slice does not
 modify or package an EPUB.
+
+Phase 8 adaptive-assistance EPUB packaging
+------------------------------------------
+
+The adaptive packager consumes the validated adaptive-rendering report, its
+four XHTML outputs, explicit synthetic package metadata, and the approved local
+Phase 7 grammar EPUB. It does not recalculate learner state, density, rendering,
+links, meanings, readings, or grammar dispositions, and it never modifies its
+inputs in place.
+
+```bash
+.venv/bin/python scripts/build_phase8_epub_metadata.py \
+  --base-epub artifacts/phase7/epub/run-a.epub \
+  --rendering-report artifacts/phase8/rendered/run-a-report.json \
+  --adaptive-dir artifacts/phase8/rendered/run-a \
+  --output artifacts/phase8/epub/package-metadata.json
+
+.venv/bin/python scripts/package_adaptive_epub.py \
+  --base-epub artifacts/phase7/epub/run-a.epub \
+  --rendering-report artifacts/phase8/rendered/run-a-report.json \
+  --adaptive-dir artifacts/phase8/rendered/run-a \
+  --package-metadata artifacts/phase8/epub/package-metadata.json \
+  --output artifacts/phase8/epub/run-a.epub \
+  --report artifacts/phase8/epub/run-a-report.json \
+  --enabled --safe
+```
+
+The minimal EPUB has eight deterministic members. Its spine and navigation are
+the two synthetic chapters, Study Notes, then Grammar Study Notes, retaining
+separate vocabulary and grammar navigation entries. The packaged XHTML is
+byte-identical to the approved adaptive output: one generated reading (`前` /
+`まえ`), one displayed approved meaning (`to read`), five study links and
+backlinks, two grammar links and backlinks, three grammar notes, and three
+contexts. Publisher ruby remains authoritative and unchanged.
+
+Suppressed assistance is absent, not CSS-hidden or copied into attributes,
+comments, metadata, or diagnostics. Disabled or invalid operation returns the
+Phase 7 base EPUB byte-for-byte with a concise reason code. Packaging reports
+contain bounded structural hashes and counts, not learner identity, profile
+labels, exposure history, reviewer notes, source paths, provider data, or book
+text. Outputs are retained under `artifacts/phase8/epub/`; the checked-in
+structural golden fixes the output checksum and archive structure. Use
+`docs/phase8-adaptive-epub-review-checklist.md` for the later Calibre 8.14
+review.
+
+This legal synthetic fixture demonstrates deterministic mechanics only. It is
+not a pedagogical recommendation, JLPT assessment, production dictionary
+approval, or statement about a real learner. Packaging does not run Calibre or
+modify OPF, navigation, XHTML, or EPUB inputs in place.

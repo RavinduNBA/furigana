@@ -1,0 +1,15 @@
+{
+  "adaptive_rendering_report_hash": "5bd9543f15f9b9a79651a5170ad36f5f336d5cd2a4ac355d542fc1b8015d751c",
+  "adaptive_xhtml_directory_hash": "b79f1f8d7b0c5351cda2c734a7c34f61c173a768b0bf369a7f744660547f9d7a",
+  "base_epub_sha256": "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619",
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "fixture_notice": "Synthetic adaptive-assistance packaging mechanics only.",
+  "hash": "3537e511ddda3cfe2fcbf5557b4e3b910220a5823b1db23c933d52cbfbdf56ba",
+  "id": "phase8-adaptive-epub-metadata-v1",
+  "identifier": "urn:uuid:furiganalyse-phase-8-synthetic-adaptive",
+  "language": "ja",
+  "modified": "2026-08-22T00:00:00Z",
+  "provenance": "local-synthetic-adaptive-epub-fixture",
+  "schema_version": 1,
+  "title": "Furiganalyse Phase 8 Synthetic Adaptive Assistance Fixture"
+}

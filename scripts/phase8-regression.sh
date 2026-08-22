@@ -404,3 +404,152 @@ test "$(sha256sum "$ROOT/artifacts/phase7/epub/run-a.epub" | cut -d' ' -f1)" = "
   "$ROOT/tests/test_assistance_density.py" \
   "$ROOT/tests/test_adaptive_rendering.py"
 echo "Phase 8 adaptive-rendering regression passed; artifacts retained under artifacts/phase8/rendered/."
+
+ADAPTIVE_EPUB="$ROOT/artifacts/phase8/epub"
+ADAPTIVE_EPUB_METADATA="$ROOT/tests/fixtures/phase8-adaptive-epub-metadata-v1.json"
+ADAPTIVE_EPUB_GOLDEN="$ROOT/tests/phase8_golden/adaptive-epub-v1.json"
+ADAPTIVE_EPUB_REVIEW_GOLDEN="$ROOT/tests/phase8_golden/adaptive-epub-review-cases-v1.json"
+BASE_GRAMMAR_EPUB="$ROOT/artifacts/phase7/epub/run-a.epub"
+
+mkdir -p "$ADAPTIVE_EPUB/metadata" "$ADAPTIVE_EPUB/cases/inputs" \
+  "$ADAPTIVE_EPUB/compatibility"
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/build_phase8_epub_metadata.py" \
+    --base-epub "$BASE_GRAMMAR_EPUB" \
+    --rendering-report "$RENDERED/run-a-report.json" \
+    --adaptive-dir "$RENDERED/run-a" \
+    --output "$ADAPTIVE_EPUB/metadata/$run.json"
+done
+cmp "$ADAPTIVE_EPUB/metadata/run-a.json" "$ADAPTIVE_EPUB/metadata/run-b.json"
+cmp "$ADAPTIVE_EPUB/metadata/run-a.json" "$ADAPTIVE_EPUB_METADATA"
+
+for run in run-a run-b; do
+  "$PYTHON" "$ROOT/scripts/package_adaptive_epub.py" \
+    --base-epub "$BASE_GRAMMAR_EPUB" \
+    --rendering-report "$RENDERED/run-a-report.json" \
+    --adaptive-dir "$RENDERED/run-a" \
+    --package-metadata "$ADAPTIVE_EPUB_METADATA" \
+    --output "$ADAPTIVE_EPUB/$run.epub" \
+    --report "$ADAPTIVE_EPUB/$run-report.json" --enabled --safe
+done
+cmp "$ADAPTIVE_EPUB/run-a.epub" "$ADAPTIVE_EPUB/run-b.epub"
+cmp "$ADAPTIVE_EPUB/run-a-report.json" "$ADAPTIVE_EPUB/run-b-report.json"
+cmp "$ADAPTIVE_EPUB/run-a-report.json" "$ADAPTIVE_EPUB_GOLDEN"
+test "$(sha256sum "$ADAPTIVE_EPUB/run-a.epub" | cut -d' ' -f1)" = \
+  "$(jq -r '.output_epub_sha256' "$ADAPTIVE_EPUB_GOLDEN")"
+
+"$PYTHON" "$ROOT/scripts/build_phase8_epub_review_cases.py" \
+  --report "$ADAPTIVE_EPUB/run-a-report.json" \
+  --output "$ADAPTIVE_EPUB/review-cases.json"
+cmp "$ADAPTIVE_EPUB/review-cases.json" "$ADAPTIVE_EPUB_REVIEW_GOLDEN"
+
+jq -e '
+  (.archive_members | length) == 8 and
+  .diagnostics == [] and
+  .structural_summary.rendering_result_count == 12 and
+  .structural_summary.generated_reading_count == 1 and
+  .structural_summary.displayed_meaning_count == 1 and
+  .structural_summary.study_forward_links == 5 and
+  .structural_summary.study_backlinks == 5 and
+  .structural_summary.grammar_forward_links == 2 and
+  .structural_summary.grammar_backlinks == 2 and
+  .structural_summary.grammar_notes == 3 and
+  .structural_summary.grammar_contexts == 3 and
+  [.structural_summary.rendering_diagnostic_references[].reason] == ["missing-approved-reading"]
+' "$ADAPTIVE_EPUB/run-a-report.json" >/dev/null
+
+"$PYTHON" "$ROOT/scripts/build_phase8_epub_cases.py" \
+  --rendering-report "$RENDERED/run-a-report.json" \
+  --adaptive-dir "$RENDERED/run-a" \
+  --metadata "$ADAPTIVE_EPUB_METADATA" \
+  --output-dir "$ADAPTIVE_EPUB/cases/inputs"
+
+run_epub_failure() {
+  local name="$1"
+  local expected="$2"
+  local rendering="$3"
+  local xhtml="$4"
+  local metadata="$5"
+  mkdir -p "$ADAPTIVE_EPUB/cases/$name"
+  "$PYTHON" "$ROOT/scripts/package_adaptive_epub.py" \
+    --base-epub "$BASE_GRAMMAR_EPUB" \
+    --rendering-report "$rendering" --adaptive-dir "$xhtml" \
+    --package-metadata "$metadata" \
+    --output "$ADAPTIVE_EPUB/cases/$name/output.epub" \
+    --report "$ADAPTIVE_EPUB/cases/$name/report.json" --enabled --safe
+  jq -e --arg reason "$expected" \
+    '.archive_members == [] and .structural_summary == null and [.diagnostics[].reason] == [$reason]' \
+    "$ADAPTIVE_EPUB/cases/$name/report.json" >/dev/null
+  cmp "$ADAPTIVE_EPUB/cases/$name/output.epub" "$BASE_GRAMMAR_EPUB"
+}
+
+mkdir -p "$ADAPTIVE_EPUB/cases/disabled"
+"$PYTHON" "$ROOT/scripts/package_adaptive_epub.py" \
+  --base-epub "$BASE_GRAMMAR_EPUB" \
+  --output "$ADAPTIVE_EPUB/cases/disabled/output.epub" \
+  --report "$ADAPTIVE_EPUB/cases/disabled/report.json" --safe
+jq -e '.archive_members == [] and [.diagnostics[].reason] == ["disabled"]' \
+  "$ADAPTIVE_EPUB/cases/disabled/report.json" >/dev/null
+cmp "$ADAPTIVE_EPUB/cases/disabled/output.epub" "$BASE_GRAMMAR_EPUB"
+
+run_epub_failure stale source-epub-hash-mismatch \
+  "$RENDERED/run-a-report.json" "$RENDERED/run-a" \
+  "$ADAPTIVE_EPUB/cases/inputs/stale/metadata.json"
+run_epub_failure rendering-mismatch rendering-report-mismatch \
+  "$ADAPTIVE_EPUB/cases/inputs/rendering-mismatch/rendering-report.json" \
+  "$RENDERED/run-a" "$ADAPTIVE_EPUB_METADATA"
+run_epub_failure invalid unsupported-schema-or-field \
+  "$RENDERED/run-a-report.json" "$RENDERED/run-a" \
+  "$ADAPTIVE_EPUB/cases/inputs/invalid/metadata.json"
+run_epub_failure corrupt corrupt-input \
+  "$ADAPTIVE_EPUB/cases/inputs/corrupt/rendering-report.json" \
+  "$RENDERED/run-a" "$ADAPTIVE_EPUB_METADATA"
+run_epub_failure mismatched adaptive-directory-hash-mismatch \
+  "$RENDERED/run-a-report.json" "$ADAPTIVE_EPUB/cases/inputs/mismatched/xhtml" \
+  "$ADAPTIVE_EPUB_METADATA"
+run_epub_failure unsafe unsafe-archive-path \
+  "$RENDERED/run-a-report.json" "$ADAPTIVE_EPUB/cases/inputs/unsafe/xhtml" \
+  "$ADAPTIVE_EPUB_METADATA"
+run_epub_failure duplicate-path duplicate-archive-path \
+  "$ADAPTIVE_EPUB/cases/inputs/duplicate-path/rendering-report.json" \
+  "$RENDERED/run-a" "$ADAPTIVE_EPUB/cases/inputs/duplicate-path/metadata.json"
+for name in broken-fragment hidden-content publisher-conflict grammar-conflict; do
+  case "$name" in
+    broken-fragment) expected="broken-fragment" ;;
+    hidden-content) expected="unsafe-hidden-content" ;;
+    publisher-conflict) expected="publisher-ruby-mismatch" ;;
+    grammar-conflict) expected="grammar-link-mismatch" ;;
+  esac
+  run_epub_failure "$name" "$expected" \
+    "$ADAPTIVE_EPUB/cases/inputs/$name/rendering-report.json" \
+    "$ADAPTIVE_EPUB/cases/inputs/$name/xhtml" \
+    "$ADAPTIVE_EPUB/cases/inputs/$name/metadata.json"
+done
+
+cp "$BASE_GRAMMAR_EPUB" "$ADAPTIVE_EPUB/base-fallback.epub"
+cp "$ROOT/artifacts/phase4/epub/run-a.epub" "$ADAPTIVE_EPUB/compatibility/phase4.epub"
+cp "$ROOT/artifacts/phase5/rendered/run-a.epub" "$ADAPTIVE_EPUB/compatibility/phase5.epub"
+cp "$COMPAT_VOCABULARY" "$ADAPTIVE_EPUB/compatibility/phase3-vocabulary.json"
+cp "$COMPAT_PLAN" "$ADAPTIVE_EPUB/compatibility/phase5-plan.json"
+cp "$SOURCE_GRAMMAR" "$ADAPTIVE_EPUB/compatibility/phase7-grammar-plan.json"
+cp "$RENDERED/run-a-report.json" "$ADAPTIVE_EPUB/compatibility/phase8-rendering-report.json"
+cp "$DENSITY/run-a/density.json" "$ADAPTIVE_EPUB/compatibility/phase8-density.json"
+cp "$ARTIFACTS/run-a/assistance.json" "$ADAPTIVE_EPUB/compatibility/phase8-assistance.json"
+cmp "$ADAPTIVE_EPUB/base-fallback.epub" "$BASE_GRAMMAR_EPUB"
+cmp "$ADAPTIVE_EPUB/compatibility/phase4.epub" "$ROOT/artifacts/phase4/epub/run-a.epub"
+cmp "$ADAPTIVE_EPUB/compatibility/phase5.epub" "$ROOT/artifacts/phase5/rendered/run-a.epub"
+cmp "$ADAPTIVE_EPUB/compatibility/phase3-vocabulary.json" "$COMPAT_VOCABULARY"
+cmp "$ADAPTIVE_EPUB/compatibility/phase5-plan.json" "$COMPAT_PLAN"
+cmp "$ADAPTIVE_EPUB/compatibility/phase7-grammar-plan.json" "$SOURCE_GRAMMAR"
+cmp "$ADAPTIVE_EPUB/compatibility/phase8-rendering-report.json" "$RENDERED/run-a-report.json"
+cmp "$ADAPTIVE_EPUB/compatibility/phase8-density.json" "$DENSITY/run-a/density.json"
+cmp "$ADAPTIVE_EPUB/compatibility/phase8-assistance.json" "$ARTIFACTS/run-a/assistance.json"
+test "$(sha256sum "$BASE_GRAMMAR_EPUB" | cut -d' ' -f1)" = \
+  "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+
+"$PYTHON" -m pytest -q \
+  "$ROOT/tests/test_learner_profile.py" \
+  "$ROOT/tests/test_assistance_density.py" \
+  "$ROOT/tests/test_adaptive_rendering.py" \
+  "$ROOT/tests/test_adaptive_epub.py"
+echo "Phase 8 adaptive-EPUB regression passed; artifacts retained under artifacts/phase8/epub/."
