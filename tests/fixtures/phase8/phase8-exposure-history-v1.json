@@ -1,0 +1,81 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "hash": "42718188922e09af2b800eb98dd9ca81470fceb63606b33a457cf96f16bba6bf",
+  "id": "phase8-exposure-history-v1",
+  "provenance": "explicit-local-history",
+  "records": [
+    {
+      "count": 3,
+      "dimension": "reading",
+      "hash": "03c355e6492ee943d732485c7c0aced40bcfb030c4d7143cb7f37dd0e9f0e482",
+      "id": "phase8-exposure-0001",
+      "last_observed": {
+        "chapter_id": "ch-0001",
+        "occurrence_id": "study-item-0001-occ-0001",
+        "sentence_id": "ch-0001-b-0001-s-0001"
+      },
+      "occurrence_ids": [
+        "study-item-0001-occ-0001"
+      ],
+      "provenance": "explicit-local-history",
+      "target_id": "study-item-0001",
+      "target_kind": "vocabulary"
+    },
+    {
+      "count": 3,
+      "dimension": "meaning",
+      "hash": "f76a9d31f96da33544931cba23aec0472c8d3fbe2ff82c828eff0b231b50e4f4",
+      "id": "phase8-exposure-0002",
+      "last_observed": {
+        "chapter_id": "ch-0001",
+        "occurrence_id": "study-item-0002-occ-0001",
+        "sentence_id": "ch-0001-b-0004-s-0001"
+      },
+      "occurrence_ids": [
+        "study-item-0002-occ-0001"
+      ],
+      "provenance": "explicit-local-history",
+      "target_id": "study-item-0002",
+      "target_kind": "expression"
+    },
+    {
+      "count": 3,
+      "dimension": "grammar",
+      "hash": "400014c550b3aa5701530321763cada2edc52c95bf8be06f3fcfc65328504efc",
+      "id": "phase8-exposure-0003",
+      "last_observed": {
+        "chapter_id": "ch-0001",
+        "occurrence_id": "grammar-plan-occurrence-0001",
+        "sentence_id": "ch-0001-b-0001-s-0001"
+      },
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0001"
+      ],
+      "provenance": "explicit-local-history",
+      "target_id": "grammar-item-0001",
+      "target_kind": "grammar"
+    },
+    {
+      "count": 3,
+      "dimension": "grammar",
+      "hash": "1e5592c7925faffff08d06c7bf1c0853825d8ac22221d6266231429ab239895f",
+      "id": "phase8-exposure-0004",
+      "last_observed": {
+        "chapter_id": "ch-0001",
+        "occurrence_id": "grammar-plan-occurrence-0002",
+        "sentence_id": "ch-0001-b-0002-s-0001"
+      },
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0002"
+      ],
+      "provenance": "explicit-local-history",
+      "target_id": "grammar-item-0002",
+      "target_kind": "grammar"
+    }
+  ],
+  "schema_version": 1,
+  "source_references": {
+    "annotation_plan_hash": "734404ae6a49a2999ad593f4312da283b417c3adf0b3462bc2e54bff21aa2fce",
+    "grammar_plan_hash": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848"
+  }
+}

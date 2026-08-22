@@ -1,0 +1,28 @@
+{
+  "exposure_policy": {
+    "dimensions": [],
+    "enabled": false
+  },
+  "grammar_assistance_policy": {
+    "state": "hide-grammar"
+  },
+  "hash": "666c849b63c6f2377f00abc411f1ee8eb916cab7967f496eea3d1d8510e13454",
+  "id": "phase8-profile-hide-show",
+  "label": "Hide readings and show meanings",
+  "meaning_assistance_policy": {
+    "state": "show-meaning"
+  },
+  "overrides": [],
+  "preset_id": null,
+  "provenance": "local-synthetic-fixture",
+  "reading_assistance_policy": {
+    "state": "hide-reading"
+  },
+  "schema_version": 1,
+  "source_references": {
+    "annotation_plan_hash": "734404ae6a49a2999ad593f4312da283b417c3adf0b3462bc2e54bff21aa2fce",
+    "grammar_plan_hash": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848",
+    "preset_dataset_hash": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+    "vocabulary_hash": "4567f7fd3353344251671c47b3856ee2122f825a9308a9059e3b6f8ee952704f"
+  }
+}

@@ -863,3 +863,231 @@ overlap dispositions are conservative, and rules are independently disableable.
 The synthetic evaluation records 20 TP, 0 FP, 0 FN, and 12 TN, but those perfect
 fixture metrics do not establish production accuracy. The synthetic `〜て`
 mechanics rule remains unapproved for production use.
+
+Phase 8 learner-assistance selection
+------------------------------------
+
+The first Phase 8 slice adds a deterministic, non-rendering assistance layer.
+It consumes an explicit local learner profile, the schema-v4 vocabulary report,
+the approved schema-v2 annotation plan, and optionally a validated Phase 7
+grammar plan and explicit local exposure history. It does not alter those inputs
+or generate XHTML or EPUB content.
+
+Reading and meaning assistance are independent. Explicit profiles support all
+four combinations of `show-reading`/`hide-reading` and
+`show-meaning`/`hide-meaning`; grammar uses its own
+`show-grammar`/`hide-grammar` dimension. Publisher ruby remains visible and
+authoritative regardless of the generated-reading assistance state.
+
+The checked-in N5, N4, and N3 presets are small synthetic, explainable defaults,
+not learner diagnoses or production pedagogical claims. N5 shows all three
+assistance dimensions, N4 hides reading assistance while retaining meaning and
+grammar assistance, and N3 hides all three. Each preset records explicit
+frequency placeholders, exposure thresholds, rationale codes, provenance, and
+stable hashes.
+
+Decision precedence is publisher protection, explicit user override, preset
+policy, exposure evidence, frequency/familiarity evidence, dictionary, then
+model. Exposure is local and opt-in; a threshold can change only its configured
+reading, meaning, or grammar dimension. Overrides are item-specific, dated,
+reviewer-attributed, and dimension-specific. They never change dictionary data,
+approved meanings, item kinds, occurrences, offsets, anchors, or publisher ruby.
+
+Generate a report with:
+
+```bash
+.venv/bin/python scripts/create_assistance_selection.py \
+  --vocabulary artifacts/phase7/run-a/inputs/vocabulary.json \
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \
+  --grammar-plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --profile tests/fixtures/phase8/phase8-profile-baseline-v1.json \
+  --presets tests/fixtures/phase8/phase8-presets-v1.json \
+  --exposure-history tests/fixtures/phase8/phase8-exposure-history-v1.json \
+  --output artifacts/phase8/selection/run-a/assistance.json \
+  --enabled
+```
+
+Each result records the source item and occurrence references, authoritative
+reading provenance, an approved-meaning reference, independent assistance
+states, one effective source per applicable dimension, rationale codes,
+publisher-ruby protection, and a stable hash. It does not copy complete book or
+chapter text or create new readings, meanings, labels, or explanations.
+
+Run the complete gate with:
+
+```bash
+./scripts/phase8-regression.sh
+```
+
+The gate first runs Phase 7, then checks run-A/run-B/golden identity, all four
+state combinations, N5/N4/N3 differences, exposure thresholds, override
+precedence, publisher protection, safe failures, prior-artifact byte identity,
+and the approved Phase 7 EPUB checksum. Inspect retained output under
+`artifacts/phase8/selection/` and use
+`docs/phase8-learner-profile-review-checklist.md` for manual review.
+
+Selection is disabled unless an explicit valid profile is supplied. Disabled,
+corrupt, stale, or mismatched inputs produce bounded deterministic diagnostics
+and preserve supplied annotation and grammar plans byte-for-byte. The slice
+does not infer sensitive learner attributes, collect behavioral telemetry,
+invoke a provider, modify rendering, or implement adaptive ruby density.
+
+Phase 8 per-occurrence density planning
+---------------------------------------
+
+The second Phase 8 slice schedules the already selected reading, meaning, and
+grammar assistance states per source occurrence. It consumes only the validated
+canonical book, enriched annotation plan, optional grammar plan, assistance
+selection report, and an explicit local density-policy dataset. It does not
+re-run linguistic analysis or modify XHTML, links, notes, or EPUB files.
+
+The checked-in synthetic N5, N4, and N3 policies use independent integer
+budgets for reading, meaning, and grammar. N5 has targets of 8, 7, and 6 actions
+per 1,000 canonical characters; N4 uses 4, 4, and 2 (10 total); N3 uses 2, 2,
+and 1. Budgets use ceiling arithmetic, explicit chapter minimums and maximums,
+and canonical source-order tie-breaking. These values exercise deterministic
+mechanics only and are not production pedagogical recommendations.
+
+Publisher ruby is always preserved, never consumes generated-reading density,
+and cannot be removed by a hidden reading state. Explicit hide overrides always
+suppress their named dimension. Explicit show overrides remain selected even
+when the normal chapter budget is exhausted, with deterministic over-budget
+evidence. Repeated occurrences remain separate and the first eligible source
+occurrence is preferred. Grammar reference-only, rejected partial-overlap, and
+publisher-protected dispositions remain authoritative.
+
+Generate the baseline plan with:
+
+```bash
+.venv/bin/python scripts/create_assistance_density.py \
+  --canonical-book artifacts/phase7/run-a/inputs/book.json \
+  --annotation-plan artifacts/phase7/run-a/inputs/annotation-plan.json \
+  --grammar-plan artifacts/phase7/grammar-plan/run-a/plan.json \
+  --assistance-report artifacts/phase8/selection/run-a/assistance.json \
+  --density-policies tests/fixtures/phase8-density-policies-v1.json \
+  --policy-id phase8-density-n5 \
+  --output artifacts/phase8/density/run-a/density.json \
+  --enabled
+```
+
+Each occurrence plan records stable source references, input and planned states,
+one decision per applicable dimension, chapter budgets, override/exposure
+references, rationale codes, publisher protection, and a stable hash. Chapter
+summaries record canonical character counts and selected/suppressed counts and
+references without copying chapter text.
+
+`./scripts/phase8-regression.sh` checks run identity, strict goldens, integer
+budgets, N5/N4/N3 monotonicity, dimension independence, overrides, repetition,
+publisher protection, grammar dispositions, safe fallback, and prior-phase byte
+identity. Artifacts are retained under `artifacts/phase8/density/`; use
+`docs/phase8-adaptive-density-review-checklist.md` for manual review.
+
+Planning is disabled without explicit valid inputs. Disabled, stale, invalid,
+corrupt, or mismatched inputs emit concise deterministic diagnostics and preserve
+the supplied annotation and grammar plans byte-for-byte. The report is a
+presentation plan only: suppressed assistance is not deleted knowledge, and no
+learner attributes or inferred behavioral telemetry are collected.
+
+Phase 8 adaptive linked-XHTML rendering
+---------------------------------------
+
+The adaptive renderer consumes only validated canonical, annotation, grammar,
+assistance-selection, density-plan, and linked-XHTML inputs. It copies the
+linked XHTML into an explicit output directory and applies the per-occurrence
+plan without recalculating profiles, exposure, overrides, budgets, or overlap
+dispositions.
+
+```bash
+.venv/bin/python scripts/render_adaptive_assistance.py \
+  --source-dir tests/fixtures/phase8_rendering/source \
+  --canonical-book tests/fixtures/phase8_rendering/book.json \
+  --annotation-plan tests/fixtures/phase8_rendering/annotation-plan.json \
+  --grammar-plan tests/fixtures/phase8_rendering/grammar-plan.json \
+  --assistance-report tests/fixtures/phase8_rendering/assistance.json \
+  --density-plan tests/fixtures/phase8_rendering/density.json \
+  --output-dir artifacts/phase8/rendered/run-a \
+  --report artifacts/phase8/rendered/run-a-report.json \
+  --enabled
+```
+
+Approved non-publisher readings may be rendered as Furiganalyse-owned ruby;
+missing approved readings are deterministic no-ops. Meanings come only from an
+approved annotation-plan reference. Suppressed readings and meanings are absent
+from learner-facing markup rather than hidden with CSS, attributes, comments,
+or metadata. Stable item/note anchors remain for reversibility.
+
+Publisher ruby is never removed or rewritten and does not become generated
+assistance. Existing vocabulary, expression, and proper-name links are
+preserved. Grammar links follow the validated disposition: selected links may
+remain, while suppressed, reference-only, partial-overlap, and publisher-
+protected occurrences cannot be promoted or nested.
+
+The rendering report records bounded IDs, hashes, actions, and safe diagnostics;
+it does not copy unrelated context or expose suppressed content. Disabled and
+safe-failure operation reproduces the linked input byte-for-byte. Artifacts are
+retained under `artifacts/phase8/rendered/` and reviewed with
+`docs/phase8-adaptive-rendering-review-checklist.md`. The checked-in values are
+legal synthetic mechanics data, not production readings, meanings, density
+recommendations, learner diagnoses, or JLPT validation. This slice does not
+modify or package an EPUB.
+
+Phase 8 adaptive-assistance EPUB packaging
+------------------------------------------
+
+The adaptive packager consumes the validated adaptive-rendering report, its
+four XHTML outputs, explicit synthetic package metadata, and the approved local
+Phase 7 grammar EPUB. It does not recalculate learner state, density, rendering,
+links, meanings, readings, or grammar dispositions, and it never modifies its
+inputs in place.
+
+```bash
+.venv/bin/python scripts/build_phase8_epub_metadata.py \
+  --base-epub artifacts/phase7/epub/run-a.epub \
+  --rendering-report artifacts/phase8/rendered/run-a-report.json \
+  --adaptive-dir artifacts/phase8/rendered/run-a \
+  --output artifacts/phase8/epub/package-metadata.json
+
+.venv/bin/python scripts/package_adaptive_epub.py \
+  --base-epub artifacts/phase7/epub/run-a.epub \
+  --rendering-report artifacts/phase8/rendered/run-a-report.json \
+  --adaptive-dir artifacts/phase8/rendered/run-a \
+  --package-metadata artifacts/phase8/epub/package-metadata.json \
+  --output artifacts/phase8/epub/run-a.epub \
+  --report artifacts/phase8/epub/run-a-report.json \
+  --enabled --safe
+```
+
+The minimal EPUB has eight deterministic members. Its spine and navigation are
+the two synthetic chapters, Study Notes, then Grammar Study Notes, retaining
+separate vocabulary and grammar navigation entries. The packaged XHTML is
+byte-identical to the approved adaptive output: one generated reading (`前` /
+`まえ`), one displayed approved meaning (`to read`), five study links and
+backlinks, two grammar links and backlinks, three grammar notes, and three
+contexts. Publisher ruby remains authoritative and unchanged.
+
+Suppressed assistance is absent, not CSS-hidden or copied into attributes,
+comments, metadata, or diagnostics. Disabled or invalid operation returns the
+Phase 7 base EPUB byte-for-byte with a concise reason code. Packaging reports
+contain bounded structural hashes and counts, not learner identity, profile
+labels, exposure history, reviewer notes, source paths, provider data, or book
+text. Outputs are retained under `artifacts/phase8/epub/`; the checked-in
+structural golden fixes the output checksum and archive structure. Use
+`docs/phase8-adaptive-epub-review-checklist.md` for the later Calibre 8.14
+review.
+
+This legal synthetic fixture demonstrates deterministic mechanics only. It is
+not a pedagogical recommendation, JLPT assessment, production dictionary
+approval, or statement about a real learner. Packaging does not run Calibre or
+modify OPF, navigation, XHTML, or EPUB inputs in place.
+
+Phase 8 is complete. It provides deterministic learner profiles, all four
+independent reading/meaning combinations, and independent grammar assistance.
+Synthetic N5/N4/N3 presets are explainable defaults rather than diagnoses;
+explicit overrides outrank preset, explicit local exposure, and density
+heuristics. Per-occurrence reading, meaning, and grammar budgets are separate,
+publisher ruby remains authoritative, and suppressed assistance is omitted
+rather than concealed or deleted. Adaptive XHTML and EPUB packaging preserve
+separate Study Notes and Grammar Study Notes. The approved synthetic adaptive
+EPUB SHA-256 is
+`2e8e5853af1bb2b25b3f4cd2283dd755baff251b5896f0ddbcee3fb95b7d7749`.
+These synthetic mechanics do not establish pedagogical or JLPT validity.

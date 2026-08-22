@@ -1,0 +1,106 @@
+{
+  "dataset_id": "furiganalyse-synthetic-density-policies",
+  "dataset_version": "2026-08-21",
+  "fixture_notice": "Synthetic deterministic density mechanics fixture; not a pedagogical recommendation.",
+  "hash": "4bca4af5426d6f1eaa1fc0d1c14be61d4d006b1c8d0bb39c8ea90bf82d8a0f65",
+  "policies": [
+    {
+      "explicit_override_handling": "show-forced-hide-suppressed-dimension-only",
+      "hash": "a9444e5f570cae6d9f7633e19a8aaa81c971adf43abaa155a2c7ccdeccda899f",
+      "id": "phase8-density-n5",
+      "maximum_per_chapter": {
+        "grammar": 4,
+        "meaning": 4,
+        "reading": 4
+      },
+      "minimum_per_chapter": {
+        "grammar": 1,
+        "meaning": 1,
+        "reading": 1
+      },
+      "preset_id": "phase8-preset-n5",
+      "publisher_ruby_counting_policy": "preserve-without-generated-reading-budget",
+      "rationale_codes": [
+        "synthetic-n5-density-target",
+        "independent-dimension-budgets",
+        "canonical-source-order"
+      ],
+      "repeated_occurrence_handling": "first-eligible-source-occurrence-before-later",
+      "rounding_policy": "ceiling-integer",
+      "schema_version": 1,
+      "source_order_tie_breaking": "canonical-source-order",
+      "source_provenance": "local-synthetic-density-fixture",
+      "targets_per_1000": {
+        "grammar": 6,
+        "meaning": 7,
+        "reading": 8
+      }
+    },
+    {
+      "explicit_override_handling": "show-forced-hide-suppressed-dimension-only",
+      "hash": "2ff8b6304f6cdcc5c0b64fe51809ec547be965aac8f449766b786009857ea10b",
+      "id": "phase8-density-n4",
+      "maximum_per_chapter": {
+        "grammar": 3,
+        "meaning": 3,
+        "reading": 3
+      },
+      "minimum_per_chapter": {
+        "grammar": 1,
+        "meaning": 1,
+        "reading": 1
+      },
+      "preset_id": "phase8-preset-n4",
+      "publisher_ruby_counting_policy": "preserve-without-generated-reading-budget",
+      "rationale_codes": [
+        "synthetic-n4-density-target",
+        "independent-dimension-budgets",
+        "canonical-source-order"
+      ],
+      "repeated_occurrence_handling": "first-eligible-source-occurrence-before-later",
+      "rounding_policy": "ceiling-integer",
+      "schema_version": 1,
+      "source_order_tie_breaking": "canonical-source-order",
+      "source_provenance": "local-synthetic-density-fixture",
+      "targets_per_1000": {
+        "grammar": 2,
+        "meaning": 4,
+        "reading": 4
+      }
+    },
+    {
+      "explicit_override_handling": "show-forced-hide-suppressed-dimension-only",
+      "hash": "8158abb64b2fb378a1f36fcd909fe5ec497f07034921c9b84bd6f395086d6242",
+      "id": "phase8-density-n3",
+      "maximum_per_chapter": {
+        "grammar": 2,
+        "meaning": 2,
+        "reading": 2
+      },
+      "minimum_per_chapter": {
+        "grammar": 1,
+        "meaning": 1,
+        "reading": 1
+      },
+      "preset_id": "phase8-preset-n3",
+      "publisher_ruby_counting_policy": "preserve-without-generated-reading-budget",
+      "rationale_codes": [
+        "synthetic-n3-density-target",
+        "independent-dimension-budgets",
+        "canonical-source-order"
+      ],
+      "repeated_occurrence_handling": "first-eligible-source-occurrence-before-later",
+      "rounding_policy": "ceiling-integer",
+      "schema_version": 1,
+      "source_order_tie_breaking": "canonical-source-order",
+      "source_provenance": "local-synthetic-density-fixture",
+      "targets_per_1000": {
+        "grammar": 1,
+        "meaning": 2,
+        "reading": 2
+      }
+    }
+  ],
+  "schema_version": 1,
+  "source_provenance": "local-synthetic-density-fixture"
+}

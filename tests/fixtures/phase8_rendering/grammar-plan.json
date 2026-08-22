@@ -1,0 +1,494 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "config": {
+    "enabled": true,
+    "include_synthetic_mechanics": false,
+    "per_chapter_item_limit": 4
+  },
+  "dataset": {
+    "id": "furiganalyse-synthetic-grammar",
+    "source_provenance": "locally curated synthetic fixture",
+    "version": "2026-08-18"
+  },
+  "diagnostics": [
+    {
+      "chapter_id": "ch-0001",
+      "hash": "84791d9f61376ace309fd702fc8c3a93fd09feceb6d2536b08f5a1de3ce433c6",
+      "id": "grammar-plan-diagnostic-0001",
+      "reason": "synthetic-mechanics-rule",
+      "source_id": "grammar-candidate-0005"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "hash": "77d620d8d3740602c37808e483adb8b3b9cbe36dca8b03aa707c5c87957f3e3e",
+      "id": "grammar-plan-diagnostic-0002",
+      "reason": "publisher-ruby-conflict",
+      "source_id": "grammar-diagnostic-0004"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "hash": "012ed2f65c5062101a840a2c79c767f66a70a6ec0d37ecfb07d9464cdf637f82",
+      "id": "grammar-plan-diagnostic-0003",
+      "reason": "publisher-ruby-conflict",
+      "source_id": "grammar-diagnostic-0005"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "hash": "0dd882fc1ba0b10d00c1a4d05bbd83a82f04780f8281fa1aee47caa0c3b71468",
+      "id": "grammar-plan-diagnostic-0004",
+      "reason": "containing-overlap",
+      "source_id": "grammar-occurrence-0001"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "hash": "01d2ce3683c6fac34a2a182ef8dbe7b2b31a87ad531f6b083208a03b7df941aa",
+      "id": "grammar-plan-diagnostic-0005",
+      "reason": "partial-overlap-rejected",
+      "source_id": "grammar-occurrence-0003"
+    },
+    {
+      "chapter_id": "ch-0001",
+      "hash": "6b443c697a1d7a80150da28311d4614a55a12b165f09c45a7125495195bb7f84",
+      "id": "grammar-plan-diagnostic-0006",
+      "reason": "exact-span-overlap",
+      "source_id": "grammar-occurrence-0004"
+    }
+  ],
+  "items": [
+    {
+      "book_count": 3,
+      "canonical_key": "〜ている",
+      "chapter_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 3
+        }
+      ],
+      "dataset_id": "furiganalyse-synthetic-grammar",
+      "dataset_source_provenance": "locally curated synthetic fixture",
+      "dataset_version": "2026-08-18",
+      "explanation": "Marks an ongoing action or resulting state.",
+      "formation_patterns": [
+        "verb te-form + いる"
+      ],
+      "grammar_candidate_id": "grammar-candidate-0001",
+      "hash": "ea3b7ad707b38d079de3aaad6b74cdcc02b8d28b930c9fe5c3edf6463c04a8a1",
+      "id": "grammar-item-0001",
+      "label": "ongoing or resulting state",
+      "note_anchor_id": "grammar-note-0001",
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0001",
+        "grammar-plan-occurrence-0005",
+        "grammar-plan-occurrence-0006"
+      ],
+      "rule_hash": "d44b1b4772043d8335adbc249596989008768a4435c7ba043cefbf001468997e",
+      "rule_id": "grammar-rule-0001",
+      "selection_reason": "exact-curated-rule-within-chapter-limit",
+      "selection_status": "selected",
+      "source_provenance": "synthetic-curated-test-rule",
+      "usage_labels": []
+    },
+    {
+      "book_count": 1,
+      "canonical_key": "〜たことがある",
+      "chapter_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 1
+        }
+      ],
+      "dataset_id": "furiganalyse-synthetic-grammar",
+      "dataset_source_provenance": "locally curated synthetic fixture",
+      "dataset_version": "2026-08-18",
+      "explanation": "Marks past experience.",
+      "formation_patterns": [
+        "verb past form + ことがある"
+      ],
+      "grammar_candidate_id": "grammar-candidate-0002",
+      "hash": "b643468f8d72da91ad2a0170037aa8c38b259a40a69064614c67b30098d4386b",
+      "id": "grammar-item-0002",
+      "label": "past experience",
+      "note_anchor_id": "grammar-note-0002",
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0002"
+      ],
+      "rule_hash": "5ef13208b72448a957c660350e1aa69d9b8eea8993eaafb2e39862159c0425e4",
+      "rule_id": "grammar-rule-0002",
+      "selection_reason": "exact-curated-rule-within-chapter-limit",
+      "selection_status": "selected",
+      "source_provenance": "synthetic-curated-test-rule",
+      "usage_labels": []
+    },
+    {
+      "book_count": 1,
+      "canonical_key": "〜ようにする",
+      "chapter_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 1
+        }
+      ],
+      "dataset_id": "furiganalyse-synthetic-grammar",
+      "dataset_source_provenance": "locally curated synthetic fixture",
+      "dataset_version": "2026-08-18",
+      "explanation": "Marks a deliberate effort or habit.",
+      "formation_patterns": [
+        "plain form + ようにする"
+      ],
+      "grammar_candidate_id": "grammar-candidate-0003",
+      "hash": "ce037b1d30ee62439253d6955b8a63a0ec2ca73a7d69ddbe3f61160b2cdf14fb",
+      "id": "grammar-item-0003",
+      "label": "make an effort to",
+      "note_anchor_id": "grammar-note-0003",
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0003"
+      ],
+      "rule_hash": "86915fff8eb1992a6970c8cfff78c81d69d9dceb70de72daed62229febedde3c",
+      "rule_id": "grammar-rule-0004",
+      "selection_reason": "exact-curated-rule-within-chapter-limit",
+      "selection_status": "selected",
+      "source_provenance": "synthetic-curated-test-rule",
+      "usage_labels": []
+    },
+    {
+      "book_count": 1,
+      "canonical_key": "〜てしまう",
+      "chapter_counts": [
+        {
+          "chapter_id": "ch-0001",
+          "count": 1
+        }
+      ],
+      "dataset_id": "furiganalyse-synthetic-grammar",
+      "dataset_source_provenance": "locally curated synthetic fixture",
+      "dataset_version": "2026-08-18",
+      "explanation": "Marks completion or an unintended result.",
+      "formation_patterns": [
+        "verb te-form + しまう"
+      ],
+      "grammar_candidate_id": "grammar-candidate-0004",
+      "hash": "21f26077aaf837bc0cd4bfa5cb2dd4171a7ee9b0ef1046213a3c0a250437c30e",
+      "id": "grammar-item-0004",
+      "label": "finish; unfortunately do",
+      "note_anchor_id": "grammar-note-0004",
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0004"
+      ],
+      "rule_hash": "4a0b73d32ffecec3a0955b849dee740e6f4f09bbfe6702720e6044f41033b2c5",
+      "rule_id": "grammar-rule-0005",
+      "selection_reason": "exact-curated-rule-within-chapter-limit",
+      "selection_status": "selected",
+      "source_provenance": "synthetic-curated-test-rule",
+      "usage_labels": []
+    },
+    {
+      "book_count": 1,
+      "canonical_key": "〜なければならない",
+      "chapter_counts": [
+        {
+          "chapter_id": "ch-0002",
+          "count": 1
+        }
+      ],
+      "dataset_id": "furiganalyse-synthetic-grammar",
+      "dataset_source_provenance": "locally curated synthetic fixture",
+      "dataset_version": "2026-08-18",
+      "explanation": "Marks obligation or necessity.",
+      "formation_patterns": [
+        "negative conditional + ならない"
+      ],
+      "grammar_candidate_id": "grammar-candidate-0006",
+      "hash": "4d7d39e8e22fa7360f33b59e77a11d962a2294cc35300198c117a9f19262ac3d",
+      "id": "grammar-item-0005",
+      "label": "must; have to",
+      "note_anchor_id": "grammar-note-0005",
+      "occurrence_ids": [
+        "grammar-plan-occurrence-0007"
+      ],
+      "rule_hash": "9c62406dcb4590017049d3006658de9cf1ee7cd8239d30fd5e2c303dcb65d17d",
+      "rule_id": "grammar-rule-0003",
+      "selection_reason": "exact-curated-rule-within-chapter-limit",
+      "selection_status": "selected",
+      "source_provenance": "synthetic-curated-test-rule",
+      "usage_labels": [
+        "neutral"
+      ]
+    }
+  ],
+  "occurrences": [
+    {
+      "block_end": 7,
+      "block_id": "ch-0001-b-0001",
+      "block_start": 2,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0001-s-0001-tok-0003",
+        "ch-0001-b-0001-s-0001-tok-0004",
+        "ch-0001-b-0001-s-0001-tok-0005"
+      ],
+      "hash": "bdc69560c4bc1b72c7ce8f151cf02b2168f6a7a3a075022205b3edbefc078bdd",
+      "id": "grammar-plan-occurrence-0001",
+      "link_disposition": "grammar-note-reference-only",
+      "overlap_disposition": "contains-vocabulary",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0001-s-0001-tok-0003-cand",
+        "ch-0001-b-0001-s-0001-tok-0004-cand",
+        "ch-0001-b-0001-s-0001-tok-0005-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 7,
+      "sentence_id": "ch-0001-b-0001-s-0001",
+      "sentence_record_id": "ch-0001-b-0001-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0001",
+      "source_grammar_occurrence_id": "grammar-occurrence-0001",
+      "surface": "読んでいる"
+    },
+    {
+      "block_end": 11,
+      "block_id": "ch-0001-b-0002",
+      "block_start": 3,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004",
+        "ch-0001-b-0002-s-0001-tok-0005",
+        "ch-0001-b-0002-s-0001-tok-0006",
+        "ch-0001-b-0002-s-0001-tok-0007",
+        "ch-0001-b-0002-s-0001-tok-0008"
+      ],
+      "hash": "461f98d53a80a69fe5e9af7a45aaaa7446454ac4008f0d14af99c01d21dd698a",
+      "id": "grammar-plan-occurrence-0002",
+      "link_disposition": "separate-nonoverlapping-links",
+      "overlap_disposition": "no-overlap",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0002-s-0001-tok-0004-cand",
+        "ch-0001-b-0002-s-0001-tok-0005-cand",
+        "ch-0001-b-0002-s-0001-tok-0006-cand",
+        "ch-0001-b-0002-s-0001-tok-0007-cand",
+        "ch-0001-b-0002-s-0001-tok-0008-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 11,
+      "sentence_id": "ch-0001-b-0002-s-0001",
+      "sentence_record_id": "ch-0001-b-0002-s-0001",
+      "sentence_start": 3,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0002",
+      "source_grammar_occurrence_id": "grammar-occurrence-0002",
+      "surface": "読んだことがある"
+    },
+    {
+      "block_end": 9,
+      "block_id": "ch-0001-b-0003",
+      "block_start": 2,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0003-s-0001-tok-0002",
+        "ch-0001-b-0003-s-0001-tok-0003",
+        "ch-0001-b-0003-s-0001-tok-0004",
+        "ch-0001-b-0003-s-0001-tok-0005"
+      ],
+      "hash": "40135f650479e8aa6eaf26b8dfe39241efb6e4db20aea7329389a00765879b17",
+      "id": "grammar-plan-occurrence-0003",
+      "link_disposition": "rejected-ambiguous-overlap",
+      "overlap_disposition": "partial-overlap",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0003-s-0001-tok-0002-cand",
+        "ch-0001-b-0003-s-0001-tok-0003-cand",
+        "ch-0001-b-0003-s-0001-tok-0004-cand",
+        "ch-0001-b-0003-s-0001-tok-0005-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 9,
+      "sentence_id": "ch-0001-b-0003-s-0001",
+      "sentence_record_id": "ch-0001-b-0003-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0003",
+      "source_grammar_occurrence_id": "grammar-occurrence-0003",
+      "surface": "読むようにする"
+    },
+    {
+      "block_end": 6,
+      "block_id": "ch-0001-b-0004",
+      "block_start": 0,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0004-s-0001-tok-0001",
+        "ch-0001-b-0004-s-0001-tok-0002",
+        "ch-0001-b-0004-s-0001-tok-0003"
+      ],
+      "hash": "971e575c0132628dbe8bce7e6b0c75fbab8409cdb5b5d0aa3c13f5e921ef798f",
+      "id": "grammar-plan-occurrence-0004",
+      "link_disposition": "grammar-note-reference-only",
+      "overlap_disposition": "exact-span",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0004-s-0001-tok-0001-cand",
+        "ch-0001-b-0004-s-0001-tok-0002-cand",
+        "ch-0001-b-0004-s-0001-tok-0003-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 6,
+      "sentence_id": "ch-0001-b-0004-s-0001",
+      "sentence_record_id": "ch-0001-b-0004-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0004",
+      "source_grammar_occurrence_id": "grammar-occurrence-0004",
+      "surface": "忘れてしまう"
+    },
+    {
+      "block_end": 7,
+      "block_id": "ch-0001-b-0005",
+      "block_start": 2,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0005-s-0001-tok-0002",
+        "ch-0001-b-0005-s-0001-tok-0003",
+        "ch-0001-b-0005-s-0001-tok-0004"
+      ],
+      "hash": "b79021f49323354d1fdb4651c4ba85b3eb06edfab0c595ef4bf288048bbf0729",
+      "id": "grammar-plan-occurrence-0005",
+      "link_disposition": "grammar-link",
+      "overlap_disposition": "no-overlap",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0005-s-0001-tok-0002-cand",
+        "ch-0001-b-0005-s-0001-tok-0003-cand",
+        "ch-0001-b-0005-s-0001-tok-0004-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 7,
+      "sentence_id": "ch-0001-b-0005-s-0001",
+      "sentence_record_id": "ch-0001-b-0005-s-0001",
+      "sentence_start": 2,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0005",
+      "source_grammar_occurrence_id": "grammar-occurrence-0005",
+      "surface": "読んでいる"
+    },
+    {
+      "block_end": 8,
+      "block_id": "ch-0001-b-0008",
+      "block_start": 3,
+      "chapter_id": "ch-0001",
+      "component_token_ids": [
+        "ch-0001-b-0008-s-0001-tok-0002",
+        "ch-0001-b-0008-s-0001-tok-0003",
+        "ch-0001-b-0008-s-0001-tok-0004"
+      ],
+      "hash": "cbec7adea1907d4a6c8fc88d725c4453b09c5101583f70d5893558340226cda0",
+      "id": "grammar-plan-occurrence-0006",
+      "link_disposition": "publisher-ruby-preserved",
+      "overlap_disposition": "publisher-ruby-protected",
+      "overlapping_candidate_ids": [
+        "ch-0001-b-0008-s-0001-tok-0002-cand",
+        "ch-0001-b-0008-s-0001-tok-0003-cand",
+        "ch-0001-b-0008-s-0001-tok-0004-cand"
+      ],
+      "publisher_ruby_interaction": "adjacent-preserved-publisher-ruby",
+      "sentence_end": 8,
+      "sentence_id": "ch-0001-b-0008-s-0001",
+      "sentence_record_id": "ch-0001-b-0008-s-0001",
+      "sentence_start": 3,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0007",
+      "source_grammar_occurrence_id": "grammar-occurrence-0007",
+      "surface": "読んでいる"
+    },
+    {
+      "block_end": 10,
+      "block_id": "ch-0002-b-0001",
+      "block_start": 0,
+      "chapter_id": "ch-0002",
+      "component_token_ids": [
+        "ch-0002-b-0001-s-0001-tok-0001",
+        "ch-0002-b-0001-s-0001-tok-0002",
+        "ch-0002-b-0001-s-0001-tok-0003",
+        "ch-0002-b-0001-s-0001-tok-0004",
+        "ch-0002-b-0001-s-0001-tok-0005"
+      ],
+      "hash": "52dc51f40635893be47a3c969e6c2f1a8b2c7221741a982e40a9c4839aca8689",
+      "id": "grammar-plan-occurrence-0007",
+      "link_disposition": "grammar-link",
+      "overlap_disposition": "no-overlap",
+      "overlapping_candidate_ids": [
+        "ch-0002-b-0001-s-0001-tok-0001-cand",
+        "ch-0002-b-0001-s-0001-tok-0002-cand",
+        "ch-0002-b-0001-s-0001-tok-0003-cand",
+        "ch-0002-b-0001-s-0001-tok-0004-cand",
+        "ch-0002-b-0001-s-0001-tok-0005-cand"
+      ],
+      "publisher_ruby_interaction": "none",
+      "sentence_end": 10,
+      "sentence_id": "ch-0002-b-0001-s-0001",
+      "sentence_record_id": "ch-0002-b-0001-s-0001",
+      "sentence_start": 0,
+      "source_anchor_id": "grammar-src-grammar-occurrence-0008",
+      "source_grammar_occurrence_id": "grammar-occurrence-0008",
+      "surface": "行かなければならない"
+    }
+  ],
+  "overlaps": [
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0001",
+      "hash": "ba05af79bcc35430a0b0d10ec7d94b6c64a05db3ff9cfaa9292f9194b8e0e559",
+      "id": "grammar-overlap-0001",
+      "reason": "grammar-contains-existing-vocabulary-link",
+      "relationship": "contains-vocabulary",
+      "vocabulary_item_id": "study-item-0001",
+      "vocabulary_kind": "vocabulary",
+      "vocabulary_link_preserved": true,
+      "vocabulary_occurrence_id": "study-item-0001-occ-0001"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0002",
+      "hash": "a19c15943130a3a5adafc27339ddf60d960bea9900dba1aa8d9f6692e0093069",
+      "id": "grammar-overlap-0002",
+      "reason": "same-sentence-nonoverlapping-links",
+      "relationship": "no-overlap",
+      "vocabulary_item_id": "study-item-0005",
+      "vocabulary_kind": "name",
+      "vocabulary_link_preserved": true,
+      "vocabulary_occurrence_id": "study-item-0005-occ-0001"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0003",
+      "hash": "f8efbbfa8d422ab2cd6ec31a802d2d3881498868e97156addee8d08aa46026c3",
+      "id": "grammar-overlap-0003",
+      "reason": "unsafe-partial-overlap-preserve-vocabulary-link",
+      "relationship": "partial-overlap",
+      "vocabulary_item_id": "study-item-0003",
+      "vocabulary_kind": "vocabulary",
+      "vocabulary_link_preserved": true,
+      "vocabulary_occurrence_id": "study-item-0003-occ-0001"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0004",
+      "hash": "e1d5a4c688f3e2274a3cdcc3edd990131e574786be877ba5cbc15772bedc4f6b",
+      "id": "grammar-overlap-0004",
+      "reason": "exact-span-preserve-vocabulary-link",
+      "relationship": "exact-span",
+      "vocabulary_item_id": "study-item-0002",
+      "vocabulary_kind": "expression",
+      "vocabulary_link_preserved": true,
+      "vocabulary_occurrence_id": "study-item-0002-occ-0001"
+    },
+    {
+      "grammar_occurrence_id": "grammar-occurrence-0007",
+      "hash": "02038e9445e3da5694341e71a09909e8bf10d737344cacb0efdbd6aee5830d62",
+      "id": "grammar-overlap-0005",
+      "reason": "publisher-ruby-precedence",
+      "relationship": "publisher-ruby-protected",
+      "vocabulary_item_id": "study-item-0004",
+      "vocabulary_kind": "vocabulary",
+      "vocabulary_link_preserved": true,
+      "vocabulary_occurrence_id": "study-item-0004-occ-0001"
+    }
+  ],
+  "schema_version": 1,
+  "source_annotation_plan_schema_version": 2,
+  "source_book_schema_version": 2,
+  "source_grammar_report_schema_version": 1,
+  "source_hashes": {
+    "annotation_plan": "734404ae6a49a2999ad593f4312da283b417c3adf0b3462bc2e54bff21aa2fce",
+    "book": "f36d8d46b175cae78160fba0a8c604d1b33bf60137b23e14e1741cb91a129688",
+    "grammar_report": "e3d745b57d63cb17ffe81625d9785d24016945dd371c3dbc771aa521b826f123",
+    "vocabulary": "4567f7fd3353344251671c47b3856ee2122f825a9308a9059e3b6f8ee952704f"
+  },
+  "source_vocabulary_schema_version": 4
+}

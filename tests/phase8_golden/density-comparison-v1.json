@@ -1,0 +1,37 @@
+{
+  "fixture_notice": "Synthetic density comparison; not a pedagogical recommendation.",
+  "hash": "a6f1af88ff9052b60dad6782cd8f4464c86e65f95aeb2934f020ce86e8ae8c70",
+  "profiles": [
+    {
+      "level": "N5",
+      "policy_id": "phase8-density-n5",
+      "report_hash": "52d02a23070fe207dbdf03d41aeb8107c0e2c3038730ca1ba818a44b6c57b193",
+      "selected_counts": {
+        "grammar": 2,
+        "meaning": 1,
+        "reading": 1
+      }
+    },
+    {
+      "level": "N4",
+      "policy_id": "phase8-density-n4",
+      "report_hash": "af2ec8ab17dcdadaf8f8d9a28812701d42416459b265b58964912f683524206b",
+      "selected_counts": {
+        "grammar": 2,
+        "meaning": 1,
+        "reading": 0
+      }
+    },
+    {
+      "level": "N3",
+      "policy_id": "phase8-density-n3",
+      "report_hash": "364b30a4b94d126072da75f8184e2db41cd5e024b16f2204a31e52692ec205b6",
+      "selected_counts": {
+        "grammar": 0,
+        "meaning": 0,
+        "reading": 0
+      }
+    }
+  ],
+  "schema_version": 1
+}

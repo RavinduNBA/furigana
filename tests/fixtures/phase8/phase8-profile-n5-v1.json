@@ -1,0 +1,28 @@
+{
+  "exposure_policy": {
+    "dimensions": [],
+    "enabled": false
+  },
+  "grammar_assistance_policy": {
+    "state": "preset"
+  },
+  "hash": "ed8eabc7f04c6a13228557e935bf05e370df1e9923d905246a55f9944dec749f",
+  "id": "phase8-profile-n5",
+  "label": "Synthetic N5 defaults",
+  "meaning_assistance_policy": {
+    "state": "preset"
+  },
+  "overrides": [],
+  "preset_id": "phase8-preset-n5",
+  "provenance": "local-synthetic-fixture",
+  "reading_assistance_policy": {
+    "state": "preset"
+  },
+  "schema_version": 1,
+  "source_references": {
+    "annotation_plan_hash": "734404ae6a49a2999ad593f4312da283b417c3adf0b3462bc2e54bff21aa2fce",
+    "grammar_plan_hash": "eeb7c397666fed94f976b460ee45e1180432106006388cd14d5e54a383cc4848",
+    "preset_dataset_hash": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+    "vocabulary_hash": "4567f7fd3353344251671c47b3856ee2122f825a9308a9059e3b6f8ee952704f"
+  }
+}

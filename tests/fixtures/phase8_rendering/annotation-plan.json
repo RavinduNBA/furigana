@@ -1,0 +1,205 @@
+{
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "config": {
+    "per_chapter_limit": 0
+  },
+  "diagnostics": [],
+  "enrichment_diagnostics": [],
+  "enrichments": [],
+  "items": [
+    {
+      "adaptive_fixture_provenance": "local-synthetic-rendering-fixture",
+      "display_meaning": "to read",
+      "id": "study-item-0001",
+      "kind": "vocabulary",
+      "note_anchor_id": "note-study-item-0001",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 4,
+          "block_id": "ch-0001-b-0001",
+          "block_start": 2,
+          "candidate_ids": [
+            "ch-0001-b-0001-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0001-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 4,
+          "sentence_id": "ch-0001-b-0001-s-0001",
+          "sentence_start": 2,
+          "source_anchor_id": "src-study-item-0001-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0001-s-0001-tok-0003"
+          ]
+        }
+      ],
+      "reading": "よん",
+      "reading_source": "local-synthetic-approved-reading",
+      "selected_entry_id": "entry-0001",
+      "selected_sense_id": "sense-0001",
+      "selected_translation_id": null,
+      "surface": "読ん"
+    },
+    {
+      "adaptive_fixture_provenance": "local-synthetic-rendering-fixture",
+      "display_meaning": "to forget completely",
+      "id": "study-item-0002",
+      "kind": "expression",
+      "note_anchor_id": "note-study-item-0002",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 6,
+          "block_id": "ch-0001-b-0004",
+          "block_start": 0,
+          "candidate_ids": [
+            "ch-0001-b-0004-s-0001-tok-0001-cand",
+            "ch-0001-b-0004-s-0001-tok-0002-cand",
+            "ch-0001-b-0004-s-0001-tok-0003-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0002-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 6,
+          "sentence_id": "ch-0001-b-0004-s-0001",
+          "sentence_start": 0,
+          "source_anchor_id": "src-study-item-0002-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0004-s-0001-tok-0001",
+            "ch-0001-b-0004-s-0001-tok-0002",
+            "ch-0001-b-0004-s-0001-tok-0003"
+          ]
+        }
+      ],
+      "reading": null,
+      "reading_source": null,
+      "selected_entry_id": "entry-0002",
+      "selected_sense_id": "sense-0002",
+      "selected_translation_id": null,
+      "surface": "忘れてしまう"
+    },
+    {
+      "adaptive_fixture_provenance": "local-synthetic-rendering-fixture",
+      "display_meaning": "to read every day",
+      "id": "study-item-0003",
+      "kind": "vocabulary",
+      "note_anchor_id": "note-study-item-0003",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 4,
+          "block_id": "ch-0001-b-0003",
+          "block_start": 0,
+          "candidate_ids": [
+            "ch-0001-b-0003-s-0001-tok-0001-cand",
+            "ch-0001-b-0003-s-0001-tok-0002-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0003-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 4,
+          "sentence_id": "ch-0001-b-0003-s-0001",
+          "sentence_start": 0,
+          "source_anchor_id": "src-study-item-0003-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0003-s-0001-tok-0001",
+            "ch-0001-b-0003-s-0001-tok-0002"
+          ]
+        }
+      ],
+      "reading": "まいにちよむ",
+      "reading_source": "local-synthetic-approved-reading",
+      "selected_entry_id": "entry-0003",
+      "selected_sense_id": "sense-0003",
+      "selected_translation_id": null,
+      "surface": "毎日読む"
+    },
+    {
+      "adaptive_fixture_provenance": "local-synthetic-rendering-fixture",
+      "display_meaning": "public stage",
+      "id": "study-item-0004",
+      "kind": "vocabulary",
+      "note_anchor_id": "note-study-item-0004",
+      "occurrences": [
+        {
+          "annotation_target": "preserved_publisher_ruby",
+          "block_end": 3,
+          "block_id": "ch-0001-b-0008",
+          "block_start": 0,
+          "candidate_ids": [
+            "ch-0001-b-0008-s-0001-tok-0001-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0004-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": "ch-0001-b-0008-r-0001",
+          "sentence_end": 3,
+          "sentence_id": "ch-0001-b-0008-s-0001",
+          "sentence_start": 0,
+          "source_anchor_id": "src-study-item-0004-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0008-s-0001-tok-0001"
+          ]
+        }
+      ],
+      "reading": "おもてぶたい",
+      "reading_source": "publisher",
+      "selected_entry_id": "entry-0004",
+      "selected_sense_id": "sense-0004",
+      "selected_translation_id": null,
+      "surface": "表舞台"
+    },
+    {
+      "adaptive_fixture_provenance": "local-synthetic-rendering-fixture",
+      "display_meaning": "Mae (synthetic name)",
+      "id": "study-item-0005",
+      "kind": "name",
+      "note_anchor_id": "note-study-item-0005",
+      "occurrences": [
+        {
+          "annotation_target": "text",
+          "block_end": 1,
+          "block_id": "ch-0001-b-0002",
+          "block_start": 0,
+          "candidate_ids": [
+            "ch-0001-b-0002-s-0001-tok-0001-cand"
+          ],
+          "chapter_id": "ch-0001",
+          "expression_id": null,
+          "id": "study-item-0005-occ-0001",
+          "name_id": null,
+          "occurrence_number": 1,
+          "publisher_ruby_id": null,
+          "sentence_end": 1,
+          "sentence_id": "ch-0001-b-0002-s-0001",
+          "sentence_start": 0,
+          "source_anchor_id": "src-study-item-0005-occ-0001",
+          "token_ids": [
+            "ch-0001-b-0002-s-0001-tok-0001"
+          ]
+        }
+      ],
+      "reading": "まえ",
+      "reading_source": "local-synthetic-approved-name-reading",
+      "selected_entry_id": null,
+      "selected_sense_id": null,
+      "selected_translation_id": "translation-0005",
+      "surface": "前"
+    }
+  ],
+  "schema_version": 2,
+  "source_annotation_plan_schema_version": 1,
+  "source_report_schema_version": 4
+}

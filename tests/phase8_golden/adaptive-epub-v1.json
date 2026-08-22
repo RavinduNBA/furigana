@@ -1,0 +1,307 @@
+{
+  "archive_members": [
+    {
+      "compressed_size": 20,
+      "compression": "stored",
+      "crc": 749429103,
+      "creator_system": 3,
+      "hash": "d4c73cf70087ee000f89bb5827c364377522e77db3bf3248bab6679da5626f6c",
+      "id": "adaptive-epub-member-0001",
+      "manifest_id": null,
+      "path": "mimetype",
+      "permissions": "0o100644",
+      "sha256": "e468e350d1143eb648f60c7b0bd6031101ec0544a361ca74ecef256ac901f48b",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 20
+    },
+    {
+      "compressed_size": 273,
+      "compression": "deflated",
+      "crc": 2308789248,
+      "creator_system": 3,
+      "hash": "262ed1dd72c475dd6cfe087b369cd1d752d382e935f0a2d9b06ec67a01fcbf1a",
+      "id": "adaptive-epub-member-0002",
+      "manifest_id": "nav",
+      "path": "EPUB/nav.xhtml",
+      "permissions": "0o100644",
+      "sha256": "b73efd3911dcad69a8ebdaf9e447167647a78b094f66ddd247eda07ea055465e",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 531
+    },
+    {
+      "compressed_size": 458,
+      "compression": "deflated",
+      "crc": 3078790741,
+      "creator_system": 3,
+      "hash": "80a580cf81707a31fcaaed90ff9dea0a39a831ad348aa849c23396b36a75bd18",
+      "id": "adaptive-epub-member-0003",
+      "manifest_id": null,
+      "path": "EPUB/package.opf",
+      "permissions": "0o100644",
+      "sha256": "96fe87224d510a40c4425e0f8434308bc8af1fd87cbb7f4678f43b7aa320ba63",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 1220
+    },
+    {
+      "compressed_size": 570,
+      "compression": "deflated",
+      "crc": 4069853186,
+      "creator_system": 3,
+      "hash": "67e0186e619d52dc7fc11d8ee6aeff1ff6425d70eb22523ff9ca7df6c6d5cd5f",
+      "id": "adaptive-epub-member-0004",
+      "manifest_id": "grammar-ch1",
+      "path": "EPUB/text/grammar-01.xhtml",
+      "permissions": "0o100644",
+      "sha256": "0b55ad66ae54c224635d3e065d8a7f375bce6bb4c9c5f5ea633b314c8cb03d14",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 1703
+    },
+    {
+      "compressed_size": 290,
+      "compression": "deflated",
+      "crc": 3373183063,
+      "creator_system": 3,
+      "hash": "df326ab631bb61e7d0d51d88ada4124a370879296af647672bdc89d4497b3180",
+      "id": "adaptive-epub-member-0005",
+      "manifest_id": "grammar-ch2",
+      "path": "EPUB/text/grammar-02.xhtml",
+      "permissions": "0o100644",
+      "sha256": "0b6a74c19a4012a4d03e1d40d2c6d157641f48ace34065859e2edeb8d8f0ca67",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 436
+    },
+    {
+      "compressed_size": 1422,
+      "compression": "deflated",
+      "crc": 284946689,
+      "creator_system": 3,
+      "hash": "12c12d0e1cf73d9a28a9840d1ba76ade37ff383a19f427d25454560b54b00214",
+      "id": "adaptive-epub-member-0006",
+      "manifest_id": "furiganalyse-grammar-notes",
+      "path": "EPUB/text/grammar-notes.xhtml",
+      "permissions": "0o100644",
+      "sha256": "148ee279130bf4897983628e0a84437e19928097afa4c92677f9fedcc34d8a3d",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 6718
+    },
+    {
+      "compressed_size": 407,
+      "compression": "deflated",
+      "crc": 131809375,
+      "creator_system": 3,
+      "hash": "c0862bf56ad49eb2ef2754ab945f100d3212b9f4538b0c5e8675bd7035b5a838",
+      "id": "adaptive-epub-member-0007",
+      "manifest_id": "furiganalyse-study-notes",
+      "path": "EPUB/text/study-notes.xhtml",
+      "permissions": "0o100644",
+      "sha256": "0e849bb75d6219acb07e959e6831a475beaa4bdc7e41822396af34b7d19d9890",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 1509
+    },
+    {
+      "compressed_size": 171,
+      "compression": "deflated",
+      "crc": 1277724273,
+      "creator_system": 3,
+      "hash": "8dcb97c919e64c8b0c5a9b80442ac684fd95bb37756b474e6adb445d9c7c4f7e",
+      "id": "adaptive-epub-member-0008",
+      "manifest_id": null,
+      "path": "META-INF/container.xml",
+      "permissions": "0o100644",
+      "sha256": "2e0e21e564f843845b7b9c000b827089273d4e042ed5776008ed35c94c0fccf2",
+      "timestamp": [
+        1980,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "uncompressed_size": 240
+    }
+  ],
+  "book_id": "urn:uuid:furiganalyse-phase-7-synthetic",
+  "configuration": {
+    "enabled": true,
+    "hash": "26b3426b2593763c96d0890b4a77a0bbf66d13fc512b0c6b138a23c290f30a2a"
+  },
+  "diagnostics": [],
+  "hash": "055dce746ebca024b98c78ac14d3b3b0d83a53100ffdcd4a0014e8e2b0859b70",
+  "output_epub_sha256": "2e8e5853af1bb2b25b3f4cd2283dd755baff251b5896f0ddbcee3fb95b7d7749",
+  "package_metadata": {
+    "hash": "3537e511ddda3cfe2fcbf5557b4e3b910220a5823b1db23c933d52cbfbdf56ba",
+    "id": "phase8-adaptive-epub-metadata-v1",
+    "provenance": "local-synthetic-adaptive-epub-fixture"
+  },
+  "report_id": "adaptive-epub-packaging-report-v1",
+  "schema_version": 1,
+  "source_hashes": {
+    "adaptive_rendering_report": "5bd9543f15f9b9a79651a5170ad36f5f336d5cd2a4ac355d542fc1b8015d751c",
+    "adaptive_xhtml_directory": "b79f1f8d7b0c5351cda2c734a7c34f61c173a768b0bf369a7f744660547f9d7a",
+    "base_epub": "df4c4bf0f072c01ac0a8d8aff316ee92613760c1822274cecd7ec9ce409a9619"
+  },
+  "structural_summary": {
+    "archive_member_order": [
+      "mimetype",
+      "EPUB/nav.xhtml",
+      "EPUB/package.opf",
+      "EPUB/text/grammar-01.xhtml",
+      "EPUB/text/grammar-02.xhtml",
+      "EPUB/text/grammar-notes.xhtml",
+      "EPUB/text/study-notes.xhtml",
+      "META-INF/container.xml"
+    ],
+    "container_rootfile": "EPUB/package.opf",
+    "displayed_meaning_count": 1,
+    "generated_reading_count": 1,
+    "grammar_backlinks": 2,
+    "grammar_contexts": 3,
+    "grammar_forward_links": 2,
+    "grammar_notes": 3,
+    "hash": "2c18c61594be416bc3f19c794760f98e91a84777a6d714d94d616875fa225e73",
+    "manifest": [
+      {
+        "href": "nav.xhtml",
+        "id": "nav",
+        "media_type": "application/xhtml+xml",
+        "properties": "nav"
+      },
+      {
+        "href": "text/grammar-01.xhtml",
+        "id": "grammar-ch1",
+        "media_type": "application/xhtml+xml",
+        "properties": null
+      },
+      {
+        "href": "text/grammar-02.xhtml",
+        "id": "grammar-ch2",
+        "media_type": "application/xhtml+xml",
+        "properties": null
+      },
+      {
+        "href": "text/study-notes.xhtml",
+        "id": "furiganalyse-study-notes",
+        "media_type": "application/xhtml+xml",
+        "properties": null
+      },
+      {
+        "href": "text/grammar-notes.xhtml",
+        "id": "furiganalyse-grammar-notes",
+        "media_type": "application/xhtml+xml",
+        "properties": null
+      }
+    ],
+    "navigation": [
+      {
+        "href": "text/grammar-01.xhtml",
+        "label": "Synthetic Grammar Chapter 1"
+      },
+      {
+        "href": "text/grammar-02.xhtml",
+        "label": "Synthetic Grammar Chapter 2"
+      },
+      {
+        "href": "text/study-notes.xhtml",
+        "label": "Study Notes"
+      },
+      {
+        "href": "text/grammar-notes.xhtml",
+        "label": "Grammar Study Notes"
+      }
+    ],
+    "package_metadata": {
+      "identifier": "urn:uuid:furiganalyse-phase-8-synthetic-adaptive",
+      "language": "ja",
+      "modified": "2026-08-22T00:00:00Z",
+      "title": "Furiganalyse Phase 8 Synthetic Adaptive Assistance Fixture"
+    },
+    "publisher_ruby": {
+      "id": "publisher-ruby-1-8-1",
+      "reading": "おもてぶたい",
+      "surface": "表舞台"
+    },
+    "rendering_diagnostic_references": [
+      {
+        "id": "adaptive-rendering-diagnostic-0001",
+        "reason": "missing-approved-reading",
+        "source_id": "study-item-0002-occ-0001"
+      }
+    ],
+    "rendering_result_count": 12,
+    "spine": [
+      "grammar-ch1",
+      "grammar-ch2",
+      "furiganalyse-study-notes",
+      "furiganalyse-grammar-notes"
+    ],
+    "study_backlinks": 5,
+    "study_forward_links": 5,
+    "xhtml_document_hashes": [
+      {
+        "path": "EPUB/text/grammar-01.xhtml",
+        "sha256": "0b55ad66ae54c224635d3e065d8a7f375bce6bb4c9c5f5ea633b314c8cb03d14"
+      },
+      {
+        "path": "EPUB/text/grammar-02.xhtml",
+        "sha256": "0b6a74c19a4012a4d03e1d40d2c6d157641f48ace34065859e2edeb8d8f0ca67"
+      },
+      {
+        "path": "EPUB/text/grammar-notes.xhtml",
+        "sha256": "148ee279130bf4897983628e0a84437e19928097afa4c92677f9fedcc34d8a3d"
+      },
+      {
+        "path": "EPUB/text/study-notes.xhtml",
+        "sha256": "0e849bb75d6219acb07e959e6831a475beaa4bdc7e41822396af34b7d19d9890"
+      }
+    ]
+  }
+}

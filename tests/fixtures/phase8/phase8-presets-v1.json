@@ -1,0 +1,82 @@
+{
+  "dataset_id": "furiganalyse-synthetic-learner-presets",
+  "dataset_version": "2026-08-21",
+  "fixture_notice": "Synthetic explainable defaults; not a learner diagnosis or pedagogical validation.",
+  "hash": "bd34426bb8b8663c4ab4fea059abb4a349c03a2942bf6d2fe33b1b1645e45aea",
+  "presets": [
+    {
+      "exposure_thresholds": {
+        "grammar": 3,
+        "meaning": 3,
+        "reading": 3
+      },
+      "frequency_thresholds": {
+        "grammar_rank": 100,
+        "meaning_rank": 100,
+        "reading_rank": 100
+      },
+      "grammar_default": "show-grammar",
+      "hash": "901c48023983e3f720720e39c369ad3d400417d953bee3f22813fdd9e82336cf",
+      "id": "phase8-preset-n5",
+      "level": "N5",
+      "meaning_default": "show-meaning",
+      "rationale_codes": [
+        "synthetic-n5-assistance-defaults",
+        "synthetic-n5-exposure-threshold-3"
+      ],
+      "reading_default": "show-reading",
+      "schema_version": 1,
+      "source_provenance": "locally curated synthetic Phase 8 preset"
+    },
+    {
+      "exposure_thresholds": {
+        "grammar": 2,
+        "meaning": 2,
+        "reading": 2
+      },
+      "frequency_thresholds": {
+        "grammar_rank": 60,
+        "meaning_rank": 60,
+        "reading_rank": 60
+      },
+      "grammar_default": "show-grammar",
+      "hash": "b388ee06e4b266feac01e606f28b1d7db6c4be47f041c750c522c7d2d6f2d314",
+      "id": "phase8-preset-n4",
+      "level": "N4",
+      "meaning_default": "show-meaning",
+      "rationale_codes": [
+        "synthetic-n4-assistance-defaults",
+        "synthetic-n4-exposure-threshold-2"
+      ],
+      "reading_default": "hide-reading",
+      "schema_version": 1,
+      "source_provenance": "locally curated synthetic Phase 8 preset"
+    },
+    {
+      "exposure_thresholds": {
+        "grammar": 1,
+        "meaning": 1,
+        "reading": 1
+      },
+      "frequency_thresholds": {
+        "grammar_rank": 30,
+        "meaning_rank": 30,
+        "reading_rank": 30
+      },
+      "grammar_default": "hide-grammar",
+      "hash": "550ae5070e2a918cd6a6290cf0b3bbda416d00e20af0fc311070b68198e96b3a",
+      "id": "phase8-preset-n3",
+      "level": "N3",
+      "meaning_default": "hide-meaning",
+      "rationale_codes": [
+        "synthetic-n3-assistance-defaults",
+        "synthetic-n3-exposure-threshold-1"
+      ],
+      "reading_default": "hide-reading",
+      "schema_version": 1,
+      "source_provenance": "locally curated synthetic Phase 8 preset"
+    }
+  ],
+  "schema_version": 1,
+  "source_provenance": "locally curated copyright-free Phase 8 fixture"
+}

@@ -1,0 +1,265 @@
+{
+  "fixture_notice": "Synthetic explainable preset comparison; not learner diagnosis or production validation.",
+  "hash": "0af91ac5dfa3927ae820dab88ba2dab6c5f5b8a46e67d0973bbf6457c430efb2",
+  "profiles": [
+    {
+      "level": "N5",
+      "profile_id": "phase8-profile-n5",
+      "states": [
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "show-reading",
+          "source_item_id": "study-item-0001"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "expression",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "show-reading",
+          "source_item_id": "study-item-0002"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "show-reading",
+          "source_item_id": "study-item-0003"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": "show-reading",
+          "source_item_id": "study-item-0004"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "name",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "show-reading",
+          "source_item_id": "study-item-0005"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0001"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0002"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0003"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0004"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0005"
+        }
+      ]
+    },
+    {
+      "level": "N4",
+      "profile_id": "phase8-profile-n4",
+      "states": [
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0001"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "expression",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0002"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0003"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0004"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "name",
+          "meaning_assistance": "show-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0005"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0001"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0002"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0003"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0004"
+        },
+        {
+          "grammar_assistance": "show-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0005"
+        }
+      ]
+    },
+    {
+      "level": "N3",
+      "profile_id": "phase8-profile-n3",
+      "states": [
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "hide-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0001"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "expression",
+          "meaning_assistance": "hide-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0002"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "hide-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0003"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "vocabulary",
+          "meaning_assistance": "hide-meaning",
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0004"
+        },
+        {
+          "grammar_assistance": null,
+          "item_kind": "name",
+          "meaning_assistance": "hide-meaning",
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": "hide-reading",
+          "source_item_id": "study-item-0005"
+        },
+        {
+          "grammar_assistance": "hide-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "preserved-authoritative",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0001"
+        },
+        {
+          "grammar_assistance": "hide-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0002"
+        },
+        {
+          "grammar_assistance": "hide-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0003"
+        },
+        {
+          "grammar_assistance": "hide-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0004"
+        },
+        {
+          "grammar_assistance": "hide-grammar",
+          "item_kind": "grammar",
+          "meaning_assistance": null,
+          "publisher_ruby_protection": "not-applicable",
+          "reading_assistance": null,
+          "source_item_id": "grammar-item-0005"
+        }
+      ]
+    }
+  ],
+  "schema_version": 1
+}

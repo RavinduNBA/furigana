@@ -1,0 +1,62 @@
+{
+  "archive_member_order": [
+    "mimetype",
+    "EPUB/nav.xhtml",
+    "EPUB/package.opf",
+    "EPUB/text/grammar-01.xhtml",
+    "EPUB/text/grammar-02.xhtml",
+    "EPUB/text/grammar-notes.xhtml",
+    "EPUB/text/study-notes.xhtml",
+    "META-INF/container.xml"
+  ],
+  "counts": {
+    "displayed_meaning_count": 1,
+    "generated_reading_count": 1,
+    "grammar_backlinks": 2,
+    "grammar_contexts": 3,
+    "grammar_forward_links": 2,
+    "grammar_notes": 3,
+    "rendering_result_count": 12,
+    "study_backlinks": 5,
+    "study_forward_links": 5
+  },
+  "hash": "0a995dbd1500728d097310f4c67e5665ed013fd3775c35215f6c4550707882a7",
+  "id": "phase8-adaptive-epub-review-cases-v1",
+  "navigation": [
+    {
+      "href": "text/grammar-01.xhtml",
+      "label": "Synthetic Grammar Chapter 1"
+    },
+    {
+      "href": "text/grammar-02.xhtml",
+      "label": "Synthetic Grammar Chapter 2"
+    },
+    {
+      "href": "text/study-notes.xhtml",
+      "label": "Study Notes"
+    },
+    {
+      "href": "text/grammar-notes.xhtml",
+      "label": "Grammar Study Notes"
+    }
+  ],
+  "output_epub_sha256": "2e8e5853af1bb2b25b3f4cd2283dd755baff251b5896f0ddbcee3fb95b7d7749",
+  "publisher_ruby": {
+    "id": "publisher-ruby-1-8-1",
+    "reading": "おもてぶたい",
+    "surface": "表舞台"
+  },
+  "qualifications": [
+    "synthetic-adaptive-assistance-fixture",
+    "not-pedagogically-validated",
+    "suppression-does-not-delete-source-evidence"
+  ],
+  "rendering_diagnostics": [
+    {
+      "id": "adaptive-rendering-diagnostic-0001",
+      "reason": "missing-approved-reading",
+      "source_id": "study-item-0002-occ-0001"
+    }
+  ],
+  "schema_version": 1
+}
