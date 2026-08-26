@@ -2,7 +2,7 @@ import logging
 import os
 import zipfile
 from tempfile import TemporaryDirectory
-from typing import Optional
+from typing import Callable, Dict, Optional
 
 import capybre
 import pypandoc
@@ -27,6 +27,7 @@ def main(
     known_words_list: Optional[str] = None,
     custom_word_list_path: Optional[str] = None,
     custom_word_list_limit: Optional[int] = None,
+    progress_callback: Optional[Callable[[Dict[str, int | str]], None]] = None,
 ):
     # Load the known words list if specified (custom path takes precedence)
     exclude_words = None
@@ -40,21 +41,28 @@ def main(
         exclude_words = load_word_list(known_words_list)
 
     with TemporaryDirectory() as td:
+        if progress_callback:
+            progress_callback({"stage": "preparing"})
         filename, ext = os.path.splitext(os.path.basename(inputfile))
         inputfile = convert_inputfile_if_not_epub(inputfile, ext, td)
 
         unzipped_input_fpath = os.path.join(td, "unzipped")
 
         logging.info("Extracting the archive ...")
+        if progress_callback:
+            progress_callback({"stage": "extracting"})
         with zipfile.ZipFile(inputfile, 'r') as zip_ref:
             zip_ref.extractall(unzipped_input_fpath)
 
         logging.info("Processing the files ...")
         process_epub_file(
-            unzipped_input_fpath, furigana_mode, writing_mode, output_format, exclude_words
+            unzipped_input_fpath, furigana_mode, writing_mode, output_format, exclude_words,
+            progress_callback,
         )
 
         logging.info("Creating the output file ...")
+        if progress_callback:
+            progress_callback({"stage": "packaging"})
         if output_format == OutputFormat.epub:
             write_epub_archive(unzipped_input_fpath, outputfile)
         elif output_format in {OutputFormat.mobi, OutputFormat.azw3}:
@@ -74,6 +82,11 @@ def main(
             pypandoc.convert_file(tmpfilepath, 'html', outputfile=outputfile)
         else:
             raise ValueError("Invalid writing mode")
+        if progress_callback:
+            progress_callback({
+                "stage": "complete",
+                "output_bytes": os.path.getsize(outputfile),
+            })
 
 
 def convert_inputfile_if_not_epub(inputfile, ext, td):

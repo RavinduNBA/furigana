@@ -5,10 +5,9 @@ import os
 import random
 import shutil
 import string
-import traceback
 from concurrent.futures.process import ProcessPoolExecutor
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 from uuid import UUID, uuid4
 
 from fastapi import BackgroundTasks, File, Form, FastAPI, Request, status, UploadFile
@@ -21,12 +20,14 @@ from starlette.middleware.cors import CORSMiddleware
 from furiganalyse.__main__ import main, SUPPORTED_INPUT_EXTS
 from furiganalyse.known_words import list_available_word_lists
 from furiganalyse.params import OutputFormat, FuriganaMode, WritingMode
+from furiganalyse.progress import ProgressWriter, read_progress
 
 
 class Job(BaseModel):
     uid: UUID = Field(default_factory=uuid4)
     status: str = "in_progress"
     result: str = None
+    progress_path: Optional[str] = Field(default=None, exclude=True)
 
 
 jobs: Dict[UUID, Job] = {}
@@ -113,6 +114,8 @@ async def task_handler(
     contents = file.file.read()
     with open(tmpfile, 'wb') as f:
         f.write(contents)
+    new_task.progress_path = os.path.join(task_folder, "progress.json")
+    ProgressWriter(new_task.progress_path, input_bytes=len(contents))
 
     # Handle custom word list upload
     custom_word_list_path = None
@@ -176,6 +179,10 @@ def furiganalyse_task(
     output_filename = generate_output_filename(filename, output_format)
     output_filepath = os.path.join(task_folder, output_filename)
     path_hash = encode_filepath(output_filepath)
+    progress = ProgressWriter(
+        os.path.join(task_folder, "progress.json"),
+        input_bytes=os.path.getsize(input_filepath),
+    )
 
     try:
         main(
@@ -187,9 +194,11 @@ def furiganalyse_task(
             known_words_list=known_words_list if known_words_list else None,
             custom_word_list_path=custom_word_list_path,
             custom_word_list_limit=custom_word_list_limit if custom_word_list_limit > 0 else None,
+            progress_callback=progress.update,
         )
     except Exception:
-        logging.error("Error while processing %s: %s", input_filepath, traceback.format_exc())
+        progress.update({"stage": "error"})
+        logging.error("Conversion worker failed")
         raise
 
     return path_hash
@@ -200,7 +209,9 @@ async def status_handler(uid: UUID):
     job = jobs.get(uid)
     if not job:
         return Response("Uid not found!", status_code=404)
-    return jobs[uid]
+    value = job.model_dump()
+    value["progress"] = read_progress(job.progress_path) if job.progress_path else None
+    return value
 
 
 @app.get('/jobs/{uid}/file')
@@ -302,6 +313,6 @@ async def start_furiganalyse_task(uid: UUID, *args) -> None:
     try:
         jobs[uid].result = await run_in_process(furiganalyse_task, *args)
         jobs[uid].status = "complete"
-    except:
-        logging.error(f"Error occured for job {uid}")
+    except Exception:
+        logging.error("Error occurred for job %s", uid)
         jobs[uid].status = "error"

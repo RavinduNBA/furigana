@@ -12,9 +12,10 @@
                 url: '/jobs/{{ uid }}/status',
                 type: 'get',
                 success: function(data) {
+                    updateProgress(data.progress);
                     if(data.status === "complete") {
                         $("h1").html("🎉 Conversion done!");
-                        $("#wait").removeClass('visible').addClass('invisible');
+                        $("#progress-spinner").removeClass('visible').addClass('invisible');
                         $("#result").removeClass('invisible').addClass('visible');
                     } else if(data.status === "error") {
                         $("h1").html("💣 Oops, something went wrong!");
@@ -34,6 +35,35 @@
             });
         }
 
+        function formatDuration(seconds) {
+            if(seconds === null || seconds === undefined) return "calculating…";
+            var minutes = Math.floor(seconds / 60);
+            var remainder = Math.round(seconds % 60);
+            return minutes ? minutes + "m " + remainder + "s" : remainder + "s";
+        }
+
+        function formatBytes(bytes) {
+            if(bytes === null || bytes === undefined) return "pending";
+            if(bytes < 1024) return bytes + " B";
+            if(bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+            return (bytes / 1048576).toFixed(1) + " MB";
+        }
+
+        function updateProgress(progress) {
+            if(!progress) return;
+            var percent = progress.percent || 0;
+            $("#conversion-progress").val(percent).attr("aria-valuenow", percent);
+            $("#progress-percent").text(percent + "%");
+            $("#progress-stage").text(progress.stage.replaceAll("_", " "));
+            $("#progress-sections").text(progress.sections_completed + " / " + progress.sections_total);
+            $("#progress-characters").text(progress.characters_processed.toLocaleString() + " / " + progress.characters_total.toLocaleString());
+            $("#progress-remaining").text(progress.sections_remaining + " sections · " + progress.characters_remaining.toLocaleString() + " characters");
+            $("#progress-elapsed").text(formatDuration(progress.elapsed_seconds));
+            $("#progress-eta").text(formatDuration(progress.eta_seconds));
+            $("#progress-rate").text(progress.characters_per_second.toLocaleString() + " chars/s");
+            $("#progress-size").text(formatBytes(progress.input_bytes) + " → " + formatBytes(progress.output_bytes));
+        }
+
         $(document).ready(function(){
             setTimeout(fetchdata, polling_interval_ms);
         });
@@ -47,7 +77,24 @@
     <h1>Converting your ebook...</h1>
 </div>
 <div id="wait" class="text-center">
-    <div class="spinner-border" role="status"/>
+    <div id="progress-spinner" class="spinner-border" role="status"/>
+    <div class="mt-4 text-start mx-auto" style="max-width: 42rem">
+        <div class="d-flex justify-content-between mb-1">
+            <strong id="progress-stage">queued</strong>
+            <span id="progress-percent">0%</span>
+        </div>
+        <progress id="conversion-progress" class="w-100" max="100" value="0" aria-label="Conversion progress"></progress>
+        <div class="row row-cols-2 row-cols-md-3 g-2 mt-2 small">
+            <div><strong>Sections</strong><br><span id="progress-sections">0 / 0</span></div>
+            <div><strong>Characters</strong><br><span id="progress-characters">0 / 0</span></div>
+            <div><strong>Remaining</strong><br><span id="progress-remaining">calculating…</span></div>
+            <div><strong>Elapsed</strong><br><span id="progress-elapsed">0s</span></div>
+            <div><strong>ETA</strong><br><span id="progress-eta">calculating…</span></div>
+            <div><strong>Rate</strong><br><span id="progress-rate">0 chars/s</span></div>
+            <div><strong>File size</strong><br><span id="progress-size">calculating…</span></div>
+        </div>
+        <p class="text-muted small mt-3 mb-0">EPUBs are reflowable, so “sections” tracks XHTML book parts instead of unstable screen pages.</p>
+    </div>
 </div>
 <div class="invisible" id="result">
     <div class="mb-3">

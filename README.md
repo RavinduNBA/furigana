@@ -75,12 +75,33 @@ curl -v http://127.0.0.1/jobs/<job-id>/status
 # {
 #   "uid": "<job-id>",
 #   "status": "complete",
-#   "result": "(...data...)"
+#   "result": "(...data...)",
+#   "progress": {
+#     "stage": "complete",
+#     "percent": 100,
+#     "sections_completed": 12,
+#     "sections_total": 12,
+#     "characters_processed": 12345,
+#     "characters_total": 12345,
+#     "elapsed_seconds": 42.1,
+#     "eta_seconds": null
+#   }
 # }
 
 # Download the result
 curl http://127.0.0.1/jobs/<job-id>/file -o output.epub
 ```
+
+The web job page displays conversion stage, XHTML sections completed and
+remaining, non-whitespace visible characters processed and remaining, elapsed
+time, processing rate, ETA, and input/output sizes. EPUBs are reflowable, so a
+stable source “page” count does not exist; XHTML sections are used as the
+honest page-like unit. Progress snapshots and logs contain aggregate counts,
+not book text or uploaded filenames.
+
+The web deployment uses one API worker so its in-process job registry remains
+consistent; conversion work still runs concurrently in a separate process
+pool.
 
 Local development setup
 ------------------------

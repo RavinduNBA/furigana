@@ -37,4 +37,6 @@ ADD assets assets
 
 EXPOSE 5000
 
-ENTRYPOINT ["uvicorn", "furiganalyse.app:app", "--workers", "10", "--host", "0.0.0.0", "--port", "5000"]
+# Job state and progress snapshots are coordinated by one API process. CPU-heavy
+# conversions still run in the app's process pool.
+ENTRYPOINT ["uvicorn", "furiganalyse.app:app", "--workers", "1", "--host", "0.0.0.0", "--port", "5000"]
