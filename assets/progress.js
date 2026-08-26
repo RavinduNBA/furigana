@@ -20,8 +20,86 @@
         return (bytes / 1048576).toFixed(1) + " MB";
     }
     function stageLabel(stage) {
-        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", "bilingual-translation": "Translating companion chapters", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", error: "Stopped"})[stage] || "Working";
+        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", "bilingual-translation": "Translating companion chapters", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", cancelled: "Cancelled", error: "Stopped"})[stage] || "Working";
     }
+
+    function getPipelineActionSummary(progress) {
+        if (!progress) return "Waiting for the worker…";
+        const stage = progress.stage;
+        const comp = formatNumber(progress.sections_completed || 0);
+        const total = formatNumber(progress.sections_total || 0);
+        const chars = formatNumber(progress.characters_processed || 0);
+        const charsTotal = formatNumber(progress.characters_total || 0);
+        const words = formatNumber(progress.words_processed || 0);
+        const wordsTotal = formatNumber(progress.words_total || 0);
+
+        switch (stage) {
+            case "queued":
+                return "Job is queued and waiting for worker process allocation…";
+            case "preparing":
+                return "Validating and staging EPUB archive files…";
+            case "extracting":
+                return "Extracting XHTML book chapters and stylesheet manifests (" + comp + " / " + total + " sections)…";
+            case "canonical-analysis":
+                return "Analyzing reading order, ruby structure, and book metadata…";
+            case "tokenizing":
+                return "Tokenizing Japanese text & morphological decomposition (" + chars + " / " + charsTotal + " characters scanned)…";
+            case "dictionary-lookup":
+                return "Looking up vocabulary in JMdict (" + words + " / " + wordsTotal + " candidates matched)…";
+            case "expression-lookup":
+                return "Matching multi-word idioms and expressions in JMdict…";
+            case "name-lookup":
+                return "Identifying proper nouns, character names, and places in JMnedict…";
+            case "study-selection":
+                return "Filtering target vocabulary by JLPT level and learner profile…";
+            case "linked-rendering":
+                return "Generating bidirectional chapter study notes and glosses…";
+            case "assistance-selection":
+                return "Assigning inline dictionary definitions and assistance levels…";
+            case "density-planning":
+                return "Balancing furigana and gloss density across book sections…";
+            case "adaptive-rendering":
+                return "Injecting adaptive assistance into XHTML chapter documents…";
+            case "bilingual-translation": {
+                const pComp = formatNumber(progress.translation_paragraphs_completed || 0);
+                const pTotal = formatNumber(progress.translation_paragraphs_total || 0);
+                const chComp = formatNumber(progress.translation_chapters_completed || 0);
+                const chTotal = formatNumber(progress.translation_chapters_total || 0);
+                return "Translating companion chapters with LLM: " + pComp + " / " + pTotal + " paragraphs (" + chComp + " / " + chTotal + " chapters)…";
+            }
+            case "processing":
+                return "Annotating Japanese text with furigana readings (" + comp + " / " + total + " sections)…";
+            case "packaging":
+                return "Reassembling and compressing final EPUB container with deterministic structure…";
+            case "complete":
+                return "All processing stages completed successfully!";
+            case "cancelled":
+                return "Conversion cancelled by user.";
+            case "error":
+                return "Conversion encountered an issue and stopped safely.";
+            default:
+                return "Processing ebook…";
+        }
+    }
+
+    function getRemainingWorkSummary(progress) {
+        if (!progress) return "Calculating remaining work…";
+        if (progress.stage === "complete") return "0 tasks remaining · 100% complete";
+        if (progress.stage === "bilingual-translation") {
+            const pLeft = (progress.translation_paragraphs_total || 0) - (progress.translation_paragraphs_completed || 0);
+            const chLeft = (progress.translation_chapters_total || 0) - (progress.translation_chapters_completed || 0);
+            return Math.max(0, pLeft) + " paragraphs (" + Math.max(0, chLeft) + " chapters) remaining to translate";
+        }
+        if (progress.pipeline_mode === "study" || (["combined", "guided"].includes(progress.pipeline_mode) && progress.combined_phase !== "furigana")) {
+            const wLeft = progress.words_remaining || 0;
+            const sLeft = progress.sections_remaining || 0;
+            return formatNumber(wLeft) + " words · " + formatNumber(sLeft) + " sections left";
+        }
+        const sLeft = progress.sections_remaining !== undefined ? progress.sections_remaining : Math.max(0, (progress.sections_total || 0) - (progress.sections_completed || 0));
+        const cLeft = progress.characters_remaining !== undefined ? progress.characters_remaining : Math.max(0, (progress.characters_total || 0) - (progress.characters_processed || 0));
+        return formatNumber(sLeft) + " sections (" + formatNumber(cLeft) + " chars) left";
+    }
+
     function updateStages(stage) {
         const groups = [
             ["queued", "preparing", "extracting"],
@@ -52,17 +130,12 @@
         byId("words-caption").textContent = formatNumber(progress.words_remaining) + " candidates left";
         byId("progress-matches").textContent = formatNumber(progress.dictionary_matches) + " words · " + formatNumber(progress.expression_matches) + " expressions · " + formatNumber(progress.name_matches) + " names";
         byId("matches-caption").textContent = progress.study_items ? formatNumber(progress.study_items) + " selected study items" : "Local dictionary only";
-        const dictionaryPhase = progress.pipeline_mode === "study" ||
-            (["combined", "guided"].includes(progress.pipeline_mode) && progress.combined_phase !== "furigana");
-        byId("progress-remaining").textContent = dictionaryPhase ?
-            formatNumber(progress.words_remaining) + " word candidates · " + formatNumber(progress.names_total - progress.names_processed) + " names left" :
-            formatNumber(progress.sections_remaining) + " sections · " + formatNumber(progress.characters_remaining) + " characters left";
+        byId("progress-remaining").textContent = getRemainingWorkSummary(progress);
         byId("progress-elapsed").textContent = formatDuration(progress.elapsed_seconds);
         byId("progress-eta").textContent = progress.eta_seconds === null ? "ETA calculating…" : "ETA " + formatDuration(progress.eta_seconds);
         byId("progress-rate").textContent = formatNumber(progress.characters_per_second) + " chars/s";
         byId("progress-size").textContent = formatBytes(progress.input_bytes) + " → " + formatBytes(progress.output_bytes);
-        byId("progress-status-note").textContent = progress.stage === "processing" ?
-            "Adding furigana in canonical section order" : combinedPrefix + stageLabel(progress.stage);
+        byId("progress-status-note").textContent = getPipelineActionSummary(progress);
 
         const transPanel = byId("bilingual-progress-panel");
         if (transPanel && (progress.translation_backend || progress.stage === "bilingual-translation")) {

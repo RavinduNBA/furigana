@@ -115,15 +115,23 @@ def get_ollama_dashboard_data() -> dict[str, Any]:
     }
 
 
-def run_translation_test(model: str = "qwen2.5:3b", japanese_text: str = "司波達也は静かに立ち上がった。") -> dict[str, Any]:
+def run_translation_test(
+    model: str = "qwen2.5:3b",
+    japanese_text: str = "司波達也は静かに立ち上がった。",
+    context_instructions: str = "",
+) -> dict[str, Any]:
     """Runs an interactive Japanese to English translation test."""
     start = time.perf_counter()
+    system_msg = "You are a professional Japanese to English light novel translator. Translate accurately while preserving nuance. Return only the English translation."
+    if context_instructions:
+        system_msg += f"\n\nCharacter and Terminology Context:\n{context_instructions}"
+
     data = {
         "model": model,
         "messages": [
             {
                 "role": "system",
-                "content": "You are a professional Japanese to English light novel translator. Translate accurately while preserving nuance. Return only the English translation.",
+                "content": system_msg,
             },
             {
                 "role": "user",
@@ -150,3 +158,33 @@ def run_translation_test(model: str = "qwen2.5:3b", japanese_text: str = "司波
         "eval_count": eval_count,
         "tokens_per_second": tok_per_sec,
     }
+
+
+def stream_translation_test(
+    model: str = "qwen2.5:3b",
+    japanese_text: str = "",
+    context_instructions: str = "",
+):
+    """Yields live Server-Sent Events (SSE) as the model generates tokens."""
+    url = f"{OLLAMA_BASE_URL.rstrip('/')}/api/chat"
+    system_msg = "You are a professional Japanese to English light novel translator. Translate accurately while preserving nuance. Return only the English translation."
+    if context_instructions:
+        system_msg += f"\n\nCharacter and Terminology Context:\n{context_instructions}"
+
+    data = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": japanese_text},
+        ],
+        "stream": True,
+    }
+
+    payload = json.dumps(data).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "Furiganalyse/1.0"})
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        for line in resp:
+            line_str = line.decode("utf-8").strip()
+            if line_str:
+                yield f"data: {line_str}\n\n"
+

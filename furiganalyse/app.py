@@ -168,11 +168,26 @@ async def post_ollama_test_api(request: Request):
     body = await request.json()
     model = body.get("model", "qwen2.5:3b")
     text = body.get("text", "司波達也は静かに立ち上がった。")
+    context = body.get("context", "")
     try:
-        res = run_translation_test(model=model, japanese_text=text)
+        res = run_translation_test(model=model, japanese_text=text, context_instructions=context)
         return JSONResponse(res)
     except Exception as exc:
         return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
+@app.post("/api/ollama/stream_test")
+async def post_ollama_stream_test_api(request: Request):
+    from fastapi.responses import StreamingResponse
+    from furiganalyse.ollama_dashboard import stream_translation_test
+    body = await request.json()
+    model = body.get("model", "qwen2.5:3b")
+    text = body.get("text", "司波達也は静かに立ち上がった。")
+    context = body.get("context", "")
+    return StreamingResponse(
+        stream_translation_test(model=model, japanese_text=text, context_instructions=context),
+        media_type="text/event-stream",
+    )
 
 
 @app.get("/api/recent_conversions")

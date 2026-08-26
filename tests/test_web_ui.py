@@ -140,6 +140,7 @@ def test_ollama_dashboard_template_renders():
         "disk-percent-badge", "disk-free-display", "disk-used-display",
         "models-table-body", "pull-model-input", "pull-model-btn", "pull-status-box",
         "sandbox-model", "sandbox-japanese", "sandbox-submit-btn", "sandbox-result",
+        "sandbox-use-context", "sandbox-context",
     ):
         assert f'id="{element_id}"' in html
     assert "Ollama Telemetry &amp; Models" in html
