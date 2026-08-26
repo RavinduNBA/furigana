@@ -66,11 +66,13 @@ def test_job_page_renders_all_progress_metrics_and_safe_result_states():
         "live-trans-stream", "stream-japanese-text", "stream-english-text", "stream-chapter-tag",
         "discovered-context-panel", "cast-chips-row", "glossary-chips-row",
         "main-download-card", "bilingual-download-card",
+        "backend-console-card", "backend-console-logs",
     ):
         assert f'id="{element_id}"' in html
     assert "LLM Bilingual Companion" in html
     assert "Live Translation Stream" in html
     assert "Discovered Cast &amp; Terminology Context" in html
+    assert "Backend Pipeline Live Console" in html
     assert "Why sections, not pages?" in html
     assert "Aggregate telemetry only" in html
     assert '<script src="https://' not in html

@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,11 @@ class BaseLLMProvider(ABC):
     """Base interface for all LLM providers."""
 
     @abstractmethod
-    def generate(self, request: LLMRequest) -> LLMResponse:
+    def generate(
+        self,
+        request: LLMRequest,
+        stream_callback: Callable[[str], None] | None = None,
+    ) -> LLMResponse:
         """Generate a response from the model."""
 
     def generate_json(self, request: LLMRequest) -> dict[str, Any]:
@@ -80,7 +84,11 @@ class MockLLMProvider(BaseLLMProvider):
         self.default_response = default_response or {"status": "ok"}
         self.call_history: list[LLMRequest] = []
 
-    def generate(self, request: LLMRequest) -> LLMResponse:
+    def generate(
+        self,
+        request: LLMRequest,
+        stream_callback: Callable[[str], None] | None = None,
+    ) -> LLMResponse:
         self.call_history.append(request)
         # Search messages for matching key in self.responses
         full_text = " ".join(m.content for m in request.messages)
@@ -91,6 +99,8 @@ class MockLLMProvider(BaseLLMProvider):
                 break
         data = matched if matched is not None else self.default_response
         content_str = json.dumps(data, ensure_ascii=False)
+        if stream_callback:
+            stream_callback(content_str)
         return LLMResponse(
             content=content_str,
             prompt_tokens=len(full_text) // 4,
@@ -117,7 +127,11 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
 
-    def generate(self, request: LLMRequest) -> LLMResponse:
+    def generate(
+        self,
+        request: LLMRequest,
+        stream_callback: Callable[[str], None] | None = None,
+    ) -> LLMResponse:
         model = request.model or self.default_model
         payload = {
             "model": model,
@@ -127,6 +141,8 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         }
         if request.response_json:
             payload["response_format"] = {"type": "json_object"}
+        if stream_callback:
+            payload["stream"] = True
 
         headers = {
             "Content-Type": "application/json",
@@ -141,18 +157,45 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             try:
                 req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
                 with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
-                    resp_body = resp.read().decode("utf-8")
-                    result = json.loads(resp_body)
-                    choice = result["choices"][0]
-                    content = choice["message"]["content"]
-                    usage = result.get("usage", {})
-                    return LLMResponse(
-                        content=content,
-                        prompt_tokens=usage.get("prompt_tokens", 0),
-                        completion_tokens=usage.get("completion_tokens", 0),
-                        model=result.get("model", model),
-                        raw=result,
-                    )
+                    if stream_callback:
+                        accumulated = []
+                        for line_bytes in resp:
+                            line = line_bytes.decode("utf-8", errors="replace").strip()
+                            if not line or line.startswith(":") or line == "data: [DONE]":
+                                continue
+                            if line.startswith("data: "):
+                                chunk_str = line[6:]
+                                try:
+                                    chunk_json = json.loads(chunk_str)
+                                    choices = chunk_json.get("choices", [])
+                                    if choices:
+                                        delta = choices[0].get("delta", {}).get("content", "")
+                                        if delta:
+                                            accumulated.append(delta)
+                                            stream_callback(delta)
+                                except Exception:
+                                    pass
+                        full_content = "".join(accumulated)
+                        return LLMResponse(
+                            content=full_content,
+                            prompt_tokens=0,
+                            completion_tokens=len(full_content) // 4,
+                            model=model,
+                            raw={},
+                        )
+                    else:
+                        resp_body = resp.read().decode("utf-8")
+                        result = json.loads(resp_body)
+                        choice = result["choices"][0]
+                        content = choice["message"]["content"]
+                        usage = result.get("usage", {})
+                        return LLMResponse(
+                            content=content,
+                            prompt_tokens=usage.get("prompt_tokens", 0),
+                            completion_tokens=usage.get("completion_tokens", 0),
+                            model=result.get("model", model),
+                            raw=result,
+                        )
             except urllib.error.HTTPError as exc:
                 err_msg = exc.read().decode("utf-8", errors="replace")
                 logger.warning(f"HTTP {exc.code} from LLM provider (attempt {attempt}/{self.max_retries}): {err_msg}")

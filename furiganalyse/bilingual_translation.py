@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -206,8 +207,52 @@ def translate_chapter(
             response_json=True,
         )
 
+        ja_text = " ".join("".join(b["sentences"]) for b in batch_input_list)
+        if batch_callback:
+            try:
+                batch_callback({
+                    "chapter_id": chapter_id,
+                    "chapter_title": title,
+                    "paragraphs_done": len(translated_paragraphs),
+                    "paragraphs_total": len(blocks),
+                    "latest_japanese": ja_text[:400],
+                    "latest_english": "Model generating translation…",
+                    "cache_hit": False,
+                })
+            except Exception:
+                pass
+
+        accumulated_stream: list[str] = []
+        last_update = [time.monotonic()]
+
+        def on_token(delta: str) -> None:
+            accumulated_stream.append(delta)
+            now = time.monotonic()
+            if batch_callback and (now - last_update[0] >= 0.3 or any(c in delta for c in ".!?\n}")):
+                last_update[0] = now
+                raw_str = "".join(accumulated_stream)
+                clean_text = raw_str
+                if '"english_translation":' in clean_text:
+                    parts = clean_text.split('"english_translation":')
+                    clean_text = parts[-1].strip().lstrip('"').split('"')[0]
+                elif '"english":' in clean_text:
+                    parts = clean_text.split('"english":')
+                    clean_text = parts[-1].strip().lstrip('"').split('"')[0]
+                try:
+                    batch_callback({
+                        "chapter_id": chapter_id,
+                        "chapter_title": title,
+                        "paragraphs_done": len(translated_paragraphs),
+                        "paragraphs_total": len(blocks),
+                        "latest_japanese": ja_text[:400],
+                        "latest_english": clean_text[:400] or "Translating…",
+                        "cache_hit": False,
+                    })
+                except Exception:
+                    pass
+
         try:
-            resp = provider.generate(req)
+            resp = provider.generate(req, stream_callback=on_token)
             total_prompt_tokens += resp.prompt_tokens
             total_completion_tokens += resp.completion_tokens
             raw_data = resp.json_data()

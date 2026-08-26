@@ -221,7 +221,22 @@
             if (biCard) biCard.hidden = false;
         }
 
+        // Render Live Backend Console Logs
+        const consoleEl = byId("backend-console-logs");
+        if (consoleEl && progress.log_lines && progress.log_lines.length > 0) {
+            consoleEl.innerHTML = progress.log_lines.map(line => {
+                const isHighlight = line.includes("ready") || line.includes("Ready") || line.includes("Complete") || line.includes("packaged");
+                const isPass = line.includes("Pass 1") || line.includes("Pass 2") || line.includes("Translating") || line.includes("Ollama");
+                const cls = isHighlight ? "console-log-line--highlight" : (isPass ? "console-log-line--pass" : "console-log-line--normal");
+                return `<div class="console-log-line ${cls}">${escapeHtml(line)}</div>`;
+            }).join("");
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
         updateStages(progress.stage);
+    }
+    function escapeHtml(str) {
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function showComplete(progress) {
         byId("conversion-progress").value = 100;

@@ -489,6 +489,7 @@ def run_dictionary_study_pipeline(
         "stage": "tokenizing",
         "sections_total": chapter_count,
         "characters_total": character_count,
+        "log": f"Extracted EPUB: Found {chapter_count} chapters ({character_count:,} characters)",
     })
     evidence_window = (
         None
@@ -499,6 +500,7 @@ def run_dictionary_study_pipeline(
     progress({
         "stage": "dictionary-lookup",
         "words_total": len(base_report.candidates),
+        "log": f"Tokenized book: Found {len(base_report.candidates):,} unique vocabulary candidates",
     })
     jmdict = SqliteJmdictProvider(
         jmdict_index, max_matches=1, max_senses_per_match=1
@@ -541,7 +543,10 @@ def run_dictionary_study_pipeline(
     _write_json(work / "book.json", book)
     _write_json(work / "vocabulary.json", vocabulary)
 
-    progress({"stage": "study-selection"})
+    progress({
+        "stage": "study-selection",
+        "log": f"EDRDG Dictionary Matching complete: {len(vocabulary['dictionary_matches']):,} word senses and {len(vocabulary['name_dictionary_matches']):,} proper names",
+    })
     selection_limit = options.per_chapter_item_limit
     if selection_limit == 0:
         # This upper bound exceeds the number of selectable lexical groups in
@@ -689,13 +694,19 @@ def run_dictionary_study_pipeline(
         from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
         from furiganalyse.llm_provider import get_llm_provider
 
-        # Emit that main Japanese converted EPUB is immediately ready for download
-        progress({
-            "stage": "bilingual-translation",
-            "main_file_ready": True,
-            "main_output_bytes": main_size,
-            "study_items": summary["study_items"],
-        })
+    progress({
+        "stage": "bilingual-translation",
+        "main_file_ready": True,
+        "main_output_bytes": main_size,
+        "study_items": summary["study_items"],
+        "log": f"Primary converted ebook ready: {output.name} ({main_size:,} bytes) — Available for download now!",
+    })
+
+    if options.bilingual_companion:
+        from furiganalyse.bilingual_context import build_book_context
+        from furiganalyse.bilingual_epub import package_bilingual_epub
+        from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
+        from furiganalyse.llm_provider import get_llm_provider
 
         model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
         provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
@@ -703,6 +714,13 @@ def run_dictionary_study_pipeline(
                 f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
             )
         )
+
+        progress({
+            "stage": "bilingual-translation",
+            "log": f"Pass 1: Discovering Cast & Terminology Pre-Context using {model_name}…",
+            "main_file_ready": True,
+            "main_output_bytes": main_size,
+        })
 
         provider = get_llm_provider(
             provider_name=options.bilingual_provider,
@@ -740,13 +758,6 @@ def run_dictionary_study_pipeline(
         completed_paragraphs = 0
         total_cache_hits = 0
 
-        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
-        provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
-            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
-                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
-            )
-        )
-
         progress({
             "stage": "bilingual-translation",
             "translation_model": model_name,
@@ -760,9 +771,18 @@ def run_dictionary_study_pipeline(
             "glossary_summary": glossary_summary,
             "main_file_ready": True,
             "main_output_bytes": main_size,
+            "log": f"Pass 1 Complete: Discovered {len(cast_summary)} characters and {len(glossary_summary)} glossary terms. Starting scene translation…",
         })
 
         for i, ch in enumerate(chapters, start=1):
+            ch_title = ch.get("title", f"Chapter {i}")
+            progress({
+                "stage": "bilingual-translation",
+                "log": f"Translating Chapter {i}/{total_chapters} '{ch_title}' with {model_name}…",
+                "main_file_ready": True,
+                "main_output_bytes": main_size,
+            })
+
             def make_on_batch(ch_idx: int, done_base: int, cache_base: int):
                 def on_batch(data: dict[str, Any]):
                     progress({
@@ -779,6 +799,11 @@ def run_dictionary_study_pipeline(
                         "translation_latest_english": data.get("latest_english", ""),
                         "main_file_ready": True,
                         "main_output_bytes": main_size,
+                        "log": (
+                            f"Translated {data.get('paragraphs_done', 0)}/{data.get('paragraphs_total', 0)} paragraphs in {data.get('chapter_title', f'Chapter {ch_idx}')}"
+                            if not data.get("latest_english", "").startswith("Model generating")
+                            else f"Translating scene in {data.get('chapter_title', f'Chapter {ch_idx}')}…"
+                        ),
                     })
                 return on_batch
 
@@ -805,6 +830,7 @@ def run_dictionary_study_pipeline(
                 "translation_cache_hits": total_cache_hits,
                 "main_file_ready": True,
                 "main_output_bytes": main_size,
+                "log": f"Completed Chapter {i}/{total_chapters} '{ch_title}' ({len(trans_ch.paragraphs)} paragraphs translated)",
             })
 
         # Save standalone bilingual companion EPUB alongside main output
@@ -819,6 +845,7 @@ def run_dictionary_study_pipeline(
             "main_output_bytes": main_size,
             "bilingual_output_bytes": bilingual_size,
             "output_bytes": main_size,
+            "log": f"All chapters translated! Standalone Bilingual Companion EPUB packaged: {bilingual_target.name} ({bilingual_size:,} bytes)",
         })
     else:
         progress({
@@ -827,6 +854,7 @@ def run_dictionary_study_pipeline(
             "main_output_bytes": main_size,
             "output_bytes": main_size,
             "study_items": summary["study_items"],
+            "log": f"Conversion complete: Converted ebook ready at {output.name} ({main_size:,} bytes)",
         })
 
     return summary

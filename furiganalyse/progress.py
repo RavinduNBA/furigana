@@ -83,8 +83,16 @@ class ProgressWriter:
             "cast_summary", "glossary_summary",
             "main_file_ready", "bilingual_file_ready",
             "main_output_bytes", "bilingual_output_bytes",
+            "log_lines",
         }
         self.values.update({key: value for key, value in event.items() if key in allowed})
+        if "log" in event and event["log"]:
+            timestamp = time.strftime("%H:%M:%S")
+            line = f"[{timestamp}] {event['log']}"
+            logs = self.values.setdefault("log_lines", [])
+            logs.append(line)
+            if len(logs) > 120:
+                self.values["log_lines"] = logs[-120:]
         elapsed = max(0.0, time.monotonic() - self.started)
         total = int(self.values["characters_total"])
         processed = int(self.values["characters_processed"])
