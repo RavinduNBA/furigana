@@ -743,7 +743,10 @@ def validate_enriched_report(
                     raise VocabularyAnalysisError(
                         f"Incompatible dictionary reading restriction: {entry.entry_id}"
                     )
-            if candidate.reading_source == "publisher":
+            if (
+                candidate.reading_source == "publisher"
+                and candidate.reading is not None
+            ):
                 authoritative = normalize_reading(candidate.reading)
                 if not entry.readings or any(
                     normalize_reading(reading.text) != authoritative
@@ -1238,7 +1241,10 @@ def validate_name_report(report: NameEnrichedVocabularyReport):
                 raise VocabularyAnalysisError(
                     f"Name dictionary text mismatch: {entry.entry_id}"
                 )
-            if occurrence.classification_evidence == "publisher_ruby":
+            if (
+                occurrence.classification_evidence == "publisher_ruby"
+                and occurrence.reading is not None
+            ):
                 authoritative = normalize_reading(occurrence.reading)
                 if any(
                     normalize_reading(reading.text) != authoritative

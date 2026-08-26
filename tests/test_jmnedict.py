@@ -233,6 +233,24 @@ def test_publisher_name_enrichment_is_ordered_and_deterministic(provider, tmp_pa
     }
 
 
+def test_publisher_name_without_reading_does_not_invent_authority(provider, tmp_path):
+    epub = tmp_path / "fixture.epub"
+    build_fixture(epub)
+    base = analyze_vocabulary(extract_book(epub))
+    candidates = [
+        replace(candidate, reading=None)
+        if candidate.surface == "雪乃"
+        else candidate
+        for candidate in base.candidates
+    ]
+
+    report = enrich_name_report(replace(base, candidates=candidates), provider)
+
+    name = next(value for value in report.name_occurrences if value.surface == "雪乃")
+    assert name.reading is None
+    assert name.classification_evidence == "publisher_ruby"
+
+
 def test_name_validation_rejects_bad_ids_references_and_translations(
     provider, tmp_path
 ):

@@ -235,6 +235,31 @@ def test_publisher_reading_is_authoritative(provider):
     assert matches[0].readings[0].text == "おもてぶたい"
 
 
+def test_publisher_ruby_without_reading_does_not_invent_authority(provider, tmp_path):
+    epub = tmp_path / "fixture.epub"
+    build_fixture(epub)
+    base = analyze_vocabulary(extract_book(epub))
+    candidates = [
+        replace(candidate, reading=None)
+        if candidate.surface == "表舞台"
+        else candidate
+        for candidate in base.candidates
+    ]
+
+    enriched = enrich_vocabulary_report(replace(base, candidates=candidates), provider)
+
+    matching = [
+        match
+        for match in enriched.dictionary_matches
+        if next(
+            candidate
+            for candidate in candidates
+            if candidate.id == match.candidate_id
+        ).surface == "表舞台"
+    ]
+    assert matching
+
+
 def test_enrichment_is_optional_ordered_and_deterministic(provider, tmp_path):
     epub = tmp_path / "fixture.epub"
     build_fixture(epub)
