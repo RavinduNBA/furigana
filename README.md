@@ -194,6 +194,17 @@ appears in canonical sentence text.
 Phase 3 vocabulary candidates
 -----------------------------
 
+The web application also offers an EPUB-only **Dictionary Study** mode backed
+by explicit local JMdict/JMnedict SQLite indexes. It adds deterministic study
+notes and backlinks without provider, SDK, model, or runtime network calls.
+An **Experimental** toggle can apply Phase 8 reading/meaning assistance and
+synthetic N5/N4/N3 density mechanics to dictionary items only. Those presets
+are explainable regression defaults—not learner diagnoses, JLPT placement, or
+pedagogical recommendations. Grammar remains disabled for personal books while
+the reviewed rule dataset is synthetic. See
+[`docs/edrdg-data-sources.md`](docs/edrdg-data-sources.md) for official-source,
+update, provenance, and attribution details.
+
 Generate a deterministic, versioned tokenizer and vocabulary-candidate report:
 
 ```bash

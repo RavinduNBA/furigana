@@ -16,6 +16,13 @@
     const sliderContainer = document.getElementById("custom_word_list_slider_container");
     const slider = document.getElementById("custom_word_list_limit");
     const sliderLabel = document.getElementById("custom_word_list_limit_label");
+    const pipelineStudy = document.getElementById("pipeline-study");
+    const furiganaOptions = document.getElementById("furigana-options");
+    const studyOptions = document.getElementById("study-options");
+    const layoutOptions = document.getElementById("layout-options");
+    const outputFormat = document.getElementById("of");
+    const experimental = document.getElementById("experimental_adaptive");
+    const experimentalOptions = document.getElementById("experimental-options");
 
     function formatBytes(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -77,6 +84,20 @@
         }
     }
 
+    function updatePipeline() {
+        const study = pipelineStudy && pipelineStudy.checked;
+        furiganaOptions.hidden = study;
+        studyOptions.hidden = !study;
+        layoutOptions.hidden = study;
+        if (study) outputFormat.value = "epub";
+        Array.from(outputFormat.options).forEach(option => {
+            option.disabled = study && option.value !== "epub";
+        });
+        bookFile.accept = study ? ".epub,application/epub+zip" : bookFile.dataset.allAccept;
+        experimentalOptions.hidden = !study || !experimental.checked;
+        submitButton.querySelector("span").textContent = study ? "Build Study EPUB" : "Convert ebook";
+    }
+
     function updateCustomFile() {
         const file = customFile.files && customFile.files[0];
         if (!file) {
@@ -96,6 +117,11 @@
     }
 
     ["fm_add", "fm_replace", "fm_remove"].forEach(id => document.getElementById(id).addEventListener("change", updateMode));
+    ["pipeline-furigana", "pipeline-study"].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.addEventListener("change", updatePipeline);
+    });
+    experimental.addEventListener("change", updatePipeline);
     bookFile.addEventListener("change", updateBookFile);
     knownWords.addEventListener("change", updateCustomVisibility);
     customFile.addEventListener("change", updateCustomFile);
@@ -117,6 +143,8 @@
         submitButton.disabled = true;
         submitButton.querySelector("span").textContent = "Uploading…";
     });
+    bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
+    updatePipeline();
     updateBookFile();
 }());

@@ -34,6 +34,9 @@ conv_*.txt
 # Sample data
 sample_data/
 
+# Local production dictionary releases and indexes
+data/edrdg/
+
 # Ruff
 .ruff_cache/
 

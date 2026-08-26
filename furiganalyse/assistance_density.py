@@ -184,12 +184,14 @@ def _validate_inputs(
 
 
 def _canonical_maps(book: dict[str, Any]) -> tuple[
-    dict[str, tuple[int, int, int]], dict[str, int], set[str], dict[str, str]
+    dict[str, tuple[int, int, int]], dict[str, int], set[str],
+    dict[str, str], dict[str, int]
 ]:
     locations: dict[str, tuple[int, int, int]] = {}
     character_counts: dict[str, int] = {}
     ruby_ids: set[str] = set()
     sentence_texts: dict[str, str] = {}
+    sentence_block_starts: dict[str, int] = {}
     for chapter_index, chapter in enumerate(book.get("chapters", [])):
         chapter_id = _safe_id(chapter.get("id"), "chapter")
         count = 0
@@ -205,12 +207,13 @@ def _canonical_maps(book: dict[str, Any]) -> tuple[
                 count += len(text)
                 locations[sentence_id] = (chapter_index, block_index, sentence_index)
                 sentence_texts[sentence_id] = text
+                sentence_block_starts[sentence_id] = sentence.get("start")
                 if sentence_id.rsplit("-s-", 1)[0] != block_id:
                     raise AssistanceDensityError("Unknown sentence reference")
         character_counts[chapter_id] = count
     if not locations or any(value < 0 for value in character_counts.values()):
         raise AssistanceDensityError("Invalid character count")
-    return locations, character_counts, ruby_ids, sentence_texts
+    return locations, character_counts, ruby_ids, sentence_texts, sentence_block_starts
 
 
 def _source_occurrences(
@@ -328,7 +331,10 @@ def build_density_report(
     if preset_ids and preset_ids != {policy["preset_id"]}:
         raise AssistanceDensityError("Preset/policy mismatch")
 
-    locations, character_counts, ruby_ids, sentence_texts = _canonical_maps(book)
+    (
+        locations, character_counts, ruby_ids, sentence_texts,
+        sentence_block_starts,
+    ) = _canonical_maps(book)
     source_occurrences, item_kinds = _source_occurrences(annotation_plan, grammar_plan)
     results = {value["source_item_id"]: value for value in assistance["results"]}
     if len(results) != len(assistance["results"]):
@@ -359,8 +365,11 @@ def build_density_report(
             not isinstance(start, int) or not isinstance(end, int)
             or start < 0 or end <= start or end > len(text)
             or text[start:end] != occurrence.get("surface")
-            or occurrence.get("block_start") != start
-            or occurrence.get("block_end") != end
+            or not isinstance(sentence_block_starts[occurrence["sentence_id"]], int)
+            or occurrence.get("block_start")
+            != sentence_block_starts[occurrence["sentence_id"]] + start
+            or occurrence.get("block_end")
+            != sentence_block_starts[occurrence["sentence_id"]] + end
         ):
             raise AssistanceDensityError("Invalid occurrence offset")
 

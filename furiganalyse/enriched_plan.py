@@ -23,6 +23,24 @@ class EnrichedPlanError(EnrichmentError):
     """Raised when plan application inputs or output are inconsistent."""
 
 
+def promote_dictionary_only_plan(plan):
+    """Promote a validated schema-v1 plan without invoking an enrichment provider.
+
+    Phase 8 consumes the schema-v2 envelope. Dictionary meanings remain exactly
+    those selected by Phase 4 and the empty enrichment list records that no
+    provider-authored replacement was accepted.
+    """
+    if plan.get("schema_version") != 1:
+        raise EnrichedPlanError("Dictionary-only promotion requires schema v1")
+    output = copy.deepcopy(plan)
+    output["schema_version"] = SCHEMA_VERSION
+    output["source_annotation_plan_schema_version"] = 1
+    output["enrichments"] = []
+    output["enrichment_diagnostics"] = []
+    validate_enriched_plan(output, plan)
+    return output
+
+
 def _index(values, label, key="id"):
     result = {}
     for value in values:

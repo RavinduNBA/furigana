@@ -43,7 +43,7 @@
         <form class="converter-card" id="form" action="{{ url_for('task_handler') }}" method="post" enctype="multipart/form-data">
             <div class="section-heading">
                 <div><span class="section-kicker">Converter</span><h2>Prepare your ebook</h2></div>
-                <span class="step-count">4 steps</span>
+                <span class="step-count">5 steps</span>
             </div>
 
             <fieldset class="form-section">
@@ -57,7 +57,22 @@
             </fieldset>
 
             <fieldset class="form-section">
-                <legend><span class="step-number">2</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
+                <legend><span class="step-number">2</span><span>Processing mode<small>Choose direct furigana or dictionary-backed study notes</small></span></legend>
+                <div class="choice-grid choice-grid--two" role="radiogroup" aria-label="Processing mode">
+                    <label class="choice-card">
+                        <input type="radio" name="pipeline_mode" id="pipeline-furigana" value="furigana" checked>
+                        <span class="choice-content"><strong>Furigana converter</strong><small>Fast reading annotation with your known-word filter.</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="pipeline_mode" id="pipeline-study" value="study" {% if not dictionaries_ready %}disabled{% endif %}>
+                        <span class="choice-content"><strong>Dictionary Study EPUB</strong><small>Vocabulary, expressions, proper names, notes, and backlinks · EPUB only.</small></span>
+                    </label>
+                </div>
+                {% if not dictionaries_ready %}<p class="form-notice">Local EDRDG indexes are not ready, so Dictionary Study mode is temporarily unavailable.</p>{% endif %}
+            </fieldset>
+
+            <fieldset class="form-section" id="furigana-options">
+                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>
@@ -94,8 +109,38 @@
                 </div>
             </fieldset>
 
-            <fieldset class="form-section">
-                <legend><span class="step-number">3</span><span>Book layout<small>Preserve or set the reading direction</small></span></legend>
+            <fieldset class="form-section" id="study-options" hidden>
+                <legend><span class="step-number">3</span><span>Study assistance<small>Dictionary-only, local, and deterministic</small></span></legend>
+                <div class="field-row">
+                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Limits unique vocabulary, expressions, and proper names</small></label>
+                    <select name="per_chapter_item_limit" id="per_chapter_item_limit">
+                        <option value="5">5 items</option>
+                        <option value="10" selected>10 items</option>
+                        <option value="20">20 items</option>
+                        <option value="30">30 items</option>
+                    </select>
+                </div>
+                <label class="experimental-toggle" for="experimental_adaptive">
+                    <span><strong>Experimental adaptive assistance</strong><small>Apply reviewed Phase 8 mechanics to dictionary items. Synthetic presets are not learner diagnoses.</small></span>
+                    <input type="checkbox" name="experimental_adaptive" id="experimental_adaptive" value="true">
+                </label>
+                <div class="subpanel" id="experimental-options" hidden>
+                    <div class="field-row">
+                        <label for="assistance_preset"><strong>Synthetic density preset</strong><small>N5 shows the most assistance; N3 the least</small></label>
+                        <select name="assistance_preset" id="assistance_preset"><option>N5</option><option>N4</option><option>N3</option></select>
+                    </div>
+                    <div class="choice-grid choice-grid--two">
+                        <label class="choice-card choice-card--compact"><input type="radio" name="assistance_reading" value="show-reading" checked><span class="choice-content"><strong>Show selected readings</strong><small>Publisher ruby is always preserved</small></span></label>
+                        <label class="choice-card choice-card--compact"><input type="radio" name="assistance_reading" value="hide-reading"><span class="choice-content"><strong>Hide generated readings</strong><small>Does not remove publisher ruby</small></span></label>
+                        <label class="choice-card choice-card--compact"><input type="radio" name="assistance_meaning" value="show-meaning" checked><span class="choice-content"><strong>Show selected meanings</strong><small>Approved dictionary glosses only</small></span></label>
+                        <label class="choice-card choice-card--compact"><input type="radio" name="assistance_meaning" value="hide-meaning"><span class="choice-content"><strong>Hide meanings</strong><small>Omitted, never concealed in markup</small></span></label>
+                    </div>
+                    <p class="fine-print">No grammar rules, inferred exposure history, provider calls, or model judgment are used in this initial personal-book mode.</p>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section" id="layout-options">
+                <legend><span class="step-number">4</span><span>Book layout<small>Preserve or set the reading direction</small></span></legend>
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Writing direction">
                     <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb" checked><span class="choice-content"><strong>Horizontal</strong><span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span></span></label>
                     <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl"><span class="choice-content"><strong>Vertical · right to left</strong><span class="direction-sample direction-vertical">次の駅で降りた。</span></span></label>
@@ -104,7 +149,7 @@
             </fieldset>
 
             <fieldset class="form-section form-section--last">
-                <legend><span class="step-number">4</span><span>Output<small>Choose the file you want back</small></span></legend>
+                <legend><span class="step-number">5</span><span>Output<small>Choose the file you want back</small></span></legend>
                 <div class="field-row">
                     <label for="of"><strong>Output format</strong><small>EPUB is recommended for reading apps</small></label>
                     <select name="of" id="of">
@@ -120,7 +165,7 @@
             </fieldset>
 
             <div class="submit-panel">
-                <div><strong>Ready when you are</strong><small>Aggregate progress is logged; book text is not included in progress telemetry.</small></div>
+                <div><strong>Ready when you are</strong><small>Progress logs counts, stages, rates, and ETA—not book text.</small></div>
                 <button class="primary-button" type="submit" id="upload" disabled><span>Convert ebook</span><span aria-hidden="true">→</span></button>
             </div>
         </form>
@@ -128,39 +173,39 @@
         <aside class="capability-column" id="capabilities">
             <section class="info-card">
                 <span class="section-kicker">Available in the web converter</span>
-                <h2>Reading controls that work today</h2>
+                <h2>Reading and dictionary study tools</h2>
                 <ul class="feature-list">
                     <li><span>読</span><div><strong>Furigana modes</strong><small>Add, replace, or remove generated readings.</small></div></li>
                     <li><span>級</span><div><strong>Known-word filters</strong><small>JLPT lists or your own explicit local list.</small></div></li>
                     <li><span>縦</span><div><strong>Writing direction</strong><small>Horizontal and both vertical directions.</small></div></li>
                     <li><span>進</span><div><strong>Live progress</strong><small>Sections, characters, elapsed time, rate, and ETA.</small></div></li>
+                    <li><span>辞</span><div><strong>Local dictionary notes</strong><small>JMdict vocabulary/expressions and separate JMnedict proper names.</small></div></li>
                 </ul>
             </section>
 
             <section class="info-card info-card--tinted">
-                <div class="card-title-row"><span class="section-kicker">Reviewed pipeline</span><span class="status-badge">CLI · synthetic fixtures</span></div>
-                <h2>Vocabulary, grammar, and adaptive assistance</h2>
-                <p>Deterministic Phase 7/8 mechanics have passed fixture and Calibre review:</p>
+                <div class="card-title-row"><span class="section-kicker">Experimental</span><span class="status-badge">Dictionary-only initially</span></div>
+                <h2>Adaptive assistance</h2>
+                <p>Reviewed Phase 8 mechanics can be enabled for dictionary study items:</p>
                 <div class="pipeline-list">
                     <span>Vocabulary &amp; expression notes</span>
-                    <span>Grammar contexts &amp; backlinks</span>
                     <span>Learner assistance states</span>
-                    <span>Exposure-aware density</span>
+                    <span>Independent reading &amp; meaning density</span>
                     <span>Adaptive XHTML &amp; EPUB packaging</span>
                 </div>
-                <p class="fine-print">These controls are not yet enabled for arbitrary uploaded books. Current presets and grammar data are synthetic regression fixtures, not production learner assessments.</p>
+                <p class="fine-print">N5/N4/N3 presets are synthetic explainable defaults, not JLPT placement or pedagogical advice. Grammar remains off for personal books until production rules are separately approved.</p>
             </section>
 
             <section class="privacy-card">
                 <span aria-hidden="true">⌁</span>
-                <div><strong>Privacy boundary</strong><p>No provider, SDK, model, or network dictionary lookup runs during conversion. Temporary jobs are cleaned by the server retention policy.</p></div>
+                <div><strong>Privacy boundary</strong><p>No provider, SDK, model, or network lookup runs during conversion. Official EDRDG releases are downloaded only by an explicit administrator update and queried locally.</p></div>
             </section>
         </aside>
     </section>
 </main>
 
 <footer class="site-footer">
-    <span>Furiganalyse · deterministic Japanese reading support</span>
+    <span>Furiganalyse · dictionary data from <a href="https://www.edrdg.org/">EDRDG</a> under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></span>
     <span><a href="https://github.com/itsupera/furiganalyse/issues">Report an issue</a> · <a href="https://www.buymeacoffee.com/itsupera">Support the project</a></span>
 </footer>
 </body>

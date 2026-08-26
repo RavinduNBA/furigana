@@ -20,11 +20,18 @@
         return (bytes / 1048576).toFixed(1) + " MB";
     }
     function stageLabel(stage) {
-        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", error: "Stopped"})[stage] || "Working";
+        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", error: "Stopped"})[stage] || "Working";
     }
     function updateStages(stage) {
-        const order = ["preparing", "extracting", "processing", "packaging", "complete"];
-        const current = order.indexOf(stage);
+        const groups = [
+            ["queued", "preparing", "extracting"],
+            ["canonical-analysis", "tokenizing", "processing"],
+            ["dictionary-lookup", "expression-lookup", "name-lookup"],
+            ["study-selection", "linked-rendering"],
+            ["assistance-selection", "density-planning", "adaptive-rendering"],
+            ["packaging", "complete"]
+        ];
+        const current = groups.findIndex(group => group.includes(stage));
         document.querySelectorAll(".stage-strip span").forEach(function (element, index) {
             element.classList.toggle("is-active", index === current);
             element.classList.toggle("is-complete", current > index || stage === "complete");
@@ -39,7 +46,13 @@
         byId("progress-stage").textContent = stageLabel(progress.stage);
         byId("progress-sections").textContent = formatNumber(progress.sections_completed) + " / " + formatNumber(progress.sections_total);
         byId("progress-characters").textContent = formatNumber(progress.characters_processed) + " / " + formatNumber(progress.characters_total);
-        byId("progress-remaining").textContent = formatNumber(progress.sections_remaining) + " sections · " + formatNumber(progress.characters_remaining) + " characters left";
+        byId("progress-words").textContent = formatNumber(progress.words_processed) + " / " + formatNumber(progress.words_total);
+        byId("words-caption").textContent = formatNumber(progress.words_remaining) + " candidates left";
+        byId("progress-matches").textContent = formatNumber(progress.dictionary_matches) + " words · " + formatNumber(progress.expression_matches) + " expressions · " + formatNumber(progress.name_matches) + " names";
+        byId("matches-caption").textContent = progress.study_items ? formatNumber(progress.study_items) + " selected study items" : "Local dictionary only";
+        byId("progress-remaining").textContent = progress.pipeline_mode === "study" ?
+            formatNumber(progress.words_remaining) + " word candidates · " + formatNumber(progress.names_total - progress.names_processed) + " names left" :
+            formatNumber(progress.sections_remaining) + " sections · " + formatNumber(progress.characters_remaining) + " characters left";
         byId("progress-elapsed").textContent = formatDuration(progress.elapsed_seconds);
         byId("progress-eta").textContent = progress.eta_seconds === null ? "ETA calculating…" : "ETA " + formatDuration(progress.eta_seconds);
         byId("progress-rate").textContent = formatNumber(progress.characters_per_second) + " chars/s";

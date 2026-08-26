@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Iterator, Protocol
 from xml.etree import ElementTree as ET
 
 INDEX_FORMAT_VERSION = 1
@@ -96,6 +97,118 @@ def _texts(element: ET.Element, name: str) -> list[str]:
     ]
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _entity_code_map_from_bytes(raw: bytes) -> dict[str, str]:
+    return {
+        description.decode("utf-8"): code.decode("ascii")
+        for code, description in re.findall(
+            rb'<!ENTITY\s+([A-Za-z0-9_-]+)\s+"([^"]+)"\s*>', raw
+        )
+    }
+
+
+def _entity_code_map(path: Path) -> dict[str, str]:
+    header = bytearray()
+    with path.open("rb") as source:
+        for line in source:
+            header.extend(line)
+            if b"]>" in line:
+                break
+    return _entity_code_map_from_bytes(bytes(header))
+
+
+def _entry_from_xml(
+    entry_element: ET.Element,
+    seen_sequences: set[int],
+    entity_codes: dict[str, str] | None = None,
+) -> JmdictEntry:
+    sequence_text = entry_element.findtext("ent_seq")
+    if not sequence_text or not sequence_text.isdigit():
+        raise JmdictError("JMdict entry has no numeric ent_seq")
+    sequence = int(sequence_text)
+    if sequence in seen_sequences:
+        raise JmdictError(f"Duplicate JMdict entry sequence: {sequence}")
+    seen_sequences.add(sequence)
+
+    written_forms = [
+        keb
+        for k_ele in entry_element.findall("k_ele")
+        for keb in _texts(k_ele, "keb")
+    ]
+    readings = []
+    for r_ele in entry_element.findall("r_ele"):
+        reb = r_ele.findtext("reb")
+        if not reb or not reb.strip():
+            raise JmdictError(f"JMdict entry {sequence} has an empty reading")
+        readings.append(
+            JmdictReading(
+                text=reb.strip(),
+                written_restrictions=_texts(r_ele, "re_restr"),
+                no_kanji=r_ele.find("re_nokanji") is not None,
+            )
+        )
+
+    senses = []
+    for index, sense in enumerate(entry_element.findall("sense"), start=1):
+        senses.append(
+            JmdictSense(
+                id=f"jmdict-{sequence}-sense-{index:04d}",
+                index=index,
+                parts_of_speech=[
+                    (entity_codes or {}).get(value, value)
+                    for value in _texts(sense, "pos")
+                ],
+                written_restrictions=_texts(sense, "stagk"),
+                reading_restrictions=_texts(sense, "stagr"),
+                glosses=[
+                    gloss.text.strip()
+                    for gloss in sense.findall("gloss")
+                    if gloss.text
+                    and gloss.text.strip()
+                    and gloss.attrib.get(
+                        "{http://www.w3.org/XML/1998/namespace}lang", "eng"
+                    ) == "eng"
+                ],
+            )
+        )
+    if not readings or not senses:
+        raise JmdictError(f"JMdict entry {sequence} lacks readings or senses")
+    return JmdictEntry(
+        sequence=sequence,
+        written_forms=written_forms,
+        readings=readings,
+        senses=senses,
+    )
+
+
+def iter_jmdict_entries(xml_path: str | Path) -> Iterator[JmdictEntry]:
+    """Stream validated entries without retaining the full XML tree."""
+    path = Path(xml_path)
+    seen_sequences: set[int] = set()
+    entity_codes = _entity_code_map(path)
+    root_checked = False
+    try:
+        for event, element in ET.iterparse(path, events=("start", "end")):
+            if event == "start" and not root_checked:
+                if element.tag != "JMdict":
+                    raise JmdictError("Expected a JMdict root element")
+                root_checked = True
+            elif event == "end" and element.tag == "entry":
+                yield _entry_from_xml(element, seen_sequences, entity_codes)
+                element.clear()
+    except ET.ParseError as error:
+        raise JmdictError("Invalid JMdict XML") from error
+    if not root_checked:
+        raise JmdictError("Expected a JMdict root element")
+
+
 def parse_jmdict(
     xml_path: str | Path,
     dataset_id: str | None = None,
@@ -111,64 +224,12 @@ def parse_jmdict(
     if not dataset_id or not dataset_version:
         raise JmdictError("JMdict fixture requires dataset-id and version metadata")
 
-    entries = []
-    seen_sequences = set()
-    for entry_element in root.findall("entry"):
-        sequence_text = entry_element.findtext("ent_seq")
-        if not sequence_text or not sequence_text.isdigit():
-            raise JmdictError("JMdict entry has no numeric ent_seq")
-        sequence = int(sequence_text)
-        if sequence in seen_sequences:
-            raise JmdictError(f"Duplicate JMdict entry sequence: {sequence}")
-        seen_sequences.add(sequence)
-
-        written_forms = [
-            keb
-            for k_ele in entry_element.findall("k_ele")
-            for keb in _texts(k_ele, "keb")
-        ]
-        readings = []
-        for r_ele in entry_element.findall("r_ele"):
-            reb = r_ele.findtext("reb")
-            if not reb or not reb.strip():
-                raise JmdictError(f"JMdict entry {sequence} has an empty reading")
-            readings.append(
-                JmdictReading(
-                    text=reb.strip(),
-                    written_restrictions=_texts(r_ele, "re_restr"),
-                    no_kanji=r_ele.find("re_nokanji") is not None,
-                )
-            )
-
-        senses = []
-        for index, sense in enumerate(entry_element.findall("sense"), start=1):
-            senses.append(
-                JmdictSense(
-                    id=f"jmdict-{sequence}-sense-{index:04d}",
-                    index=index,
-                    parts_of_speech=_texts(sense, "pos"),
-                    written_restrictions=_texts(sense, "stagk"),
-                    reading_restrictions=_texts(sense, "stagr"),
-                    glosses=[
-                        gloss.text.strip()
-                        for gloss in sense.findall("gloss")
-                        if gloss.text
-                        and gloss.text.strip()
-                        and gloss.attrib.get("{http://www.w3.org/XML/1998/namespace}lang", "eng")
-                        == "eng"
-                    ],
-                )
-            )
-        if not readings or not senses:
-            raise JmdictError(f"JMdict entry {sequence} lacks readings or senses")
-        entries.append(
-            JmdictEntry(
-                sequence=sequence,
-                written_forms=written_forms,
-                readings=readings,
-                senses=senses,
-            )
-        )
+    seen_sequences: set[int] = set()
+    entity_codes = _entity_code_map_from_bytes(raw)
+    entries = [
+        _entry_from_xml(element, seen_sequences, entity_codes)
+        for element in root.findall("entry")
+    ]
 
     entries.sort(key=lambda entry: entry.sequence)
     return (
@@ -188,7 +249,19 @@ def build_jmdict_index(
     dataset_id: str | None = None,
     dataset_version: str | None = None,
 ):
-    provenance, entries = parse_jmdict(xml_path, dataset_id, dataset_version)
+    path = Path(xml_path)
+    if not dataset_id or not dataset_version:
+        # Fixture metadata remains supported by the in-memory parser. Production
+        # release builds supply explicit, pinned provenance at the boundary.
+        provenance, entries = parse_jmdict(path, dataset_id, dataset_version)
+    else:
+        provenance = JmdictProvenance(
+            dataset_id=dataset_id,
+            dataset_version=dataset_version,
+            format_version=INDEX_FORMAT_VERSION,
+            sha256=_file_sha256(path),
+        )
+        entries = iter_jmdict_entries(path)
     output = Path(index_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists():
@@ -282,8 +355,20 @@ def _valid_readings(
 
 
 class SqliteJmdictProvider:
-    def __init__(self, index_path: str | Path):
+    def __init__(
+        self,
+        index_path: str | Path,
+        *,
+        max_matches: int | None = None,
+        max_senses_per_match: int | None = None,
+    ):
+        if max_matches is not None and max_matches < 1:
+            raise JmdictError("max_matches must be positive")
+        if max_senses_per_match is not None and max_senses_per_match < 1:
+            raise JmdictError("max_senses_per_match must be positive")
         self.index_path = Path(index_path)
+        self.max_matches = max_matches
+        self.max_senses_per_match = max_senses_per_match
         self.connection = sqlite3.connect(f"file:{self.index_path}?mode=ro", uri=True)
         metadata = dict(self.connection.execute("SELECT key, value FROM metadata"))
         if int(metadata.get("format_version", -1)) != INDEX_FORMAT_VERSION:
@@ -294,6 +379,7 @@ class SqliteJmdictProvider:
             format_version=int(metadata["format_version"]),
             sha256=metadata["sha256"],
         )
+        self._lookup_cache: dict[JmdictQuery, tuple[JmdictEntryMatch, ...]] = {}
 
     @property
     def provenance(self) -> JmdictProvenance:
@@ -303,6 +389,9 @@ class SqliteJmdictProvider:
         self.connection.close()
 
     def lookup(self, query: JmdictQuery) -> list[JmdictEntryMatch]:
+        cached = self._lookup_cache.get(query)
+        if cached is not None:
+            return list(cached)
         forms = []
         for matched_by, form in (("lemma", query.lemma), ("surface", query.surface)):
             if form and form not in [existing[1] for existing in forms]:
@@ -315,7 +404,18 @@ class SqliteJmdictProvider:
                 "ORDER BY sequence, kind, form_order",
                 (form,),
             ):
-                sequences.setdefault(sequence, (matched_by, form, kind))
+                if kind == "reading":
+                    if (
+                        not normalized_reading
+                        or normalize_reading(form) != normalized_reading
+                    ):
+                        continue
+                    sequences.setdefault(
+                        sequence,
+                        ("reading", normalized_reading, kind),
+                    )
+                else:
+                    sequences.setdefault(sequence, (matched_by, form, kind))
         if not sequences and normalized_reading:
             for sequence, kind in self.connection.execute(
                 "SELECT sequence, kind FROM forms WHERE form = ? ORDER BY sequence",
@@ -354,6 +454,8 @@ class SqliteJmdictProvider:
             ]
             if not senses:
                 continue
+            if self.max_senses_per_match is not None:
+                senses = senses[: self.max_senses_per_match]
             matches.append(
                 JmdictEntryMatch(
                     entry_id=f"jmdict-{entry.sequence}",
@@ -365,4 +467,7 @@ class SqliteJmdictProvider:
                     senses=senses,
                 )
             )
-        return matches
+            if self.max_matches is not None and len(matches) >= self.max_matches:
+                break
+        self._lookup_cache[query] = tuple(matches)
+        return list(matches)

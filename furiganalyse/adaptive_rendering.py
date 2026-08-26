@@ -133,11 +133,11 @@ def _publisher_ruby(root: ET.Element) -> list[bytes]:
     return [
         ET.tostring(node, encoding="utf-8")
         for node in root.findall(f".//{X}ruby")
-        if node.get("id", "").startswith("publisher-")
+        if "adaptive-reading-assistance" not in node.get("class", "").split()
     ]
 
 
-def _validate_links(files: dict[str, bytes]) -> None:
+def _validate_links(files: dict[str, bytes], *, strict_source_markup: bool = True) -> None:
     roots = {path: ET.fromstring(data) for path, data in files.items()}
     ids: dict[str, set[str]] = {}
     for path, root in roots.items():
@@ -145,12 +145,12 @@ def _validate_links(files: dict[str, bytes]) -> None:
         if len(values) != len(set(values)):
             raise AdaptiveRenderingError("Duplicate XHTML ID")
         ids[path] = set(values)
-        if root.findall(f".//{X}script"):
+        if strict_source_markup and root.findall(f".//{X}script"):
             raise AdaptiveRenderingError("Unsafe hidden content")
         for node in root.iter():
             if any(name.lower().startswith("on") for name in node.attrib):
                 raise AdaptiveRenderingError("Unsafe hidden content")
-            if node.get("src"):
+            if strict_source_markup and node.get("src"):
                 raise AdaptiveRenderingError("Unsafe XHTML link")
         for link in root.findall(f".//{X}a"):
             if link.findall(f".//{X}a"):
@@ -160,6 +160,15 @@ def _validate_links(files: dict[str, bytes]) -> None:
             href = link.get("href")
             if not href:
                 continue
+            generated = bool(
+                {
+                    "study-link", "study-note__backlink", "grammar-link",
+                    "grammar-study-note__backlink",
+                }
+                & set(link.get("class", "").split())
+            )
+            if not strict_source_markup and not generated:
+                continue
             split = urlsplit(href)
             if split.scheme or split.netloc or ".." in PurePosixPath(split.path).parts:
                 raise AdaptiveRenderingError("Unsafe XHTML link")
@@ -168,11 +177,12 @@ def _validate_links(files: dict[str, bytes]) -> None:
             )
             if target not in roots or not split.fragment or split.fragment not in ids[target]:
                 raise AdaptiveRenderingError("Broken fragment")
-    combined = b"".join(files.values()).lower().replace(b" ", b"")
-    if any(value in combined for value in (
-        b"display:none", b"visibility:hidden", b"data-meaning", b"<!--", b"url("
-    )):
-        raise AdaptiveRenderingError("Unsafe hidden content")
+    if strict_source_markup:
+        combined = b"".join(files.values()).lower().replace(b" ", b"")
+        if any(value in combined for value in (
+            b"display:none", b"visibility:hidden", b"data-meaning", b"<!--", b"url("
+        )):
+            raise AdaptiveRenderingError("Unsafe hidden content")
 
 
 def _diagnostic(reason: str, number: int = 1, source_id: str = "adaptive-rendering") -> dict[str, Any]:
@@ -238,11 +248,20 @@ def _validate_inputs(
             "source_hashes", "source_schema_versions",
         },
     )
-    values_and_fields = [(book, expected_fields[0]), (annotation_plan, expected_fields[1])]
-    if grammar_plan is not None:
-        values_and_fields.append((grammar_plan, expected_fields[2]))
-    values_and_fields.extend(((assistance, expected_fields[3]), (density, expected_fields[4])))
-    if any(set(value) != fields for value, fields in values_and_fields):
+    annotation_fields = expected_fields[1]
+    production_annotation_fields = annotation_fields | {
+        "tokenizer", "dictionary", "name_dictionary",
+    }
+    invalid_fields = (
+        set(book) != expected_fields[0]
+        or frozenset(annotation_plan) not in {
+            frozenset(annotation_fields), frozenset(production_annotation_fields)
+        }
+        or (grammar_plan is not None and set(grammar_plan) != expected_fields[2])
+        or set(assistance) != expected_fields[3]
+        or set(density) != expected_fields[4]
+    )
+    if invalid_fields:
         raise AdaptiveRenderingError("Unsupported schema or field")
     actual = (
         book.get("schema_version"), annotation_plan.get("schema_version"),
@@ -344,6 +363,7 @@ def render_adaptive_output(
     density: dict[str, Any],
     *,
     enabled: bool = False,
+    strict_source_markup: bool = True,
 ) -> tuple[dict[str, Any], dict[str, bytes]]:
     source_files = read_xhtml_directory(source_dir)
     if not enabled:
@@ -351,9 +371,12 @@ def render_adaptive_output(
     _validate_inputs(book, annotation_plan, grammar_plan, assistance, density)
     _validate_occurrence_plans(book, annotation_plan, grammar_plan, assistance, density)
     chapter_paths = {chapter["id"]: chapter["source_path"] for chapter in book["chapters"]}
-    required = set(chapter_paths.values()) | {"EPUB/text/study-notes.xhtml"}
+    notes_directory = posixpath.dirname(next(iter(chapter_paths.values())))
+    study_notes_path = posixpath.join(notes_directory, "study-notes.xhtml")
+    grammar_notes_path = posixpath.join(notes_directory, "grammar-notes.xhtml")
+    required = set(chapter_paths.values()) | {study_notes_path}
     if grammar_plan is not None:
-        required.add("EPUB/text/grammar-notes.xhtml")
+        required.add(grammar_notes_path)
     if set(source_files) != required:
         raise AdaptiveRenderingError("Ambiguous DOM mapping")
     roots = {path: ET.fromstring(data) for path, data in source_files.items()}
@@ -362,8 +385,8 @@ def render_adaptive_output(
     before_publisher = {path: _publisher_ruby(roots[path]) for path in chapter_set}
     items = {item["id"]: item for item in annotation_plan["items"]}
     assistance_results = {result["source_item_id"]: result for result in assistance["results"]}
-    study_notes = roots["EPUB/text/study-notes.xhtml"]
-    grammar_notes = roots.get("EPUB/text/grammar-notes.xhtml")
+    study_notes = roots[study_notes_path]
+    grammar_notes = roots.get(grammar_notes_path)
     occurrence_results: list[dict[str, Any]] = []
     diagnostics: list[dict[str, Any]] = []
     grammar_keep: dict[str, bool] = {}
@@ -387,6 +410,16 @@ def render_adaptive_output(
             if item is None or result is None or anchor is None or section is None:
                 raise AdaptiveRenderingError("Unknown occurrence")
             section.set("class", f"adaptive-study-note adaptive-{plan['item_kind']}-note")
+            # Phase 4 notes show dictionary reading/meaning by default. Adaptive
+            # rendering starts from those approved records but must genuinely omit
+            # any assistance the occurrence plan suppresses.
+            section_parents = _parent_map(section)
+            for node in list(section.iter()):
+                classes = node.get("class", "").split()
+                if "study-note__reading" in classes or "study-note__meaning" in classes:
+                    parent = section_parents.get(node)
+                    if parent is not None:
+                        parent.remove(node)
             reading_state = plan["planned_assistance"]["reading"]
             if reading_state == "publisher-ruby-preserved":
                 actions["reading"] = "publisher-ruby-preserved"
@@ -491,7 +524,7 @@ def render_adaptive_output(
             raise AdaptiveRenderingError("Visible source text changed")
         if _publisher_ruby(roots[path]) != before_publisher[path]:
             raise AdaptiveRenderingError("Publisher-ruby suppression attempt")
-    _validate_links(output_files)
+    _validate_links(output_files, strict_source_markup=strict_source_markup)
 
     document_results = [
         _add_hash({
@@ -547,6 +580,7 @@ def safe_render_adaptive_output(
     *,
     enabled: bool = False,
     failure_reason: str | None = None,
+    strict_source_markup: bool = True,
 ) -> tuple[dict[str, Any], dict[str, bytes]]:
     source_files = read_xhtml_directory(source_dir)
     if not enabled:
@@ -556,7 +590,7 @@ def safe_render_adaptive_output(
     try:
         return render_adaptive_output(
             source_dir, book, annotation_plan, grammar_plan, assistance, density,
-            enabled=True,
+            enabled=True, strict_source_markup=strict_source_markup,
         )
     except AdaptiveRenderingError as error:
         message = str(error).lower()

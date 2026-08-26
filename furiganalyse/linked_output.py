@@ -62,7 +62,7 @@ def _safe_path(value: str) -> str:
 
 
 def _leaf_blocks(root: ET.Element) -> list[ET.Element]:
-    return [
+    candidates = [
         element
         for element in root.iter()
         if local_name(element.tag) in BLOCK_TAGS
@@ -71,6 +71,10 @@ def _leaf_blocks(root: ET.Element) -> list[ET.Element]:
             for descendant in element.iter()
         )
     ]
+    # Canonical extraction intentionally omits empty structural blocks. Linked
+    # mapping must apply the same rule for production EPUBs containing empty
+    # headings, list items, or paragraph placeholders.
+    return [element for element in candidates if _visible_map(element)[0]]
 
 
 def _visible_map(element: ET.Element) -> tuple[str, list[_CharRef], list[_RubyRef]]:

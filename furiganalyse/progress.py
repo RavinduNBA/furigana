@@ -12,6 +12,16 @@ STAGE_PERCENT = {
     "queued": 0,
     "preparing": 2,
     "extracting": 5,
+    "canonical-analysis": 10,
+    "tokenizing": 15,
+    "dictionary-lookup": 30,
+    "expression-lookup": 50,
+    "name-lookup": 55,
+    "study-selection": 65,
+    "linked-rendering": 72,
+    "assistance-selection": 78,
+    "density-planning": 84,
+    "adaptive-rendering": 90,
     "processing": 10,
     "packaging": 95,
     "complete": 100,
@@ -35,6 +45,19 @@ class ProgressWriter:
             "characters_processed": 0,
             "characters_remaining": 0,
             "characters_per_second": 0,
+            "words_total": 0,
+            "words_processed": 0,
+            "words_remaining": 0,
+            "tokens_found": 0,
+            "dictionary_matches": 0,
+            "expressions_total": 0,
+            "expressions_processed": 0,
+            "expression_matches": 0,
+            "names_total": 0,
+            "names_processed": 0,
+            "name_matches": 0,
+            "study_items": 0,
+            "pipeline_mode": "furigana",
             "eta_seconds": None,
             "elapsed_seconds": 0,
             "input_bytes": input_bytes,
@@ -45,7 +68,11 @@ class ProgressWriter:
     def update(self, event: Mapping[str, Any]) -> None:
         allowed = {
             "stage", "sections_total", "sections_completed", "characters_total",
-            "characters_processed", "output_bytes",
+            "characters_processed", "output_bytes", "words_total",
+            "words_processed", "tokens_found", "dictionary_matches",
+            "expressions_total", "expressions_processed", "expression_matches",
+            "names_total", "names_processed", "name_matches", "study_items",
+            "units_total", "units_completed", "pipeline_mode",
         }
         self.values.update({key: value for key, value in event.items() if key in allowed})
         elapsed = max(0.0, time.monotonic() - self.started)
@@ -56,16 +83,33 @@ class ProgressWriter:
         self.values["elapsed_seconds"] = round(elapsed, 1)
         self.values["sections_remaining"] = max(0, section_total - section_done)
         self.values["characters_remaining"] = max(0, total - processed)
+        self.values["words_remaining"] = max(
+            0, int(self.values["words_total"]) - int(self.values["words_processed"])
+        )
         rate = processed / elapsed if elapsed > 0 and processed > 0 else 0
         self.values["characters_per_second"] = round(rate)
         self.values["eta_seconds"] = (
             round(self.values["characters_remaining"] / rate)
-            if rate > 0 and self.values["stage"] == "processing"
+            if rate > 0 and self.values["stage"] in {"processing", "tokenizing"}
             else None
         )
         if self.values["stage"] == "processing":
             fraction = processed / total if total else section_done / section_total if section_total else 0
             self.values["percent"] = min(90, 10 + round(80 * fraction))
+        elif self.values["stage"] in {
+            "tokenizing", "dictionary-lookup", "expression-lookup", "name-lookup"
+        }:
+            ranges = {
+                "tokenizing": (15, 30, "units_completed", "units_total"),
+                "dictionary-lookup": (30, 50, "words_processed", "words_total"),
+                "expression-lookup": (50, 57, "expressions_processed", "expressions_total"),
+                "name-lookup": (57, 65, "names_processed", "names_total"),
+            }
+            start, end, completed_key, total_key = ranges[self.values["stage"]]
+            count = int(self.values.get(completed_key, 0))
+            count_total = int(self.values.get(total_key, 0))
+            fraction = count / count_total if count_total else 0
+            self.values["percent"] = min(end, start + round((end - start) * fraction))
         else:
             self.values["percent"] = STAGE_PERCENT.get(str(self.values["stage"]), 0)
         self._write_atomic()

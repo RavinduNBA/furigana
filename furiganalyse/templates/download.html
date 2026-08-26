@@ -41,12 +41,14 @@
         <div class="metric-grid">
             <article><span class="metric-icon" aria-hidden="true">▤</span><div><small>Sections</small><strong id="progress-sections">0 / 0</strong><span id="sections-caption">XHTML book parts</span></div></article>
             <article><span class="metric-icon" aria-hidden="true">字</span><div><small>Characters</small><strong id="progress-characters">0 / 0</strong><span>Visible, non-whitespace</span></div></article>
+            <article><span class="metric-icon" aria-hidden="true">語</span><div><small>Word candidates</small><strong id="progress-words">0 / 0</strong><span id="words-caption">Awaiting analysis</span></div></article>
+            <article><span class="metric-icon" aria-hidden="true">辞</span><div><small>Study evidence</small><strong id="progress-matches">0 matches</strong><span id="matches-caption">Local dictionary only</span></div></article>
             <article><span class="metric-icon" aria-hidden="true">◷</span><div><small>Elapsed</small><strong id="progress-elapsed">0s</strong><span id="progress-eta">ETA calculating…</span></div></article>
             <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
 
         <div class="stage-strip" aria-label="Conversion stages">
-            <span data-stage="preparing">Prepare</span><span data-stage="extracting">Extract</span><span data-stage="processing">Annotate</span><span data-stage="packaging">Package</span><span data-stage="complete">Complete</span>
+            <span>Prepare</span><span>Analyze</span><span>Dictionary</span><span>Select</span><span>Adapt</span><span>Package</span>
         </div>
 
         <p class="section-explainer"><strong>Why sections, not pages?</strong> EPUBs reflow to fit each screen, so pages are not stable. XHTML sections and visible-character counts give a consistent measure.</p>

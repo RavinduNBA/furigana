@@ -252,10 +252,21 @@ def _is_candidate(token: VocabularyToken) -> bool:
     )
 
 
-def analyze_vocabulary(book: BookAnalysis) -> VocabularyReport:
+def analyze_vocabulary(book: BookAnalysis, progress_callback=None) -> VocabularyReport:
     """Create ordered tokenizer records and Japanese vocabulary candidates."""
     tokens = []
-    for chapter in book.chapters:
+    sentence_total = sum(
+        len(block.sentences) for chapter in book.chapters for block in chapter.blocks
+    )
+    character_total = sum(
+        len(sentence.text)
+        for chapter in book.chapters
+        for block in chapter.blocks
+        for sentence in block.sentences
+    )
+    sentence_done = 0
+    characters_done = 0
+    for chapter_number, chapter in enumerate(book.chapters, start=1):
         for block in chapter.blocks:
             ruby_by_id = {ruby.id: ruby for ruby in block.publisher_ruby}
             for sentence in block.sentences:
@@ -313,6 +324,24 @@ def analyze_vocabulary(book: BookAnalysis) -> VocabularyReport:
                             publisher_ruby_id=ruby_id,
                         )
                     )
+                sentence_done += 1
+                characters_done += len(sentence.text)
+                if progress_callback and (
+                    sentence_done == sentence_total or sentence_done % 20 == 0
+                ):
+                    progress_callback({
+                        "stage": "tokenizing",
+                        "units_total": sentence_total,
+                        "units_completed": sentence_done,
+                        "tokens_found": len(tokens),
+                        "sections_total": len(book.chapters),
+                        "sections_completed": chapter_number - (
+                            0 if sentence is block.sentences[-1]
+                            and block is chapter.blocks[-1] else 1
+                        ),
+                        "characters_total": character_total,
+                        "characters_processed": characters_done,
+                    })
 
     candidates = []
     for token in tokens:
@@ -451,12 +480,20 @@ def _find_expressions(
     report: VocabularyReport,
     provider: JmdictProvider,
     max_tokens: int = 8,
+    progress_callback=None,
+    max_matches_per_chapter: int | None = None,
 ) -> tuple[list[VocabularyExpression], list[ExpressionDictionaryMatches]]:
     candidate_by_token = {
         candidate.token_id: candidate for candidate in report.candidates
     }
     discovered = []
-    for run in _expression_runs(report):
+    runs = _expression_runs(report)
+    total_windows = sum(
+        sum(max(0, min(len(run), start + max_tokens) - start - 1) for start in range(len(run)))
+        for run in runs
+    )
+    completed_windows = 0
+    for run in runs:
         for start in range(len(run)):
             for end in range(start + 2, min(len(run), start + max_tokens) + 1):
                 tokens = run[start:end]
@@ -464,6 +501,7 @@ def _find_expressions(
                     _expression_lookup_form(tokens)
                 )
                 if content_count < 2:
+                    completed_windows += 1
                     continue
                 surface = "".join(token.surface for token in tokens)
                 entries = provider.lookup(
@@ -476,6 +514,23 @@ def _find_expressions(
                 )
                 if entries:
                     discovered.append((tokens, surface, normalized, entries))
+                completed_windows += 1
+                if progress_callback and (
+                    completed_windows == total_windows or completed_windows % 100 == 0
+                ):
+                    progress_callback({
+                        "stage": "expression-lookup",
+                        "expressions_total": total_windows,
+                        "expressions_processed": completed_windows,
+                        "expression_matches": len(discovered),
+                    })
+    if progress_callback:
+        progress_callback({
+            "stage": "expression-lookup",
+            "expressions_total": total_windows,
+            "expressions_processed": completed_windows,
+            "expression_matches": len(discovered),
+        })
 
     selected = []
     occupied = set()
@@ -502,6 +557,16 @@ def _find_expressions(
             value[0][0].sentence_start,
         )
     )
+    if max_matches_per_chapter is not None:
+        counts: dict[str, int] = {}
+        bounded = []
+        for item in selected:
+            chapter_id = item[0][0].chapter_id
+            if counts.get(chapter_id, 0) >= max_matches_per_chapter:
+                continue
+            counts[chapter_id] = counts.get(chapter_id, 0) + 1
+            bounded.append(item)
+        selected = bounded
     expressions = []
     matches = []
     index_by_sentence = {}
@@ -539,9 +604,12 @@ def enrich_vocabulary_report(
     report: VocabularyReport,
     provider: JmdictProvider,
     include_expressions: bool = False,
+    progress_callback=None,
+    max_matches_per_chapter: int | None = None,
 ) -> EnrichedVocabularyReport | ExpressionEnrichedVocabularyReport:
     matches = []
-    for candidate in report.candidates:
+    chapter_match_counts: dict[str, int] = {}
+    for number, candidate in enumerate(report.candidates, start=1):
         entries = provider.lookup(
             JmdictQuery(
                 surface=candidate.surface,
@@ -551,7 +619,11 @@ def enrich_vocabulary_report(
                 publisher_reading=candidate.reading_source == "publisher",
             )
         )
-        if entries:
+        if entries and (
+            max_matches_per_chapter is None
+            or chapter_match_counts.get(candidate.chapter_id, 0)
+            < max_matches_per_chapter
+        ):
             matches.append(
                 CandidateDictionaryMatches(
                     id=f"{candidate.id}-jmdict",
@@ -559,6 +631,18 @@ def enrich_vocabulary_report(
                     entries=entries,
                 )
             )
+            chapter_match_counts[candidate.chapter_id] = (
+                chapter_match_counts.get(candidate.chapter_id, 0) + 1
+            )
+        if progress_callback and (
+            number == len(report.candidates) or number % 100 == 0
+        ):
+            progress_callback({
+                "stage": "dictionary-lookup",
+                "words_total": len(report.candidates),
+                "words_processed": number,
+                "dictionary_matches": len(matches),
+            })
     values = dict(
         book_id=report.book_id,
         source_book_schema_version=report.source_book_schema_version,
@@ -569,7 +653,12 @@ def enrich_vocabulary_report(
         dictionary_matches=matches,
     )
     if include_expressions:
-        expressions, expression_matches = _find_expressions(report, provider)
+        expressions, expression_matches = _find_expressions(
+            report,
+            provider,
+            progress_callback=progress_callback,
+            max_matches_per_chapter=max_matches_per_chapter,
+        )
         enriched = ExpressionEnrichedVocabularyReport(
             schema_version=3,
             expressions=expressions,
@@ -908,10 +997,20 @@ def enrich_name_report(
         | ExpressionEnrichedVocabularyReport
     ),
     provider: JmnedictProvider,
+    progress_callback=None,
+    max_matches_per_chapter: int | None = None,
 ) -> NameEnrichedVocabularyReport:
     occurrences = []
     matches = []
     diagnostics = []
+    eligible = [
+        candidate for candidate in report.candidates
+        if candidate.reading_source == "publisher"
+        or (candidate.part_of_speech or "").startswith("名詞,固有名詞")
+    ]
+    eligible_ids = {candidate.id for candidate in eligible}
+    completed = 0
+    chapter_match_counts: dict[str, int] = {}
     for candidate in report.candidates:
         publisher = candidate.reading_source == "publisher"
         proper_noun = (candidate.part_of_speech or "").startswith(
@@ -941,6 +1040,23 @@ def enrich_name_report(
                     ),
                 )
             )
+            completed += 1
+            if progress_callback and (
+                completed == len(eligible_ids) or completed % 25 == 0
+            ):
+                progress_callback({
+                    "stage": "name-lookup",
+                    "names_total": len(eligible_ids),
+                    "names_processed": completed,
+                    "name_matches": len(matches),
+                })
+            continue
+        if (
+            max_matches_per_chapter is not None
+            and chapter_match_counts.get(candidate.chapter_id, 0)
+            >= max_matches_per_chapter
+        ):
+            completed += 1
             continue
         name_id = f"{candidate.id}-name"
         occurrences.append(
@@ -973,6 +1089,19 @@ def enrich_name_report(
                 entries=entries,
             )
         )
+        chapter_match_counts[candidate.chapter_id] = (
+            chapter_match_counts.get(candidate.chapter_id, 0) + 1
+        )
+        completed += 1
+        if progress_callback and (
+            completed == len(eligible_ids) or completed % 25 == 0
+        ):
+            progress_callback({
+                "stage": "name-lookup",
+                "names_total": len(eligible_ids),
+                "names_processed": completed,
+                "name_matches": len(matches),
+            })
 
     enriched = NameEnrichedVocabularyReport(
         schema_version=4,

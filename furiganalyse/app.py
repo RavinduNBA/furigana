@@ -21,6 +21,7 @@ from furiganalyse.__main__ import main, SUPPORTED_INPUT_EXTS
 from furiganalyse.known_words import list_available_word_lists
 from furiganalyse.params import OutputFormat, FuriganaMode, WritingMode
 from furiganalyse.progress import ProgressWriter, read_progress
+from furiganalyse.web_study_pipeline import WebStudyOptions, run_dictionary_study_pipeline
 
 
 class Job(BaseModel):
@@ -75,6 +76,10 @@ def validate_word_list_file(contents: bytes) -> tuple[bool, str]:
 
 @app.get("/", response_class=HTMLResponse)
 def get_root(request: Request):
+    dictionaries_ready = all(Path(path).is_file() for path in (
+        os.environ.get("FURIGANALYSE_JMDICT_INDEX", "data/edrdg/JMdict.sqlite"),
+        os.environ.get("FURIGANALYSE_JMNEDICT_INDEX", "data/edrdg/JMnedict.sqlite"),
+    ))
     return templates.TemplateResponse(
         "upload.html",
         {
@@ -82,6 +87,7 @@ def get_root(request: Request):
             "supported_input_exts": SUPPORTED_INPUT_EXTS,
             "supported_input_accept": ",".join(sorted(SUPPORTED_INPUT_EXTS)),
             "known_words_lists": list_available_word_lists(),
+            "dictionaries_ready": dictionaries_ready,
         },
     )
 
@@ -96,8 +102,23 @@ async def task_handler(
     known_words_list: str = Form(default=""),
     custom_word_list: UploadFile = File(default=None),
     custom_word_list_limit: int = Form(default=0),
+    pipeline_mode: str = Form(default="furigana"),
+    experimental_adaptive: bool = Form(default=False),
+    assistance_preset: str = Form(default="N5"),
+    assistance_reading: str = Form(default="show-reading"),
+    assistance_meaning: str = Form(default="show-meaning"),
+    per_chapter_item_limit: int = Form(default=10),
     redirect: bool = Form(default=True),
 ):
+    if pipeline_mode not in {"furigana", "study"}:
+        return JSONResponse(status_code=400, content={"error": "Invalid processing mode."})
+    if pipeline_mode == "study" and (
+        Path(file.filename or "").suffix.lower() != ".epub" or of != "epub"
+    ):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Dictionary Study mode currently requires EPUB input and output."},
+        )
     new_task = Job()
     jobs[new_task.uid] = new_task
 
@@ -153,6 +174,12 @@ async def task_handler(
         known_words_list,
         custom_word_list_path,
         custom_word_list_limit,
+        pipeline_mode,
+        experimental_adaptive,
+        assistance_preset,
+        assistance_reading,
+        assistance_meaning,
+        per_chapter_item_limit,
     )
 
     if redirect:
@@ -175,6 +202,12 @@ def furiganalyse_task(
     known_words_list: str = "",
     custom_word_list_path: str = None,
     custom_word_list_limit: int = 0,
+    pipeline_mode: str = "furigana",
+    experimental_adaptive: bool = False,
+    assistance_preset: str = "N5",
+    assistance_reading: str = "show-reading",
+    assistance_meaning: str = "show-meaning",
+    per_chapter_item_limit: int = 10,
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
     output_filename = generate_output_filename(filename, output_format)
@@ -186,17 +219,38 @@ def furiganalyse_task(
     )
 
     try:
-        main(
-            input_filepath,
-            output_filepath,
-            furigana_mode=FuriganaMode(furigana_mode),
-            output_format=OutputFormat(output_format),
-            writing_mode=WritingMode(writing_mode),
-            known_words_list=known_words_list if known_words_list else None,
-            custom_word_list_path=custom_word_list_path,
-            custom_word_list_limit=custom_word_list_limit if custom_word_list_limit > 0 else None,
-            progress_callback=progress.update,
-        )
+        if pipeline_mode == "study":
+            progress.update({"stage": "preparing", "pipeline_mode": "study"})
+            run_dictionary_study_pipeline(
+                input_filepath,
+                output_filepath,
+                Path(task_folder) / "study-work",
+                WebStudyOptions(
+                    per_chapter_item_limit=per_chapter_item_limit,
+                    experimental_adaptive=experimental_adaptive,
+                    preset_level=assistance_preset,
+                    reading_state=assistance_reading,
+                    meaning_state=assistance_meaning,
+                ),
+                progress_callback=progress.update,
+            )
+            progress.update({
+                "stage": "complete",
+                "pipeline_mode": "study",
+                "output_bytes": os.path.getsize(output_filepath),
+            })
+        else:
+            main(
+                input_filepath,
+                output_filepath,
+                furigana_mode=FuriganaMode(furigana_mode),
+                output_format=OutputFormat(output_format),
+                writing_mode=WritingMode(writing_mode),
+                known_words_list=known_words_list if known_words_list else None,
+                custom_word_list_path=custom_word_list_path,
+                custom_word_list_limit=custom_word_list_limit if custom_word_list_limit > 0 else None,
+                progress_callback=progress.update,
+            )
     except Exception:
         progress.update({"stage": "error"})
         logging.error("Conversion worker failed")
@@ -235,7 +289,8 @@ def get_file(uid: UUID):
 
 @app.on_event("startup")
 async def startup_event():
-    app.state.executor = ProcessPoolExecutor()
+    workers = max(1, int(os.environ.get("FURIGANALYSE_WORKERS", "1")))
+    app.state.executor = ProcessPoolExecutor(max_workers=workers)
 
 
 @app.on_event("shutdown")

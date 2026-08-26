@@ -398,6 +398,11 @@ def _lexical_key(proposal: _Proposal):
         proposal.selected_entry_id,
         proposal.selected_sense_id,
         proposal.selected_translation_id,
+        (
+            ("publisher", proposal.reading)
+            if proposal.reading_source == "publisher"
+            else ("dictionary-or-tokenizer", None)
+        ),
     )
 
 
