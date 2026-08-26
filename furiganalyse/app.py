@@ -1,5 +1,6 @@
 import asyncio
 import base64
+from contextlib import asynccontextmanager
 import logging
 import os
 import random
@@ -40,11 +41,21 @@ class Job(BaseModel):
 jobs: Dict[UUID, Job] = {}
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    workers = max(1, int(os.environ.get("FURIGANALYSE_WORKERS", "1")))
+    app.state.executor = ProcessPoolExecutor(max_workers=workers)
+    try:
+        yield
+    finally:
+        app.state.executor.shutdown()
+
+
 templates = Jinja2Templates(directory="./furiganalyse/templates")
 
 # Get the root path from environment variable, default to empty for local development
 root_path = os.getenv("ROOT_PATH", "")
-app = FastAPI(root_path=root_path)
+app = FastAPI(root_path=root_path, lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[""],
@@ -402,17 +413,6 @@ def get_file(uid: UUID):
     file_path = decode_filepath(path_hash)
     filename = os.path.basename(file_path)
     return FileResponse(path=file_path, filename=filename)
-
-
-@app.on_event("startup")
-async def startup_event():
-    workers = max(1, int(os.environ.get("FURIGANALYSE_WORKERS", "1")))
-    app.state.executor = ProcessPoolExecutor(max_workers=workers)
-
-
-@app.on_event("shutdown")
-async def on_shutdown():
-    app.state.executor.shutdown()
 
 
 OUTPUT_FORMAT_TO_EXTENSION = {

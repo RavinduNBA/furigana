@@ -14,7 +14,7 @@ venv/
 .venv/
 ENV/
 
-# Testing
+# Testing & Coverage
 .pytest_cache/
 .coverage
 htmlcov/
@@ -27,27 +27,40 @@ reports/
 *.azw3
 *.apkg
 
-# Output files
+# Output and temporary files
 conv_*.html
 conv_*.txt
+*.log
+tmp/
+temp/
+scratch/
 
-# Sample data
+# Sample books & private data
 sample_data/
+sample_book/
 
 # Local production dictionary releases and indexes
 data/edrdg/
 
-# Ruff
+# Ruff & Linters
 .ruff_cache/
 
-# IDE
+# Databases
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# IDE & Editor
 .idea/
 .vscode/
 .cursor/
 *.swp
 *.swo
+*~
+.DS_Store
+Thumbs.db
 
-# AI agents
+# AI agent configurations & transcripts
 .claude/
 .gemini/
 .junie/

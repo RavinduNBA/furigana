@@ -133,7 +133,7 @@ def _ruby_snapshot(element: ET.Element) -> bytes:
 
 def _wrap_ruby_boundary(
     rubies: list[ET.Element] | ET.Element,
-    ref_prefix_start: Optional[_CharRef],
+    ref_prefix_start: _CharRef | None,
     okuri_len: int,
     anchor_id: str,
     href: str,

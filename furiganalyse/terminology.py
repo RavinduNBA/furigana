@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from .book_context import PRECEDENCE, _hash, serialize, validate_context_index
+from .book_context import PRECEDENCE, _hash, validate_context_index
 from .context_evidence import validate_evidence_report
 
 REGISTRY_SCHEMA_VERSION = 1

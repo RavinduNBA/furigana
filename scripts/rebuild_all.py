@@ -1,7 +1,5 @@
 """Rebuild all 4 processing mode EPUBs for the sample book."""
-import os
 import shutil
-import sys
 from pathlib import Path
 
 from furiganalyse.__main__ import main as furigana_main

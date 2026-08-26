@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .book_context import PRECEDENCE, _hash, serialize
+from .book_context import PRECEDENCE, _hash
 from .chapter_summaries import _valid_date, _valid_text
 
 SCHEMA_VERSION = 1

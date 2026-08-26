@@ -8,7 +8,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any
 
-from .book_context import PRECEDENCE, _hash, serialize, validate_context_index
+from .book_context import PRECEDENCE, _hash, validate_context_index
 
 SCHEMA_VERSION = 1
 DEFAULT_MINIMUM_OCCURRENCES = 2
@@ -184,7 +184,7 @@ def build_evidence_report(
     items = _unique(plan.get("items", []), "study item")
     groups: OrderedDict[tuple, list[dict[str, Any]]] = OrderedDict()
     kinds = {}
-    for item in plan["items"]:
+    for item in items.values():
         kind = _evidence_kind(item)
         key = _identity(item, kind)
         groups.setdefault(key, []).append(item)
