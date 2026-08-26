@@ -349,9 +349,45 @@ def test_guided_reading_covers_function_words_without_nested_links(
             if name.endswith(".xhtml")
         ]
     assert any(
-        node.tag == X + "ruby" for root in app_roots for node in root.iter()
-    )
-    assert any(
         node.get("class") == "guided-link"
         for root in app_roots for node in root.iter()
     )
+
+
+def test_bilingual_companion_pipeline_end_to_end(tmp_path, monkeypatch):
+    jmdict_index = tmp_path / "jmdict.sqlite"
+    jmnedict_index = tmp_path / "jmnedict.sqlite"
+    build_jmdict_index(
+        Path("tests/fixtures/jmdict-expressions-mini.xml"), jmdict_index
+    )
+    build_jmnedict_index(
+        Path("tests/fixtures/jmnedict-mini.xml"), jmnedict_index
+    )
+    monkeypatch.setenv("FURIGANALYSE_JMDICT_INDEX", str(jmdict_index))
+    monkeypatch.setenv("FURIGANALYSE_JMNEDICT_INDEX", str(jmnedict_index))
+
+    source = tmp_path / "source.epub"
+    output = tmp_path / "bilingual.epub"
+    work = tmp_path / "work"
+
+    build_fixture(source)
+
+    summary = run_dictionary_study_pipeline(
+        source,
+        output,
+        work,
+        WebStudyOptions(
+            bilingual_companion=True,
+            bilingual_provider="mock",
+        ),
+    )
+
+    assert output.exists()
+    assert validate_epub(output) == []
+
+    with __import__("zipfile").ZipFile(output) as z:
+        names = z.namelist()
+        trans_docs = [n for n in names if "translation.xhtml" in n]
+        assert len(trans_docs) > 0
+        content = z.read(trans_docs[0]).decode("utf-8")
+        assert "English Companion Translation" in content

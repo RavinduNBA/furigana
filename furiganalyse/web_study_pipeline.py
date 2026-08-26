@@ -59,6 +59,11 @@ class WebStudyOptions:
     meaning_state: str = "show-meaning"
     meaning_coverage: str = "all-selected"
     guided_reading: bool = False
+    bilingual_companion: bool = False
+    bilingual_provider: str = "none"
+    bilingual_api_key: str | None = None
+    bilingual_base_url: str | None = None
+    bilingual_model: str | None = None
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -620,6 +625,7 @@ def run_dictionary_study_pipeline(
         final_linked = split_study_notes_by_source_document(linked, book)
         write_linked_output(final_linked, linked_directory)
 
+    base_epub_target = output if not options.bilingual_companion else (work / "base-study.epub")
     write_deterministic_epub(
         package_study_epub(
             source,
@@ -627,8 +633,37 @@ def run_dictionary_study_pipeline(
             annotation_plan,
             linked_output=final_linked,
         ),
-        output,
+        base_epub_target,
     )
+
+    if options.bilingual_companion:
+        progress({"stage": "bilingual-translation"})
+        from furiganalyse.bilingual_context import build_book_context
+        from furiganalyse.bilingual_epub import package_bilingual_epub
+        from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
+        from furiganalyse.llm_provider import get_llm_provider
+
+        provider = get_llm_provider(
+            provider_name=options.bilingual_provider,
+            api_key=options.bilingual_api_key,
+            base_url=options.bilingual_base_url,
+            model=options.bilingual_model,
+        )
+        book_context = build_book_context(book, vocabulary, provider=provider)
+        trans_cache = TranslationCache(cache_dir=work / "translation_cache")
+        translated_chapters = []
+
+        for ch in book.get("chapters", []):
+            trans_ch = translate_chapter(
+                ch,
+                book_context,
+                provider=provider,
+                cache=trans_cache,
+                model=options.bilingual_model or "gpt-4o-mini",
+            )
+            translated_chapters.append(trans_ch)
+
+        package_bilingual_epub(base_epub_target, output, translated_chapters)
 
     if assistance_report is not None:
         _write_json(work / "assistance.json", assistance_report)
