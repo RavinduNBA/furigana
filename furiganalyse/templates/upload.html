@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Add, replace, or remove furigana in Japanese ebooks.">
     <title>Furiganalyse · Japanese ebook assistance</title>
-    <link href="{{ url_for('assets', path='styles.css') }}" rel="stylesheet">
-    <script src="{{ url_for('assets', path='upload.js') }}" defer></script>
+    <link href="{{ url_for('assets', path='styles.css') }}?v=20260826c" rel="stylesheet">
+    <script src="{{ url_for('assets', path='upload.js') }}?v=20260826c" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -16,7 +16,7 @@
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
         <a href="#converter">Converter</a>
-        {% if recent_conversions %}<a href="#recent">Recent ({{ recent_conversions|length }})</a>{% endif %}
+        <a href="#recent">Recent</a>
         <a href="#capabilities">Capabilities</a>
         <a href="https://github.com/itsupera/furiganalyse">Source</a>
     </nav>
@@ -85,15 +85,15 @@
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>
-                        <span class="choice-content"><strong>Add</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Keep publisher readings and fill gaps</small></span>
+                        <span class="choice-content"><strong>Add (Default)</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Keep publisher ateji &amp; fill missing readings</small></span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_replace" value="replace">
-                        <span class="choice-content"><strong>Replace generated</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Refresh non-publisher assistance</small></span>
+                        <span class="choice-content"><strong>Replace all</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Full uniform furigana for all kanji</small></span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_remove" value="remove">
-                        <span class="choice-content"><strong>Remove</strong><span class="japanese-preview">次の駅</span><small>Remove generated reading assistance</small></span>
+                        <span class="choice-content"><strong>Remove</strong><span class="japanese-preview">次の駅</span><small>Remove all reading assistance</small></span>
                     </label>
                 </div>
 
@@ -190,13 +190,13 @@
         </form>
 
         <aside class="capability-column" id="capabilities">
-            {% if recent_conversions %}
             <section class="info-card recent-card" id="recent">
                 <div class="card-title-row">
-                    <span class="section-kicker">Recent</span>
+                    <span class="section-kicker">History</span>
                     <span class="status-badge">{{ recent_conversions|length }} saved</span>
                 </div>
                 <h2>Recent conversions</h2>
+                {% if recent_conversions %}
                 <ul class="recent-list">
                     {% for item in recent_conversions %}
                     <li class="recent-item">
@@ -217,8 +217,10 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% else %}
+                <p class="recent-empty-note">Your last 10 conversions will appear here for fast re-downloading.</p>
+                {% endif %}
             </section>
-            {% endif %}
 
             <section class="info-card">
                 <span class="section-kicker">Available in the web converter</span>

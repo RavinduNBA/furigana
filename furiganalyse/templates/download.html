@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Conversion progress · Furiganalyse</title>
-    <link href="{{ url_for('assets', path='styles.css') }}" rel="stylesheet">
+    <link href="{{ url_for('assets', path='styles.css') }}?v=20260826c" rel="stylesheet">
     <script>
         window.furiganalyseJob = {
             statusUrl: "{{ url_for('status_handler', uid=uid) }}",
             fileUrl: "{{ url_for('get_file', uid=uid) }}"
         };
     </script>
-    <script src="{{ url_for('assets', path='progress.js') }}" defer></script>
+    <script src="{{ url_for('assets', path='progress.js') }}?v=20260826c" defer></script>
 </head>
 <body class="job-page">
 <header class="site-header">
