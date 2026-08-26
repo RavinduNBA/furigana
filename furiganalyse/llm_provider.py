@@ -196,9 +196,11 @@ def get_llm_provider(
             else:
                 default_model = "gpt-4o-mini"
 
+        timeout = 240 if name == "ollama" else 90
         return OpenAICompatibleProvider(
             api_key=api_key,
             base_url=base_url or default_url,
             default_model=default_model,
+            timeout_seconds=timeout,
         )
     raise ValueError(f"Unsupported LLM provider: {provider_name}")

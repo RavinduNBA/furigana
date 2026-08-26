@@ -207,6 +207,19 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .bilingual-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .status-badge--active { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent); }
 
+.discovered-context-panel { margin-top: 14px; padding: 14px 16px; border: 1px solid #bddcc7; border-radius: 10px; background: white; }
+.context-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.context-panel-title { font-size: .78rem; font-weight: 750; color: var(--accent-dark); }
+.context-item-count { font-size: .68rem; background: var(--accent-light); padding: 2px 8px; border-radius: 999px; color: var(--accent-dark); font-weight: 700; }
+.context-group small { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; display: block; margin-bottom: 6px; }
+.context-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.context-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; font-size: .76rem; border: 1px solid var(--line); background: var(--surface-soft); }
+.context-chip strong { color: var(--ink); }
+.context-chip span { color: var(--accent-dark); font-size: .72rem; }
+.context-chip small { color: var(--muted); font-size: .64rem; }
+.context-chip--cast { border-color: #cce3d4; background: #f2f8f4; }
+.context-chip--glossary { border-color: #e0ecfb; background: #f0f7ff; }
+
 .live-translation-stream { margin-top: 14px; border: 1px solid #bddcc7; border-radius: 10px; background: white; overflow: hidden; }
 .stream-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: #eaf4ed; border-bottom: 1px solid #bddcc7; font-size: .76rem; }
 .stream-title { font-weight: 700; color: var(--accent-dark); display: inline-flex; align-items: center; gap: 6px; }
@@ -231,6 +244,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .result-card { margin-top: 20px; padding: 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; }
 .result-card p { margin: 6px 0 0; color: var(--muted); font-size: .82rem; }
 .result-icon { width: 48px; height: 48px; display: grid; place-items: center; color: white; background: var(--accent); border-radius: 50%; font-size: 1.5rem; }
+.result-card--bilingual .result-icon { background: #1d4ed8; }
 .result-card--cancelled .result-icon { background: #88998e; }
 .result-card--error .result-icon { background: var(--danger); }
 .result-actions { display: flex; gap: 8px; }

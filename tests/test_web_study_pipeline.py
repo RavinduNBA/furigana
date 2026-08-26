@@ -385,7 +385,11 @@ def test_bilingual_companion_pipeline_end_to_end(tmp_path, monkeypatch):
     assert output.exists()
     assert validate_epub(output) == []
 
-    with __import__("zipfile").ZipFile(output) as z:
+    companion_epub = tmp_path / "bilingual - Bilingual Companion.epub"
+    assert companion_epub.exists()
+    assert validate_epub(companion_epub) == []
+
+    with __import__("zipfile").ZipFile(companion_epub) as z:
         names = z.namelist()
         trans_docs = [n for n in names if "translation.xhtml" in n]
         assert len(trans_docs) > 0

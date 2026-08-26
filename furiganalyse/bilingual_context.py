@@ -153,6 +153,7 @@ def build_book_context(
     vocabulary_report: dict[str, Any],
     provider: BaseLLMProvider | None = None,
     overrides: dict[str, Any] | None = None,
+    model: str | None = None,
 ) -> BookContextData:
     """Builds a structured BookContextData using LLM discovery with fallback to rule-based indexing."""
     candidates = extract_context_candidates(canonical_book, vocabulary_report)
@@ -185,6 +186,7 @@ def build_book_context(
                     LLMMessage(role="user", content=user_content),
                 ],
                 temperature=0.2,
+                model=model,
                 response_json=True,
             )
             raw_json = provider.generate_json(req)

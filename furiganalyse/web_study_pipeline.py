@@ -635,94 +635,14 @@ def run_dictionary_study_pipeline(
         ),
         base_epub_target,
     )
-
-    if options.bilingual_companion:
-        from furiganalyse.bilingual_context import build_book_context
-        from furiganalyse.bilingual_epub import package_bilingual_epub
-        from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
-        from furiganalyse.llm_provider import get_llm_provider
-
-        provider = get_llm_provider(
-            provider_name=options.bilingual_provider,
-            api_key=options.bilingual_api_key,
-            base_url=options.bilingual_base_url,
-            model=options.bilingual_model,
-        )
-        book_context = build_book_context(book, vocabulary, provider=provider)
-        trans_cache = TranslationCache(cache_dir=work / "translation_cache")
-        translated_chapters = []
-
-        chapters = book.get("chapters", [])
-        total_chapters = len(chapters)
-        total_paragraphs = sum(len(ch.get("blocks", [])) for ch in chapters)
-        completed_paragraphs = 0
-        total_cache_hits = 0
-
-        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
-        provider_display = "Local Ollama · qwen2.5:3b" if options.bilingual_provider == "ollama" else (
-            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
-                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
-            )
-        )
-
-        progress({
-            "stage": "bilingual-translation",
-            "translation_model": model_name,
-            "translation_backend": provider_display,
-            "translation_chapters_completed": 0,
-            "translation_chapters_total": total_chapters,
-            "translation_paragraphs_completed": 0,
-            "translation_paragraphs_total": total_paragraphs,
-            "translation_cache_hits": 0,
-        })
-
-        for i, ch in enumerate(chapters, start=1):
-            def make_on_batch(ch_idx: int, done_base: int, cache_base: int):
-                def on_batch(data: dict[str, Any]):
-                    progress({
-                        "stage": "bilingual-translation",
-                        "translation_model": model_name,
-                        "translation_backend": provider_display,
-                        "translation_chapters_completed": ch_idx - 1,
-                        "translation_chapters_total": total_chapters,
-                        "translation_paragraphs_completed": done_base + data.get("paragraphs_done", 0),
-                        "translation_paragraphs_total": total_paragraphs,
-                        "translation_cache_hits": cache_base + (1 if data.get("cache_hit") else 0),
-                        "translation_current_chapter": data.get("chapter_title", f"Chapter {ch_idx}"),
-                        "translation_latest_japanese": data.get("latest_japanese", ""),
-                        "translation_latest_english": data.get("latest_english", ""),
-                    })
-                return on_batch
-
-            trans_ch = translate_chapter(
-                ch,
-                book_context,
-                provider=provider,
-                cache=trans_cache,
-                model=model_name,
-                batch_callback=make_on_batch(i, completed_paragraphs, total_cache_hits),
-            )
-            translated_chapters.append(trans_ch)
-            completed_paragraphs += len(trans_ch.paragraphs)
-            total_cache_hits += trans_ch.cache_hits
-
-            progress({
-                "stage": "bilingual-translation",
-                "translation_model": model_name,
-                "translation_backend": provider_display,
-                "translation_chapters_completed": i,
-                "translation_chapters_total": total_chapters,
-                "translation_paragraphs_completed": completed_paragraphs,
-                "translation_paragraphs_total": total_paragraphs,
-                "translation_cache_hits": total_cache_hits,
-            })
-
-        package_bilingual_epub(base_epub_target, output, translated_chapters)
+    normalize_epub_archive(base_epub_target, output)
+    main_size = os.path.getsize(output)
 
     if assistance_report is not None:
         _write_json(work / "assistance.json", assistance_report)
         _write_json(work / "density.json", density_report)
         _write_json(work / "rendering.json", rendering_report)
+
     summary = {
         "schema_version": 1,
         "mode": (
@@ -762,5 +682,151 @@ def run_dictionary_study_pipeline(
         "network_dictionary_lookups": 0,
     }
     _write_json(work / "summary.json", summary)
-    progress({"stage": "packaging", "study_items": summary["study_items"]})
+
+    if options.bilingual_companion:
+        from furiganalyse.bilingual_context import build_book_context
+        from furiganalyse.bilingual_epub import package_bilingual_epub
+        from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
+        from furiganalyse.llm_provider import get_llm_provider
+
+        # Emit that main Japanese converted EPUB is immediately ready for download
+        progress({
+            "stage": "bilingual-translation",
+            "main_file_ready": True,
+            "main_output_bytes": main_size,
+            "study_items": summary["study_items"],
+        })
+
+        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
+        provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
+            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
+                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+            )
+        )
+
+        provider = get_llm_provider(
+            provider_name=options.bilingual_provider,
+            api_key=options.bilingual_api_key,
+            base_url=options.bilingual_base_url,
+            model=options.bilingual_model,
+        )
+        book_context = build_book_context(book, vocabulary, provider=provider, model=model_name)
+
+        cast_summary = [
+            {
+                "name": k,
+                "romanized": v.romanized,
+                "role": v.role,
+                "gender": v.gender,
+                "aliases": list(v.aliases),
+            }
+            for k, v in list(book_context.characters.items())[:20]
+        ]
+        glossary_summary = [
+            {
+                "japanese": k,
+                "translation": v.preferred_translation,
+                "definition": v.definition,
+            }
+            for k, v in list(book_context.glossary.items())[:30]
+        ]
+
+        trans_cache = TranslationCache(cache_dir=work / "translation_cache")
+        translated_chapters = []
+
+        chapters = book.get("chapters", [])
+        total_chapters = len(chapters)
+        total_paragraphs = sum(len(ch.get("blocks", [])) for ch in chapters)
+        completed_paragraphs = 0
+        total_cache_hits = 0
+
+        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
+        provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
+            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
+                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+            )
+        )
+
+        progress({
+            "stage": "bilingual-translation",
+            "translation_model": model_name,
+            "translation_backend": provider_display,
+            "translation_chapters_completed": 0,
+            "translation_chapters_total": total_chapters,
+            "translation_paragraphs_completed": 0,
+            "translation_paragraphs_total": total_paragraphs,
+            "translation_cache_hits": 0,
+            "cast_summary": cast_summary,
+            "glossary_summary": glossary_summary,
+            "main_file_ready": True,
+            "main_output_bytes": main_size,
+        })
+
+        for i, ch in enumerate(chapters, start=1):
+            def make_on_batch(ch_idx: int, done_base: int, cache_base: int):
+                def on_batch(data: dict[str, Any]):
+                    progress({
+                        "stage": "bilingual-translation",
+                        "translation_model": model_name,
+                        "translation_backend": provider_display,
+                        "translation_chapters_completed": ch_idx - 1,
+                        "translation_chapters_total": total_chapters,
+                        "translation_paragraphs_completed": done_base + data.get("paragraphs_done", 0),
+                        "translation_paragraphs_total": total_paragraphs,
+                        "translation_cache_hits": cache_base + (1 if data.get("cache_hit") else 0),
+                        "translation_current_chapter": data.get("chapter_title", f"Chapter {ch_idx}"),
+                        "translation_latest_japanese": data.get("latest_japanese", ""),
+                        "translation_latest_english": data.get("latest_english", ""),
+                        "main_file_ready": True,
+                        "main_output_bytes": main_size,
+                    })
+                return on_batch
+
+            trans_ch = translate_chapter(
+                ch,
+                book_context,
+                provider=provider,
+                cache=trans_cache,
+                model=model_name,
+                batch_callback=make_on_batch(i, completed_paragraphs, total_cache_hits),
+            )
+            translated_chapters.append(trans_ch)
+            completed_paragraphs += len(trans_ch.paragraphs)
+            total_cache_hits += trans_ch.cache_hits
+
+            progress({
+                "stage": "bilingual-translation",
+                "translation_model": model_name,
+                "translation_backend": provider_display,
+                "translation_chapters_completed": i,
+                "translation_chapters_total": total_chapters,
+                "translation_paragraphs_completed": completed_paragraphs,
+                "translation_paragraphs_total": total_paragraphs,
+                "translation_cache_hits": total_cache_hits,
+                "main_file_ready": True,
+                "main_output_bytes": main_size,
+            })
+
+        # Save standalone bilingual companion EPUB alongside main output
+        bilingual_target = Path(str(output).replace(".epub", " - Bilingual Companion.epub"))
+        package_bilingual_epub(base_epub_target, bilingual_target, translated_chapters)
+        bilingual_size = os.path.getsize(bilingual_target)
+
+        progress({
+            "stage": "complete",
+            "main_file_ready": True,
+            "bilingual_file_ready": True,
+            "main_output_bytes": main_size,
+            "bilingual_output_bytes": bilingual_size,
+            "output_bytes": main_size,
+        })
+    else:
+        progress({
+            "stage": "complete",
+            "main_file_ready": True,
+            "main_output_bytes": main_size,
+            "output_bytes": main_size,
+            "study_items": summary["study_items"],
+        })
+
     return summary

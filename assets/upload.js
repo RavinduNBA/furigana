@@ -179,9 +179,37 @@
         submitButton.disabled = true;
         submitButton.querySelector("span").textContent = "Uploading…";
     });
+    async function loadInstalledOllamaModels() {
+        const modelInput = document.getElementById("bilingual_model");
+        if (!modelInput) return;
+
+        try {
+            const resp = await fetch("/api/ollama/status");
+            if (!resp.ok) return;
+            const data = await resp.json();
+            if (data.installed_models && data.installed_models.length > 0) {
+                let datalist = document.getElementById("ollama-models-list");
+                if (!datalist) {
+                    datalist = document.createElement("datalist");
+                    datalist.id = "ollama-models-list";
+                    document.body.appendChild(datalist);
+                    modelInput.setAttribute("list", "ollama-models-list");
+                }
+                datalist.innerHTML = data.installed_models.map(m => {
+                    const sz = m.size ? ` (${(m.size / 1073741824).toFixed(1)} GB)` : "";
+                    return `<option value="${m.name}">${m.name}${sz}</option>`;
+                }).join("");
+                if (!modelInput.value && data.installed_models[0]) {
+                    modelInput.placeholder = "e.g. " + data.installed_models[0].name;
+                }
+            }
+        } catch (e) {}
+    }
+
     bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
     updatePipeline();
     updateBilingual();
+    loadInstalledOllamaModels();
     updateBookFile();
 }());

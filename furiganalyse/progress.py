@@ -74,7 +74,15 @@ class ProgressWriter:
             "expressions_total", "expressions_processed", "expression_matches",
             "names_total", "names_processed", "name_matches", "study_items",
             "units_total", "units_completed", "pipeline_mode",
-            "combined_phase",
+            "combined_phase", "status_note",
+            "translation_model", "translation_backend",
+            "translation_chapters_completed", "translation_chapters_total",
+            "translation_paragraphs_completed", "translation_paragraphs_total",
+            "translation_cache_hits", "translation_current_chapter",
+            "translation_latest_japanese", "translation_latest_english",
+            "cast_summary", "glossary_summary",
+            "main_file_ready", "bilingual_file_ready",
+            "main_output_bytes", "bilingual_output_bytes",
         }
         self.values.update({key: value for key, value in event.items() if key in allowed})
         elapsed = max(0.0, time.monotonic() - self.started)

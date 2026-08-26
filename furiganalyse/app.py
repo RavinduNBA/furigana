@@ -548,14 +548,46 @@ def get_file(uid: UUID):
     if not job:
         return Response("Uid not found!", status_code=404)
 
-    if job.status != "complete":
+    prog = read_progress(job.progress_path) if job.progress_path else None
+    main_ready = prog and prog.get("main_file_ready")
+
+    if job.status != "complete" and not main_ready:
         return Response("Job not completed yet!", status_code=400)
 
-    if not job.result:
-        return Response("Something went wrong!", status_code=500)
+    task_folder = Path(OUTPUT_FOLDER) / str(uid)
+    if job.result:
+        file_path = decode_filepath(job.result)
+    else:
+        # Find primary generated file in task folder (excluding companion)
+        candidates = [
+            f for f in task_folder.iterdir()
+            if f.is_file() and not f.name.endswith(".tmp") and not f.name.endswith(".json")
+            and "Bilingual Companion" not in f.name and "furigana-stage" not in f.name
+            and f.suffix in {".epub", ".mobi", ".azw3", ".zip", ".txt", ".apkg", ".html"}
+        ]
+        if not candidates:
+            return Response("File not ready yet!", status_code=400)
+        file_path = str(candidates[0])
 
-    path_hash = job.result
-    file_path = decode_filepath(path_hash)
+    filename = os.path.basename(file_path)
+    return FileResponse(path=file_path, filename=filename)
+
+
+@app.get('/jobs/{uid}/bilingual_file')
+def get_bilingual_file(uid: UUID):
+    job = jobs.get(uid)
+    if not job:
+        return Response("Uid not found!", status_code=404)
+
+    task_folder = Path(OUTPUT_FOLDER) / str(uid)
+    companion_candidates = [
+        f for f in task_folder.iterdir()
+        if f.is_file() and "Bilingual Companion" in f.name and f.suffix == ".epub"
+    ]
+    if not companion_candidates:
+        return Response("Bilingual companion not ready yet!", status_code=400)
+
+    file_path = str(companion_candidates[0])
     filename = os.path.basename(file_path)
     return FileResponse(path=file_path, filename=filename)
 

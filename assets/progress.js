@@ -177,11 +177,53 @@
             if (streamEn && progress.translation_latest_english) {
                 streamEn.textContent = progress.translation_latest_english;
             }
+
+            // Render Discovered Context Panel
+            const contextPanel = byId("discovered-context-panel");
+            const castRow = byId("cast-chips-row");
+            const glossRow = byId("glossary-chips-row");
+            const countEl = byId("context-item-count");
+
+            if (contextPanel && (progress.cast_summary || progress.glossary_summary)) {
+                contextPanel.hidden = false;
+                const casts = progress.cast_summary || [];
+                const gloss = progress.glossary_summary || [];
+                if (countEl) countEl.textContent = (casts.length + gloss.length) + " items discovered";
+
+                if (castRow && casts.length > 0) {
+                    castRow.innerHTML = casts.map(c => `
+                        <div class="context-chip context-chip--cast">
+                            <strong>${c.name}</strong>
+                            <span>${c.romanized || c.name}</span>
+                            <small>${c.role || "Character"}</small>
+                        </div>
+                    `).join("");
+                }
+
+                if (glossRow && gloss.length > 0) {
+                    glossRow.innerHTML = gloss.map(g => `
+                        <div class="context-chip context-chip--glossary">
+                            <strong>${g.japanese}</strong>
+                            <span>${g.translation || g.definition || ""}</span>
+                        </div>
+                    `).join("");
+                }
+            }
+        }
+
+        // Show early main download if main Japanese file is ready
+        if (progress.main_file_ready) {
+            const mainCard = byId("main-download-card");
+            if (mainCard) mainCard.hidden = false;
+        }
+        if (progress.bilingual_file_ready) {
+            const biCard = byId("bilingual-download-card");
+            if (biCard) biCard.hidden = false;
         }
 
         updateStages(progress.stage);
     }
-    function showComplete() {
+    function showComplete(progress) {
         byId("conversion-progress").value = 100;
         byId("conversion-progress").textContent = "100%";
         byId("progress-percent").textContent = "100%";
@@ -189,7 +231,12 @@
         byId("job-description").textContent = "Your converted ebook is ready to download.";
         byId("header-status-text").textContent = "Ready";
         document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
-        byId("result").hidden = false;
+        if (progress && (progress.main_file_ready || progress.bilingual_file_ready)) {
+            if (progress.main_file_ready) byId("main-download-card").hidden = false;
+            if (progress.bilingual_file_ready) byId("bilingual-download-card").hidden = false;
+        } else {
+            byId("result").hidden = false;
+        }
         const cancelBtn = byId("cancel-button");
         if (cancelBtn) cancelBtn.hidden = true;
         updateStages("complete");
@@ -218,7 +265,7 @@
             if (!response.ok) throw new Error("status unavailable");
             const data = await response.json();
             updateProgress(data.progress);
-            if (data.status === "complete") return showComplete();
+            if (data.status === "complete") return showComplete(data.progress);
             if (data.status === "cancelled" || (data.progress && data.progress.stage === "cancelled")) return showCancelled();
             if (data.status === "error") return showError();
             window.setTimeout(poll, pollingInterval);

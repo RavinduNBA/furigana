@@ -75,6 +75,28 @@
                 </article>
             </div>
 
+            <!-- Discovered Cast & World Glossary Context Panel -->
+            <div class="discovered-context-panel" id="discovered-context-panel" hidden>
+                <div class="context-panel-header">
+                    <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
+                    <span class="context-item-count" id="context-item-count">0 items discovered</span>
+                </div>
+                <div class="context-panel-body">
+                    <div class="context-group">
+                        <small>Key Characters &amp; Roles</small>
+                        <div class="context-chips-row" id="cast-chips-row">
+                            <span class="fine-print">Discovering cast members…</span>
+                        </div>
+                    </div>
+                    <div class="context-group" style="margin-top: 10px;">
+                        <small>World Glossary &amp; Light Novel Terms</small>
+                        <div class="context-chips-row" id="glossary-chips-row">
+                            <span class="fine-print">Extracting novel terms…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Live Streaming Output Feed -->
             <div class="live-translation-stream" id="live-trans-stream">
                 <div class="stream-header">
@@ -101,6 +123,33 @@
         <div class="progress-footer-row">
             <p class="section-explainer"><strong>Why sections, not pages?</strong> EPUBs reflow to fit each screen, so pages are not stable. XHTML sections and visible-character counts give a consistent measure.</p>
             <button class="secondary-button cancel-btn" id="cancel-button" type="button">✕ Cancel conversion</button>
+        </div>
+    </section>
+
+    <!-- Main Converted Ebook Download Card (Ready Immediately) -->
+    <section class="result-card" id="main-download-card" hidden>
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <div>
+            <span class="section-kicker">Primary ebook ready</span>
+            <h2>Japanese Converted Ebook Ready</h2>
+            <p id="main-download-desc">Your Japanese ebook with reading annotations and study notes is ready to download.</p>
+        </div>
+        <div class="result-actions">
+            <a class="primary-button" id="main-download-link" href="{{ url_for('get_file', uid=uid) }}">Download Japanese Ebook <span aria-hidden="true">↓</span></a>
+        </div>
+    </section>
+
+    <!-- Separate Bilingual Companion EPUB Download Card -->
+    <section class="result-card result-card--bilingual" id="bilingual-download-card" hidden>
+        <div class="result-icon result-icon--bilingual" aria-hidden="true">訳</div>
+        <div>
+            <span class="section-kicker">Bilingual companion ready</span>
+            <h2>English Companion EPUB Ready</h2>
+            <p>Your separate standalone LLM English Companion EPUB is ready to download.</p>
+        </div>
+        <div class="result-actions">
+            <a class="primary-button" id="bilingual-download-link" href="{{ url_for('get_bilingual_file', uid=uid) }}">Download English Companion <span aria-hidden="true">↓</span></a>
+            <a class="secondary-button" href="{{ url_for('get_root') }}">Convert another</a>
         </div>
     </section>
 
