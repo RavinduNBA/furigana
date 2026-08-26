@@ -42,6 +42,7 @@ ProgressCallback = Callable[[dict[str, Any]], None]
 
 @dataclass(frozen=True)
 class WebStudyOptions:
+    # Zero means every safely selectable dictionary-backed item.
     per_chapter_item_limit: int = 50
     experimental_adaptive: bool = False
     preset_level: str = "N5"
@@ -344,12 +345,15 @@ def _bounded_web_report(
 ):
     """Retain a conservative source-ordered dictionary evidence window.
 
-    The web plan can select at most ``per_chapter_item_limit`` items. Keeping
-    eight times that amount for each evidence kind leaves deterministic room
-    for overlaps and repeated lexical identities without serializing every
-    repeated dictionary payload in a full novel.
+    A positive web limit keeps eight times that amount for each evidence kind,
+    leaving deterministic room for overlaps and repeated lexical identities.
+    Zero retains every safe match in allowed reading chapters.
     """
-    window = max(25, per_chapter_item_limit * 8)
+    window = (
+        None
+        if per_chapter_item_limit == 0
+        else max(25, per_chapter_item_limit * 8)
+    )
     candidate_chapters = {value.id: value.chapter_id for value in report.candidates}
     expression_chapters = {value.id: value.chapter_id for value in report.expressions}
     name_chapters = {value.id: value.chapter_id for value in report.name_occurrences}
@@ -361,7 +365,7 @@ def _bounded_web_report(
             chapter = chapter_for(value)
             if allowed_chapter_ids is not None and chapter not in allowed_chapter_ids:
                 continue
-            if counts.get(chapter, 0) >= window:
+            if window is not None and counts.get(chapter, 0) >= window:
                 continue
             counts[chapter] = counts.get(chapter, 0) + 1
             retained.append(value)
@@ -439,8 +443,10 @@ def run_dictionary_study_pipeline(
     work.mkdir(parents=True, exist_ok=True)
     if source.suffix.lower() != ".epub":
         raise ValueError("Study EPUB processing currently accepts EPUB input only")
-    if not 1 <= options.per_chapter_item_limit <= 50:
-        raise ValueError("Study-item limit must be between 1 and 50")
+    if options.per_chapter_item_limit != 0 and not (
+        1 <= options.per_chapter_item_limit <= 50
+    ):
+        raise ValueError("Study-item limit must be 0 (all) or between 1 and 50")
     jmdict_index = Path(
         os.environ.get("FURIGANALYSE_JMDICT_INDEX", "data/edrdg/JMdict.sqlite")
     )
@@ -469,7 +475,11 @@ def run_dictionary_study_pipeline(
         "sections_total": chapter_count,
         "characters_total": character_count,
     })
-    evidence_window = max(25, options.per_chapter_item_limit * 8)
+    evidence_window = (
+        None
+        if options.per_chapter_item_limit == 0
+        else max(25, options.per_chapter_item_limit * 8)
+    )
     base_report = analyze_vocabulary(book_model, progress_callback=progress)
     progress({
         "stage": "dictionary-lookup",
@@ -517,9 +527,19 @@ def run_dictionary_study_pipeline(
     _write_json(work / "vocabulary.json", vocabulary)
 
     progress({"stage": "study-selection"})
+    selection_limit = options.per_chapter_item_limit
+    if selection_limit == 0:
+        # This upper bound exceeds the number of selectable lexical groups in
+        # any one chapter without changing the established plan schema.
+        selection_limit = max(
+            1,
+            len(vocabulary["dictionary_matches"])
+            + len(vocabulary["expression_dictionary_matches"])
+            + len(vocabulary["name_dictionary_matches"]),
+        )
     phase4_plan = asdict(create_annotation_plan(
         vocabulary,
-        StudyPlanConfig(per_chapter_item_limit=options.per_chapter_item_limit),
+        StudyPlanConfig(per_chapter_item_limit=selection_limit),
         prefer_occurrence_reading=True,
     ))
     annotation_plan = promote_dictionary_only_plan(phase4_plan)

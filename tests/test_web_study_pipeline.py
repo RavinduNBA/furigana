@@ -126,6 +126,25 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
                 "study_items"
             ]
 
+    capped_count = summaries[0]["study_items"]
+    all_work = tmp_path / "work-all"
+    all_output = tmp_path / "all.epub"
+    all_summary = run_dictionary_study_pipeline(
+        source,
+        all_output,
+        all_work,
+        WebStudyOptions(per_chapter_item_limit=0),
+    )
+    assert validate_epub(all_output) == []
+    assert all_summary["study_items"] > capped_count
+    all_plan = json.loads(
+        (all_work / "annotation-plan.json").read_text(encoding="utf-8")
+    )
+    assert not any(
+        diagnostic["reason"] == "chapter-item-limit"
+        for diagnostic in all_plan["diagnostics"]
+    )
+
     assert hashlib.sha256(source.read_bytes()).hexdigest() == source_hash
 
 

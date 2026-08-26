@@ -118,6 +118,14 @@ async def task_handler(
     if pipeline_mode not in {"furigana", "study", "combined"}:
         return JSONResponse(status_code=400, content={"error": "Invalid processing mode."})
     if pipeline_mode in {"study", "combined"} and (
+        per_chapter_item_limit != 0
+        and not 1 <= per_chapter_item_limit <= 50
+    ):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Study coverage must be All or between 1 and 50."},
+        )
+    if pipeline_mode in {"study", "combined"} and (
         Path(file.filename or "").suffix.lower() != ".epub" or of != "epub"
     ):
         return JSONResponse(

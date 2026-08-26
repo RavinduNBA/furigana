@@ -103,6 +103,14 @@ The web deployment uses one API worker so its in-process job registry remains
 consistent; conversion work still runs concurrently in a separate process
 pool.
 
+Dictionary Study and Combined EPUB modes offer bounded per-chapter study
+coverage or **All eligible dictionary words**. The all-items setting links
+every safely selectable JMdict vocabulary/expression or JMnedict proper-name
+match in reading chapters and can produce a much larger, slower EPUB. It does
+not classify particles, punctuation, auxiliaries, or unmatched text as study
+vocabulary, and the displayed English is a dictionary gloss rather than a
+contextual sentence translation.
+
 ### Lightsail systemd service
 
 The checked-in [`deploy/furiganalyse.service`](deploy/furiganalyse.service)

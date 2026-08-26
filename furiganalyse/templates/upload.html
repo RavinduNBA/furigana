@@ -116,8 +116,9 @@
             <fieldset class="form-section" id="study-options" hidden>
                 <legend><span class="step-number">3</span><span>Study assistance<small>Local dictionary glosses—not sentence translation</small></span></legend>
                 <div class="field-row">
-                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Each selected item links all of its occurrences; higher limits improve coverage</small></label>
+                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Each selected item links all of its occurrences; particles, punctuation, and unmatched words stay unlinked</small></label>
                     <select name="per_chapter_item_limit" id="per_chapter_item_limit">
+                        <option value="0">All eligible dictionary words · slowest and largest</option>
                         <option value="5">5 items</option>
                         <option value="10">10 items</option>
                         <option value="20">20 items</option>
