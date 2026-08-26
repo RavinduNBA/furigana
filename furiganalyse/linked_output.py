@@ -523,6 +523,205 @@ def create_linked_output(
     return LinkedOutput(notes_path=notes_path, files=files)
 
 
+def split_study_notes_by_source_document(
+    output: LinkedOutput,
+    book: dict[str, Any],
+    *,
+    items_per_note_page: int = 25,
+) -> LinkedOutput:
+    """Partition one generated Study Notes document by canonical source XHTML.
+
+    The retained ``study-notes.xhtml`` becomes a lightweight index. Source
+    links target deterministic page-local note documents so ebook readers do
+    not need to load the complete book-wide note layer for one lookup.
+    """
+    if output.notes_path not in output.files:
+        raise LinkedOutputError("Missing Study Notes document")
+    if items_per_note_page < 1:
+        raise LinkedOutputError("Study-note page size must be positive")
+    chapters, _, _ = _index_book(book)
+    source_paths = [
+        _safe_path(chapter["source_path"])
+        for chapter in chapters.values()
+        if _safe_path(chapter["source_path"]) in output.files
+    ]
+    note_root_bytes = output.files[output.notes_path]
+    note_directory = posixpath.dirname(output.notes_path)
+    files = dict(output.files)
+    pages: list[tuple[str, str, list[str]]] = []
+    master_root = ET.fromstring(note_root_bytes)
+    master_list = master_root.find(".//" + X + "div[@class='study-notes__list']")
+    if master_list is None:
+        raise LinkedOutputError("Study Notes list is missing")
+    master_sections = {
+        section.get("id"): section
+        for section in master_list
+        if section.get("id")
+    }
+    page_skeleton = copy.deepcopy(master_root)
+    skeleton_list = page_skeleton.find(
+        ".//" + X + "div[@class='study-notes__list']"
+    )
+    if skeleton_list is None:
+        raise LinkedOutputError("Study Notes page skeleton is missing")
+    for child in list(skeleton_list):
+        skeleton_list.remove(child)
+
+    for source_path in source_paths:
+        source_root = ET.fromstring(files[source_path])
+        forward_links = [
+            link
+            for link in source_root.findall(".//" + X + "a")
+            if "study-link" in link.attrib.get("class", "").split()
+        ]
+        if not forward_links:
+            continue
+        fragments = []
+        for link in forward_links:
+            split = urlsplit(link.attrib.get("href", ""))
+            target = posixpath.normpath(
+                posixpath.join(posixpath.dirname(source_path), split.path)
+            )
+            if target != output.notes_path or not split.fragment:
+                raise LinkedOutputError("Unexpected Study Notes target")
+            fragments.append(split.fragment)
+        ordered_fragments = list(dict.fromkeys(fragments))
+        chunks = [
+            ordered_fragments[index : index + items_per_note_page]
+            for index in range(0, len(ordered_fragments), items_per_note_page)
+        ]
+        for chunk in chunks:
+            page_number = len(pages) + 1
+            page_path = posixpath.join(
+                note_directory, f"study-notes-page-{page_number:04d}.xhtml"
+            )
+            page_root = copy.deepcopy(page_skeleton)
+            page_title = f"Study Notes — Page {page_number}"
+            title = page_root.find(X + "head/" + X + "title")
+            heading = page_root.find(".//" + X + "h1")
+            if title is not None:
+                title.text = page_title
+            if heading is not None:
+                heading.text = page_title
+            section_parent = page_root.find(
+                ".//" + X + "div[@class='study-notes__list']"
+            )
+            if section_parent is None:
+                raise LinkedOutputError("Study Notes list is missing")
+            allowed_fragments = set(chunk)
+            retained_occurrences = 0
+            for fragment in chunk:
+                if fragment not in master_sections:
+                    raise LinkedOutputError("Unknown Study Notes fragment")
+                section = copy.deepcopy(master_sections[fragment])
+                occurrence_container = section.find(
+                    X + "div[@class='study-note__occurrences']"
+                )
+                if occurrence_container is None:
+                    raise LinkedOutputError("Study note has no occurrence records")
+                local_count = 0
+                for record in list(occurrence_container):
+                    backlink = record.find(
+                        ".//" + X + "a[@class='study-note__backlink']"
+                    )
+                    if backlink is None:
+                        occurrence_container.remove(record)
+                        continue
+                    split = urlsplit(backlink.attrib.get("href", ""))
+                    target = posixpath.normpath(
+                        posixpath.join(
+                            posixpath.dirname(output.notes_path), split.path
+                        )
+                    )
+                    if target != source_path:
+                        occurrence_container.remove(record)
+                        continue
+                    local_count += 1
+                if local_count == 0:
+                    raise LinkedOutputError("Page-local study note has no backlink")
+                retained_occurrences += local_count
+                details = section.find(X + "dl[@class='study-note__details']")
+                if details is not None:
+                    children = list(details)
+                    for index, child in enumerate(children[:-1]):
+                        if (
+                            child.tag == X + "dt"
+                            and (child.text or "") == "Occurrences"
+                        ):
+                            if children[index + 1].tag == X + "dd":
+                                children[index + 1].text = str(local_count)
+                            break
+                section_parent.append(section)
+            chunk_links = [
+                link
+                for link in forward_links
+                if urlsplit(link.attrib["href"]).fragment in allowed_fragments
+            ]
+            if retained_occurrences != len(chunk_links):
+                raise LinkedOutputError("Page-local link/backlink count mismatch")
+            for link in chunk_links:
+                fragment = urlsplit(link.attrib["href"]).fragment
+                link.set("href", _relative_href(source_path, page_path, fragment))
+            files[page_path] = (
+                ET.tostring(
+                    page_root,
+                    encoding="utf-8",
+                    xml_declaration=True,
+                    short_empty_elements=True,
+                )
+                + b"\n"
+            )
+            pages.append(
+                (
+                    source_path,
+                    page_path,
+                    [
+                        urlsplit(link.attrib["href"]).fragment
+                        for link in chunk_links
+                    ],
+                )
+            )
+        files[source_path] = (
+            ET.tostring(
+                source_root,
+                encoding="utf-8",
+                xml_declaration=True,
+                short_empty_elements=True,
+            )
+            + b"\n"
+        )
+
+    index_root = copy.deepcopy(page_skeleton)
+    index_list = index_root.find(".//" + X + "div[@class='study-notes__list']")
+    if index_list is None:
+        raise LinkedOutputError("Study Notes index list is missing")
+    for child in list(index_list):
+        index_list.remove(child)
+    ordered = ET.SubElement(index_list, X + "ol", {"class": "study-notes__pages"})
+    for number, (_, page_path, _) in enumerate(pages, 1):
+        item = ET.SubElement(ordered, X + "li")
+        anchor = ET.SubElement(
+            item,
+            X + "a",
+            {"href": posixpath.relpath(page_path, note_directory)},
+        )
+        anchor.text = f"Page {number} study notes"
+    files[output.notes_path] = (
+        ET.tostring(
+            index_root,
+            encoding="utf-8",
+            xml_declaration=True,
+            short_empty_elements=True,
+        )
+        + b"\n"
+    )
+    generated_links = _validate_links(files)
+    expected = sum(len(fragments) for _, _, fragments in pages)
+    if len(generated_links) != expected * 2:
+        raise LinkedOutputError("Partitioned Study Notes link count mismatch")
+    return LinkedOutput(notes_path=output.notes_path, files=files)
+
+
 def write_linked_output(output: LinkedOutput, output_dir: str | Path):
     root = Path(output_dir)
     for relative_path, data in sorted(output.files.items()):

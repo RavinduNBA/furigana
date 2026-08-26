@@ -27,7 +27,12 @@ from furiganalyse.learner_profile import (
     build_assistance_report,
     stable_hash,
 )
-from furiganalyse.linked_output import create_linked_output, write_linked_output
+from furiganalyse.linked_output import (
+    LinkedOutput,
+    create_linked_output,
+    split_study_notes_by_source_document,
+    write_linked_output,
+)
 from furiganalyse.study_plan import StudyPlanConfig, create_annotation_plan
 from furiganalyse.vocabulary_analysis import (
     analyze_vocabulary,
@@ -549,10 +554,6 @@ def run_dictionary_study_pipeline(
     linked = replace(linked, files=_prepare_web_linked_files(linked.files))
     linked_directory = work / "linked"
     write_linked_output(linked, linked_directory)
-    base_epub = work / "dictionary-study.epub"
-    write_deterministic_epub(
-        package_study_epub(source, book, annotation_plan), base_epub
-    )
 
     rendering_report = None
     density_report = None
@@ -594,10 +595,24 @@ def run_dictionary_study_pipeline(
             enabled=True,
             strict_source_markup=False,
         )
-        write_output(adaptive_files, work / "adaptive")
-        _replace_epub_members(base_epub, adaptive_files, output)
+        final_linked = split_study_notes_by_source_document(
+            LinkedOutput(notes_path=linked.notes_path, files=adaptive_files),
+            book,
+        )
+        write_output(final_linked.files, work / "adaptive")
     else:
-        _replace_epub_members(base_epub, linked.files, output)
+        final_linked = split_study_notes_by_source_document(linked, book)
+        write_linked_output(final_linked, linked_directory)
+
+    write_deterministic_epub(
+        package_study_epub(
+            source,
+            book,
+            annotation_plan,
+            linked_output=final_linked,
+        ),
+        output,
+    )
 
     if assistance_report is not None:
         _write_json(work / "assistance.json", assistance_report)
@@ -616,6 +631,10 @@ def run_dictionary_study_pipeline(
         "study_items": len(annotation_plan["items"]),
         "study_occurrences": sum(
             len(item["occurrences"]) for item in annotation_plan["items"]
+        ),
+        "study_note_pages": sum(
+            "/study-notes-page-" in path and path.endswith(".xhtml")
+            for path in final_linked.files
         ),
         "adaptive_occurrences": (
             len(density_report["occurrence_plans"]) if density_report else 0

@@ -114,6 +114,19 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
             note_style = note_root.find(
                 f"{X}head/{X}style[@id='furiganalyse-web-note-style']"
             )
+            page_note_names = sorted(
+                name
+                for name in archive.namelist()
+                if "/study-notes-page-" in name and name.endswith(".xhtml")
+            )
+            page_note_roots = [
+                ET.fromstring(archive.read(name)) for name in page_note_names
+            ]
+            source_roots = [
+                ET.fromstring(archive.read(name))
+                for name in archive.namelist()
+                if name.endswith(("chapter-01.xhtml", "chapter-02.xhtml"))
+            ]
         assert "furiganalyse-web-link-style" in xhtml
         assert note_root.get("lang") == "ja"
         assert note_root.get("{http://www.w3.org/XML/1998/namespace}lang") == "ja"
@@ -121,6 +134,17 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
         assert "writing-mode: horizontal-tb !important" in note_style.text
         assert "max-width: 100%; margin: .5em 0" in note_style.text
         assert "not sentence translation" in xhtml
+        assert page_note_names
+        assert note_root.findall(f".//{X}section") == []
+        assert all(
+            1 <= len(root.findall(f".//{X}section")) <= 25
+            for root in page_note_roots
+        )
+        assert all(
+            "study-notes-page-" in link.get("href", "")
+            for root in source_roots
+            for link in root.findall(f".//{X}a[@class='study-link']")
+        )
         if experimental:
             assert xhtml.count('class="adaptive-meaning-assistance"') == summaries[0][
                 "study_items"

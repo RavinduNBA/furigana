@@ -109,7 +109,10 @@ every safely selectable JMdict vocabulary/expression or JMnedict proper-name
 match in reading chapters and can produce a much larger, slower EPUB. It does
 not classify particles, punctuation, auxiliaries, or unmatched text as study
 vocabulary, and the displayed English is a dictionary gloss rather than a
-contextual sentence translation.
+contextual sentence translation. Personal-book output partitions Study Notes
+by source XHTML and into deterministic pages of at most 25 local items. The
+TOC entry opens a lightweight index, while a word link loads only its small
+page-local note document instead of the complete book-wide note layer.
 
 ### Lightsail systemd service
 

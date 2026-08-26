@@ -42,9 +42,15 @@ def _resolve(source: str, href: str) -> str:
     )
 
 
-def package_study_epub(input_epub, book, plan) -> dict[str, bytes]:
+def package_study_epub(
+    input_epub,
+    book,
+    plan,
+    *,
+    linked_output=None,
+) -> dict[str, bytes]:
     source = Path(input_epub)
-    linked = create_linked_output(source, book, plan)
+    linked = linked_output or create_linked_output(source, book, plan)
     with zipfile.ZipFile(source) as archive:
         infos = archive.infolist()
         names = [_safe(info.filename) for info in infos]
@@ -90,6 +96,27 @@ def package_study_epub(input_epub, book, plan) -> dict[str, bytes]:
         f"{{{OPF}}}item",
         {"id": NOTES_ID, "href": notes_href, "media-type": "application/xhtml+xml"},
     )
+    note_directory = posixpath.dirname(linked.notes_path)
+    page_note_paths = sorted(
+        path
+        for path in linked.files
+        if posixpath.dirname(path) == note_directory
+        and posixpath.basename(path).startswith("study-notes-page-")
+        and path.endswith(".xhtml")
+    )
+    for number, page_note_path in enumerate(page_note_paths, 1):
+        page_href = posixpath.relpath(page_note_path, posixpath.dirname(package_path))
+        if page_href in hrefs:
+            raise EpubPackagingError("Incompatible existing page-note manifest item")
+        ET.SubElement(
+            manifest,
+            f"{{{OPF}}}item",
+            {
+                "id": f"furiganalyse-study-notes-page-{number:04d}",
+                "href": page_href,
+                "media-type": "application/xhtml+xml",
+            },
+        )
     ET.SubElement(spine, f"{{{OPF}}}itemref", {"idref": NOTES_ID})
     nav = ET.fromstring(files[nav_path])
     toc = next(
