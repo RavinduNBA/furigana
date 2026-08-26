@@ -10,7 +10,6 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from furiganalyse.grammar_epub import (
-    BASE_MEMBERS,
     GRAMMAR_MEMBERS,
     GRAMMAR_NOTES_ID,
     GrammarEpubError,

@@ -42,8 +42,10 @@ def test_upload_page_renders_self_contained_converter_and_capability_boundary():
     assert "Experimental adaptive assistance" in html
     assert "Dictionary-only initially" in html
     assert "Grammar remains off for personal books" in html
+    assert "Bilingual companion" in html
+    assert 'id="bilingual_companion"' in html
+    assert 'id="bilingual_provider"' in html
     assert "EDRDG" in html
-    assert "No provider or model calls" in html
     assert '<script src="https://' not in html
     assert '<link href="https://' not in html
 

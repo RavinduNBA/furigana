@@ -155,6 +155,26 @@
             updateBookFile();
         }
     });
+    const bilingualCompanion = document.getElementById("bilingual_companion");
+    const bilingualSettings = document.getElementById("bilingual-settings");
+    const bilingualProvider = document.getElementById("bilingual_provider");
+    const bilingualKeyRow = document.getElementById("bilingual-key-row");
+    const bilingualUrlRow = document.getElementById("bilingual-url-row");
+
+    function updateBilingual() {
+        if (!bilingualCompanion || !bilingualSettings) return;
+        const enabled = bilingualCompanion.checked;
+        bilingualSettings.hidden = !enabled;
+        if (enabled && bilingualProvider) {
+            const prov = bilingualProvider.value;
+            if (bilingualKeyRow) bilingualKeyRow.hidden = (prov === "none" || prov === "ollama");
+            if (bilingualUrlRow) bilingualUrlRow.hidden = (prov === "none");
+        }
+    }
+
+    if (bilingualCompanion) bilingualCompanion.addEventListener("change", updateBilingual);
+    if (bilingualProvider) bilingualProvider.addEventListener("change", updateBilingual);
+
     form.addEventListener("submit", function () {
         submitButton.disabled = true;
         submitButton.querySelector("span").textContent = "Uploading…";
@@ -162,5 +182,6 @@
     bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
     updatePipeline();
+    updateBilingual();
     updateBookFile();
 }());

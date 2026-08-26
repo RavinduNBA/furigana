@@ -134,6 +134,11 @@ async def task_handler(
     assistance_meaning: str = Form(default="show-meaning"),
     assistance_meaning_coverage: str = Form(default="all-selected"),
     per_chapter_item_limit: int = Form(default=50),
+    bilingual_companion: bool = Form(default=False),
+    bilingual_provider: str = Form(default="none"),
+    bilingual_api_key: str = Form(default=""),
+    bilingual_base_url: str = Form(default=""),
+    bilingual_model: str = Form(default=""),
     redirect: bool = Form(default=True),
 ):
     if pipeline_mode not in {"furigana", "study", "combined", "guided"}:
@@ -231,6 +236,11 @@ async def task_handler(
         assistance_meaning,
         assistance_meaning_coverage,
         per_chapter_item_limit,
+        bilingual_companion,
+        bilingual_provider,
+        bilingual_api_key,
+        bilingual_base_url,
+        bilingual_model,
     )
 
     if redirect:
@@ -269,6 +279,11 @@ def furiganalyse_task(
     assistance_meaning: str = "show-meaning",
     assistance_meaning_coverage: str = "all-selected",
     per_chapter_item_limit: int = 50,
+    bilingual_companion: bool = False,
+    bilingual_provider: str = "none",
+    bilingual_api_key: str = "",
+    bilingual_base_url: str = "",
+    bilingual_model: str = "",
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
     output_filename = generate_output_filename(filename, output_format, pipeline_mode)
@@ -349,6 +364,11 @@ def furiganalyse_task(
                     meaning_state=assistance_meaning,
                     meaning_coverage=assistance_meaning_coverage,
                     guided_reading=pipeline_mode == "guided",
+                    bilingual_companion=bilingual_companion,
+                    bilingual_provider=bilingual_provider,
+                    bilingual_api_key=bilingual_api_key if bilingual_api_key else None,
+                    bilingual_base_url=bilingual_base_url if bilingual_base_url else None,
+                    bilingual_model=bilingual_model if bilingual_model else None,
                 ),
                 progress_callback=dictionary_progress,
             )

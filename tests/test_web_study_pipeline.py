@@ -372,7 +372,7 @@ def test_bilingual_companion_pipeline_end_to_end(tmp_path, monkeypatch):
 
     build_fixture(source)
 
-    summary = run_dictionary_study_pipeline(
+    run_dictionary_study_pipeline(
         source,
         output,
         work,

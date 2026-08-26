@@ -9,7 +9,6 @@ from furiganalyse.book_context import serialize
 from furiganalyse.terminology import (
     TerminologyError,
     build_consistency_report,
-    decision_payload,
     disabled_terminology,
     safe_failure,
     validate_consistency_report,

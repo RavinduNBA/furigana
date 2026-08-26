@@ -88,15 +88,20 @@ def test_repeated_publisher_ruby_occurrences_remain_one_bounded_result(edited):
     (lambda v:v["terminology_decisions"][0].update(approved_term="<script>"),"Unsafe"),
     (lambda v:v["terminology_decisions"][0].update(reviewer=""),"Missing"),
 ])
-def test_invalid_edits_are_rejected(manifest,edited,mutation,message):
-    value=copy.deepcopy(edited); mutation(value); value=rehash_manifest(value)
-    with pytest.raises(ContextManifestError,match=message): validate_edited_manifest(manifest,value)
+def test_invalid_edits_are_rejected(manifest, edited, mutation, message):
+    value = copy.deepcopy(edited)
+    mutation(value)
+    value = rehash_manifest(value)
+    with pytest.raises(ContextManifestError, match=message):
+        validate_edited_manifest(manifest, value)
 
-def test_terminology_summary_conflict_is_rejected(manifest,edited):
-    value=copy.deepcopy(edited)
-    value["summary_decisions"][0]["summary"]="Good weather is observed."
-    value=rehash_manifest(value)
-    with pytest.raises(ContextManifestError,match="conflicts"): validate_edited_manifest(manifest,value)
+
+def test_terminology_summary_conflict_is_rejected(manifest, edited):
+    value = copy.deepcopy(edited)
+    value["summary_decisions"][0]["summary"] = "Good weather is observed."
+    value = rehash_manifest(value)
+    with pytest.raises(ContextManifestError, match="conflicts"):
+        validate_edited_manifest(manifest, value)
 
 def test_disabled_and_failure_preserve_phase5_bytes():
     requests=load("artifacts/phase5/run-a/requests.json")

@@ -20,7 +20,7 @@
         return (bytes / 1048576).toFixed(1) + " MB";
     }
     function stageLabel(stage) {
-        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", error: "Stopped"})[stage] || "Working";
+        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", "bilingual-translation": "Translating companion chapters", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", error: "Stopped"})[stage] || "Working";
     }
     function updateStages(stage) {
         const groups = [
@@ -29,7 +29,7 @@
             ["dictionary-lookup", "expression-lookup", "name-lookup"],
             ["study-selection", "linked-rendering"],
             ["assistance-selection", "density-planning", "adaptive-rendering"],
-            ["packaging", "complete"]
+            ["bilingual-translation", "packaging", "complete"]
         ];
         const current = groups.findIndex(group => group.includes(stage));
         document.querySelectorAll(".stage-strip span").forEach(function (element, index) {

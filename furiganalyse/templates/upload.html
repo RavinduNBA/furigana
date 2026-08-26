@@ -167,8 +167,44 @@
                 </div>
             </fieldset>
 
+            <fieldset class="form-section" id="bilingual-section">
+                <legend><span class="step-number">5</span><span>Bilingual companion<small>Optional English translation chapters alongside Japanese</small></span></legend>
+                <div class="field-row">
+                    <label class="checkbox-row" for="bilingual_companion">
+                        <input type="checkbox" name="bilingual_companion" id="bilingual_companion" value="true">
+                        <span>
+                            <strong>Generate English companion chapters</strong>
+                            <small>Appends companion translation chapters to the EPUB spine without modifying original Japanese text or ruby.</small>
+                        </span>
+                    </label>
+                </div>
+                <div id="bilingual-settings" class="bilingual-settings" hidden>
+                    <div class="field-row">
+                        <label for="bilingual_provider"><strong>Translation backend</strong><small>Select LLM provider or local endpoint</small></label>
+                        <select name="bilingual_provider" id="bilingual_provider">
+                            <option value="none">Offline rule-based fallback (No API key needed)</option>
+                            <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
+                            <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
+                            <option value="ollama">Local Ollama / vLLM (http://localhost:11434/v1)</option>
+                        </select>
+                    </div>
+                    <div class="field-row" id="bilingual-key-row">
+                        <label for="bilingual_api_key"><strong>API Key</strong><small>Used only for this conversion session; never permanently logged</small></label>
+                        <input type="password" name="bilingual_api_key" id="bilingual_api_key" placeholder="sk-..." autocomplete="off">
+                    </div>
+                    <div class="field-row" id="bilingual-model-row">
+                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>e.g. gpt-4o-mini, deepseek/deepseek-chat</small></label>
+                        <input type="text" name="bilingual_model" id="bilingual_model" placeholder="Default model for provider">
+                    </div>
+                    <div class="field-row" id="bilingual-url-row">
+                        <label for="bilingual_base_url"><strong>Custom API base URL (optional)</strong><small>e.g. http://localhost:11434/v1</small></label>
+                        <input type="text" name="bilingual_base_url" id="bilingual_base_url" placeholder="Default endpoint URL">
+                    </div>
+                </div>
+            </fieldset>
+
             <fieldset class="form-section form-section--last">
-                <legend><span class="step-number">5</span><span>Output<small>Choose the file you want back</small></span></legend>
+                <legend><span class="step-number">6</span><span>Output<small>Choose the file you want back</small></span></legend>
                 <div class="field-row">
                     <label for="of"><strong>Output format</strong><small>EPUB is recommended for reading apps</small></label>
                     <select name="of" id="of">
