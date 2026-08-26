@@ -35,6 +35,8 @@ def test_upload_page_renders_self_contained_converter_and_capability_boundary():
     assert "Available in the web converter" in html
     assert "Dictionary Study EPUB" in html
     assert "Furigana + Dictionary Study" in html
+    assert "Guided Reading EPUB" in html
+    assert 'id="pipeline-guided"' in html
     assert "All eligible dictionary words" in html
     assert 'option value="0"' in html
     assert "Experimental adaptive assistance" in html

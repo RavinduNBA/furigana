@@ -43,7 +43,7 @@
         byId("conversion-progress").value = percent;
         byId("conversion-progress").textContent = percent + "%";
         byId("progress-percent").textContent = percent + "%";
-        const combinedPrefix = progress.pipeline_mode === "combined" ?
+        const combinedPrefix = ["combined", "guided"].includes(progress.pipeline_mode) ?
             (progress.combined_phase === "furigana" ? "Furigana · " : "Dictionary · ") : "";
         byId("progress-stage").textContent = combinedPrefix + stageLabel(progress.stage);
         byId("progress-sections").textContent = formatNumber(progress.sections_completed) + " / " + formatNumber(progress.sections_total);
@@ -53,7 +53,7 @@
         byId("progress-matches").textContent = formatNumber(progress.dictionary_matches) + " words · " + formatNumber(progress.expression_matches) + " expressions · " + formatNumber(progress.name_matches) + " names";
         byId("matches-caption").textContent = progress.study_items ? formatNumber(progress.study_items) + " selected study items" : "Local dictionary only";
         const dictionaryPhase = progress.pipeline_mode === "study" ||
-            (progress.pipeline_mode === "combined" && progress.combined_phase !== "furigana");
+            (["combined", "guided"].includes(progress.pipeline_mode) && progress.combined_phase !== "furigana");
         byId("progress-remaining").textContent = dictionaryPhase ?
             formatNumber(progress.words_remaining) + " word candidates · " + formatNumber(progress.names_total - progress.names_processed) + " names left" :
             formatNumber(progress.sections_remaining) + " sections · " + formatNumber(progress.characters_remaining) + " characters left";

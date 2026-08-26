@@ -115,9 +115,9 @@ async def task_handler(
     per_chapter_item_limit: int = Form(default=50),
     redirect: bool = Form(default=True),
 ):
-    if pipeline_mode not in {"furigana", "study", "combined"}:
+    if pipeline_mode not in {"furigana", "study", "combined", "guided"}:
         return JSONResponse(status_code=400, content={"error": "Invalid processing mode."})
-    if pipeline_mode in {"study", "combined"} and (
+    if pipeline_mode in {"study", "combined", "guided"} and (
         per_chapter_item_limit != 0
         and not 1 <= per_chapter_item_limit <= 50
     ):
@@ -125,14 +125,14 @@ async def task_handler(
             status_code=400,
             content={"error": "Study coverage must be All or between 1 and 50."},
         )
-    if pipeline_mode in {"study", "combined"} and (
+    if pipeline_mode in {"study", "combined", "guided"} and (
         Path(file.filename or "").suffix.lower() != ".epub" or of != "epub"
     ):
         return JSONResponse(
             status_code=400,
             content={
                 "error": (
-                    "Dictionary Study and Combined modes currently require "
+                    "Dictionary Study, Combined, and Guided Reading modes require "
                     "EPUB input and output."
                 )
             },
@@ -239,11 +239,12 @@ def furiganalyse_task(
     )
 
     try:
-        if pipeline_mode in {"study", "combined"}:
+        if pipeline_mode in {"study", "combined", "guided"}:
+            assisted_furigana = pipeline_mode in {"combined", "guided"}
             progress.update({
                 "stage": "preparing",
                 "pipeline_mode": pipeline_mode,
-                "combined_phase": "dictionary" if pipeline_mode == "combined" else None,
+                "combined_phase": "dictionary" if assisted_furigana else None,
             })
             study_output = (
                 output_filepath
@@ -256,7 +257,7 @@ def furiganalyse_task(
                     **event,
                     "pipeline_mode": pipeline_mode,
                     "combined_phase": (
-                        "dictionary" if pipeline_mode == "combined" else None
+                        "dictionary" if assisted_furigana else None
                     ),
                 })
 
@@ -265,22 +266,23 @@ def furiganalyse_task(
                 study_output,
                 Path(task_folder) / "study-work",
                 WebStudyOptions(
-                    per_chapter_item_limit=per_chapter_item_limit,
-                    experimental_adaptive=experimental_adaptive,
+                    per_chapter_item_limit=(0 if pipeline_mode == "guided" else per_chapter_item_limit),
+                    experimental_adaptive=(experimental_adaptive if pipeline_mode != "guided" else False),
                     preset_level=assistance_preset,
                     reading_state=assistance_reading,
                     meaning_state=assistance_meaning,
                     meaning_coverage=assistance_meaning_coverage,
+                    guided_reading=pipeline_mode == "guided",
                 ),
                 progress_callback=dictionary_progress,
             )
-            if pipeline_mode == "combined":
+            if assisted_furigana:
                 annotated_output = Path(task_folder) / "combined-annotated.epub"
 
                 def furigana_progress(event):
                     progress.update({
                         **event,
-                        "pipeline_mode": "combined",
+                        "pipeline_mode": pipeline_mode,
                         "combined_phase": "furigana",
                     })
 
@@ -303,7 +305,7 @@ def furiganalyse_task(
                 )
                 progress.update({
                     "stage": "packaging",
-                    "pipeline_mode": "combined",
+                    "pipeline_mode": pipeline_mode,
                     "combined_phase": "furigana",
                 })
                 normalize_epub_archive(annotated_output, output_filepath)
@@ -311,7 +313,7 @@ def furiganalyse_task(
                 "stage": "complete",
                 "pipeline_mode": pipeline_mode,
                 "combined_phase": (
-                    "furigana" if pipeline_mode == "combined" else None
+                    "furigana" if assisted_furigana else None
                 ),
                 "output_bytes": os.path.getsize(output_filepath),
             })

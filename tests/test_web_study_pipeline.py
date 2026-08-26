@@ -232,3 +232,126 @@ def test_combined_mode_preserves_study_navigation_and_adds_broad_furigana(
         assert ruby_count > 2
 
     assert outputs[0] == outputs[1]
+
+
+def test_guided_reading_covers_function_words_without_nested_links(
+    tmp_path, monkeypatch
+):
+    from furiganalyse.app import decode_filepath, furiganalyse_task
+
+    source = tmp_path / "source.epub"
+    build_fixture(source)
+    source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    jmdict_index = tmp_path / "jmdict.sqlite"
+    jmnedict_index = tmp_path / "jmnedict.sqlite"
+    build_jmdict_index(
+        Path("tests/fixtures/jmdict-expressions-mini.xml"), jmdict_index
+    )
+    build_jmnedict_index(Path("tests/fixtures/jmnedict-mini.xml"), jmnedict_index)
+    monkeypatch.setenv("FURIGANALYSE_JMDICT_INDEX", str(jmdict_index))
+    monkeypatch.setenv("FURIGANALYSE_JMNEDICT_INDEX", str(jmnedict_index))
+    outputs = []
+
+    for run in ("a", "b"):
+        output = tmp_path / f"guided-{run}.epub"
+        run_work = tmp_path / f"guided-work-{run}"
+        summary = run_dictionary_study_pipeline(
+            source,
+            output,
+            run_work,
+            WebStudyOptions(per_chapter_item_limit=0, guided_reading=True),
+        )
+        outputs.append(output.read_bytes())
+        assert validate_epub(output) == []
+        assert summary["guided_items"] > 0
+        assert summary["guided_occurrences"] > 0
+        assert summary["guided_note_pages"] > 0
+        guided_plan = json.loads(
+            (run_work / "guided-reading-plan.json").read_text(encoding="utf-8")
+        )
+        assert {item["kind"] for item in guided_plan["items"]} <= {
+            "function", "unmatched",
+        }
+        assert any(
+            item["surface"] == "は"
+            and item["kind"] == "function"
+            and "marker" in item["display_assistance"]
+            for item in guided_plan["items"]
+        )
+        assert all(
+            item["kind"] == "function"
+            for item in guided_plan["items"]
+            if item["surface"] == "に"
+        )
+        assert guided_plan["expression_components"]
+        with __import__("zipfile").ZipFile(output) as archive:
+            names = archive.namelist()
+            guided_pages = [
+                name for name in names if "/guided-notes-page-" in name
+            ]
+            roots = {
+                name: ET.fromstring(archive.read(name))
+                for name in names
+                if name.endswith(".xhtml")
+            }
+            package = "\n".join(
+                archive.read(name).decode("utf-8")
+                for name in names
+                if name.endswith((".opf", "nav.xhtml"))
+            )
+        guided_links = [
+            node
+            for root in roots.values()
+            for node in root.findall(f".//{X}a[@class='guided-link']")
+        ]
+        backlinks = [
+            node
+            for root in roots.values()
+            for node in root.findall(f".//{X}a[@class='guided-note__backlink']")
+        ]
+        guided_text = "".join(
+            "".join(roots[name].itertext()) for name in guided_pages
+        )
+        assert all(
+            len(roots[name].findall(f".//{X}section[@class]")) <= 25
+            for name in guided_pages
+        )
+        assert len(guided_links) == len(backlinks) == summary["guided_occurrences"]
+        assert "particle" in guided_text or "marker" in guided_text
+        assert "Guided Reading Notes" in package
+        assert "furiganalyse-guided-notes" in package
+        assert all(
+            not link.findall(f".//{X}a")
+            for link in guided_links
+        )
+
+    assert outputs[0] == outputs[1]
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == source_hash
+
+    task = tmp_path / "guided-app"
+    task.mkdir()
+    app_source = task / "source.epub"
+    build_fixture(app_source)
+    result = furiganalyse_task(
+        task,
+        app_source.name,
+        "epub",
+        "add",
+        "horizontal-tb",
+        pipeline_mode="guided",
+    )
+    app_output = Path(decode_filepath(result))
+    assert validate_epub(app_output) == []
+    with __import__("zipfile").ZipFile(app_output) as archive:
+        app_roots = [
+            ET.fromstring(archive.read(name))
+            for name in archive.namelist()
+            if name.endswith(".xhtml")
+        ]
+    assert any(
+        node.tag == X + "ruby" for root in app_roots for node in root.iter()
+    )
+    assert any(
+        node.get("class") == "guided-link"
+        for root in app_roots for node in root.iter()
+    )

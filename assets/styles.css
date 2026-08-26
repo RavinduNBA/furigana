@@ -96,6 +96,7 @@ main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
 .choice-grid { display: grid; gap: 10px; }
 .choice-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .choice-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.choice-grid--four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .choice-card { position: relative; cursor: pointer; }
 .choice-card input { position: absolute; opacity: 0; pointer-events: none; }
 .choice-content { min-height: 160px; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: var(--radius-small); background: #fcfcf9; text-align: center; transition: .18s ease; }
@@ -217,7 +218,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     .hero-visual { min-height: 230px; }
     .hero-visual img { height: 230px; }
     .hero-visual figcaption { right: 8px; }
-    .choice-grid--three, .choice-grid--two, .capability-column { grid-template-columns: 1fr; }
+    .choice-grid--four, .choice-grid--three, .choice-grid--two, .capability-column { grid-template-columns: 1fr; }
     .choice-content { min-height: 130px; }
     .field-row { grid-template-columns: 1fr; gap: 9px; }
     .section-heading, .form-section, .progress-card { padding: 23px 20px; }

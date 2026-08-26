@@ -83,17 +83,18 @@ def test_complete_snapshot_records_output_size(tmp_path):
     assert value["output_bytes"] == 456
 
 
-def test_combined_pipeline_progress_does_not_move_backwards(tmp_path):
-    writer = ProgressWriter(Path(tmp_path) / "combined-progress.json")
-    percentages = []
-    for event in (
-        {"stage": "packaging", "pipeline_mode": "combined", "combined_phase": "dictionary"},
-        {"stage": "preparing", "pipeline_mode": "combined", "combined_phase": "furigana"},
-        {"stage": "packaging", "pipeline_mode": "combined", "combined_phase": "furigana"},
-        {"stage": "complete", "pipeline_mode": "combined", "combined_phase": "furigana"},
-    ):
-        writer.update(event)
-        percentages.append(read_progress(writer.path)["percent"])
+def test_combined_and_guided_progress_do_not_move_backwards(tmp_path):
+    for mode in ("combined", "guided"):
+        writer = ProgressWriter(Path(tmp_path) / f"{mode}-progress.json")
+        percentages = []
+        for event in (
+            {"stage": "packaging", "pipeline_mode": mode, "combined_phase": "dictionary"},
+            {"stage": "preparing", "pipeline_mode": mode, "combined_phase": "furigana"},
+            {"stage": "packaging", "pipeline_mode": mode, "combined_phase": "furigana"},
+            {"stage": "complete", "pipeline_mode": mode, "combined_phase": "furigana"},
+        ):
+            writer.update(event)
+            percentages.append(read_progress(writer.path)["percent"])
 
-    assert percentages == sorted(percentages)
-    assert percentages[-1] == 100
+        assert percentages == sorted(percentages)
+        assert percentages[-1] == 100

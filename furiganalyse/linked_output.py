@@ -160,15 +160,18 @@ def _wrap_text(
     anchor_id: str,
     href: str,
     parents: dict[ET.Element, ET.Element],
+    link_class: str = "study-link",
 ):
     if ref_start.owner is not ref_end.owner or ref_start.attribute != ref_end.attribute:
         raise LinkedOutputError(f"Selection crosses XHTML text slots: {anchor_id}")
     owner = ref_start.owner
-    if _has_ancestor(owner, "a", parents) or local_name(owner.tag) == "a":
+    if _has_ancestor(owner, "a", parents) or (
+        local_name(owner.tag) == "a" and ref_start.attribute == "text"
+    ):
         raise LinkedOutputError(f"Selection is inside an existing link: {anchor_id}")
     raw = getattr(owner, ref_start.attribute) or ""
     start, end = ref_start.raw_index, ref_end.raw_index + 1
-    anchor = ET.Element(X + "a", {"id": anchor_id, "class": "study-link", "href": href})
+    anchor = ET.Element(X + "a", {"id": anchor_id, "class": link_class, "href": href})
     anchor.text = raw[start:end]
     if ref_start.attribute == "text":
         owner.text = raw[:start]

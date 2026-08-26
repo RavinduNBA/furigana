@@ -57,8 +57,8 @@
             </fieldset>
 
             <fieldset class="form-section">
-                <legend><span class="step-number">2</span><span>Processing mode<small>Choose direct furigana or dictionary-backed study notes</small></span></legend>
-                <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Processing mode">
+                <legend><span class="step-number">2</span><span>Processing mode<small>Choose furigana, dictionary study, or guided language analysis</small></span></legend>
+                <div class="choice-grid choice-grid--four" role="radiogroup" aria-label="Processing mode">
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-furigana" value="furigana" checked>
                         <span class="choice-content"><strong>Furigana converter</strong><small>Fast reading annotation with your known-word filter.</small></span>
@@ -70,6 +70,10 @@
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-combined" value="combined" {% if not dictionaries_ready %}disabled{% endif %}>
                         <span class="choice-content"><strong>Furigana + Dictionary Study</strong><small>Add broad furigana alongside selected dictionary links, notes, and backlinks · EPUB only.</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="pipeline_mode" id="pipeline-guided" value="guided" {% if not dictionaries_ready %}disabled{% endif %}>
+                        <span class="choice-content"><strong>Guided Reading EPUB</strong><small>Broad furigana plus all safe words, phrases, names, particles, auxiliaries, and local paged notes · no LLM.</small></span>
                     </label>
                 </div>
                 {% if not dictionaries_ready %}<p class="form-notice">Local EDRDG indexes are not ready, so Dictionary Study mode is temporarily unavailable.</p>{% endif %}
@@ -193,6 +197,7 @@
                     <li><span>縦</span><div><strong>Writing direction</strong><small>Horizontal and both vertical directions.</small></div></li>
                     <li><span>進</span><div><strong>Live progress</strong><small>Sections, characters, elapsed time, rate, and ETA.</small></div></li>
                     <li><span>辞</span><div><strong>Local dictionary notes</strong><small>JMdict vocabulary/expressions and separate JMnedict proper names.</small></div></li>
+                    <li><span>助</span><div><strong>Guided Reading</strong><small>Every safe token is covered by dictionary, phrase-component, function-word, or unmatched-token assistance.</small></div></li>
                 </ul>
             </section>
 

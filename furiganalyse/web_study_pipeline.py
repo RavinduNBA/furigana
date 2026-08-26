@@ -22,6 +22,10 @@ from furiganalyse.enriched_plan import promote_dictionary_only_plan
 from furiganalyse.epub_packaging import package_study_epub, write_deterministic_epub
 from furiganalyse.jmdict import SqliteJmdictProvider
 from furiganalyse.jmnedict import SqliteJmnedictProvider
+from furiganalyse.guided_reading import (
+    build_guided_reading_plan,
+    render_guided_reading,
+)
 from furiganalyse.learner_profile import (
     add_hash,
     build_assistance_report,
@@ -54,6 +58,7 @@ class WebStudyOptions:
     reading_state: str = "show-reading"
     meaning_state: str = "show-meaning"
     meaning_coverage: str = "all-selected"
+    guided_reading: bool = False
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -551,6 +556,17 @@ def run_dictionary_study_pipeline(
     _write_json(work / "annotation-plan.json", annotation_plan)
     progress({"stage": "linked-rendering", "study_items": len(annotation_plan["items"])})
     linked = create_linked_output(source, book, annotation_plan)
+    guided_plan = None
+    guided_report = None
+    if options.guided_reading:
+        guided_plan = build_guided_reading_plan(book, vocabulary, annotation_plan)
+        linked, guided_report = render_guided_reading(
+            linked,
+            book,
+            guided_plan,
+        )
+        _write_json(work / "guided-reading-plan.json", guided_plan)
+        _write_json(work / "guided-reading-report.json", guided_report)
     linked = replace(linked, files=_prepare_web_linked_files(linked.files))
     linked_directory = work / "linked"
     write_linked_output(linked, linked_directory)
@@ -620,7 +636,13 @@ def run_dictionary_study_pipeline(
         _write_json(work / "rendering.json", rendering_report)
     summary = {
         "schema_version": 1,
-        "mode": "experimental-adaptive" if options.experimental_adaptive else "dictionary-study",
+        "mode": (
+            "guided-reading"
+            if options.guided_reading
+            else "experimental-adaptive"
+            if options.experimental_adaptive
+            else "dictionary-study"
+        ),
         "chapters": chapter_count,
         "canonical_characters": character_count,
         "tokens": len(vocabulary["tokens"]),
@@ -635,6 +657,13 @@ def run_dictionary_study_pipeline(
         "study_note_pages": sum(
             "/study-notes-page-" in path and path.endswith(".xhtml")
             for path in final_linked.files
+        ),
+        "guided_items": len(guided_plan["items"]) if guided_plan else 0,
+        "guided_occurrences": (
+            guided_report["rendered_occurrences"] if guided_report else 0
+        ),
+        "guided_note_pages": (
+            guided_report["guided_note_pages"] if guided_report else 0
         ),
         "adaptive_occurrences": (
             len(density_report["occurrence_plans"]) if density_report else 0

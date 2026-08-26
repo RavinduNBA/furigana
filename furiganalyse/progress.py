@@ -114,7 +114,7 @@ class ProgressWriter:
             self.values["percent"] = min(end, start + round((end - start) * fraction))
         else:
             self.values["percent"] = STAGE_PERCENT.get(str(self.values["stage"]), 0)
-        if self.values["pipeline_mode"] == "combined":
+        if self.values["pipeline_mode"] in {"combined", "guided"}:
             if self.values["combined_phase"] == "dictionary":
                 self.values["percent"] = round(self.values["percent"] * 0.7)
             elif self.values["combined_phase"] == "furigana":

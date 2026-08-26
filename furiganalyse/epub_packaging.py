@@ -15,6 +15,7 @@ OPF = "http://www.idpf.org/2007/opf"
 XHTML = "http://www.w3.org/1999/xhtml"
 EPUB = "http://www.idpf.org/2007/ops"
 NOTES_ID = "furiganalyse-study-notes"
+GUIDED_NOTES_ID = "furiganalyse-guided-notes"
 FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 ET.register_namespace("", OPF)
 ET.register_namespace("", XHTML)
@@ -117,7 +118,46 @@ def package_study_epub(
                 "media-type": "application/xhtml+xml",
             },
         )
+    guided_notes_path = posixpath.join(
+        posixpath.dirname(linked.notes_path), "guided-notes.xhtml"
+    )
+    guided_page_paths = sorted(
+        path
+        for path in linked.files
+        if posixpath.dirname(path) == posixpath.dirname(linked.notes_path)
+        and posixpath.basename(path).startswith("guided-notes-page-")
+        and path.endswith(".xhtml")
+    )
+    if guided_notes_path in linked.files:
+        guided_href = posixpath.relpath(
+            guided_notes_path, posixpath.dirname(package_path)
+        )
+        if GUIDED_NOTES_ID in ids or guided_href in hrefs:
+            raise EpubPackagingError("Incompatible existing Guided Notes item")
+        ET.SubElement(
+            manifest,
+            f"{{{OPF}}}item",
+            {
+                "id": GUIDED_NOTES_ID,
+                "href": guided_href,
+                "media-type": "application/xhtml+xml",
+            },
+        )
+        for number, page_path in enumerate(guided_page_paths, 1):
+            ET.SubElement(
+                manifest,
+                f"{{{OPF}}}item",
+                {
+                    "id": f"furiganalyse-guided-notes-page-{number:04d}",
+                    "href": posixpath.relpath(
+                        page_path, posixpath.dirname(package_path)
+                    ),
+                    "media-type": "application/xhtml+xml",
+                },
+            )
     ET.SubElement(spine, f"{{{OPF}}}itemref", {"idref": NOTES_ID})
+    if guided_notes_path in linked.files:
+        ET.SubElement(spine, f"{{{OPF}}}itemref", {"idref": GUIDED_NOTES_ID})
     nav = ET.fromstring(files[nav_path])
     toc = next(
         (
@@ -143,6 +183,18 @@ def package_study_epub(
         {"href": posixpath.relpath(linked.notes_path, posixpath.dirname(nav_path))},
     )
     anchor.text = "Study Notes"
+    if guided_notes_path in linked.files:
+        guided_li = ET.SubElement(ordered, f"{{{XHTML}}}li")
+        guided_anchor = ET.SubElement(
+            guided_li,
+            f"{{{XHTML}}}a",
+            {
+                "href": posixpath.relpath(
+                    guided_notes_path, posixpath.dirname(nav_path)
+                )
+            },
+        )
+        guided_anchor.text = "Guided Reading Notes"
     files.update(linked.files)
     files[package_path] = _xml(package)
     files[nav_path] = _xml(nav)

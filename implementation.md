@@ -8,6 +8,8 @@ The product should help a learner read the original Japanese with the least nece
 
 The project is not a machine-translation replacement and should not cover every sentence with English. The Japanese text remains primary. Dictionary data is authoritative; an LLM may later choose and phrase a context-appropriate sense, but must not invent lexical facts.
 
+An explicit Guided Reading mode may cover every safely mappable Japanese token without turning the source chapter into interlinear English. It uses dictionary glosses for words and expressions, JMnedict for names, tokenizer lemmas/readings for form analysis, and curated functional notes for particles and auxiliaries. These are learning aids, not contextual sentence translations. A later opt-in bilingual companion may add model-generated paragraph translations as separate XHTML chapters while leaving the original Japanese untouched.
+
 The central delivery rule is:
 
 > Build one small, observable capability at a time. Do not begin the next phase until the current phase passes automated checks and a real EPUB has been inspected in Calibre.
@@ -55,7 +57,9 @@ input EPUB
   -> learning-item selection
   -> optional contextual enrichment
   -> annotation plan
+  -> optional guided-reading token/function plan
   -> EPUB renderer
+  -> optional separately authorized bilingual-companion renderer
   -> validation and Calibre inspection
 ```
 
@@ -213,6 +217,29 @@ Requirements:
 - note generation can be disabled without changing linguistic analysis;
 - the output opens and navigates correctly in Calibre, with at least one additional reading system tested before claiming broad compatibility.
 
+### Guided Reading mode
+
+Guided Reading is a separate processing mode, not a change to Furigana, Dictionary Study, or Combined behavior. It should optimize for uninterrupted story reading while making every safely analyzable unit inspectable:
+
+- retain longest compatible JMdict expressions as source links;
+- expose expression components inside the phrase note instead of creating nested source anchors;
+- retain JMdict vocabulary and JMnedict proper names as distinct evidence kinds;
+- explain particles, auxiliaries, conjunctions, adnominals, and interjections using a small versioned curated local function-word dataset;
+- show surface, lemma, reading, part of speech, and bounded assistance without claiming an exact contextual translation;
+- label unmatched Japanese tokens honestly rather than inventing meanings;
+- preserve publisher ruby and existing anchors above every generated assistance decision;
+- retain every token in the analytical plan even when protected markup prevents an independent source link.
+
+Reflowable EPUB screen pages are unstable. Guided notes therefore use deterministic source-XHTML and sentence-group boundaries, with bounded note documents containing no more than a configured number of local items. A lightweight Guided Reading Notes index is added to navigation; selecting one word must never load a book-wide note document.
+
+Source links must remain non-overlapping. When a dictionary phrase contains independently useful words or particles, the phrase owns the source span and its note lists the components. Never create nested anchors to simulate simultaneous phrase and word links.
+
+### Future bilingual companion
+
+Contextual translation is a later, separately enabled provider boundary. It should translate bounded sentence or paragraph groups and generate companion XHTML immediately after each original chapter, or under a clearly separate Translations navigation layer. It must not replace dictionary evidence, edit Japanese source XHTML, or run implicitly as part of Guided Reading.
+
+Requirements include explicit opt-in before copyrighted text leaves the host, strict schema validation, canonical sentence references, cache keys containing source hash/model/prompt version, bounded retries, cost/token progress, deterministic fallback, and complete separation between source text, dictionary glosses, and model-authored translation. Provider failure must leave a valid provider-free Guided Reading EPUB.
+
 ## 9. Learner knowledge model
 
 Reading knowledge and meaning knowledge are independent dimensions. Do not use one `known` Boolean.
@@ -362,7 +389,38 @@ Acceptance tests:
 - repeated exposure changes only the configured assistance dimension;
 - selection reports explain why each item was included or excluded.
 
-### Phase 9 — Optional Anki export
+### Phase 9 — Guided Reading for every safe linguistic unit
+
+Add a fourth provider-free processing mode over validated canonical, vocabulary, expression, name, and publisher-ruby records. Build a separate versioned guided-reading plan for uncovered function words and unmatched Japanese tokens. Keep longest expressions as source links and list their components in the phrase note. Render bounded source-local note pages and a lightweight navigation index.
+
+Acceptance tests:
+
+- existing Furigana, Dictionary Study, Combined, Phase 3–8 reports, and approved EPUB outputs remain unchanged;
+- every safely mapped Japanese token is represented by dictionary, expression, name, function-word, unmatched, component-only, or protected-markup evidence;
+- common particles and auxiliaries receive curated functional explanations without being misclassified as vocabulary;
+- expression components are visible without nested or overlapping source links;
+- note pages have deterministic item/size bounds and selecting one word never loads a book-wide note layer;
+- all forward links, backlinks, IDs, manifests, spine entries, and navigation targets resolve;
+- publisher ruby, canonical visible text, existing emphasis, and unrelated links remain unchanged;
+- no provider, SDK, model, network lookup, or contextual-translation claim is involved;
+- the legal fixture and a personal large EPUB are inspected for opening, movement, popup, and backlink responsiveness.
+
+### Phase 10 — Optional bilingual LLM companion chapters
+
+Add an explicit provider interface over canonical sentence/paragraph batches. Produce schema-validated translation records first, then separate companion XHTML without editing original chapters. Cache by canonical content hash, provider, model, prompt/schema version, and translation policy.
+
+Acceptance tests:
+
+- provider use requires explicit enablement and credentials supplied outside files and logs;
+- original Japanese, publisher ruby, dictionary notes, and Guided Reading notes remain unchanged;
+- each translation paragraph maps exactly to ordered canonical source references;
+- invalid, unavailable, rate-limited, or interrupted calls fail safely without a partially translated EPUB;
+- cached identical runs avoid provider calls and produce equivalent companion chapters;
+- navigation clearly distinguishes original chapters, Guided Reading Notes, and model-authored translations;
+- progress records batches, sentences, characters, cache hits, estimated tokens, and estimated cost without logging book text;
+- manual review records translation usefulness, omissions, terminology consistency, and model limitations rather than claiming objective correctness.
+
+### Phase 11 — Optional Anki export
 
 Keep Anki as an adapter over existing analysis records. Generate candidate cards rather than silently exporting every unknown word. Include word, reading, source sentence, dictionary sense, contextual gloss, book/chapter, and stable source ID.
 

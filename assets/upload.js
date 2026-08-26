@@ -18,12 +18,14 @@
     const sliderLabel = document.getElementById("custom_word_list_limit_label");
     const pipelineStudy = document.getElementById("pipeline-study");
     const pipelineCombined = document.getElementById("pipeline-combined");
+    const pipelineGuided = document.getElementById("pipeline-guided");
     const furiganaOptions = document.getElementById("furigana-options");
     const studyOptions = document.getElementById("study-options");
     const layoutOptions = document.getElementById("layout-options");
     const outputFormat = document.getElementById("of");
     const experimental = document.getElementById("experimental_adaptive");
     const experimentalOptions = document.getElementById("experimental-options");
+    const studyLimit = document.getElementById("per_chapter_item_limit");
 
     function formatBytes(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -88,24 +90,29 @@
     function updatePipeline() {
         const study = pipelineStudy && pipelineStudy.checked;
         const combined = pipelineCombined && pipelineCombined.checked;
-        const dictionary = study || combined;
+        const guided = pipelineGuided && pipelineGuided.checked;
+        const dictionary = study || combined || guided;
+        const assistedFurigana = combined || guided;
         const addMode = document.getElementById("fm_add");
         const replaceMode = document.getElementById("fm_replace");
         const removeMode = document.getElementById("fm_remove");
-        if (combined) addMode.checked = true;
-        replaceMode.disabled = combined;
-        removeMode.disabled = combined;
+        if (assistedFurigana) addMode.checked = true;
+        replaceMode.disabled = assistedFurigana;
+        removeMode.disabled = assistedFurigana;
         furiganaOptions.hidden = study;
         studyOptions.hidden = !dictionary;
         layoutOptions.hidden = study;
+        if (guided) studyLimit.value = "0";
         if (dictionary) outputFormat.value = "epub";
         Array.from(outputFormat.options).forEach(option => {
             option.disabled = dictionary && option.value !== "epub";
         });
         bookFile.accept = dictionary ? ".epub,application/epub+zip" : bookFile.dataset.allAccept;
-        experimentalOptions.hidden = !dictionary || !experimental.checked;
+        experimental.disabled = guided;
+        experimentalOptions.hidden = !dictionary || !experimental.checked || guided;
         submitButton.querySelector("span").textContent = dictionary ?
-            (combined ? "Build Combined EPUB" : "Build Study EPUB") : "Convert ebook";
+            (guided ? "Build Guided Reading EPUB" :
+                (combined ? "Build Combined EPUB" : "Build Study EPUB")) : "Convert ebook";
         updateMode();
     }
 
@@ -128,7 +135,7 @@
     }
 
     ["fm_add", "fm_replace", "fm_remove"].forEach(id => document.getElementById(id).addEventListener("change", updateMode));
-    ["pipeline-furigana", "pipeline-study", "pipeline-combined"].forEach(id => {
+    ["pipeline-furigana", "pipeline-study", "pipeline-combined", "pipeline-guided"].forEach(id => {
         const element = document.getElementById(id);
         if (element) element.addEventListener("change", updatePipeline);
     });

@@ -114,6 +114,20 @@ by source XHTML and into deterministic pages of at most 25 local items. The
 TOC entry opens a lightweight index, while a word link loads only its small
 page-local note document instead of the complete book-wide note layer.
 
+The separate **Guided Reading EPUB** web mode keeps those dictionary and name
+notes, adds broad furigana, and adds a distinct Guided Reading Notes layer for
+safe Japanese tokens not covered by a selected dictionary span. Particles,
+auxiliaries, conjunctions, adnominals, and interjections receive curated local
+function notes; unmatched tokens show lemma/reading/POS evidence without an
+invented translation. Longest dictionary phrases own the source link and list
+their internal components in the phrase note, avoiding nested anchors. Guided
+notes are provider-free and are not contextual sentence translations.
+
+A future opt-in bilingual companion is planned separately. It may create
+model-authored translation XHTML after original chapters, but it will require
+explicit provider authorization and must never modify the Japanese source or
+silently replace dictionary/function evidence.
+
 ### Lightsail systemd service
 
 The checked-in [`deploy/furiganalyse.service`](deploy/furiganalyse.service)
@@ -227,6 +241,12 @@ preserved but excluded from automatic study-item selection. Grammar remains
 disabled for personal books while the reviewed rule dataset is synthetic. See
 [`docs/edrdg-data-sources.md`](docs/edrdg-data-sources.md) for official-source,
 update, provenance, and attribution details.
+
+Guided Reading deliberately keeps particles and auxiliaries separate from
+vocabulary cards. It gives them a second, clearly labeled function-word note
+layer and gives exact dictionary expressions ownership of overlapping source
+spans. This avoids recreating the earlier error where a particle such as `に`
+was presented as ordinary vocabulary.
 
 Generate a deterministic, versioned tokenizer and vocabulary-candidate report:
 
