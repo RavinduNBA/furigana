@@ -156,6 +156,49 @@ def test_two_runs_and_extracted_input_are_byte_identical(inputs, tmp_path):
     } == first.files
 
 
+def test_occurrence_uses_exact_canonical_surface_when_inflection_differs(
+    inputs, tmp_path
+):
+    book, plan = copy.deepcopy(inputs)
+    item = next(value for value in plan["items"] if value["id"] == "study-item-0005")
+    occurrence = item["occurrences"][0]
+    assert item["surface"] == "振り返っ"
+    chapter = next(
+        value for value in book["chapters"] if value["id"] == occurrence["chapter_id"]
+    )
+    block = next(
+        value for value in chapter["blocks"] if value["id"] == occurrence["block_id"]
+    )
+    sentence = next(
+        value
+        for value in block["sentences"]
+        if value["id"] == occurrence["sentence_id"]
+    )
+    block["text"] = block["text"].replace("振り返っ", "振り返り", 1)
+    sentence["text"] = sentence["text"].replace("振り返っ", "振り返り", 1)
+
+    extracted = tmp_path / "fixture"
+    with zipfile.ZipFile(EPUB) as archive:
+        archive.extractall(extracted)
+    source_path = extracted / chapter["source_path"]
+    source_path.write_bytes(
+        source_path.read_bytes().replace(
+            "振り返っ".encode("utf-8"), "振り返り".encode("utf-8"), 1
+        )
+    )
+
+    output = create_linked_output(extracted, book, plan)
+    documents = roots(output)
+    source_link = documents[chapter["source_path"]].find(
+        f".//{X}a[@id='{occurrence['source_anchor_id']}']"
+    )
+    context = documents[output.notes_path].find(
+        f".//{X}div[@data-occurrence-id='{occurrence['id']}']/{X}blockquote/{X}mark"
+    )
+    assert source_link.text == "振り返り"
+    assert context.text == "振り返り"
+
+
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [

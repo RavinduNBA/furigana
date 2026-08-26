@@ -204,8 +204,6 @@ def build_evidence_report(
         item_ids = []
         for item in grouped_items:
             item_ids.append(item["id"])
-            if item["surface"] not in surface_forms:
-                surface_forms.append(item["surface"])
             for source_occurrence in item["occurrences"]:
                 occurrence_id = source_occurrence["id"]
                 if occurrence_id in seen_occurrences:
@@ -215,6 +213,12 @@ def build_evidence_report(
                 if context_pair is None:
                     raise ContextEvidenceError("Unmatched context occurrence")
                 record, indexed = context_pair
+                occurrence_surface = record["text"][
+                    source_occurrence["sentence_start"] :
+                    source_occurrence["sentence_end"]
+                ]
+                if occurrence_surface not in surface_forms:
+                    surface_forms.append(occurrence_surface)
                 fields = (
                     "token_ids",
                     "candidate_ids",
@@ -229,11 +233,7 @@ def build_evidence_report(
                 if (
                     indexed["item_id"] != item["id"]
                     or any(indexed.get(field) != source_occurrence.get(field) for field in fields)
-                    or record["text"][
-                        source_occurrence["sentence_start"] :
-                        source_occurrence["sentence_end"]
-                    ]
-                    != item["surface"]
+                    or indexed.get("surface") != occurrence_surface
                 ):
                     raise ContextEvidenceError("Occurrence source or offset mismatch")
                 if any(value not in maps["tokens"] for value in indexed["token_ids"]):
@@ -254,7 +254,7 @@ def build_evidence_report(
                     }.get(indexed["publisher_ruby_id"])
                     if (
                         ruby is None
-                        or ruby["surface"] != item["surface"]
+                        or ruby["surface"] != occurrence_surface
                         or ruby["reading"] != item["reading"]
                         or item["reading_source"] != "publisher"
                     ):

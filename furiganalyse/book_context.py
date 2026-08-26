@@ -107,7 +107,20 @@ def build_context_index(
     """Build a versioned sentence index without altering any source model."""
     _validate_inputs(book, vocabulary, plan)
     sources = _source_sets(vocabulary)
-    items = _unique_index(plan.get("items", []), "study item")
+    source_surfaces = {
+        "candidate": {
+            value["id"]: value["surface"]
+            for value in vocabulary.get("candidates", [])
+        },
+        "expression": {
+            value["id"]: value["surface"]
+            for value in vocabulary.get("expressions", [])
+        },
+        "name": {
+            value["id"]: value["surface"]
+            for value in vocabulary.get("name_occurrences", [])
+        },
+    }
     occurrences = {}
     occurrences_by_sentence: dict[str, list[tuple[dict[str, Any], dict[str, Any]]]] = {}
     for item in plan.get("items", []):
@@ -173,13 +186,28 @@ def build_context_index(
                     raise BookContextError("Canonical sentence text mismatch")
                 attached = []
                 for item, occurrence in occurrences_by_sentence.get(sentence_id, []):
+                    occurrence_surface = sentence["text"][
+                        occurrence["sentence_start"] : occurrence["sentence_end"]
+                    ]
+                    if item["kind"] == "expression":
+                        expected_surface = source_surfaces["expression"].get(
+                            occurrence.get("expression_id")
+                        )
+                    elif item["kind"] == "name":
+                        expected_surface = source_surfaces["name"].get(
+                            occurrence.get("name_id")
+                        )
+                    else:
+                        candidate_ids = occurrence.get("candidate_ids", [])
+                        expected_surface = (
+                            source_surfaces["candidate"].get(candidate_ids[0])
+                            if len(candidate_ids) == 1
+                            else None
+                        )
                     if (
                         occurrence["chapter_id"] != chapter_id
                         or occurrence["block_id"] != block_id
-                        or sentence["text"][
-                            occurrence["sentence_start"] : occurrence["sentence_end"]
-                        ]
-                        != item["surface"]
+                        or occurrence_surface != expected_surface
                     ):
                         raise BookContextError("Occurrence source or offset mismatch")
                     ruby_id = occurrence.get("publisher_ruby_id")
@@ -189,7 +217,7 @@ def build_context_index(
                             ruby is None
                             or item["reading_source"] != "publisher"
                             or item["reading"] != ruby.get("reading")
-                            or item["surface"] != ruby.get("surface")
+                            or occurrence_surface != ruby.get("surface")
                         ):
                             raise BookContextError("Publisher-reading precedence violation")
                     attached.append(
@@ -197,7 +225,7 @@ def build_context_index(
                             "item_id": item["id"],
                             "occurrence_id": occurrence["id"],
                             "item_kind": item["kind"],
-                            "surface": item["surface"],
+                            "surface": occurrence_surface,
                             "authoritative_reading": item["reading"],
                             "reading_source": item["reading_source"],
                             "token_ids": occurrence["token_ids"],

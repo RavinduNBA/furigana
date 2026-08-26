@@ -308,7 +308,14 @@ def _validate_occurrence_plans(
     source: dict[str, tuple[str, str, dict[str, Any]]] = {}
     for item in annotation_plan["items"]:
         for occurrence in item["occurrences"]:
-            source[occurrence["id"]] = (item["id"], item["surface"], occurrence)
+            text = sentences.get(occurrence["sentence_id"])
+            start, end = occurrence["sentence_start"], occurrence["sentence_end"]
+            surface = (
+                text[start:end]
+                if isinstance(text, str) and 0 <= start < end <= len(text)
+                else ""
+            )
+            source[occurrence["id"]] = (item["id"], surface, occurrence)
     grammar_items = {
         occurrence_id: item["id"]
         for item in (grammar_plan or {"items": []})["items"]

@@ -217,7 +217,9 @@ def _canonical_maps(book: dict[str, Any]) -> tuple[
 
 
 def _source_occurrences(
-    annotation_plan: dict[str, Any], grammar_plan: dict[str, Any] | None
+    annotation_plan: dict[str, Any],
+    grammar_plan: dict[str, Any] | None,
+    sentence_texts: dict[str, str],
 ) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
     occurrences: dict[str, dict[str, Any]] = {}
     item_kinds: dict[str, str] = {}
@@ -228,8 +230,19 @@ def _source_occurrences(
             occurrence_id = _safe_id(occurrence.get("id"), "study occurrence")
             if occurrence_id in occurrences:
                 raise AssistanceDensityError("Duplicate occurrence")
+            text = sentence_texts.get(occurrence.get("sentence_id"))
+            start = occurrence.get("sentence_start")
+            end = occurrence.get("sentence_end")
+            surface = (
+                text[start:end]
+                if isinstance(text, str)
+                and isinstance(start, int)
+                and isinstance(end, int)
+                and 0 <= start < end <= len(text)
+                else None
+            )
             occurrences[occurrence_id] = {
-                **occurrence, "source_item_id": item_id, "surface": item.get("surface")
+                **occurrence, "source_item_id": item_id, "surface": surface
             }
     if grammar_plan is not None:
         grammar_items = {value["id"]: value for value in grammar_plan.get("items", [])}
@@ -335,7 +348,9 @@ def build_density_report(
         locations, character_counts, ruby_ids, sentence_texts,
         sentence_block_starts,
     ) = _canonical_maps(book)
-    source_occurrences, item_kinds = _source_occurrences(annotation_plan, grammar_plan)
+    source_occurrences, item_kinds = _source_occurrences(
+        annotation_plan, grammar_plan, sentence_texts
+    )
     results = {value["source_item_id"]: value for value in assistance["results"]}
     if len(results) != len(assistance["results"]):
         raise AssistanceDensityError("Duplicate assistance result")

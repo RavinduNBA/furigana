@@ -251,8 +251,7 @@ def _render_notes(
             start, end = occurrence["sentence_start"], occurrence["sentence_end"]
             if not 0 <= start < end <= len(sentence["text"]):
                 raise LinkedOutputError(f"Invalid sentence offsets: {occurrence['id']}")
-            if sentence["text"][start:end] != item["surface"]:
-                raise LinkedOutputError(f"Sentence text mismatch: {occurrence['id']}")
+            occurrence_surface = sentence["text"][start:end]
             record = ET.Element(
                 X + "div",
                 {
@@ -265,7 +264,7 @@ def _render_notes(
             )
             quote.text = sentence["text"][:start]
             mark = ET.SubElement(quote, X + "mark", {"class": "study-note__target"})
-            mark.text = sentence["text"][start:end]
+            mark.text = occurrence_surface
             mark.tail = sentence["text"][end:]
             mixed_content.append((quote, mark, sentence["text"], start, end))
             paragraph = ET.SubElement(record, X + "p")
@@ -431,8 +430,12 @@ def create_linked_output(
             end = sentence["start"] + occurrence["sentence_end"]
             if (start, end) != (occurrence["block_start"], occurrence["block_end"]):
                 raise LinkedOutputError(f"Block offset mismatch: {occurrence['id']}")
-            if block["text"][start:end] != item["surface"]:
-                raise LinkedOutputError(f"Block text mismatch: {occurrence['id']}")
+            occurrence_surface = block["text"][start:end]
+            if (
+                sentence["text"][occurrence["sentence_start"] : occurrence["sentence_end"]]
+                != occurrence_surface
+            ):
+                raise LinkedOutputError(f"Occurrence text mismatch: {occurrence['id']}")
             spans = occupied.setdefault(block["id"], [])
             if any(
                 start < other_end and other_start < end
@@ -483,7 +486,7 @@ def create_linked_output(
                 if (
                     first.owner is not last.owner
                     or first.attribute != last.attribute
-                    or raw[first.raw_index : last.raw_index + 1] != item["surface"]
+                    or raw[first.raw_index : last.raw_index + 1] != occurrence_surface
                 ):
                     raise LinkedOutputError(
                         f"Ambiguous text insertion: {occurrence['id']}"
