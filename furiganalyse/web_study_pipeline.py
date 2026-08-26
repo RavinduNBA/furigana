@@ -728,7 +728,13 @@ def run_dictionary_study_pipeline(
             base_url=options.bilingual_base_url,
             model=options.bilingual_model,
         )
-        book_context = build_book_context(book, vocabulary, provider=provider, model=model_name)
+        book_context = build_book_context(
+            book,
+            vocabulary,
+            provider=provider,
+            model=model_name,
+            progress_callback=progress,
+        )
 
         cast_summary = [
             {

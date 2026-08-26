@@ -154,6 +154,7 @@ def build_book_context(
     provider: BaseLLMProvider | None = None,
     overrides: dict[str, Any] | None = None,
     model: str | None = None,
+    progress_callback: Any = None,
 ) -> BookContextData:
     """Builds a structured BookContextData using LLM discovery with fallback to rule-based indexing."""
     candidates = extract_context_candidates(canonical_book, vocabulary_report)
@@ -171,6 +172,20 @@ def build_book_context(
                     ch_text.append(s.get("text", ""))
             sample_texts.append(f"--- Chapter: {ch.get('id')} ({ch.get('title', '')}) ---\n" + "\n".join(ch_text[:15]))
 
+        sample_names = ", ".join(candidates["candidate_names"][:10])
+        sample_terms = ", ".join(candidates["ruby_terms"][:10])
+        if progress_callback:
+            try:
+                progress_callback({
+                    "stage": "bilingual-translation",
+                    "translation_current_chapter": "Pass 1: Cast & Terminology Discovery",
+                    "translation_latest_japanese": f"Candidate Names: {sample_names}\nSpecialized Terms: {sample_terms}",
+                    "translation_latest_english": "Extracting character roles, romanization, and world terminology…",
+                    "log": f"Pass 1: Analyzing {len(candidates['candidate_names'])} names and {len(candidates['ruby_terms'])} ruby terms with {model or 'LLM'}…",
+                })
+            except Exception:
+                pass
+
         user_content = (
             f"Title: {title}\n\n"
             f"Candidate Proper Names: {', '.join(candidates['candidate_names'][:30])}\n"
@@ -178,6 +193,26 @@ def build_book_context(
             f"Frequent Expressions: {', '.join(candidates['frequent_expressions'][:30])}\n\n"
             f"Text Excerpts:\n" + "\n\n".join(sample_texts)
         )
+
+        accumulated_stream: list[str] = []
+        import time
+        last_update = [time.monotonic()]
+
+        def on_token(delta: str) -> None:
+            accumulated_stream.append(delta)
+            now = time.monotonic()
+            if progress_callback and (now - last_update[0] >= 0.3 or any(c in delta for c in "}\n")):
+                last_update[0] = now
+                raw_str = "".join(accumulated_stream)
+                try:
+                    progress_callback({
+                        "stage": "bilingual-translation",
+                        "translation_current_chapter": "Pass 1: Cast & Terminology Discovery",
+                        "translation_latest_japanese": f"Candidate Names: {sample_names}\nSpecialized Terms: {sample_terms}",
+                        "translation_latest_english": raw_str[-300:] or "Analyzing context…",
+                    })
+                except Exception:
+                    pass
 
         try:
             req = LLMRequest(
@@ -189,7 +224,8 @@ def build_book_context(
                 model=model,
                 response_json=True,
             )
-            raw_json = provider.generate_json(req)
+            resp = provider.generate(req, stream_callback=on_token)
+            raw_json = resp.json_data()
             context_data = BookContextData.from_dict(raw_json)
             context_data.title = title
         except Exception:
