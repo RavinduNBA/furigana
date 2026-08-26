@@ -80,13 +80,22 @@
             <span>Prepare</span><span>Analyze</span><span>Dictionary</span><span>Select</span><span>Adapt</span><span>Package</span>
         </div>
 
-        <p class="section-explainer"><strong>Why sections, not pages?</strong> EPUBs reflow to fit each screen, so pages are not stable. XHTML sections and visible-character counts give a consistent measure.</p>
+        <div class="progress-footer-row">
+            <p class="section-explainer"><strong>Why sections, not pages?</strong> EPUBs reflow to fit each screen, so pages are not stable. XHTML sections and visible-character counts give a consistent measure.</p>
+            <button class="secondary-button cancel-btn" id="cancel-button" type="button">✕ Cancel conversion</button>
+        </div>
     </section>
 
     <section class="result-card" id="result" hidden>
         <div class="result-icon" aria-hidden="true">✓</div>
         <div><span class="section-kicker">Conversion complete</span><h2>Your ebook is ready</h2><p>The original upload was not modified. Download the converted copy below.</p></div>
         <div class="result-actions"><a class="primary-button" id="download-link" href="{{ url_for('get_file', uid=uid) }}">Download ebook <span aria-hidden="true">↓</span></a><a class="secondary-button" href="{{ url_for('get_root') }}">Convert another</a></div>
+    </section>
+
+    <section class="result-card result-card--cancelled" id="cancelled" hidden>
+        <div class="result-icon result-icon--cancelled" aria-hidden="true">✕</div>
+        <div><span class="section-kicker">Conversion cancelled</span><h2>Conversion was stopped</h2><p>Your source file was not modified and all temporary scratch files have been cleaned up.</p></div>
+        <div class="result-actions"><a class="primary-button" href="{{ url_for('get_root') }}">Convert another ebook</a></div>
     </section>
 
     <section class="result-card result-card--error" id="error" hidden>

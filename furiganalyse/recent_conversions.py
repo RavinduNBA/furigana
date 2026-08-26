@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -90,5 +91,71 @@ def record_conversion(
         os.replace(tmp, path)
     except Exception:
         pass
+
+    return items
+
+
+def remove_recent_conversion(output_folder: str | Path, uid: str) -> list[dict[str, Any]]:
+    """Removes a specific conversion from history and deletes its task folder."""
+    path = get_recent_conversions_path(output_folder)
+    items = load_recent_conversions(output_folder)
+    items = [item for item in items if item.get("uid") != uid]
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception:
+        pass
+
+    # Clean up directory on disk
+    task_dir = Path(output_folder) / uid
+    if task_dir.is_dir():
+        try:
+            shutil.rmtree(task_dir)
+        except Exception:
+            pass
+
+    return items
+
+
+def cleanup_orphaned_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
+    """Marks any leftover 'in_progress' jobs as 'stopped' and purges orphaned scratch work."""
+    path = get_recent_conversions_path(output_folder)
+    items = load_recent_conversions(output_folder)
+    changed = False
+
+    for item in items:
+        if item.get("status") == "in_progress":
+            item["status"] = "stopped"
+            changed = True
+
+    if changed:
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+            os.replace(tmp, path)
+        except Exception:
+            pass
+
+    # Clean up any leftover study-work or scratch folders in output directory
+    out_dir = Path(output_folder)
+    if out_dir.is_dir():
+        for sub in out_dir.iterdir():
+            if sub.is_dir():
+                study_work = sub / "study-work"
+                if study_work.is_dir():
+                    try:
+                        shutil.rmtree(study_work)
+                    except Exception:
+                        pass
+                stage_furi = sub / "furigana-stage.epub"
+                if stage_furi.is_file():
+                    try:
+                        stage_furi.unlink()
+                    except Exception:
+                        pass
 
     return items

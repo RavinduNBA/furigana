@@ -43,6 +43,8 @@ jobs: Dict[UUID, Job] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from furiganalyse.recent_conversions import cleanup_orphaned_conversions
+    cleanup_orphaned_conversions(OUTPUT_FOLDER)
     workers = max(1, int(os.environ.get("FURIGANALYSE_WORKERS", "1")))
     app.state.executor = ProcessPoolExecutor(max_workers=workers)
     try:
@@ -476,6 +478,53 @@ async def status_handler(uid: UUID):
     value = job.model_dump()
     value["progress"] = read_progress(job.progress_path) if job.progress_path else None
     return value
+
+
+@app.post("/jobs/{uid}/cancel")
+async def cancel_job_handler(uid: UUID):
+    job = jobs.get(uid)
+    if not job:
+        return JSONResponse(status_code=404, content={"error": "Job not found"})
+
+    job.status = "cancelled"
+    task_folder = os.path.join(OUTPUT_FOLDER, str(uid))
+    if job.progress_path:
+        try:
+            ProgressWriter(job.progress_path, input_bytes=0).update({
+                "stage": "cancelled",
+                "percent": 0,
+                "status_note": "Conversion cancelled by user",
+            })
+        except Exception:
+            pass
+
+    # Clean up temporary scratch folders
+    study_work = Path(task_folder) / "study-work"
+    if study_work.is_dir():
+        shutil.rmtree(study_work, ignore_errors=True)
+    stage_furi = Path(task_folder) / "furigana-stage.epub"
+    if stage_furi.is_file():
+        try:
+            stage_furi.unlink()
+        except Exception:
+            pass
+
+    record_conversion(
+        OUTPUT_FOLDER,
+        uid=str(uid),
+        filename="cancelled",
+        output_filename="cancelled",
+        pipeline_mode="cancelled",
+        status="cancelled",
+    )
+    return {"status": "cancelled", "uid": str(uid)}
+
+
+@app.delete("/api/recent_conversions/{uid}")
+def delete_recent_conversion_api(uid: str):
+    from furiganalyse.recent_conversions import remove_recent_conversion
+    items = remove_recent_conversion(OUTPUT_FOLDER, uid)
+    return JSONResponse(items)
 
 
 @app.get('/jobs/{uid}/file')

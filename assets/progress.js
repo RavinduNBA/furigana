@@ -103,7 +103,18 @@
         byId("header-status-text").textContent = "Ready";
         document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
         byId("result").hidden = false;
+        const cancelBtn = byId("cancel-button");
+        if (cancelBtn) cancelBtn.hidden = true;
         updateStages("complete");
+    }
+    function showCancelled() {
+        byId("job-title").textContent = "Conversion cancelled";
+        byId("job-description").textContent = "Conversion was stopped by user. No partial files were saved.";
+        byId("header-status-text").textContent = "Cancelled";
+        document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
+        byId("cancelled").hidden = false;
+        const cancelBtn = byId("cancel-button");
+        if (cancelBtn) cancelBtn.hidden = true;
     }
     function showError() {
         byId("job-title").textContent = "Conversion stopped";
@@ -111,6 +122,8 @@
         byId("header-status-text").textContent = "Needs attention";
         document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
         byId("error").hidden = false;
+        const cancelBtn = byId("cancel-button");
+        if (cancelBtn) cancelBtn.hidden = true;
     }
     async function poll() {
         try {
@@ -119,11 +132,30 @@
             const data = await response.json();
             updateProgress(data.progress);
             if (data.status === "complete") return showComplete();
+            if (data.status === "cancelled" || (data.progress && data.progress.stage === "cancelled")) return showCancelled();
             if (data.status === "error") return showError();
             window.setTimeout(poll, pollingInterval);
         } catch (error) {
             showError();
         }
     }
+
+    const cancelBtn = byId("cancel-button");
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", async function () {
+            if (confirm("Are you sure you want to cancel this conversion?")) {
+                cancelBtn.disabled = true;
+                cancelBtn.textContent = "Cancelling…";
+                try {
+                    const cancelUrl = config.statusUrl.replace(/\/status$/, "/cancel");
+                    await fetch(cancelUrl, {method: "POST"});
+                    showCancelled();
+                } catch (e) {
+                    console.error("Cancel failed:", e);
+                }
+            }
+        });
+    }
+
     window.setTimeout(poll, 250);
 }());

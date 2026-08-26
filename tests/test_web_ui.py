@@ -1,5 +1,6 @@
 from uuid import UUID
 
+import pytest
 from starlette.requests import Request
 
 from furiganalyse.app import app, templates
@@ -61,7 +62,7 @@ def test_job_page_renders_all_progress_metrics_and_safe_result_states():
         "progress-remaining", "progress-elapsed", "progress-eta", "progress-rate",
         "progress-size", "progress-words", "progress-matches", "result", "error",
         "bilingual-progress-panel", "progress-trans-model", "progress-trans-paragraphs",
-        "progress-trans-cache", "bilingual-status-badge",
+        "progress-trans-cache", "bilingual-status-badge", "cancel-button", "cancelled",
     ):
         assert f'id="{element_id}"' in html
     assert "LLM Bilingual Companion" in html
@@ -157,4 +158,63 @@ def test_ollama_dashboard_data_and_telemetry():
     assert "online" in data
     assert "installed_models" in data
     assert "telemetry" in data
+
+
+def test_recent_conversions_deletion_and_orphan_cleanup(tmp_path):
+    from furiganalyse.recent_conversions import (
+        cleanup_orphaned_conversions,
+        record_conversion,
+        remove_recent_conversion,
+    )
+
+    # 1. Record an in_progress job and an active scratch folder
+    uid = "test-uid-1234"
+    task_dir = tmp_path / uid
+    task_dir.mkdir(parents=True)
+    (task_dir / "study-work").mkdir()
+    (task_dir / "study-work" / "temp.txt").write_text("scratch", encoding="utf-8")
+    (task_dir / "furigana-stage.epub").write_text("stage", encoding="utf-8")
+
+    record_conversion(
+        tmp_path,
+        uid=uid,
+        filename="book.epub",
+        output_filename="book - Guided.epub",
+        pipeline_mode="guided",
+        status="in_progress",
+    )
+
+    # 2. Test orphan cleanup marks status as stopped and purges scratch work
+    items = cleanup_orphaned_conversions(tmp_path)
+    assert len(items) == 1
+    assert items[0]["status"] == "stopped"
+    assert not (task_dir / "study-work").exists()
+    assert not (task_dir / "furigana-stage.epub").exists()
+
+    # 3. Test removing conversion deletes history entry and task folder
+    remaining = remove_recent_conversion(tmp_path, uid)
+    assert len(remaining) == 0
+    assert not task_dir.exists()
+
+
+@pytest.mark.anyio
+async def test_job_cancellation_handler(tmp_path, monkeypatch):
+    import uuid
+    from furiganalyse.app import Job, cancel_job_handler, jobs
+
+    uid = uuid.uuid4()
+    job = Job(uid=uid)
+    jobs[uid] = job
+
+    task_dir = tmp_path / str(uid)
+    task_dir.mkdir(parents=True)
+    (task_dir / "study-work").mkdir()
+
+    monkeypatch.setattr("furiganalyse.app.OUTPUT_FOLDER", str(tmp_path))
+
+    resp = await cancel_job_handler(uid)
+    assert resp["status"] == "cancelled"
+    assert job.status == "cancelled"
+    assert not (task_dir / "study-work").exists()
+
 
