@@ -43,21 +43,26 @@
         byId("conversion-progress").value = percent;
         byId("conversion-progress").textContent = percent + "%";
         byId("progress-percent").textContent = percent + "%";
-        byId("progress-stage").textContent = stageLabel(progress.stage);
+        const combinedPrefix = progress.pipeline_mode === "combined" ?
+            (progress.combined_phase === "furigana" ? "Furigana · " : "Dictionary · ") : "";
+        byId("progress-stage").textContent = combinedPrefix + stageLabel(progress.stage);
         byId("progress-sections").textContent = formatNumber(progress.sections_completed) + " / " + formatNumber(progress.sections_total);
         byId("progress-characters").textContent = formatNumber(progress.characters_processed) + " / " + formatNumber(progress.characters_total);
         byId("progress-words").textContent = formatNumber(progress.words_processed) + " / " + formatNumber(progress.words_total);
         byId("words-caption").textContent = formatNumber(progress.words_remaining) + " candidates left";
         byId("progress-matches").textContent = formatNumber(progress.dictionary_matches) + " words · " + formatNumber(progress.expression_matches) + " expressions · " + formatNumber(progress.name_matches) + " names";
         byId("matches-caption").textContent = progress.study_items ? formatNumber(progress.study_items) + " selected study items" : "Local dictionary only";
-        byId("progress-remaining").textContent = progress.pipeline_mode === "study" ?
+        const dictionaryPhase = progress.pipeline_mode === "study" ||
+            (progress.pipeline_mode === "combined" && progress.combined_phase !== "furigana");
+        byId("progress-remaining").textContent = dictionaryPhase ?
             formatNumber(progress.words_remaining) + " word candidates · " + formatNumber(progress.names_total - progress.names_processed) + " names left" :
             formatNumber(progress.sections_remaining) + " sections · " + formatNumber(progress.characters_remaining) + " characters left";
         byId("progress-elapsed").textContent = formatDuration(progress.elapsed_seconds);
         byId("progress-eta").textContent = progress.eta_seconds === null ? "ETA calculating…" : "ETA " + formatDuration(progress.eta_seconds);
         byId("progress-rate").textContent = formatNumber(progress.characters_per_second) + " chars/s";
         byId("progress-size").textContent = formatBytes(progress.input_bytes) + " → " + formatBytes(progress.output_bytes);
-        byId("progress-status-note").textContent = progress.stage === "processing" ? "Processing in canonical section order" : stageLabel(progress.stage);
+        byId("progress-status-note").textContent = progress.stage === "processing" ?
+            "Adding furigana in canonical section order" : combinedPrefix + stageLabel(progress.stage);
         updateStages(progress.stage);
     }
     function showComplete() {

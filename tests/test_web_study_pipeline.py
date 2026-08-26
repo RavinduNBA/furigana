@@ -1,6 +1,7 @@
 import json
 import hashlib
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 from furiganalyse.assistance_density import validate_density_policy_dataset
 from furiganalyse.enriched_plan import promote_dictionary_only_plan
@@ -15,6 +16,8 @@ from furiganalyse.web_study_pipeline import (
     run_dictionary_study_pipeline,
 )
 from tests.phase0_epub import build_fixture, validate_epub
+
+X = "{http://www.w3.org/1999/xhtml}"
 
 
 def test_web_presets_and_density_policies_are_valid_deterministic_fixtures():
@@ -111,3 +114,65 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
             ]
 
     assert hashlib.sha256(source.read_bytes()).hexdigest() == source_hash
+
+
+def test_combined_mode_preserves_study_navigation_and_adds_broad_furigana(
+    tmp_path, monkeypatch
+):
+    from furiganalyse.app import decode_filepath, furiganalyse_task
+
+    jmdict_index = tmp_path / "jmdict.sqlite"
+    jmnedict_index = tmp_path / "jmnedict.sqlite"
+    build_jmdict_index(
+        Path("tests/fixtures/jmdict-expressions-mini.xml"), jmdict_index
+    )
+    build_jmnedict_index(
+        Path("tests/fixtures/jmnedict-mini.xml"), jmnedict_index
+    )
+    monkeypatch.setenv("FURIGANALYSE_JMDICT_INDEX", str(jmdict_index))
+    monkeypatch.setenv("FURIGANALYSE_JMNEDICT_INDEX", str(jmnedict_index))
+    outputs = []
+
+    for run in ("a", "b"):
+        task = tmp_path / run
+        task.mkdir()
+        source = task / "source.epub"
+        build_fixture(source)
+        source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+        result = furiganalyse_task(
+            task,
+            source.name,
+            "epub",
+            "add",
+            "horizontal-tb",
+            pipeline_mode="combined",
+            per_chapter_item_limit=2,
+        )
+        output = Path(decode_filepath(result))
+        outputs.append(output.read_bytes())
+        assert validate_epub(output) == []
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == source_hash
+
+        with __import__("zipfile").ZipFile(output) as archive:
+            roots = [
+                ET.fromstring(archive.read(name))
+                for name in archive.namelist()
+                if name.endswith(".xhtml")
+            ]
+        study_links = sum(
+            "study-link" in node.get("class", "").split()
+            for root in roots
+            for node in root.iter()
+        )
+        backlinks = sum(
+            "study-note__backlink" in node.get("class", "").split()
+            for root in roots
+            for node in root.iter()
+        )
+        ruby_count = sum(
+            node.tag == X + "ruby" for root in roots for node in root.iter()
+        )
+        assert study_links == backlinks > 0
+        assert ruby_count > 2
+
+    assert outputs[0] == outputs[1]

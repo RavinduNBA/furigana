@@ -17,6 +17,7 @@
     const slider = document.getElementById("custom_word_list_limit");
     const sliderLabel = document.getElementById("custom_word_list_limit_label");
     const pipelineStudy = document.getElementById("pipeline-study");
+    const pipelineCombined = document.getElementById("pipeline-combined");
     const furiganaOptions = document.getElementById("furigana-options");
     const studyOptions = document.getElementById("study-options");
     const layoutOptions = document.getElementById("layout-options");
@@ -86,16 +87,26 @@
 
     function updatePipeline() {
         const study = pipelineStudy && pipelineStudy.checked;
+        const combined = pipelineCombined && pipelineCombined.checked;
+        const dictionary = study || combined;
+        const addMode = document.getElementById("fm_add");
+        const replaceMode = document.getElementById("fm_replace");
+        const removeMode = document.getElementById("fm_remove");
+        if (combined) addMode.checked = true;
+        replaceMode.disabled = combined;
+        removeMode.disabled = combined;
         furiganaOptions.hidden = study;
-        studyOptions.hidden = !study;
+        studyOptions.hidden = !dictionary;
         layoutOptions.hidden = study;
-        if (study) outputFormat.value = "epub";
+        if (dictionary) outputFormat.value = "epub";
         Array.from(outputFormat.options).forEach(option => {
-            option.disabled = study && option.value !== "epub";
+            option.disabled = dictionary && option.value !== "epub";
         });
-        bookFile.accept = study ? ".epub,application/epub+zip" : bookFile.dataset.allAccept;
-        experimentalOptions.hidden = !study || !experimental.checked;
-        submitButton.querySelector("span").textContent = study ? "Build Study EPUB" : "Convert ebook";
+        bookFile.accept = dictionary ? ".epub,application/epub+zip" : bookFile.dataset.allAccept;
+        experimentalOptions.hidden = !dictionary || !experimental.checked;
+        submitButton.querySelector("span").textContent = dictionary ?
+            (combined ? "Build Combined EPUB" : "Build Study EPUB") : "Convert ebook";
+        updateMode();
     }
 
     function updateCustomFile() {
@@ -117,7 +128,7 @@
     }
 
     ["fm_add", "fm_replace", "fm_remove"].forEach(id => document.getElementById(id).addEventListener("change", updateMode));
-    ["pipeline-furigana", "pipeline-study"].forEach(id => {
+    ["pipeline-furigana", "pipeline-study", "pipeline-combined"].forEach(id => {
         const element = document.getElementById(id);
         if (element) element.addEventListener("change", updatePipeline);
     });

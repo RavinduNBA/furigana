@@ -34,6 +34,7 @@ def test_upload_page_renders_self_contained_converter_and_capability_boundary():
     assert "Exclude JLPT N5 · 723 words" in html
     assert "Available in the web converter" in html
     assert "Dictionary Study EPUB" in html
+    assert "Furigana + Dictionary Study" in html
     assert "Experimental adaptive assistance" in html
     assert "Dictionary-only initially" in html
     assert "Grammar remains off for personal books" in html

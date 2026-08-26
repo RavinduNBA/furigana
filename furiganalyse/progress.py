@@ -58,6 +58,7 @@ class ProgressWriter:
             "name_matches": 0,
             "study_items": 0,
             "pipeline_mode": "furigana",
+            "combined_phase": None,
             "eta_seconds": None,
             "elapsed_seconds": 0,
             "input_bytes": input_bytes,
@@ -73,6 +74,7 @@ class ProgressWriter:
             "expressions_total", "expressions_processed", "expression_matches",
             "names_total", "names_processed", "name_matches", "study_items",
             "units_total", "units_completed", "pipeline_mode",
+            "combined_phase",
         }
         self.values.update({key: value for key, value in event.items() if key in allowed})
         elapsed = max(0.0, time.monotonic() - self.started)
@@ -112,6 +114,11 @@ class ProgressWriter:
             self.values["percent"] = min(end, start + round((end - start) * fraction))
         else:
             self.values["percent"] = STAGE_PERCENT.get(str(self.values["stage"]), 0)
+        if self.values["pipeline_mode"] == "combined":
+            if self.values["combined_phase"] == "dictionary":
+                self.values["percent"] = round(self.values["percent"] * 0.7)
+            elif self.values["combined_phase"] == "furigana":
+                self.values["percent"] = 70 + round(self.values["percent"] * 0.3)
         self._write_atomic()
         logging.info(
             "conversion_progress stage=%s percent=%d sections=%d/%d characters=%d/%d elapsed_seconds=%.1f eta_seconds=%s",

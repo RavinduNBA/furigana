@@ -58,7 +58,7 @@
 
             <fieldset class="form-section">
                 <legend><span class="step-number">2</span><span>Processing mode<small>Choose direct furigana or dictionary-backed study notes</small></span></legend>
-                <div class="choice-grid choice-grid--two" role="radiogroup" aria-label="Processing mode">
+                <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Processing mode">
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-furigana" value="furigana" checked>
                         <span class="choice-content"><strong>Furigana converter</strong><small>Fast reading annotation with your known-word filter.</small></span>
@@ -67,12 +67,16 @@
                         <input type="radio" name="pipeline_mode" id="pipeline-study" value="study" {% if not dictionaries_ready %}disabled{% endif %}>
                         <span class="choice-content"><strong>Dictionary Study EPUB</strong><small>Selected dictionary glosses, expressions, proper names, and backlinks · not sentence translation.</small></span>
                     </label>
+                    <label class="choice-card">
+                        <input type="radio" name="pipeline_mode" id="pipeline-combined" value="combined" {% if not dictionaries_ready %}disabled{% endif %}>
+                        <span class="choice-content"><strong>Furigana + Dictionary Study</strong><small>Add broad furigana alongside selected dictionary links, notes, and backlinks · EPUB only.</small></span>
+                    </label>
                 </div>
                 {% if not dictionaries_ready %}<p class="form-notice">Local EDRDG indexes are not ready, so Dictionary Study mode is temporarily unavailable.</p>{% endif %}
             </fieldset>
 
             <fieldset class="form-section" id="furigana-options">
-                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
+                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled; Combined mode always adds missing readings</small></span></legend>
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>

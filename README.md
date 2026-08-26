@@ -197,6 +197,9 @@ Phase 3 vocabulary candidates
 The web application also offers an EPUB-only **Dictionary Study** mode backed
 by explicit local JMdict/JMnedict SQLite indexes. It adds deterministic study
 notes and backlinks without provider, SDK, model, or runtime network calls.
+The separate **Furigana + Dictionary Study** mode first builds those links and
+notes, then adds broad furigana to eligible kanji throughout the resulting
+EPUB. This ordering preserves study navigation and existing publisher ruby.
 An **Experimental** toggle can apply Phase 8 reading/meaning assistance and
 synthetic N5/N4/N3 density mechanics to dictionary items only. Those presets
 are explainable regression defaults—not learner diagnoses, JLPT placement, or

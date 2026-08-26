@@ -99,6 +99,17 @@ from furiganalyse.parsing import (
             '<body>&gt;ファスト&amp;スロー&lt;：&apos;あなた&apos;の<ruby>意思<rt>いし</rt></ruby>&quot;は&quot;</body>',
         ),
         (
+            "Intentional inline spaces are preserved",
+            '<body><p>前！　魔法だ。 発 行 </p></body>',
+            "add",
+            (
+                '<body><p><ruby>前<rt>まえ</rt></ruby>！　'
+                '<ruby>魔法<rt>まほう</rt></ruby>だ。 '
+                '<ruby>発<rt>はつ</rt></ruby> '
+                '<ruby>行<rt>くだり</rt></ruby> </p></body>'
+            ),
+        ),
+        (
             "Applying the a title tag in the head",
             '<head><title>世界一やさしい「やりたいこと」の見つけ方　人生のモヤモヤから解放される自己理解メソッド</title></head>',
             "add",

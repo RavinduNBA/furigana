@@ -150,13 +150,17 @@ def process_head(elem: ET.Element, exclude_words: Optional[Set[str]] = None):
     if not elem.text or local_name(elem.tag) == "ruby":
         return
 
-    text = elem.text.strip()
+    text, leading, trailing = _processing_text(elem.text)
     if contains_kanji(text):
 
         head, children, tail = create_parsed_furigana_html(text, exclude_words)
 
         # Replace the original text by the ruby childs "head"
-        elem.text = head
+        elem.text = leading + (head or "")
+        if children:
+            children[-1].tail = (children[-1].tail or "") + trailing
+        else:
+            elem.text += trailing
 
         # Insert the children at the beginning
         for child in reversed(children):
@@ -172,18 +176,37 @@ def process_tail(
     if not elem.tail:
         return
 
-    text = elem.tail.strip()
+    text, leading, trailing = _processing_text(elem.tail)
     if contains_kanji(text):
 
         head, children, tail = create_parsed_furigana_html(text, exclude_words)
 
         # Replace the original tail by the rubys "head"
-        elem.tail = head
+        elem.tail = leading + (head or "")
+        if children:
+            children[-1].tail = (children[-1].tail or "") + trailing
+        else:
+            elem.tail += trailing
 
         # Insert the ruby children just after the element
         idx = list(parent_elem).index(elem)
         for child in reversed(children):
             parent_elem.insert(idx + 1, child)
+
+
+def _processing_text(value: str) -> tuple[str, str, str]:
+    """Strip formatting indentation but retain intentional inline spacing."""
+    text = value.strip()
+    if not text:
+        return text, "", ""
+    start = value.find(text)
+    end = start + len(text)
+    prefix = value[:start]
+    suffix = value[end:]
+    inline_spacing = {" ", "\t", "　"}
+    leading = prefix if prefix and set(prefix) <= inline_spacing else ""
+    trailing = suffix if suffix and set(suffix) <= inline_spacing else ""
+    return text, leading, trailing
 
 
 def create_parsed_furigana_html(

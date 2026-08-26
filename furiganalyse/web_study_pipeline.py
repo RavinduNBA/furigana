@@ -275,6 +275,27 @@ def _replace_epub_members(
     write_deterministic_epub(files, output_epub)
 
 
+def normalize_epub_archive(source_epub: str | Path, output_epub: str | Path) -> None:
+    """Rewrite an EPUB with the project's deterministic safe ZIP metadata."""
+    source = Path(source_epub)
+    with zipfile.ZipFile(source) as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)):
+            raise ValueError("Duplicate EPUB archive member")
+        if any(
+            not name
+            or PurePosixPath(name).is_absolute()
+            or ".." in PurePosixPath(name).parts
+            or "\\" in name
+            for name in names
+        ):
+            raise ValueError("Unsafe EPUB archive path")
+        files = {name: archive.read(name) for name in names}
+    if files.get("mimetype") != b"application/epub+zip":
+        raise ValueError("Invalid EPUB mimetype")
+    write_deterministic_epub(files, Path(output_epub))
+
+
 def _study_chapter_ids(book: dict[str, Any]) -> set[str]:
     administrative_markers = {
         "cover", "colophon", "caution", "bookwalker", "copyright",
