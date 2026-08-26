@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
+from furiganalyse import __version__ as APP_VERSION
 from furiganalyse.__main__ import main, SUPPORTED_INPUT_EXTS
 from furiganalyse.known_words import list_available_word_lists
 from furiganalyse.params import OutputFormat, FuriganaMode, WritingMode
@@ -95,6 +96,7 @@ def get_root(request: Request):
             "known_words_lists": list_available_word_lists(),
             "dictionaries_ready": dictionaries_ready,
             "recent_conversions": recent_conversions,
+            "app_version": APP_VERSION,
         },
     )
 
@@ -235,6 +237,7 @@ def get_download(request: Request, uid: UUID):
             "request": request,
             "uid": uid,
             "recent_conversions": recent_conversions,
+            "app_version": APP_VERSION,
         },
     )
 

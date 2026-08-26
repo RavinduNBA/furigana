@@ -4,12 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-Group=ubuntu
-WorkingDirectory=/home/ubuntu/furiganalyse
+User=root
+Group=root
+WorkingDirectory=/root/furiganalyse
 Environment=PYTHONUNBUFFERED=1
 Environment=FURIGANALYSE_CLEANUP_THRESHOLD_IN_MB=100
-ExecStart=/home/ubuntu/furiganalyse/.venv/bin/uvicorn furiganalyse.app:app --host 127.0.0.1 --port 5000 --workers 1
+ExecStart=/root/furiganalyse/.venv/bin/uvicorn furiganalyse.app:app --host 127.0.0.1 --port 5000 --workers 1
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=60

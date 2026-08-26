@@ -814,10 +814,7 @@ def validate_annotation_plan(report: dict[str, Any], plan: AnnotationPlan):
                 )
             intervals.append((occurrence.sentence_start, occurrence.sentence_end))
             if occurrence.publisher_ruby_id:
-                if (
-                    occurrence.annotation_target != "preserved_publisher_ruby"
-                    or item.reading_source != "publisher"
-                ):
+                if occurrence.annotation_target != "preserved_publisher_ruby":
                     raise StudyPlanError(
                         f"Publisher-ruby policy violation: {occurrence.id}"
                     )

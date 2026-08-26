@@ -18,7 +18,7 @@
 <header class="site-header">
     <a class="brand" href="{{ url_for('get_root') }}" aria-label="Furiganalyse home">
         <span class="brand-mark" aria-hidden="true">振</span>
-        <span><strong>Furiganalyse</strong><small>Japanese ebook assistance</small></span>
+        <span><strong>Furiganalyse</strong><small>Japanese ebook assistance {% if app_version %}<span class="version-tag">v{{ app_version }}</span>{% endif %}</small></span>
     </a>
     <span class="header-status"><span class="status-dot status-dot--pulse"></span><span id="header-status-text">Conversion running</span></span>
 </header>
@@ -99,6 +99,6 @@
     {% endif %}
 </main>
 
-<footer class="site-footer"><span>Furiganalyse · deterministic Japanese reading support</span><a href="{{ url_for('get_root') }}">Back to converter</a></footer>
+<footer class="site-footer"><span>Furiganalyse{% if app_version %} v{{ app_version }}{% endif %} · deterministic Japanese reading support</span><a href="{{ url_for('get_root') }}">Back to converter</a></footer>
 </body>
 </html>

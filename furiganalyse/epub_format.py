@@ -59,8 +59,9 @@ def process_epub_file(
     exclude_words: Optional[Set[str]] = None,
     progress_callback: Optional[ProgressCallback] = None,
 ):
-    if writing_mode is not None:
+    if writing_mode is not None and str(getattr(writing_mode, "value", writing_mode)) != "auto":
         update_writing_mode(unzipped_input_fpath, writing_mode)
+    _ensure_ruby_css_rules(unzipped_input_fpath)
 
     documents = collect_epub_progress_metrics(unzipped_input_fpath)
     total_characters = sum(int(value["characters"]) for value in documents)
@@ -94,13 +95,49 @@ def process_epub_file(
             })
 
 
+def _ensure_ruby_css_rules(unzipped_input_fpath: str):
+    """Add subtle ruby typography and link rules to ensure clean spacing, alignment, and reading flow."""
+    ruby_css = """
+/* Furiganalyse Ruby & Link Typography */
+ruby {
+    ruby-align: space-around;
+    ruby-position: over;
+    -webkit-ruby-position: before;
+}
+ruby rt {
+    font-size: 0.55em;
+    text-align: center;
+    letter-spacing: 0.05em;
+    padding: 0 0.08em;
+}
+a.study-link, a.guided-link {
+    text-decoration: none !important;
+    border-bottom: 1px dotted rgba(80, 120, 200, 0.45);
+    color: inherit !important;
+}
+a.study-link:hover, a.guided-link:hover {
+    border-bottom: 1px solid rgba(80, 120, 200, 0.85);
+}
+"""
+    for css_filepath in Path(unzipped_input_fpath).glob('**/*.css'):
+        try:
+            with open(css_filepath, "r", encoding="utf-8") as fd:
+                content = fd.read()
+            if "Furiganalyse Ruby" not in content and "space-around" not in content:
+                with open(css_filepath, "a", encoding="utf-8") as fd:
+                    fd.write(ruby_css)
+        except Exception:
+            pass
+
+
 def update_writing_mode(unzipped_input_fpath: str, writing_mode: WritingMode):
+    mode_value = getattr(writing_mode, "value", str(writing_mode))
     for css_filepath in Path(unzipped_input_fpath).glob('**/*.css'):
         with open(css_filepath) as fd:
             css_content = fd.read()
 
         pattern = re.compile(r"(-webkit-writing-mode|-epub-writing-mode|writing-mode):\s*[^;\n]+")
-        css_content = pattern.sub(rf"\1: {writing_mode.value}", css_content)
+        css_content = pattern.sub(rf"\1: {mode_value}", css_content)
 
         with open(css_filepath, "w") as fd:
             fd.write(css_content)

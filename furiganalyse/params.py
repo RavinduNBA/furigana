@@ -18,6 +18,7 @@ class OutputFormat(str, Enum):
 
 
 class WritingMode(str, Enum):
+    auto = "auto"
     horizontal_tb = "horizontal-tb"
     vertical_rl = "vertical-rl"
     vertical_lr = "vertical-lr"

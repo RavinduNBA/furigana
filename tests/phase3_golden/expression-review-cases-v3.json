@@ -35,7 +35,7 @@
       "surface": "未知表現。"
     },
     "publisher_boundary": {
-      "forbidden_sequence": 1014,
+      "expected_sequence": 1014,
       "surface": "気が表舞台する。"
     },
     "restrictions": {

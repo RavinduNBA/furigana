@@ -131,27 +131,81 @@ def _ruby_snapshot(element: ET.Element) -> bytes:
     return ET.tostring(value, encoding="utf-8")
 
 
+def _wrap_ruby_boundary(
+    rubies: list[ET.Element] | ET.Element,
+    ref_prefix_start: Optional[_CharRef],
+    okuri_len: int,
+    anchor_id: str,
+    href: str,
+    parents: dict[ET.Element, ET.Element],
+    link_class: str = "study-link",
+):
+    if isinstance(rubies, ET.Element):
+        ruby_list = [rubies]
+    else:
+        ruby_list = list(rubies)
+    if not ruby_list:
+        return
+    for r in ruby_list:
+        if _has_ancestor(r, "a", parents):
+            raise LinkedOutputError(
+                f"Ruby boundary occurrence is inside an existing link: {anchor_id}"
+            )
+    if ref_prefix_start is not None and _has_ancestor(ref_prefix_start.owner, "a", parents):
+        raise LinkedOutputError(
+            f"Ruby boundary occurrence is inside an existing link: {anchor_id}"
+        )
+    first_ruby = ruby_list[0]
+    last_ruby = ruby_list[-1]
+    parent = parents.get(first_ruby)
+    if parent is None:
+        raise LinkedOutputError(f"Ruby element has no parent: {anchor_id}")
+    position = list(parent).index(first_ruby)
+
+    prefix_text = None
+    if ref_prefix_start is not None:
+        raw = getattr(ref_prefix_start.owner, ref_prefix_start.attribute) or ""
+        prefix_text = raw[ref_prefix_start.raw_index:]
+        new_raw = raw[:ref_prefix_start.raw_index]
+        setattr(ref_prefix_start.owner, ref_prefix_start.attribute, new_raw if new_raw else None)
+
+    tail = last_ruby.tail or ""
+    if okuri_len > 0:
+        okuri_text = tail[:okuri_len]
+        remaining_tail = tail[okuri_len:]
+        last_ruby.tail = okuri_text if okuri_text else None
+    else:
+        remaining_tail = tail
+        last_ruby.tail = None
+
+    anchor = ET.Element(X + "a", {"id": anchor_id, "class": link_class, "href": href})
+    if prefix_text:
+        anchor.text = prefix_text
+    for r in ruby_list:
+        parent.remove(r)
+        anchor.append(r)
+    parent.insert(position, anchor)
+    anchor.tail = remaining_tail if remaining_tail else None
+
+
 def _wrap_ruby(
     ruby: ET.Element,
     anchor_id: str,
     href: str,
     parents: dict[ET.Element, ET.Element],
 ):
-    if _has_ancestor(ruby, "a", parents):
-        raise LinkedOutputError(
-            f"Publisher ruby is inside an existing link: {anchor_id}"
-        )
-    parent = parents.get(ruby)
-    if parent is None:
-        raise LinkedOutputError(f"Publisher ruby has no parent: {anchor_id}")
-    position = list(parent).index(ruby)
-    tail = ruby.tail
-    ruby.tail = None
-    anchor = ET.Element(X + "a", {"id": anchor_id, "class": "study-link", "href": href})
-    parent.remove(ruby)
-    parent.insert(position, anchor)
-    anchor.append(ruby)
-    anchor.tail = tail
+    _wrap_ruby_boundary(ruby, None, 0, anchor_id, href, parents)
+
+
+def _wrap_ruby_with_tail(
+    ruby: ET.Element,
+    okuri_len: int,
+    anchor_id: str,
+    href: str,
+    parents: dict[ET.Element, ET.Element],
+    link_class: str = "study-link",
+):
+    _wrap_ruby_boundary(ruby, None, okuri_len, anchor_id, href, parents, link_class)
 
 
 def _wrap_text(
@@ -463,7 +517,7 @@ def create_linked_output(
                     (
                         value
                         for value in rubies
-                        if (value.start, value.end) == (start, end)
+                        if value.start == start or (value.start >= start and value.end <= end)
                     ),
                     None,
                 )
@@ -475,32 +529,61 @@ def create_linked_output(
                     raise LinkedOutputError(
                         f"Publisher ruby anchor mismatch: {occurrence['id']}"
                     )
-                _wrap_ruby(
-                    ruby_ref.element,
-                    occurrence["source_anchor_id"],
-                    href,
-                    parents,
-                )
+                if (ruby_ref.start, ruby_ref.end) == (start, end):
+                    _wrap_ruby(
+                        ruby_ref.element,
+                        occurrence["source_anchor_id"],
+                        href,
+                        parents,
+                    )
+                elif ruby_ref.start == start and ruby_ref.end < end:
+                    _wrap_ruby_with_tail(
+                        ruby_ref.element,
+                        end - ruby_ref.end,
+                        occurrence["source_anchor_id"],
+                        href,
+                        parents,
+                    )
+                else:
+                    raise LinkedOutputError(
+                        f"Unsupported ruby span alignment: {occurrence['id']}"
+                    )
+                parents = _parent_map(root)
             else:
                 if end > len(refs):
                     raise LinkedOutputError(f"XHTML range mismatch: {occurrence['id']}")
                 first, last = refs[start], refs[end - 1]
-                raw = getattr(first.owner, first.attribute) or ""
-                if (
-                    first.owner is not last.owner
-                    or first.attribute != last.attribute
-                    or raw[first.raw_index : last.raw_index + 1] != occurrence_surface
-                ):
-                    raise LinkedOutputError(
-                        f"Ambiguous text insertion: {occurrence['id']}"
+                contained_rubies = [
+                    v for v in rubies if v.start >= start and v.end <= end
+                ]
+                if contained_rubies:
+                    ref_prefix = first if contained_rubies[0].start > start else None
+                    okuri_len = end - contained_rubies[-1].end
+                    _wrap_ruby_boundary(
+                        [v.element for v in contained_rubies],
+                        ref_prefix,
+                        okuri_len,
+                        occurrence["source_anchor_id"],
+                        href,
+                        parents,
                     )
-                _wrap_text(
-                    first,
-                    last,
-                    occurrence["source_anchor_id"],
-                    href,
-                    parents,
-                )
+                else:
+                    raw = getattr(first.owner, first.attribute) or ""
+                    if (
+                        first.owner is not last.owner
+                        or first.attribute != last.attribute
+                        or raw[first.raw_index : last.raw_index + 1] != occurrence_surface
+                    ):
+                        raise LinkedOutputError(
+                            f"Ambiguous text insertion: {occurrence['id']}"
+                        )
+                    _wrap_text(
+                        first,
+                        last,
+                        occurrence["source_anchor_id"],
+                        href,
+                        parents,
+                    )
                 parents = _parent_map(root)
         for block in canonical_blocks:
             after, _, _ = _visible_map(mapped[block["id"]])

@@ -89,6 +89,29 @@ def normalize_reading(value: str | None) -> str | None:
     )
 
 
+def kana_fold(value: str | None) -> str | None:
+    """Normalize hiragana/katakana and fold small kana (e.g. ょ -> よ, ゃ -> や, っ -> つ)."""
+    if value is None:
+        return None
+    hiragana = normalize_reading(value)
+    if hiragana is None:
+        return None
+    small_to_large = {
+        "ぁ": "あ", "ぃ": "い", "ぅ": "う", "ぇ": "え", "ぉ": "お",
+        "っ": "つ", "ゃ": "や", "ゅ": "ゆ", "ょ": "よ", "ゎ": "わ",
+    }
+    return "".join(small_to_large.get(ch, ch) for ch in hiragana)
+
+
+def readings_match(a: str | None, b: str | None) -> bool:
+    """Check if two readings match exactly or under unreduced kana folding."""
+    if a is None or b is None:
+        return a == b
+    if normalize_reading(a) == normalize_reading(b):
+        return True
+    return kana_fold(a) == kana_fold(b)
+
+
 def _texts(element: ET.Element, name: str) -> list[str]:
     return [
         child.text.strip()
@@ -358,11 +381,23 @@ def _valid_readings(
         or written_form in reading.written_restrictions
     ]
     if query_reading:
-        readings = [
+        norm_q = normalize_reading(query_reading)
+        exact = [
             reading
             for reading in readings
-            if normalize_reading(reading.text) == query_reading
+            if normalize_reading(reading.text) == norm_q
         ]
+        if exact:
+            return exact
+        folded_q = kana_fold(query_reading)
+        folded = [
+            reading
+            for reading in readings
+            if kana_fold(reading.text) == folded_q
+        ]
+        if folded:
+            return folded
+        return []
     return readings
 
 
@@ -419,7 +454,10 @@ class SqliteJmdictProvider:
                 if kind == "reading":
                     if (
                         not normalized_reading
-                        or normalize_reading(form) != normalized_reading
+                        or (
+                            normalize_reading(form) != normalized_reading
+                            and kana_fold(form) != kana_fold(normalized_reading)
+                        )
                     ):
                         continue
                     sequences.setdefault(

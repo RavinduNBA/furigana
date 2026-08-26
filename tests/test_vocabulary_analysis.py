@@ -205,3 +205,74 @@ def test_validation_rejects_duplicate_ids_invalid_offsets_and_overlap(analyzed_f
         validate_vocabulary_report(
             book, replace(report, tokens=[same_sentence[0], overlapping])
         )
+
+
+def test_inflected_word_with_ruby_stem_has_dictionary_lemma(tmp_path):
+    from furiganalyse.book_analysis import BookAnalysis, BookChapter, BookBlock, BookSentence, PublisherRubySpan, TextSpan
+    from furiganalyse.jmdict import SqliteJmdictProvider, JmdictQuery
+
+    # Sentence: 能力を持った警察官 (持 in ruby span)
+    text = "能力を持った警察官"
+    ruby_span = PublisherRubySpan(
+        id="ch1-b1-r0001",
+        surface="持",
+        reading="も",
+        source="publisher",
+        start=3,
+        end=4,
+        source_anchor=None,
+    )
+    sentence = BookSentence(
+        id="ch1-b1-s0001",
+        text=text,
+        start=0,
+        end=len(text),
+        text_spans=[
+            TextSpan(id="ch1-b1-s0001-span-1", text="能力を", kind="text", source="body", start=0, end=3, publisher_ruby_id=None),
+            TextSpan(id="ch1-b1-s0001-span-2", text="持", kind="ruby", source="publisher", start=3, end=4, publisher_ruby_id="ch1-b1-r0001"),
+            TextSpan(id="ch1-b1-s0001-span-3", text="った警察官", kind="text", source="body", start=4, end=len(text), publisher_ruby_id=None),
+        ],
+        publisher_ruby=["ch1-b1-r0001"],
+    )
+    block = BookBlock(
+        id="ch1-b1",
+        text=text,
+        source_anchor=None,
+        publisher_ruby=[ruby_span],
+        sentences=[sentence],
+    )
+    chapter = BookChapter(
+        id="ch1",
+        spine_index=0,
+        source_path="ch1.xhtml",
+        text=text,
+        blocks=[block],
+    )
+    book = BookAnalysis(
+        schema_version=2,
+        book_id="urn:uuid:test-inflected-ruby",
+        package_path="content.opf",
+        chapters=[chapter],
+    )
+
+    report = analyze_vocabulary(book)
+    # Verify token for 持っ has lemma '持つ' and associated publisher_ruby_id
+    motsu_tokens = [t for t in report.tokens if t.surface == "持っ"]
+    assert len(motsu_tokens) == 1
+    assert motsu_tokens[0].lemma == "持つ"
+    assert motsu_tokens[0].part_of_speech.startswith("動詞")
+    assert motsu_tokens[0].publisher_ruby_id == "ch1-b1-r0001"
+
+    # Verify JMdict lookup succeeds for this candidate
+    jmdict = SqliteJmdictProvider("data/edrdg/JMdict.sqlite")
+    q = JmdictQuery(
+        surface=motsu_tokens[0].surface,
+        lemma=motsu_tokens[0].lemma,
+        reading=motsu_tokens[0].reading,
+        part_of_speech=motsu_tokens[0].part_of_speech,
+    )
+    matches = jmdict.lookup(q)
+    assert len(matches) >= 1
+    assert any("hold" in s.glosses[0] or "carry" in s.glosses[0] or "have" in s.glosses[0] for s in matches[0].senses)
+    jmdict.close()
+

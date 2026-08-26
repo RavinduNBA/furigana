@@ -491,7 +491,7 @@ def test_expression_does_not_cross_boundaries(
     assert forbidden_sequence not in sequences
 
 
-def test_expression_does_not_cross_publisher_ruby(expression_provider):
+def test_expression_can_cross_ruby_span(expression_provider):
     report = expression_report(
         expression_provider,
         "気が表舞台する。",
@@ -502,7 +502,7 @@ def test_expression_does_not_cross_publisher_ruby(expression_provider):
         for match in report.expression_dictionary_matches
         for entry in match.entries
     }
-    assert 1014 not in sequences
+    assert 1014 in sequences
 
 
 def test_expression_lookup_enforces_written_reading_and_pos_restrictions(
@@ -665,7 +665,7 @@ def test_manually_reviewed_expression_cases(expression_provider, tmp_path):
         publisher_case["surface"],
         publisher_span=(2, 5, "おもてぶたい"),
     )
-    assert publisher_case["forbidden_sequence"] not in {
+    assert publisher_case["expected_sequence"] in {
         entry.sequence
         for item in publisher.expression_dictionary_matches
         for entry in item.entries

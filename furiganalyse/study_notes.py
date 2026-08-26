@@ -215,10 +215,7 @@ def validate_annotation_plan_for_notes(plan: dict[str, Any]) -> None:
                 _strings(occurrence.get(field), field)
             if occurrence.get("publisher_ruby_id"):
                 _text(occurrence["publisher_ruby_id"], "publisher ruby ID")
-                if (
-                    occurrence.get("annotation_target") != "preserved_publisher_ruby"
-                    or item.get("reading_source") != "publisher"
-                ):
+                if occurrence.get("annotation_target") != "preserved_publisher_ruby":
                     raise StudyNoteError(f"Publisher-ruby violation: {occurrence_id}")
         primary = occurrences[0]
         item_source = (

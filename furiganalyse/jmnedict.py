@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Iterator, Protocol
 from xml.etree import ElementTree as ET
 
-from furiganalyse.jmdict import normalize_reading
+from furiganalyse.jmdict import normalize_reading, readings_match
 
 INDEX_FORMAT_VERSION = 1
 XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
@@ -359,7 +359,7 @@ class SqliteJmnedictProvider:
                 )
                 and (
                     normalized_reading is None
-                    or normalize_reading(reading.text) == normalized_reading
+                    or readings_match(reading.text, normalized_reading)
                 )
             ]
             if not readings:

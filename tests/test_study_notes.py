@@ -109,7 +109,7 @@ def test_styles_are_scoped_to_study_note_classes(plan):
             "Invalid name references",
         ),
         (
-            lambda p: p["items"][2].update(reading_source="JMdict"),
+            lambda p: p["items"][2]["occurrences"][0].update(annotation_target="text"),
             "Publisher-ruby violation",
         ),
         (

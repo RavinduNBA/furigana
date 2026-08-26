@@ -18,6 +18,7 @@ from furiganalyse.jmdict import (
     JmdictQuery,
     normalize_reading,
     pos_compatible,
+    readings_match,
 )
 from furiganalyse.jmnedict import (
     JmnedictEntryMatch,
@@ -271,37 +272,111 @@ def analyze_vocabulary(book: BookAnalysis, progress_callback=None) -> Vocabulary
             ruby_by_id = {ruby.id: ruby for ruby in block.publisher_ruby}
             for sentence in block.sentences:
                 pending = []
-                for span in sentence.text_spans:
-                    sentence_offset = span.start - sentence.start
-                    if span.publisher_ruby_id:
-                        ruby = ruby_by_id[span.publisher_ruby_id]
+                sentence_rubies = [
+                    (
+                        ruby_by_id[rid].start - sentence.start,
+                        ruby_by_id[rid].end - sentence.start,
+                        ruby_by_id[rid],
+                    )
+                    for rid in sentence.publisher_ruby
+                    if rid in ruby_by_id
+                ]
+                mecab_tokens = list(_segment_tokens(sentence.text, 0))
+                stem_rubies = set()
+                for t_surf, t_lem, t_read, t_pos, t_start, t_end in mecab_tokens:
+                    for r_start, r_end, ruby in sentence_rubies:
+                        if t_start == r_start and t_end > r_end:
+                            stem_rubies.add(ruby.id)
+
+                mecab_idx = 0
+                while mecab_idx < len(mecab_tokens):
+                    t_surf, t_lem, t_read, t_pos, t_start, t_end = mecab_tokens[mecab_idx]
+                    matched_multi_ruby = None
+                    for r_start, r_end, ruby in sentence_rubies:
+                        if ruby.id not in stem_rubies and r_start == t_start and r_end >= t_end:
+                            matched_multi_ruby = (r_start, r_end, ruby)
+                            break
+
+                    if matched_multi_ruby:
+                        r_start, r_end, ruby = matched_multi_ruby
                         pending.append(
                             (
-                                span.text,
-                                span.text,
+                                ruby.surface,
+                                ruby.surface,
                                 ruby.reading,
                                 None,
-                                sentence_offset,
-                                sentence_offset + len(span.text),
+                                r_start,
+                                r_end,
                                 "publisher",
                                 ruby.id,
                             )
                         )
+                        while mecab_idx < len(mecab_tokens) and mecab_tokens[mecab_idx][5] <= r_end:
+                            mecab_idx += 1
+                        if mecab_idx < len(mecab_tokens) and mecab_tokens[mecab_idx][4] < r_end < mecab_tokens[mecab_idx][5]:
+                            overlap_tok = mecab_tokens[mecab_idx]
+                            rem_surf = sentence.text[r_end:overlap_tok[5]]
+                            pending.append((rem_surf, rem_surf, rem_surf, overlap_tok[3], r_end, overlap_tok[5], "tokenizer", None))
+                            mecab_idx += 1
                         continue
-                    for values in _segment_tokens(span.text, sentence_offset):
-                        surface, lemma, reading, pos, start, end = values
+
+                    matched_stem = None
+                    for r_start, r_end, ruby in sentence_rubies:
+                        if ruby.id in stem_rubies and r_start == t_start and r_end < t_end:
+                            matched_stem = (r_start, r_end, ruby)
+                            break
+
+                    if matched_stem:
+                        r_start, r_end, ruby = matched_stem
                         pending.append(
                             (
-                                surface,
-                                lemma,
-                                reading,
-                                pos,
-                                start,
-                                end,
-                                "tokenizer" if reading else None,
+                                t_surf,
+                                t_lem,
+                                t_read,
+                                t_pos,
+                                t_start,
+                                t_end,
+                                "tokenizer",
+                                ruby.id,
+                            )
+                        )
+                        mecab_idx += 1
+                        continue
+
+                    matched_ruby = None
+                    for r_start, r_end, ruby in sentence_rubies:
+                        if r_start == t_start and r_end == t_end:
+                            matched_ruby = (r_start, r_end, ruby)
+                            break
+
+                    if matched_ruby:
+                        r_start, r_end, ruby = matched_ruby
+                        pending.append(
+                            (
+                                ruby.surface,
+                                ruby.surface,
+                                ruby.reading,
+                                None,
+                                r_start,
+                                r_end,
+                                "publisher",
+                                ruby.id,
+                            )
+                        )
+                    else:
+                        pending.append(
+                            (
+                                t_surf,
+                                t_lem,
+                                t_read,
+                                t_pos,
+                                t_start,
+                                t_end,
+                                "tokenizer" if t_read else None,
                                 None,
                             )
                         )
+                    mecab_idx += 1
 
                 pending.sort(key=lambda item: (item[4], item[5]))
                 for index, values in enumerate(pending, start=1):
@@ -445,7 +520,12 @@ def _expression_lookup_form(
         token.lemma if index == len(content) - 1 else token.surface
         for index, token in enumerate(content)
     )
-    return normalized, content[-1].part_of_speech, len(content)
+    last_pos = content[-1].part_of_speech
+    if len(content) >= 2 and last_pos:
+        category, _, detail = last_pos.partition(",")
+        if detail.startswith("接尾") or category in {"接頭詞", "名詞"}:
+            last_pos = None
+    return normalized, last_pos, len(content)
 
 
 def _expression_runs(
@@ -457,7 +537,6 @@ def _expression_runs(
     for token in report.tokens:
         eligible = (
             token.id in candidate_by_token
-            and token.publisher_ruby_id is None
             and bool(JAPANESE_PATTERN.search(token.surface))
         )
         contiguous = (
@@ -760,9 +839,9 @@ def validate_enriched_report(
                 candidate.reading_source == "publisher"
                 and candidate.reading is not None
             ):
-                authoritative = normalize_reading(candidate.reading)
-                if not entry.readings or any(
-                    normalize_reading(reading.text) != authoritative
+                authoritative = candidate.reading
+                if not entry.readings or not any(
+                    readings_match(reading.text, authoritative)
                     for reading in entry.readings
                 ):
                     raise VocabularyAnalysisError(
@@ -837,10 +916,6 @@ def validate_enriched_report(
             if len(tokens) < 2 or any(token is None for token in tokens):
                 raise VocabularyAnalysisError(
                     f"Invalid expression token references: {expression.id}"
-                )
-            if any(token.publisher_ruby_id for token in tokens):
-                raise VocabularyAnalysisError(
-                    f"Expression crosses publisher ruby: {expression.id}"
                 )
             if expression.candidate_ids != [
                 f"{token.id}-cand" for token in tokens
@@ -1258,9 +1333,9 @@ def validate_name_report(report: NameEnrichedVocabularyReport):
                 occurrence.classification_evidence == "publisher_ruby"
                 and occurrence.reading is not None
             ):
-                authoritative = normalize_reading(occurrence.reading)
-                if any(
-                    normalize_reading(reading.text) != authoritative
+                authoritative = occurrence.reading
+                if not any(
+                    readings_match(reading.text, authoritative)
                     for reading in entry.readings
                 ):
                     raise VocabularyAnalysisError(
