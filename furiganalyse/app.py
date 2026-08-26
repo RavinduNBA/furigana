@@ -26,7 +26,6 @@ from furiganalyse.progress import ProgressWriter, read_progress
 from furiganalyse.recent_conversions import load_recent_conversions, record_conversion
 from furiganalyse.web_study_pipeline import (
     WebStudyOptions,
-    normalize_epub_archive,
     run_dictionary_study_pipeline,
 )
 
@@ -262,6 +261,8 @@ async def task_handler(
     ProgressWriter(new_task.progress_path, input_bytes=len(contents))
 
     output_filename = generate_output_filename(safe_filename, of, pipeline_mode)
+    expected_output_path = os.path.join(task_folder, output_filename)
+    new_task.result = encode_filepath(expected_output_path)
     record_conversion(
         OUTPUT_FOLDER,
         uid=str(new_task.uid),
@@ -415,11 +416,7 @@ def furiganalyse_task(
                 "pipeline_mode": pipeline_mode,
                 "combined_phase": "dictionary" if assisted_furigana else None,
             })
-            study_output = (
-                output_filepath
-                if pipeline_mode == "study"
-                else str(Path(task_folder) / "study-work" / "annotated-stage.epub")
-            )
+            study_output = output_filepath
 
             def dictionary_progress(event):
                 progress.update({
@@ -450,13 +447,6 @@ def furiganalyse_task(
                 ),
                 progress_callback=dictionary_progress,
             )
-            if assisted_furigana:
-                progress.update({
-                    "stage": "packaging",
-                    "pipeline_mode": pipeline_mode,
-                    "combined_phase": "dictionary",
-                })
-                normalize_epub_archive(Path(study_output), output_filepath)
             progress.update({
                 "stage": "complete",
                 "pipeline_mode": pipeline_mode,
@@ -554,20 +544,12 @@ def get_file(uid: UUID):
     if job.status != "complete" and not main_ready:
         return Response("Job not completed yet!", status_code=400)
 
-    task_folder = Path(OUTPUT_FOLDER) / str(uid)
-    if job.result:
-        file_path = decode_filepath(job.result)
-    else:
-        # Find primary generated file in task folder (excluding companion)
-        candidates = [
-            f for f in task_folder.iterdir()
-            if f.is_file() and not f.name.endswith(".tmp") and not f.name.endswith(".json")
-            and "Bilingual Companion" not in f.name and "furigana-stage" not in f.name
-            and f.suffix in {".epub", ".mobi", ".azw3", ".zip", ".txt", ".apkg", ".html"}
-        ]
-        if not candidates:
-            return Response("File not ready yet!", status_code=400)
-        file_path = str(candidates[0])
+    if not job.result:
+        return Response("Something went wrong!", status_code=500)
+
+    file_path = decode_filepath(job.result)
+    if not os.path.isfile(file_path):
+        return Response("Converted file not ready yet!", status_code=400)
 
     filename = os.path.basename(file_path)
     return FileResponse(path=file_path, filename=filename)

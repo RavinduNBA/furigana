@@ -224,3 +224,45 @@ async def test_job_cancellation_handler(tmp_path, monkeypatch):
     assert not (task_dir / "study-work").exists()
 
 
+def test_early_main_download_serves_converted_file_not_input(tmp_path, monkeypatch):
+    import json
+    import uuid
+    from pathlib import Path
+    from furiganalyse.app import Job, encode_filepath, get_file, jobs
+
+    uid = uuid.uuid4()
+    task_dir = tmp_path / str(uid)
+    task_dir.mkdir(parents=True)
+
+    # Place original uploaded input file
+    input_file = task_dir / "my_book.epub"
+    input_file.write_text("ORIGINAL RAW UNPROCESSED INPUT", encoding="utf-8")
+
+    # Place converted guided output file
+    output_file = task_dir / "my_book - Guided.epub"
+    output_file.write_text("CONVERTED GUIDED EPUB WITH RUBY & NOTES", encoding="utf-8")
+
+    progress_file = task_dir / "progress.json"
+    progress_file.write_text(json.dumps({
+        "stage": "bilingual-translation",
+        "main_file_ready": True,
+    }), encoding="utf-8")
+
+    job = Job(
+        uid=uid,
+        status="in_progress",
+        result=encode_filepath(str(output_file)),
+        progress_path=str(progress_file),
+    )
+    jobs[uid] = job
+
+    monkeypatch.setattr("furiganalyse.app.OUTPUT_FOLDER", str(tmp_path))
+
+    response = get_file(uid)
+    assert response.status_code == 200
+    assert response.path == str(output_file)
+    assert response.filename == "my_book - Guided.epub"
+    assert Path(response.path).read_text(encoding="utf-8") == "CONVERTED GUIDED EPUB WITH RUBY & NOTES"
+
+
+
