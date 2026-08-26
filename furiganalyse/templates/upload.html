@@ -183,9 +183,9 @@
                         <label for="bilingual_provider"><strong>Translation backend</strong><small>Select LLM provider or local endpoint</small></label>
                         <select name="bilingual_provider" id="bilingual_provider">
                             <option value="none">Offline rule-based fallback (No API key needed)</option>
+                            <option value="ollama" selected>Local Ollama · qwen2.5:3b (Installed & Ready)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
-                            <option value="ollama">Local Ollama / vLLM (http://localhost:11434/v1)</option>
                         </select>
                     </div>
                     <div class="field-row" id="bilingual-key-row">

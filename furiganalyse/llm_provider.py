@@ -185,9 +185,20 @@ def get_llm_provider(
             "ollama": "http://localhost:11434/v1",
             "deepseek": "https://api.deepseek.com/v1",
         }.get(name, "https://api.openai.com/v1")
+        default_model = model
+        if not default_model:
+            if name == "ollama":
+                default_model = "qwen2.5:3b"
+            elif name == "openai":
+                default_model = "gpt-4o-mini"
+            elif name == "deepseek":
+                default_model = "deepseek-chat"
+            else:
+                default_model = "gpt-4o-mini"
+
         return OpenAICompatibleProvider(
             api_key=api_key,
             base_url=base_url or default_url,
-            default_model=model or ("gpt-4o-mini" if name == "openai" else "llama3"),
+            default_model=default_model,
         )
     raise ValueError(f"Unsupported LLM provider: {provider_name}")
