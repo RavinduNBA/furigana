@@ -206,6 +206,17 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .bilingual-progress-panel { margin-top: 24px; padding: 18px 20px; border: 1px solid #cce3d4; border-radius: var(--radius-small); background: #f2f8f4; }
 .bilingual-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .status-badge--active { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent); }
+
+.live-translation-stream { margin-top: 14px; border: 1px solid #bddcc7; border-radius: 10px; background: white; overflow: hidden; }
+.stream-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: #eaf4ed; border-bottom: 1px solid #bddcc7; font-size: .76rem; }
+.stream-title { font-weight: 700; color: var(--accent-dark); display: inline-flex; align-items: center; gap: 6px; }
+.stream-chapter-tag { font-size: .7rem; background: white; padding: 2px 8px; border-radius: 6px; color: var(--muted); border: 1px solid #bddcc7; }
+.stream-body { padding: 12px 14px; display: grid; gap: 10px; font-size: .84rem; }
+.stream-ja-row, .stream-en-row { display: flex; gap: 10px; align-items: flex-start; }
+.stream-lang-tag { flex: 0 0 24px; padding: 2px 0; text-align: center; border-radius: 4px; font-size: .64rem; font-weight: 800; }
+.stream-ja-row .stream-lang-tag { background: #fee2e2; color: #991b1b; }
+.stream-en-row .stream-lang-tag { background: #e0ecfb; color: #1d4ed8; }
+.stream-text { margin: 0; line-height: 1.5; color: var(--ink); flex: 1; font-family: Georgia, "Yu Mincho", serif; }
 .stage-strip { margin-top: 26px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
 .stage-strip span { position: relative; padding-top: 16px; color: #8a958e; text-align: center; font-size: .66rem; }
 .stage-strip span::before { content: ""; position: absolute; top: 4px; left: 0; right: 0; height: 3px; background: #dfe5df; }

@@ -63,9 +63,11 @@ def test_job_page_renders_all_progress_metrics_and_safe_result_states():
         "progress-size", "progress-words", "progress-matches", "result", "error",
         "bilingual-progress-panel", "progress-trans-model", "progress-trans-paragraphs",
         "progress-trans-cache", "bilingual-status-badge", "cancel-button", "cancelled",
+        "live-trans-stream", "stream-japanese-text", "stream-english-text", "stream-chapter-tag",
     ):
         assert f'id="{element_id}"' in html
     assert "LLM Bilingual Companion" in html
+    assert "Live Translation Stream" in html
     assert "Why sections, not pages?" in html
     assert "Aggregate telemetry only" in html
     assert '<script src="https://' not in html

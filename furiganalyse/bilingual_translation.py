@@ -101,6 +101,7 @@ def translate_chapter(
     cache: TranslationCache | None = None,
     batch_size: int = 8,
     model: str = "gpt-4o-mini",
+    batch_callback: Any = None,
 ) -> TranslationChapter:
     """Translates an entire canonical chapter in coherent paragraph batches with context injection."""
     chapter_id = chapter_dict.get("id", "ch-0001")
@@ -171,6 +172,20 @@ def translate_chapter(
                 )
             if cached_result:
                 previous_buffer = cached_result[-1].get("english_translation", "")[-200:]
+            if batch_callback and translated_paragraphs:
+                latest_p = translated_paragraphs[-1]
+                try:
+                    batch_callback({
+                        "chapter_id": chapter_id,
+                        "chapter_title": title,
+                        "paragraphs_done": len(translated_paragraphs),
+                        "paragraphs_total": len(blocks),
+                        "latest_japanese": "".join(latest_p.japanese_sentences)[:300],
+                        "latest_english": latest_p.english_translation[:300],
+                        "cache_hit": True,
+                    })
+                except Exception:
+                    pass
             continue
 
         # Construct User Prompt
@@ -228,6 +243,21 @@ def translate_chapter(
 
             if batch_results:
                 previous_buffer = batch_results[-1].get("english_translation", "")[-200:]
+
+            if batch_callback and translated_paragraphs:
+                latest_p = translated_paragraphs[-1]
+                try:
+                    batch_callback({
+                        "chapter_id": chapter_id,
+                        "chapter_title": title,
+                        "paragraphs_done": len(translated_paragraphs),
+                        "paragraphs_total": len(blocks),
+                        "latest_japanese": "".join(latest_p.japanese_sentences)[:300],
+                        "latest_english": latest_p.english_translation[:300],
+                        "cache_hit": False,
+                    })
+                except Exception:
+                    pass
 
         except Exception as exc:
             logger.warning(f"Translation batch failed for chapter {chapter_id}, block range {i}-{i+batch_size}: {exc}")

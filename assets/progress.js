@@ -163,6 +163,20 @@
                 badgeEl.textContent = isActive ? "Translating" : (progress.stage === "complete" ? "Ready" : "Active");
                 badgeEl.classList.toggle("status-badge--active", isActive);
             }
+
+            const streamCh = byId("stream-chapter-tag");
+            const streamJa = byId("stream-japanese-text");
+            const streamEn = byId("stream-english-text");
+
+            if (streamCh && progress.translation_current_chapter) {
+                streamCh.textContent = progress.translation_current_chapter;
+            }
+            if (streamJa && progress.translation_latest_japanese) {
+                streamJa.textContent = progress.translation_latest_japanese;
+            }
+            if (streamEn && progress.translation_latest_english) {
+                streamEn.textContent = progress.translation_latest_english;
+            }
         }
 
         updateStages(progress.stage);

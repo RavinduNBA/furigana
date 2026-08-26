@@ -677,12 +677,30 @@ def run_dictionary_study_pipeline(
         })
 
         for i, ch in enumerate(chapters, start=1):
+            def make_on_batch(ch_idx: int, done_base: int, cache_base: int):
+                def on_batch(data: dict[str, Any]):
+                    progress({
+                        "stage": "bilingual-translation",
+                        "translation_model": model_name,
+                        "translation_backend": provider_display,
+                        "translation_chapters_completed": ch_idx - 1,
+                        "translation_chapters_total": total_chapters,
+                        "translation_paragraphs_completed": done_base + data.get("paragraphs_done", 0),
+                        "translation_paragraphs_total": total_paragraphs,
+                        "translation_cache_hits": cache_base + (1 if data.get("cache_hit") else 0),
+                        "translation_current_chapter": data.get("chapter_title", f"Chapter {ch_idx}"),
+                        "translation_latest_japanese": data.get("latest_japanese", ""),
+                        "translation_latest_english": data.get("latest_english", ""),
+                    })
+                return on_batch
+
             trans_ch = translate_chapter(
                 ch,
                 book_context,
                 provider=provider,
                 cache=trans_cache,
                 model=model_name,
+                batch_callback=make_on_batch(i, completed_paragraphs, total_cache_hits),
             )
             translated_chapters.append(trans_ch)
             completed_paragraphs += len(trans_ch.paragraphs)
