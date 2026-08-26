@@ -600,25 +600,38 @@ def _find_expressions(
     return expressions, matches
 
 
+def _single_token_lookup_allowed(candidate: VocabularyCandidate) -> bool:
+    """Keep grammatical closed-class tokens out of standalone study items.
+
+    The original candidate remains available to expression matching, where a
+    particle or auxiliary can legitimately belong to a lexicalized phrase.
+    """
+    category = (candidate.part_of_speech or "").split(",", 1)[0]
+    return category not in {"助詞", "助動詞", "記号", "フィラー"}
+
+
 def enrich_vocabulary_report(
     report: VocabularyReport,
     provider: JmdictProvider,
     include_expressions: bool = False,
     progress_callback=None,
     max_matches_per_chapter: int | None = None,
+    exclude_closed_class_tokens: bool = False,
 ) -> EnrichedVocabularyReport | ExpressionEnrichedVocabularyReport:
     matches = []
     chapter_match_counts: dict[str, int] = {}
     for number, candidate in enumerate(report.candidates, start=1):
-        entries = provider.lookup(
-            JmdictQuery(
-                surface=candidate.surface,
-                lemma=candidate.lemma,
-                reading=candidate.reading,
-                part_of_speech=candidate.part_of_speech,
-                publisher_reading=candidate.reading_source == "publisher",
+        entries = []
+        if not exclude_closed_class_tokens or _single_token_lookup_allowed(candidate):
+            entries = provider.lookup(
+                JmdictQuery(
+                    surface=candidate.surface,
+                    lemma=candidate.lemma,
+                    reading=candidate.reading,
+                    part_of_speech=candidate.part_of_speech,
+                    publisher_reading=candidate.reading_source == "publisher",
+                )
             )
-        )
         if entries and (
             max_matches_per_chapter is None
             or chapter_match_counts.get(candidate.chapter_id, 0)

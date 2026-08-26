@@ -31,6 +31,16 @@ def test_web_presets_and_density_policies_are_valid_deterministic_fixtures():
     assert [value["preset_id"] for value in first_density["policies"]] == [
         "phase8-preset-n5", "phase8-preset-n4", "phase8-preset-n3",
     ]
+    assert [
+        value["maximum_per_chapter"]["reading"]
+        for value in first_density["policies"]
+    ] == [500, 300, 150]
+    all_meanings = build_web_density_dataset(all_selected_meanings=True)
+    validate_density_policy_dataset(all_meanings)
+    assert all(
+        value["maximum_per_chapter"]["meaning"] == 10_000
+        for value in all_meanings["policies"]
+    )
 
 
 def test_dictionary_only_plan_promotion_preserves_phase4_items():
@@ -87,5 +97,17 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
         assert summaries[0]["provider_calls"] == 0
         assert summaries[0]["network_dictionary_lookups"] == 0
         assert (summaries[0]["adaptive_occurrences"] > 0) is experimental
+        with __import__("zipfile").ZipFile(tmp_path / f"{experimental}-a.epub") as archive:
+            xhtml = "\n".join(
+                archive.read(name).decode("utf-8")
+                for name in archive.namelist()
+                if name.endswith(".xhtml")
+            )
+        assert "furiganalyse-web-link-style" in xhtml
+        assert "not sentence translation" in xhtml
+        if experimental:
+            assert xhtml.count('class="adaptive-meaning-assistance"') == summaries[0][
+                "study_items"
+            ]
 
     assert hashlib.sha256(source.read_bytes()).hexdigest() == source_hash

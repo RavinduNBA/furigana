@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
+
+from furiganalyse.jmdict import normalize_reading
 
 SCHEMA_VERSION = 1
 DISPLAY_MEANING_MAX_CHARS = 120
@@ -213,7 +216,26 @@ def _validate_source_report(report: dict[str, Any]):
         _required_list(report.get(key), key)
 
 
-def _proposals(report: dict[str, Any]):
+def _preferred_occurrence_reading(
+    candidate: dict[str, Any], tokens: dict[str, dict[str, Any]]
+) -> tuple[str | None, str]:
+    reading = normalize_reading(candidate.get("reading"))
+    if candidate.get("surface") == "年":
+        previous = [
+            token
+            for token in tokens.values()
+            if token.get("sentence_id") == candidate.get("sentence_id")
+            and token.get("sentence_end") == candidate.get("sentence_start")
+        ]
+        if previous and re.search(
+            r"[0-9０-９XＸ一二三四五六七八九十百千万億〇零]",
+            previous[-1].get("surface", ""),
+        ):
+            return "ねん", "deterministic-context-rule"
+    return reading, "tokenizer"
+
+
+def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
     tokens = _indexed(report["tokens"], "token")
     candidates = _indexed(report["candidates"], "candidate")
     expressions = _indexed(report["expressions"], "expression")
@@ -245,10 +267,13 @@ def _proposals(report: dict[str, Any]):
             )
         publisher = candidate.get("reading_source") == "publisher"
         readings = _required_list(selected_entry.get("readings"), "JMdict readings")
-        reading = (
-            candidate.get("reading")
-            if publisher
-            else (readings[0].get("text") if readings else candidate.get("reading"))
+        candidate_reading, candidate_reading_source = _preferred_occurrence_reading(
+            candidate, tokens
+        )
+        reading = candidate.get("reading") if publisher else (
+            candidate_reading
+            if prefer_occurrence_reading and candidate_reading
+            else (readings[0].get("text") if readings else candidate_reading)
         )
         proposals.append(
             _Proposal(
@@ -258,7 +283,15 @@ def _proposals(report: dict[str, Any]):
                 lemma=candidate.get("lemma"),
                 normalized_form=None,
                 reading=reading,
-                reading_source="publisher" if publisher else "JMdict",
+                reading_source=(
+                    "publisher"
+                    if publisher
+                    else (
+                        candidate_reading_source
+                        if prefer_occurrence_reading
+                        else "JMdict"
+                    )
+                ),
                 chapter_id=candidate["chapter_id"],
                 block_id=candidate["block_id"],
                 sentence_id=candidate["sentence_id"],
@@ -392,7 +425,7 @@ def _proposals(report: dict[str, Any]):
     return proposals, tokens, candidates, expressions, names
 
 
-def _lexical_key(proposal: _Proposal):
+def _lexical_key(proposal: _Proposal, separate_occurrence_readings: bool = False):
     return (
         proposal.kind,
         proposal.selected_entry_id,
@@ -401,6 +434,11 @@ def _lexical_key(proposal: _Proposal):
         (
             ("publisher", proposal.reading)
             if proposal.reading_source == "publisher"
+            else (
+                "occurrence-reading",
+                proposal.surface,
+                proposal.reading,
+            ) if separate_occurrence_readings and proposal.kind == "vocabulary"
             else ("dictionary-or-tokenizer", None)
         ),
     )
@@ -409,13 +447,17 @@ def _lexical_key(proposal: _Proposal):
 def create_annotation_plan(
     report: dict[str, Any],
     config: StudyPlanConfig | None = None,
+    *,
+    prefer_occurrence_reading: bool = False,
 ) -> AnnotationPlan:
     """Select deterministic dictionary-backed study items from schema v4."""
     _validate_source_report(report)
     config = config or StudyPlanConfig()
     if config.per_chapter_item_limit < 1:
         raise StudyPlanError("per_chapter_item_limit must be positive")
-    proposals, _, candidates, expressions, names = _proposals(report)
+    proposals, _, candidates, expressions, names = _proposals(
+        report, prefer_occurrence_reading=prefer_occurrence_reading
+    )
     proposals.sort(key=_source_key)
     diagnostics_pending = []
 
@@ -438,7 +480,13 @@ def create_annotation_plan(
 
     grouped = {}
     for proposal in accepted:
-        grouped.setdefault(_lexical_key(proposal), []).append(proposal)
+        grouped.setdefault(
+            _lexical_key(
+                proposal,
+                separate_occurrence_readings=prefer_occurrence_reading,
+            ),
+            [],
+        ).append(proposal)
     groups = sorted(grouped.values(), key=lambda values: _source_key(values[0]))
 
     selected_groups = []

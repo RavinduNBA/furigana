@@ -19,6 +19,7 @@ from furiganalyse.jmdict import (
     SqliteJmdictProvider,
     build_jmdict_index,
     parse_jmdict,
+    pos_compatible,
 )
 from furiganalyse.vocabulary_analysis import (
     VocabularyAnalysisError,
@@ -39,6 +40,14 @@ EXPRESSION_GOLDEN_REPORT = (
     GOLDEN_DIR / "vocabulary-jmdict-expressions-v3.json"
 )
 EXPRESSION_REVIEWED_CASES = GOLDEN_DIR / "expression-review-cases-v3.json"
+
+
+def test_pos_compatibility_keeps_particles_out_of_noun_senses():
+    assert pos_compatible("助詞,格助詞", ["prt"])
+    assert not pos_compatible("助詞,格助詞", ["n"])
+    assert pos_compatible("名詞,接尾", ["suf"])
+    assert pos_compatible("名詞,接尾", ["n-suf"])
+    assert not pos_compatible("名詞,接尾", ["n"])
 
 
 @pytest.fixture

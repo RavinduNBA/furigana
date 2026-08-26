@@ -200,8 +200,17 @@ notes and backlinks without provider, SDK, model, or runtime network calls.
 An **Experimental** toggle can apply Phase 8 reading/meaning assistance and
 synthetic N5/N4/N3 density mechanics to dictionary items only. Those presets
 are explainable regression defaults—not learner diagnoses, JLPT placement, or
-pedagogical recommendations. Grammar remains disabled for personal books while
-the reviewed rule dataset is synthetic. See
+pedagogical recommendations. Personal-book mode defaults to 50 unique study
+items per content document, links every retained occurrence, and can either
+show approved glosses for all selected items or apply adaptive meaning density.
+These are dictionary glosses, not sentence translations. Standalone particles
+and auxiliaries are excluded from vocabulary cards while remaining available
+to multi-token expression matching; generated readings use occurrence forms,
+omit kana-only ruby, and never replace publisher ruby. Generated links use a
+scoped visible link style so publisher CSS cannot silently render them as plain
+black text. Cover, front-matter, caution, retailer, and colophon documents are
+preserved but excluded from automatic study-item selection. Grammar remains
+disabled for personal books while the reviewed rule dataset is synthetic. See
 [`docs/edrdg-data-sources.md`](docs/edrdg-data-sources.md) for official-source,
 update, provenance, and attribution details.
 

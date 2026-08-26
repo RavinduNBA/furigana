@@ -10,6 +10,7 @@ import zipfile
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable
+from xml.etree import ElementTree as ET
 
 from furiganalyse.adaptive_rendering import render_adaptive_output, write_output
 from furiganalyse.assistance_density import (
@@ -41,11 +42,12 @@ ProgressCallback = Callable[[dict[str, Any]], None]
 
 @dataclass(frozen=True)
 class WebStudyOptions:
-    per_chapter_item_limit: int = 10
+    per_chapter_item_limit: int = 50
     experimental_adaptive: bool = False
     preset_level: str = "N5"
     reading_state: str = "show-reading"
     meaning_state: str = "show-meaning"
+    meaning_coverage: str = "all-selected"
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -103,7 +105,15 @@ def build_web_preset_dataset() -> dict[str, Any]:
     })
 
 
-def _density_policy(level: str, reading: int, meaning: int, grammar: int, maximum: int):
+def _density_policy(
+    level: str,
+    reading: int,
+    meaning: int,
+    grammar: int,
+    maximum: int,
+    *,
+    all_selected_meanings: bool = False,
+):
     lower = level.lower()
     return add_density_hash({
         "id": f"phase8-density-{lower}",
@@ -111,13 +121,13 @@ def _density_policy(level: str, reading: int, meaning: int, grammar: int, maximu
         "preset_id": f"phase8-preset-{lower}",
         "targets_per_1000": {
             "reading": reading,
-            "meaning": meaning,
+            "meaning": 1_000_000 if all_selected_meanings else meaning,
             "grammar": grammar,
         },
         "minimum_per_chapter": {"reading": 1, "meaning": 1, "grammar": 1},
         "maximum_per_chapter": {
             "reading": maximum,
-            "meaning": maximum,
+            "meaning": 10_000 if all_selected_meanings else maximum,
             "grammar": maximum,
         },
         "rounding_policy": "ceiling-integer",
@@ -134,7 +144,9 @@ def _density_policy(level: str, reading: int, meaning: int, grammar: int, maximu
     })
 
 
-def build_web_density_dataset() -> dict[str, Any]:
+def build_web_density_dataset(
+    *, all_selected_meanings: bool = False
+) -> dict[str, Any]:
     return add_density_hash({
         "schema_version": 1,
         "dataset_id": "furiganalyse-synthetic-density-policies",
@@ -145,11 +157,66 @@ def build_web_density_dataset() -> dict[str, Any]:
         ),
         "source_provenance": "local-synthetic-density-fixture",
         "policies": [
-            _density_policy("N5", 8, 7, 6, 4),
-            _density_policy("N4", 4, 4, 2, 3),
-            _density_policy("N3", 2, 2, 1, 2),
+            _density_policy(
+                "N5", 8, 7, 6, 500,
+                all_selected_meanings=all_selected_meanings,
+            ),
+            _density_policy(
+                "N4", 4, 4, 2, 300,
+                all_selected_meanings=all_selected_meanings,
+            ),
+            _density_policy(
+                "N3", 2, 2, 1, 150,
+                all_selected_meanings=all_selected_meanings,
+            ),
         ],
     })
+
+
+WEB_LINK_STYLE = """
+a.study-link:link, a.grammar-link:link, a.study-note__backlink:link,
+a.grammar-note__backlink:link { color: #075fbd !important; text-decoration: underline !important; }
+a.study-link:visited, a.grammar-link:visited, a.study-note__backlink:visited,
+a.grammar-note__backlink:visited { color: #6b3fa0 !important; text-decoration: underline !important; }
+a.study-link:focus, a.grammar-link:focus, a.study-note__backlink:focus,
+a.grammar-note__backlink:focus { outline: 2px solid #d28b00 !important; }
+"""
+
+
+def _prepare_web_linked_files(files: dict[str, bytes]) -> dict[str, bytes]:
+    """Add scoped reader-facing affordances without changing publisher CSS."""
+    namespace = "http://www.w3.org/1999/xhtml"
+    xhtml = f"{{{namespace}}}"
+    ET.register_namespace("", namespace)
+    prepared: dict[str, bytes] = {}
+    for path, payload in sorted(files.items()):
+        root = ET.fromstring(payload)
+        head = root.find(xhtml + "head")
+        if head is None:
+            raise ValueError("Linked XHTML lacks head")
+        style = ET.SubElement(head, xhtml + "style", {
+            "id": "furiganalyse-web-link-style",
+            "type": "text/css",
+        })
+        style.text = WEB_LINK_STYLE
+        if path.endswith("/study-notes.xhtml"):
+            body = root.find(xhtml + "body")
+            if body is None:
+                raise ValueError("Study notes lack body")
+            container = body.find(xhtml + "main")
+            if container is None:
+                container = body
+            notice = ET.Element(xhtml + "p", {
+                "class": "study-note__scope-notice",
+            })
+            notice.text = (
+                "Dictionary glosses for selected items; this is not sentence translation."
+            )
+            container.insert(1 if len(container) else 0, notice)
+        prepared[path] = ET.tostring(
+            root, encoding="utf-8", xml_declaration=True, short_empty_elements=True
+        )
+    return prepared
 
 
 def build_web_profile(
@@ -165,6 +232,8 @@ def build_web_profile(
         raise ValueError("Unsupported reading assistance state")
     if options.meaning_state not in {"show-meaning", "hide-meaning"}:
         raise ValueError("Unsupported meaning assistance state")
+    if options.meaning_coverage not in {"all-selected", "adaptive"}:
+        raise ValueError("Unsupported meaning coverage")
     return add_hash({
         "schema_version": 1,
         "id": "web-dictionary-adaptive-profile-v1",
@@ -206,7 +275,26 @@ def _replace_epub_members(
     write_deterministic_epub(files, output_epub)
 
 
-def _bounded_web_report(report, per_chapter_item_limit: int):
+def _study_chapter_ids(book: dict[str, Any]) -> set[str]:
+    administrative_markers = {
+        "cover", "colophon", "caution", "bookwalker", "copyright",
+        "fmatter", "frontmatter", "nav", "toc",
+    }
+    return {
+        chapter["id"]
+        for chapter in book["chapters"]
+        if not any(
+            marker in PurePosixPath(chapter["source_path"]).name.lower()
+            for marker in administrative_markers
+        )
+    }
+
+
+def _bounded_web_report(
+    report,
+    per_chapter_item_limit: int,
+    allowed_chapter_ids: set[str] | None = None,
+):
     """Retain a conservative source-ordered dictionary evidence window.
 
     The web plan can select at most ``per_chapter_item_limit`` items. Keeping
@@ -224,6 +312,8 @@ def _bounded_web_report(report, per_chapter_item_limit: int):
         retained = []
         for value in values:
             chapter = chapter_for(value)
+            if allowed_chapter_ids is not None and chapter not in allowed_chapter_ids:
+                continue
             if counts.get(chapter, 0) >= window:
                 continue
             counts[chapter] = counts.get(chapter, 0) + 1
@@ -246,13 +336,43 @@ def _bounded_web_report(report, per_chapter_item_limit: int):
     )
     name_ids = {value.name_id for value in name_matches}
     names = [value for value in report.name_occurrences if value.id in name_ids]
+    retained_candidate_ids = {
+        value.candidate_id for value in dictionary_matches
+    } | {
+        candidate_id
+        for value in expressions
+        for candidate_id in value.candidate_ids
+    } | {
+        value.candidate_id for value in names
+    }
+    candidates = [
+        value for value in report.candidates if value.id in retained_candidate_ids
+    ]
+    retained_token_ids = {
+        value.token_id for value in candidates
+    } | {
+        token_id for value in expressions for token_id in value.token_ids
+    } | {
+        value.token_id for value in names
+    }
+    token_positions = {value.id: index for index, value in enumerate(report.tokens)}
+    for candidate in candidates:
+        index = token_positions[candidate.token_id]
+        if index > 0:
+            previous = report.tokens[index - 1]
+            if previous.sentence_id == candidate.sentence_id:
+                retained_token_ids.add(previous.id)
+    tokens = [value for value in report.tokens if value.id in retained_token_ids]
     bounded_report = replace(
         report,
+        tokens=tokens,
+        candidates=candidates,
         dictionary_matches=dictionary_matches,
         expressions=expressions,
         expression_dictionary_matches=expression_matches,
         name_occurrences=names,
         name_dictionary_matches=name_matches,
+        name_diagnostics=[],
     )
     validate_name_report(bounded_report)
     return bounded_report
@@ -318,6 +438,7 @@ def run_dictionary_study_pipeline(
             include_expressions=True,
             progress_callback=progress,
             max_matches_per_chapter=evidence_window,
+            exclude_closed_class_tokens=True,
         )
     finally:
         jmdict.close()
@@ -336,7 +457,9 @@ def run_dictionary_study_pipeline(
         jmnedict.close()
     del jmnedict
     vocabulary_model = _bounded_web_report(
-        vocabulary_model, options.per_chapter_item_limit
+        vocabulary_model,
+        options.per_chapter_item_limit,
+        _study_chapter_ids(book),
     )
     gc.collect()
     vocabulary = asdict(vocabulary_model)
@@ -350,11 +473,13 @@ def run_dictionary_study_pipeline(
     phase4_plan = asdict(create_annotation_plan(
         vocabulary,
         StudyPlanConfig(per_chapter_item_limit=options.per_chapter_item_limit),
+        prefer_occurrence_reading=True,
     ))
     annotation_plan = promote_dictionary_only_plan(phase4_plan)
     _write_json(work / "annotation-plan.json", annotation_plan)
     progress({"stage": "linked-rendering", "study_items": len(annotation_plan["items"])})
     linked = create_linked_output(source, book, annotation_plan)
+    linked = replace(linked, files=_prepare_web_linked_files(linked.files))
     linked_directory = work / "linked"
     write_linked_output(linked, linked_directory)
     base_epub = work / "dictionary-study.epub"
@@ -379,7 +504,9 @@ def run_dictionary_study_pipeline(
             enabled=True,
         )
         progress({"stage": "density-planning"})
-        policies = build_web_density_dataset()
+        policies = build_web_density_dataset(
+            all_selected_meanings=options.meaning_coverage == "all-selected"
+        )
         density_report = build_density_report(
             book,
             annotation_plan,
@@ -403,8 +530,7 @@ def run_dictionary_study_pipeline(
         write_output(adaptive_files, work / "adaptive")
         _replace_epub_members(base_epub, adaptive_files, output)
     else:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_bytes(base_epub.read_bytes())
+        _replace_epub_members(base_epub, linked.files, output)
 
     if assistance_report is not None:
         _write_json(work / "assistance.json", assistance_report)

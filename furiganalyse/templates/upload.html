@@ -65,7 +65,7 @@
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-study" value="study" {% if not dictionaries_ready %}disabled{% endif %}>
-                        <span class="choice-content"><strong>Dictionary Study EPUB</strong><small>Vocabulary, expressions, proper names, notes, and backlinks · EPUB only.</small></span>
+                        <span class="choice-content"><strong>Dictionary Study EPUB</strong><small>Selected dictionary glosses, expressions, proper names, and backlinks · not sentence translation.</small></span>
                     </label>
                 </div>
                 {% if not dictionaries_ready %}<p class="form-notice">Local EDRDG indexes are not ready, so Dictionary Study mode is temporarily unavailable.</p>{% endif %}
@@ -110,14 +110,15 @@
             </fieldset>
 
             <fieldset class="form-section" id="study-options" hidden>
-                <legend><span class="step-number">3</span><span>Study assistance<small>Dictionary-only, local, and deterministic</small></span></legend>
+                <legend><span class="step-number">3</span><span>Study assistance<small>Local dictionary glosses—not sentence translation</small></span></legend>
                 <div class="field-row">
-                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Limits unique vocabulary, expressions, and proper names</small></label>
+                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Each selected item links all of its occurrences; higher limits improve coverage</small></label>
                     <select name="per_chapter_item_limit" id="per_chapter_item_limit">
                         <option value="5">5 items</option>
-                        <option value="10" selected>10 items</option>
+                        <option value="10">10 items</option>
                         <option value="20">20 items</option>
                         <option value="30">30 items</option>
+                        <option value="50" selected>50 items · recommended for novels</option>
                     </select>
                 </div>
                 <label class="experimental-toggle" for="experimental_adaptive">
@@ -134,6 +135,13 @@
                         <label class="choice-card choice-card--compact"><input type="radio" name="assistance_reading" value="hide-reading"><span class="choice-content"><strong>Hide generated readings</strong><small>Does not remove publisher ruby</small></span></label>
                         <label class="choice-card choice-card--compact"><input type="radio" name="assistance_meaning" value="show-meaning" checked><span class="choice-content"><strong>Show selected meanings</strong><small>Approved dictionary glosses only</small></span></label>
                         <label class="choice-card choice-card--compact"><input type="radio" name="assistance_meaning" value="hide-meaning"><span class="choice-content"><strong>Hide meanings</strong><small>Omitted, never concealed in markup</small></span></label>
+                    </div>
+                    <div class="field-row">
+                        <label for="assistance_meaning_coverage"><strong>Dictionary-meaning coverage</strong><small>Controls approved gloss display, not sentence translation</small></label>
+                        <select name="assistance_meaning_coverage" id="assistance_meaning_coverage">
+                            <option value="all-selected" selected>Show meanings for all selected items</option>
+                            <option value="adaptive">Apply adaptive meaning density</option>
+                        </select>
                     </div>
                     <p class="fine-print">No grammar rules, inferred exposure history, provider calls, or model judgment are used in this initial personal-book mode.</p>
                 </div>

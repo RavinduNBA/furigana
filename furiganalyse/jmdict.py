@@ -325,14 +325,26 @@ def _entry_from_payload(payload: str) -> JmdictEntry:
 def pos_compatible(candidate_pos: str | None, sense_pos: list[str]) -> bool:
     if not candidate_pos or not sense_pos:
         return True
-    category = candidate_pos.split(",", 1)[0]
+    category, _, detail = candidate_pos.partition(",")
+    if category == "名詞" and detail.startswith("接尾"):
+        return any(pos.startswith(("suf", "n-suf")) for pos in sense_pos)
+    if category == "名詞" and detail.startswith("接頭"):
+        return any(pos.startswith(("pref", "n-pref")) for pos in sense_pos)
     prefixes = {
         "動詞": ("v",),
         "名詞": ("n",),
         "形容詞": ("adj",),
         "副詞": ("adv",),
+        "助詞": ("prt",),
+        "助動詞": ("aux",),
+        "接続詞": ("conj",),
+        "感動詞": ("int",),
+        "接頭詞": ("pref",),
+        "連体詞": ("adj-pn",),
     }.get(category)
-    return True if prefixes is None else any(pos.startswith(prefixes) for pos in sense_pos)
+    return False if prefixes is None else any(
+        pos.startswith(prefixes) for pos in sense_pos
+    )
 
 
 def _valid_readings(

@@ -17,6 +17,7 @@ from furiganalyse.assistance_density import stable_hash
 XHTML_NS = "http://www.w3.org/1999/xhtml"
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 X = f"{{{XHTML_NS}}}"
+KANJI = re.compile(r"[一-龯々〆ヵヶ]")
 ET.register_namespace("", XHTML_NS)
 SCHEMA_VERSION = 1
 PRECEDENCE = [
@@ -397,6 +398,7 @@ def render_adaptive_output(
     occurrence_results: list[dict[str, Any]] = []
     diagnostics: list[dict[str, Any]] = []
     grammar_keep: dict[str, bool] = {}
+    presented_meaning_items: set[str] = set()
 
     for number, plan in enumerate(density["occurrence_plans"], 1):
         item_id = plan["source_item_id"]
@@ -436,7 +438,10 @@ def render_adaptive_output(
                 reasons.append("planned-reading-suppression")
             elif reading_state == "present-reading":
                 approved = result.get("authoritative_reading")
-                if not approved or result.get("reading_source") == "publisher":
+                if not KANJI.search(anchor.text or ""):
+                    actions["reading"] = "reading-unavailable"
+                    reasons.append("reading-not-required-kana-only")
+                elif not approved or result.get("reading_source") == "publisher":
                     actions["reading"] = "reading-unavailable"
                     reasons.append("missing-approved-reading")
                     diagnostics.append(_diagnostic(
@@ -454,9 +459,13 @@ def render_adaptive_output(
                     "selected_entry_id", "selected_sense_id", "selected_translation_id"
                 )):
                     raise AdaptiveRenderingError("Missing approved meaning")
-                meaning = ET.Element(X + "p", {"class": "adaptive-meaning-assistance"})
-                meaning.text = approved
-                section.insert(1, meaning)
+                if item_id not in presented_meaning_items:
+                    meaning = ET.Element(
+                        X + "p", {"class": "adaptive-meaning-assistance"}
+                    )
+                    meaning.text = approved
+                    section.insert(1, meaning)
+                    presented_meaning_items.add(item_id)
                 actions["meaning"] = "meaning-presented"
                 reasons.append("approved-meaning-presented")
             else:

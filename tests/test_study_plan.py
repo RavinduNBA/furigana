@@ -7,6 +7,7 @@ import pytest
 from furiganalyse.study_plan import (
     StudyPlanConfig,
     StudyPlanError,
+    _preferred_occurrence_reading,
     create_annotation_plan,
     serialize_annotation_plan,
     validate_annotation_plan,
@@ -38,6 +39,34 @@ def test_selected_items_and_dictionary_baseline(source_report):
     assert (
         plan.items[0].normalized_form == "良い天気"
         and plan.items[4].lemma == "振り返る"
+    )
+
+
+def test_personal_book_mode_uses_occurrence_reading(source_report):
+    plan = create_annotation_plan(source_report, prefer_occurrence_reading=True)
+    inflected = next(item for item in plan.items if item.surface == "振り返っ")
+
+    assert inflected.reading == "ふりかえっ"
+
+
+def test_numeric_year_uses_deterministic_counter_reading():
+    candidate = {
+        "surface": "年",
+        "reading": "トシ",
+        "sentence_id": "sentence",
+        "sentence_start": 4,
+    }
+    tokens = {
+        "previous": {
+            "surface": "１９ＸＸ",
+            "sentence_id": "sentence",
+            "sentence_end": 4,
+        }
+    }
+
+    assert _preferred_occurrence_reading(candidate, tokens) == (
+        "ねん",
+        "deterministic-context-rule",
     )
 
 

@@ -9,6 +9,7 @@ from furiganalyse.vocabulary_analysis import (
     SCHEMA_VERSION,
     VocabularyAnalysisError,
     _segment_tokens,
+    _single_token_lookup_allowed,
     analyze_vocabulary,
     serialize_vocabulary_report,
     validate_vocabulary_report,
@@ -87,6 +88,34 @@ def test_excludes_symbols_and_latin_only_tokens_from_candidates(analyzed_fixture
     assert {token.surface for token in excluded} == {"。", "English"}
     assert all(token.id not in candidate_token_ids for token in excluded)
     assert all(candidate.surface.strip() for candidate in report.candidates)
+
+
+def test_particle_is_not_eligible_for_standalone_dictionary_study():
+    from furiganalyse.vocabulary_analysis import VocabularyCandidate
+
+    surface, lemma, reading, part_of_speech, _, _ = next(
+        value for value in _segment_tokens("本書に掲載される", 0) if value[0] == "に"
+    )
+    candidate = VocabularyCandidate(
+        id="particle-candidate",
+        token_id="particle-token",
+        surface=surface,
+        lemma=lemma,
+        reading=reading,
+        part_of_speech=part_of_speech,
+        chapter_id="chapter",
+        block_id="block",
+        sentence_id="sentence",
+        sentence_start=0,
+        sentence_end=1,
+        block_start=0,
+        block_end=1,
+        reading_source="tokenizer",
+        publisher_ruby_id=None,
+    )
+
+    assert part_of_speech.startswith("助詞")
+    assert not _single_token_lookup_allowed(candidate)
 
 
 def test_publisher_ruby_is_one_authoritative_candidate(analyzed_fixture):

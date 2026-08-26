@@ -107,7 +107,8 @@ async def task_handler(
     assistance_preset: str = Form(default="N5"),
     assistance_reading: str = Form(default="show-reading"),
     assistance_meaning: str = Form(default="show-meaning"),
-    per_chapter_item_limit: int = Form(default=10),
+    assistance_meaning_coverage: str = Form(default="all-selected"),
+    per_chapter_item_limit: int = Form(default=50),
     redirect: bool = Form(default=True),
 ):
     if pipeline_mode not in {"furigana", "study"}:
@@ -179,6 +180,7 @@ async def task_handler(
         assistance_preset,
         assistance_reading,
         assistance_meaning,
+        assistance_meaning_coverage,
         per_chapter_item_limit,
     )
 
@@ -207,7 +209,8 @@ def furiganalyse_task(
     assistance_preset: str = "N5",
     assistance_reading: str = "show-reading",
     assistance_meaning: str = "show-meaning",
-    per_chapter_item_limit: int = 10,
+    assistance_meaning_coverage: str = "all-selected",
+    per_chapter_item_limit: int = 50,
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
     output_filename = generate_output_filename(filename, output_format)
@@ -231,6 +234,7 @@ def furiganalyse_task(
                     preset_level=assistance_preset,
                     reading_state=assistance_reading,
                     meaning_state=assistance_meaning,
+                    meaning_coverage=assistance_meaning_coverage,
                 ),
                 progress_callback=progress.update,
             )
