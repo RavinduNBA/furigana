@@ -196,6 +196,27 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .result-card--error .result-icon { background: var(--danger); }
 .result-actions { display: flex; gap: 8px; }
 .job-privacy { max-width: 680px; margin: 22px auto 0; }
+.recent-card--job-page { max-width: 680px; margin: 22px auto 0; }
+
+/* Recent conversions list */
+.recent-list { margin: 16px 0 0; padding: 0; display: grid; gap: 10px; list-style: none; }
+.recent-item { padding: 12px 14px; display: grid; gap: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); transition: border-color .15s ease, box-shadow .15s ease; }
+.recent-item:hover { border-color: #b0c2b5; box-shadow: 0 4px 12px rgba(23, 45, 34, .05); }
+.recent-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.recent-time { color: var(--muted); font-size: .68rem; }
+.recent-name { font-size: .84rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.recent-actions-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+.recent-dl-link { padding: 4px 10px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-size: .74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; transition: background .15s ease; }
+.recent-dl-link:hover { background: var(--accent-dark); color: white; }
+.recent-prog-link { padding: 4px 10px; border-radius: 8px; background: var(--surface-soft); color: var(--accent-dark); text-decoration: none; font-size: .74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); }
+.recent-error-tag { padding: 3px 8px; border-radius: 6px; background: #faecec; color: var(--danger); font-size: .7rem; font-weight: 600; }
+
+.mode-pill { padding: 2px 8px; border-radius: 999px; font-size: .64rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.mode-pill--furigana { background: var(--accent-light); color: var(--accent-dark); }
+.mode-pill--study { background: #e0ecfb; color: #1d4ed8; }
+.mode-pill--combined { background: #ede9fe; color: #6d28d9; }
+.mode-pill--guided { background: #fef3c7; color: #92400e; }
+
 
 @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; gap: 38px; padding-top: 38px; }

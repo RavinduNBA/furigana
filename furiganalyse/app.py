@@ -21,6 +21,7 @@ from furiganalyse.__main__ import main, SUPPORTED_INPUT_EXTS
 from furiganalyse.known_words import list_available_word_lists
 from furiganalyse.params import OutputFormat, FuriganaMode, WritingMode
 from furiganalyse.progress import ProgressWriter, read_progress
+from furiganalyse.recent_conversions import load_recent_conversions, record_conversion
 from furiganalyse.web_study_pipeline import (
     WebStudyOptions,
     normalize_epub_archive,
@@ -84,6 +85,7 @@ def get_root(request: Request):
         os.environ.get("FURIGANALYSE_JMDICT_INDEX", "data/edrdg/JMdict.sqlite"),
         os.environ.get("FURIGANALYSE_JMNEDICT_INDEX", "data/edrdg/JMnedict.sqlite"),
     ))
+    recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
     return templates.TemplateResponse(
         "upload.html",
         {
@@ -92,16 +94,22 @@ def get_root(request: Request):
             "supported_input_accept": ",".join(sorted(SUPPORTED_INPUT_EXTS)),
             "known_words_lists": list_available_word_lists(),
             "dictionaries_ready": dictionaries_ready,
+            "recent_conversions": recent_conversions,
         },
     )
+
+
+@app.get("/api/recent_conversions")
+def get_recent_conversions_api():
+    return JSONResponse(load_recent_conversions(OUTPUT_FOLDER))
 
 
 @app.post("/submit")
 async def task_handler(
     background_tasks: BackgroundTasks,
     file: UploadFile,
-    furigana_mode: str = Form(),
-    writing_mode: str = Form(),
+    furigana_mode: str = Form(default="add"),
+    writing_mode: str = Form(default="auto"),
     of: str = Form(),
     known_words_list: str = Form(default=""),
     custom_word_list: UploadFile = File(default=None),
@@ -157,6 +165,17 @@ async def task_handler(
     new_task.progress_path = os.path.join(task_folder, "progress.json")
     ProgressWriter(new_task.progress_path, input_bytes=len(contents))
 
+    output_filename = generate_output_filename(safe_filename, of, pipeline_mode)
+    record_conversion(
+        OUTPUT_FOLDER,
+        uid=str(new_task.uid),
+        filename=safe_filename,
+        output_filename=output_filename,
+        pipeline_mode=pipeline_mode,
+        furigana_mode=furigana_mode,
+        status="in_progress",
+    )
+
     # Handle custom word list upload
     custom_word_list_path = None
     if known_words_list == "__custom__":
@@ -209,7 +228,15 @@ async def task_handler(
 
 @app.get("/jobs/{uid}", response_class=HTMLResponse)
 def get_download(request: Request, uid: UUID):
-    return templates.TemplateResponse("download.html", {"request": request, "uid": uid})
+    recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
+    return templates.TemplateResponse(
+        "download.html",
+        {
+            "request": request,
+            "uid": uid,
+            "recent_conversions": recent_conversions,
+        },
+    )
 
 
 def furiganalyse_task(
@@ -230,7 +257,7 @@ def furiganalyse_task(
     per_chapter_item_limit: int = 50,
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
-    output_filename = generate_output_filename(filename, output_format)
+    output_filename = generate_output_filename(filename, output_format, pipeline_mode)
     output_filepath = os.path.join(task_folder, output_filename)
     path_hash = encode_filepath(output_filepath)
     progress = ProgressWriter(
@@ -241,6 +268,41 @@ def furiganalyse_task(
     try:
         if pipeline_mode in {"study", "combined", "guided"}:
             assisted_furigana = pipeline_mode in {"combined", "guided"}
+            study_input = input_filepath
+            if assisted_furigana:
+                furi_stage = Path(task_folder) / "furigana-stage.epub"
+
+                def furigana_progress(event):
+                    progress.update({
+                        **event,
+                        "pipeline_mode": pipeline_mode,
+                        "combined_phase": "furigana",
+                    })
+
+                progress.update({
+                    "stage": "preparing",
+                    "pipeline_mode": pipeline_mode,
+                    "combined_phase": "furigana",
+                })
+                main(
+                    input_filepath,
+                    str(furi_stage),
+                    furigana_mode=FuriganaMode(furigana_mode),
+                    output_format=OutputFormat.epub,
+                    writing_mode=WritingMode(writing_mode),
+                    known_words_list=(
+                        known_words_list if known_words_list else None
+                    ),
+                    custom_word_list_path=custom_word_list_path,
+                    custom_word_list_limit=(
+                        custom_word_list_limit
+                        if custom_word_list_limit > 0
+                        else None
+                    ),
+                    progress_callback=furigana_progress,
+                )
+                study_input = str(furi_stage)
+
             progress.update({
                 "stage": "preparing",
                 "pipeline_mode": pipeline_mode,
@@ -249,7 +311,7 @@ def furiganalyse_task(
             study_output = (
                 output_filepath
                 if pipeline_mode == "study"
-                else str(Path(task_folder) / "study-work" / "dictionary-stage.epub")
+                else str(Path(task_folder) / "study-work" / "annotated-stage.epub")
             )
 
             def dictionary_progress(event):
@@ -262,7 +324,7 @@ def furiganalyse_task(
                 })
 
             run_dictionary_study_pipeline(
-                input_filepath,
+                study_input,
                 study_output,
                 Path(task_folder) / "study-work",
                 WebStudyOptions(
@@ -277,43 +339,17 @@ def furiganalyse_task(
                 progress_callback=dictionary_progress,
             )
             if assisted_furigana:
-                annotated_output = Path(task_folder) / "combined-annotated.epub"
-
-                def furigana_progress(event):
-                    progress.update({
-                        **event,
-                        "pipeline_mode": pipeline_mode,
-                        "combined_phase": "furigana",
-                    })
-
-                main(
-                    study_output,
-                    str(annotated_output),
-                    furigana_mode=FuriganaMode.add,
-                    output_format=OutputFormat.epub,
-                    writing_mode=WritingMode(writing_mode),
-                    known_words_list=(
-                        known_words_list if known_words_list else None
-                    ),
-                    custom_word_list_path=custom_word_list_path,
-                    custom_word_list_limit=(
-                        custom_word_list_limit
-                        if custom_word_list_limit > 0
-                        else None
-                    ),
-                    progress_callback=furigana_progress,
-                )
                 progress.update({
                     "stage": "packaging",
                     "pipeline_mode": pipeline_mode,
-                    "combined_phase": "furigana",
+                    "combined_phase": "dictionary",
                 })
-                normalize_epub_archive(annotated_output, output_filepath)
+                normalize_epub_archive(Path(study_output), output_filepath)
             progress.update({
                 "stage": "complete",
                 "pipeline_mode": pipeline_mode,
                 "combined_phase": (
-                    "furigana" if assisted_furigana else None
+                    "dictionary" if assisted_furigana else None
                 ),
                 "output_bytes": os.path.getsize(output_filepath),
             })
@@ -387,11 +423,25 @@ OUTPUT_FORMAT_TO_EXTENSION = {
 }
 
 
-def generate_output_filename(input_filename: str, output_format: OutputFormat) -> str:
+def generate_output_filename(
+    input_filename: str,
+    output_format: OutputFormat | str,
+    pipeline_mode: str = "furigana",
+) -> str:
     filename_without_ext = os.path.splitext(input_filename)[0]
-    extension = OUTPUT_FORMAT_TO_EXTENSION[output_format]
-    output_filename = "furiganalysed_" + filename_without_ext + extension
-    return output_filename
+    format_enum = OutputFormat(output_format) if isinstance(output_format, str) else output_format
+    extension = OUTPUT_FORMAT_TO_EXTENSION[format_enum]
+    mode_labels = {
+        "furigana": "Furigana",
+        "study": "Study",
+        "combined": "Combined",
+        "guided": "Guided",
+    }
+    mode_suffix = mode_labels.get(pipeline_mode, "Furigana")
+    if filename_without_ext.startswith("furiganalysed_"):
+        filename_without_ext = filename_without_ext[len("furiganalysed_"):]
+    return f"{filename_without_ext} - {mode_suffix}{extension}"
+
 
 def generate_random_key(length):
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
@@ -417,9 +467,10 @@ def cleanup_output_folder(force: bool = False):
     path_and_sizes = []
     total_size = 0
     for path in paths:
-        size = sum(f.stat().st_size for f in path.glob('**/*') if f.is_file())
-        path_and_sizes.append((path, size))
-        total_size += size
+        if path.is_dir():
+            size = sum(f.stat().st_size for f in path.glob('**/*') if f.is_file())
+            path_and_sizes.append((path, size))
+            total_size += size
 
     if total_size < size_threshold and not force:
         return
@@ -427,10 +478,13 @@ def cleanup_output_folder(force: bool = False):
     for path, size in path_and_sizes:
         logging.info(f"Removing {path} to free up space")
 
-        uid = UUID(os.path.basename(path))
-        if uid in jobs:
-            logging.info(f"Deleting associated job {uid}")
-            del jobs[uid]
+        try:
+            uid = UUID(os.path.basename(path))
+            if uid in jobs:
+                logging.info(f"Deleting associated job {uid}")
+                del jobs[uid]
+        except ValueError:
+            pass
 
         shutil.rmtree(path)
         total_size -= size
@@ -443,10 +497,48 @@ async def run_in_process(fn, *args):
     return await loop.run_in_executor(app.state.executor, fn, *args)  # wait and return result
 
 
-async def start_furiganalyse_task(uid: UUID, *args) -> None:
+async def start_furiganalyse_task(
+    uid: UUID,
+    task_folder: str,
+    safe_filename: str,
+    of: str,
+    furigana_mode: str,
+    *args,
+) -> None:
+    pipeline_mode = args[5] if len(args) > 5 else "furigana"
+    output_filename = generate_output_filename(safe_filename, of, pipeline_mode)
     try:
-        jobs[uid].result = await run_in_process(furiganalyse_task, *args)
+        jobs[uid].result = await run_in_process(
+            furiganalyse_task,
+            task_folder,
+            safe_filename,
+            of,
+            furigana_mode,
+            *args,
+        )
         jobs[uid].status = "complete"
+        output_path = decode_filepath(jobs[uid].result)
+        output_bytes = os.path.getsize(output_path) if os.path.isfile(output_path) else None
+        record_conversion(
+            OUTPUT_FOLDER,
+            uid=str(uid),
+            filename=safe_filename,
+            output_filename=output_filename,
+            pipeline_mode=pipeline_mode,
+            furigana_mode=furigana_mode,
+            status="complete",
+            output_bytes=output_bytes,
+        )
     except Exception:
         logging.error("Error occurred for job %s", uid)
         jobs[uid].status = "error"
+        record_conversion(
+            OUTPUT_FOLDER,
+            uid=str(uid),
+            filename=safe_filename,
+            output_filename=output_filename,
+            pipeline_mode=pipeline_mode,
+            furigana_mode=furigana_mode,
+            status="error",
+        )
+

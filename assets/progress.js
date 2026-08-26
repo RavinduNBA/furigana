@@ -66,11 +66,15 @@
         updateStages(progress.stage);
     }
     function showComplete() {
+        byId("conversion-progress").value = 100;
+        byId("conversion-progress").textContent = "100%";
+        byId("progress-percent").textContent = "100%";
         byId("job-title").textContent = "Conversion complete";
         byId("job-description").textContent = "Your converted ebook is ready to download.";
         byId("header-status-text").textContent = "Ready";
         document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
         byId("result").hidden = false;
+        updateStages("complete");
     }
     function showError() {
         byId("job-title").textContent = "Conversion stopped";

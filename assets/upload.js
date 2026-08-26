@@ -93,12 +93,10 @@
         const guided = pipelineGuided && pipelineGuided.checked;
         const dictionary = study || combined || guided;
         const assistedFurigana = combined || guided;
-        const addMode = document.getElementById("fm_add");
         const replaceMode = document.getElementById("fm_replace");
         const removeMode = document.getElementById("fm_remove");
-        if (assistedFurigana) addMode.checked = true;
-        replaceMode.disabled = assistedFurigana;
-        removeMode.disabled = assistedFurigana;
+        replaceMode.disabled = false;
+        removeMode.disabled = false;
         furiganaOptions.hidden = study;
         studyOptions.hidden = !dictionary;
         layoutOptions.hidden = study;

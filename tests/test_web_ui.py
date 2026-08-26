@@ -73,3 +73,50 @@ def test_web_assets_have_no_remote_runtime_dependencies():
         assert "http://" not in value
         assert "jquery" not in value.lower()
         assert "bootstrap" not in value.lower()
+
+
+def test_generate_output_filename_includes_mode():
+    from furiganalyse.app import generate_output_filename
+    from furiganalyse.params import OutputFormat
+
+    assert generate_output_filename("my_book.epub", OutputFormat.epub, "furigana") == "my_book - Furigana.epub"
+    assert generate_output_filename("my_book.epub", OutputFormat.epub, "study") == "my_book - Study.epub"
+    assert generate_output_filename("my_book.epub", OutputFormat.epub, "combined") == "my_book - Combined.epub"
+    assert generate_output_filename("my_book.epub", OutputFormat.epub, "guided") == "my_book - Guided.epub"
+    assert generate_output_filename("furiganalysed_novel.azw3", OutputFormat.azw3, "furigana") == "novel - Furigana.azw3"
+
+
+def test_recent_conversions_lifecycle_and_rendering(tmp_path):
+    from furiganalyse.recent_conversions import load_recent_conversions, record_conversion
+
+    # Record 12 items, verify only 10 are kept
+    for i in range(12):
+        record_conversion(
+            tmp_path,
+            uid=f"uid-{i:04d}",
+            filename=f"book_{i}.epub",
+            output_filename=f"book_{i} - Guided.epub",
+            pipeline_mode="guided",
+            status="complete" if i % 2 == 0 else "in_progress",
+            output_bytes=1024 * 1024 * (i + 1),
+        )
+
+    recent = load_recent_conversions(tmp_path)
+    assert len(recent) == 10
+    # Most recent first
+    assert recent[0]["uid"] == "uid-0011"
+    assert recent[0]["pipeline_mode"] == "guided"
+    assert recent[0]["output_filename"] == "book_11 - Guided.epub"
+
+    # Render template with recent conversions
+    html = templates.get_template("upload.html").render({
+        "request": request(),
+        "supported_input_accept": ".epub",
+        "known_words_lists": [],
+        "dictionaries_ready": True,
+        "recent_conversions": recent,
+    })
+    assert "Recent conversions" in html
+    assert "book_11 - Guided.epub" in html
+    assert "Download" in html
+

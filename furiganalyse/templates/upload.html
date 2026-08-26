@@ -16,6 +16,7 @@
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
         <a href="#converter">Converter</a>
+        {% if recent_conversions %}<a href="#recent">Recent ({{ recent_conversions|length }})</a>{% endif %}
         <a href="#capabilities">Capabilities</a>
         <a href="https://github.com/itsupera/furiganalyse">Source</a>
     </nav>
@@ -80,7 +81,7 @@
             </fieldset>
 
             <fieldset class="form-section" id="furigana-options">
-                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled; Combined mode always adds missing readings</small></span></legend>
+                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>
@@ -158,8 +159,9 @@
 
             <fieldset class="form-section" id="layout-options">
                 <legend><span class="step-number">4</span><span>Book layout<small>Preserve or set the reading direction</small></span></legend>
-                <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Writing direction">
-                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb" checked><span class="choice-content"><strong>Horizontal</strong><span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span></span></label>
+                <div class="choice-grid choice-grid--four" role="radiogroup" aria-label="Writing direction">
+                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_auto" value="auto" checked><span class="choice-content"><strong>Auto (Original)</strong><small>Keep book's native layout</small></span></label>
+                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb"><span class="choice-content"><strong>Horizontal</strong><span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span></span></label>
                     <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl"><span class="choice-content"><strong>Vertical · right to left</strong><span class="direction-sample direction-vertical">次の駅で降りた。</span></span></label>
                     <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-lr" value="vertical-lr"><span class="choice-content"><strong>Vertical · left to right</strong><span class="direction-sample direction-vertical direction-lr">次の駅で降りた。</span></span></label>
                 </div>
@@ -188,6 +190,36 @@
         </form>
 
         <aside class="capability-column" id="capabilities">
+            {% if recent_conversions %}
+            <section class="info-card recent-card" id="recent">
+                <div class="card-title-row">
+                    <span class="section-kicker">Recent</span>
+                    <span class="status-badge">{{ recent_conversions|length }} saved</span>
+                </div>
+                <h2>Recent conversions</h2>
+                <ul class="recent-list">
+                    {% for item in recent_conversions %}
+                    <li class="recent-item">
+                        <div class="recent-meta">
+                            <span class="mode-pill mode-pill--{{ item.pipeline_mode }}">{{ item.pipeline_mode|capitalize }}</span>
+                            <span class="recent-time">{{ item.timestamp }}</span>
+                        </div>
+                        <strong class="recent-name" title="{{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</strong>
+                        <div class="recent-actions-row">
+                            {% if item.status == 'complete' %}
+                            <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
+                            {% elif item.status == 'in_progress' %}
+                            <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">View progress <span class="status-dot status-dot--pulse"></span></a>
+                            {% else %}
+                            <span class="recent-error-tag">Conversion stopped</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
             <section class="info-card">
                 <span class="section-kicker">Available in the web converter</span>
                 <h2>Reading and dictionary study tools</h2>

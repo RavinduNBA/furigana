@@ -88,10 +88,11 @@ def test_combined_and_guided_progress_do_not_move_backwards(tmp_path):
         writer = ProgressWriter(Path(tmp_path) / f"{mode}-progress.json")
         percentages = []
         for event in (
-            {"stage": "packaging", "pipeline_mode": mode, "combined_phase": "dictionary"},
             {"stage": "preparing", "pipeline_mode": mode, "combined_phase": "furigana"},
             {"stage": "packaging", "pipeline_mode": mode, "combined_phase": "furigana"},
-            {"stage": "complete", "pipeline_mode": mode, "combined_phase": "furigana"},
+            {"stage": "preparing", "pipeline_mode": mode, "combined_phase": "dictionary"},
+            {"stage": "packaging", "pipeline_mode": mode, "combined_phase": "dictionary"},
+            {"stage": "complete", "pipeline_mode": mode, "combined_phase": "dictionary"},
         ):
             writer.update(event)
             percentages.append(read_progress(writer.path)["percent"])

@@ -112,13 +112,15 @@ class ProgressWriter:
             count_total = int(self.values.get(total_key, 0))
             fraction = count / count_total if count_total else 0
             self.values["percent"] = min(end, start + round((end - start) * fraction))
-        else:
-            self.values["percent"] = STAGE_PERCENT.get(str(self.values["stage"]), 0)
-        if self.values["pipeline_mode"] in {"combined", "guided"}:
-            if self.values["combined_phase"] == "dictionary":
-                self.values["percent"] = round(self.values["percent"] * 0.7)
-            elif self.values["combined_phase"] == "furigana":
-                self.values["percent"] = 70 + round(self.values["percent"] * 0.3)
+        if self.values["stage"] in {"complete", "error"}:
+            self.values["percent"] = 100
+        elif self.values["pipeline_mode"] in {"combined", "guided"}:
+            if self.values["combined_phase"] == "furigana":
+                # Furigana stage runs first: scale 0-100% to 0-40%
+                self.values["percent"] = min(40, round(self.values["percent"] * 0.4))
+            elif self.values["combined_phase"] == "dictionary":
+                # Dictionary stage runs second: scale 0-100% to 40-98%
+                self.values["percent"] = min(98, 40 + round(self.values["percent"] * 0.58))
         self._write_atomic()
         logging.info(
             "conversion_progress stage=%s percent=%d sections=%d/%d characters=%d/%d elapsed_seconds=%.1f eta_seconds=%s",

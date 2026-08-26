@@ -67,6 +67,36 @@
     </section>
 
     <section class="job-privacy"><span aria-hidden="true">⌁</span><p><strong>Aggregate telemetry only.</strong> Progress records stages, counts, timing, and sizes—not book text, uploaded filenames, credentials, or provider data.</p></section>
+
+    {% if recent_conversions %}
+    <section class="info-card recent-card recent-card--job-page">
+        <div class="card-title-row">
+            <span class="section-kicker">History</span>
+            <span class="status-badge">{{ recent_conversions|length }} saved</span>
+        </div>
+        <h2>Recent conversions</h2>
+        <ul class="recent-list">
+            {% for item in recent_conversions %}
+            <li class="recent-item">
+                <div class="recent-meta">
+                    <span class="mode-pill mode-pill--{{ item.pipeline_mode }}">{{ item.pipeline_mode|capitalize }}</span>
+                    <span class="recent-time">{{ item.timestamp }}</span>
+                </div>
+                <strong class="recent-name" title="{{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</strong>
+                <div class="recent-actions-row">
+                    {% if item.status == 'complete' %}
+                    <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
+                    {% elif item.status == 'in_progress' %}
+                    <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">View progress <span class="status-dot status-dot--pulse"></span></a>
+                    {% else %}
+                    <span class="recent-error-tag">Conversion stopped</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
 </main>
 
 <footer class="site-footer"><span>Furiganalyse · deterministic Japanese reading support</span><a href="{{ url_for('get_root') }}">Back to converter</a></footer>
