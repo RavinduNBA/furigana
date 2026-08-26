@@ -1,127 +1,72 @@
 <!doctype html>
+<html lang="en">
 <head>
-    <title>Furiganalyse</title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script>
-        var polling_interval_ms = 2000;
-
-        function fetchdata(){
-            $.ajax({
-                url: '/jobs/{{ uid }}/status',
-                type: 'get',
-                success: function(data) {
-                    updateProgress(data.progress);
-                    if(data.status === "complete") {
-                        $("h1").html("🎉 Conversion done!");
-                        $("#progress-spinner").removeClass('visible').addClass('invisible');
-                        $("#result").removeClass('invisible').addClass('visible');
-                    } else if(data.status === "error") {
-                        $("h1").html("💣 Oops, something went wrong!");
-                        $("#wait").removeClass('visible').addClass('invisible');
-                        $("#error").removeClass('invisible').addClass('visible');
-                    } else {
-                        setTimeout(fetchdata, polling_interval_ms);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var errorMessage = xhr.status + ': ' + xhr.statusText
-                    console.log('[Error] ' + errorMessage);
-                    $("h1").html("💣 Oops, something went wrong!");
-                    $("#wait").removeClass('visible').addClass('invisible');
-                    $("#error").removeClass('invisible').addClass('visible');
-                }
-            });
-        }
-
-        function formatDuration(seconds) {
-            if(seconds === null || seconds === undefined) return "calculating…";
-            var minutes = Math.floor(seconds / 60);
-            var remainder = Math.round(seconds % 60);
-            return minutes ? minutes + "m " + remainder + "s" : remainder + "s";
-        }
-
-        function formatBytes(bytes) {
-            if(bytes === null || bytes === undefined) return "pending";
-            if(bytes < 1024) return bytes + " B";
-            if(bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-            return (bytes / 1048576).toFixed(1) + " MB";
-        }
-
-        function updateProgress(progress) {
-            if(!progress) return;
-            var percent = progress.percent || 0;
-            $("#conversion-progress").val(percent).attr("aria-valuenow", percent);
-            $("#progress-percent").text(percent + "%");
-            $("#progress-stage").text(progress.stage.replaceAll("_", " "));
-            $("#progress-sections").text(progress.sections_completed + " / " + progress.sections_total);
-            $("#progress-characters").text(progress.characters_processed.toLocaleString() + " / " + progress.characters_total.toLocaleString());
-            $("#progress-remaining").text(progress.sections_remaining + " sections · " + progress.characters_remaining.toLocaleString() + " characters");
-            $("#progress-elapsed").text(formatDuration(progress.elapsed_seconds));
-            $("#progress-eta").text(formatDuration(progress.eta_seconds));
-            $("#progress-rate").text(progress.characters_per_second.toLocaleString() + " chars/s");
-            $("#progress-size").text(formatBytes(progress.input_bytes) + " → " + formatBytes(progress.output_bytes));
-        }
-
-        $(document).ready(function(){
-            setTimeout(fetchdata, polling_interval_ms);
-        });
-    </script>
+    <meta name="robots" content="noindex,nofollow">
+    <title>Conversion progress · Furiganalyse</title>
     <link href="{{ url_for('assets', path='styles.css') }}" rel="stylesheet">
+    <script>
+        window.furiganalyseJob = {
+            statusUrl: "{{ url_for('status_handler', uid=uid) }}",
+            fileUrl: "{{ url_for('get_file', uid=uid) }}"
+        };
+    </script>
+    <script src="{{ url_for('assets', path='progress.js') }}" defer></script>
 </head>
-<body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
-<div class="main-wrapper">
-<div class="py-3">
-    <h1>Converting your ebook...</h1>
-</div>
-<div id="wait" class="text-center">
-    <div id="progress-spinner" class="spinner-border" role="status"/>
-    <div class="mt-4 text-start mx-auto" style="max-width: 42rem">
-        <div class="d-flex justify-content-between mb-1">
-            <strong id="progress-stage">queued</strong>
-            <span id="progress-percent">0%</span>
+<body class="job-page">
+<header class="site-header">
+    <a class="brand" href="{{ url_for('get_root') }}" aria-label="Furiganalyse home">
+        <span class="brand-mark" aria-hidden="true">振</span>
+        <span><strong>Furiganalyse</strong><small>Japanese ebook assistance</small></span>
+    </a>
+    <span class="header-status"><span class="status-dot status-dot--pulse"></span><span id="header-status-text">Conversion running</span></span>
+</header>
+
+<main class="job-shell">
+    <section class="job-intro">
+        <span class="eyebrow">Private conversion workspace</span>
+        <h1 id="job-title">Preparing your ebook</h1>
+        <p id="job-description">You can leave this tab open while Furiganalyse works through each book section.</p>
+    </section>
+
+    <section class="progress-card" id="progress-panel" aria-live="polite">
+        <div class="progress-heading">
+            <div><span class="section-kicker">Current stage</span><h2 id="progress-stage">Queued</h2></div>
+            <strong id="progress-percent">0%</strong>
         </div>
-        <progress id="conversion-progress" class="w-100" max="100" value="0" aria-label="Conversion progress"></progress>
-        <div class="row row-cols-2 row-cols-md-3 g-2 mt-2 small">
-            <div><strong>Sections</strong><br><span id="progress-sections">0 / 0</span></div>
-            <div><strong>Characters</strong><br><span id="progress-characters">0 / 0</span></div>
-            <div><strong>Remaining</strong><br><span id="progress-remaining">calculating…</span></div>
-            <div><strong>Elapsed</strong><br><span id="progress-elapsed">0s</span></div>
-            <div><strong>ETA</strong><br><span id="progress-eta">calculating…</span></div>
-            <div><strong>Rate</strong><br><span id="progress-rate">0 chars/s</span></div>
-            <div><strong>File size</strong><br><span id="progress-size">calculating…</span></div>
+        <progress id="conversion-progress" max="100" value="0" aria-label="Conversion progress">0%</progress>
+        <div class="progress-track-note"><span id="progress-status-note">Waiting for the worker…</span><span id="progress-remaining">Calculating remaining work</span></div>
+
+        <div class="metric-grid">
+            <article><span class="metric-icon" aria-hidden="true">▤</span><div><small>Sections</small><strong id="progress-sections">0 / 0</strong><span id="sections-caption">XHTML book parts</span></div></article>
+            <article><span class="metric-icon" aria-hidden="true">字</span><div><small>Characters</small><strong id="progress-characters">0 / 0</strong><span>Visible, non-whitespace</span></div></article>
+            <article><span class="metric-icon" aria-hidden="true">◷</span><div><small>Elapsed</small><strong id="progress-elapsed">0s</strong><span id="progress-eta">ETA calculating…</span></div></article>
+            <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
-        <p class="text-muted small mt-3 mb-0">EPUBs are reflowable, so “sections” tracks XHTML book parts instead of unstable screen pages.</p>
-    </div>
-</div>
-<div class="invisible" id="result">
-    <div class="mb-3">
-        <a href='/jobs/{{ uid }}/file' target='blank'><button class='btn btn-primary'>Download</button></a>
-        <a href="/" target="blank"><button class='btn'>Go back</button></a>
-    </div>
-    <div>
-        <p>
-            Thank you for using furiganalyse !
-        </p>
-        <p>
-            Please consider <a href="https://www.buymeacoffee.com/itsupera">donating</a> to help me pay for server costs.
-        </p>
-        <p>
-            Something if not right? Please report any issue <a href="https://github.com/itsupera/furiganalyse/issues">here</a>.
-        </p>
-    </div>
-</div>
-<div class="invisible" id="error">
-    <div class="mb-3">
-        <p>Sorry, your file could not be converted 😓</p>
-        <p>
-            Please report the issue <a href="https://github.com/itsupera/furiganalyse/issues">here</a>,
-            or send me an email (itsupera@gmail.com).
-        </p>
-    </div>
-    <a href="/" target="blank"><button class='btn btn-secondary'>Go back</button></a>
-</div>
-</div>
+
+        <div class="stage-strip" aria-label="Conversion stages">
+            <span data-stage="preparing">Prepare</span><span data-stage="extracting">Extract</span><span data-stage="processing">Annotate</span><span data-stage="packaging">Package</span><span data-stage="complete">Complete</span>
+        </div>
+
+        <p class="section-explainer"><strong>Why sections, not pages?</strong> EPUBs reflow to fit each screen, so pages are not stable. XHTML sections and visible-character counts give a consistent measure.</p>
+    </section>
+
+    <section class="result-card" id="result" hidden>
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <div><span class="section-kicker">Conversion complete</span><h2>Your ebook is ready</h2><p>The original upload was not modified. Download the converted copy below.</p></div>
+        <div class="result-actions"><a class="primary-button" id="download-link" href="{{ url_for('get_file', uid=uid) }}">Download ebook <span aria-hidden="true">↓</span></a><a class="secondary-button" href="{{ url_for('get_root') }}">Convert another</a></div>
+    </section>
+
+    <section class="result-card result-card--error" id="error" hidden>
+        <div class="result-icon" aria-hidden="true">!</div>
+        <div><span class="section-kicker">Conversion stopped</span><h2>We could not finish this ebook</h2><p>Your source file was not modified. Try another format or report the issue without attaching copyrighted book text.</p></div>
+        <div class="result-actions"><a class="primary-button" href="{{ url_for('get_root') }}">Try again</a><a class="secondary-button" href="https://github.com/itsupera/furiganalyse/issues">Report issue</a></div>
+    </section>
+
+    <section class="job-privacy"><span aria-hidden="true">⌁</span><p><strong>Aggregate telemetry only.</strong> Progress records stages, counts, timing, and sizes—not book text, uploaded filenames, credentials, or provider data.</p></section>
+</main>
+
+<footer class="site-footer"><span>Furiganalyse · deterministic Japanese reading support</span><a href="{{ url_for('get_root') }}">Back to converter</a></footer>
 </body>
+</html>

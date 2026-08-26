@@ -80,6 +80,7 @@ def get_root(request: Request):
         {
             "request": request,
             "supported_input_exts": SUPPORTED_INPUT_EXTS,
+            "supported_input_accept": ",".join(sorted(SUPPORTED_INPUT_EXTS)),
             "known_words_lists": list_available_word_lists(),
         },
     )

@@ -1,329 +1,167 @@
 <!doctype html>
+<html lang="en">
 <head>
-    <title>Furiganalyse</title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript">
-        function fileSelected(form) {
-            form.upload.disabled = false;
-            form.upload.value = "Upload";
-        }
-
-        function updateApplyToDropdown() {
-            var removeSelected = document.getElementById('fm_remove').checked;
-            var dropdown = document.getElementById('known_words_list');
-            var customWordListContainer = document.getElementById('custom_word_list_container');
-            var customWordListInput = document.getElementById('custom_word_list');
-
-            if (removeSelected) {
-                dropdown.value = '';
-                dropdown.disabled = true;
-                customWordListContainer.style.display = 'none';
-                customWordListInput.value = '';
-            } else {
-                dropdown.disabled = false;
-                updateCustomWordListVisibility();
-            }
-        }
-
-        function updateCustomWordListVisibility() {
-            var dropdown = document.getElementById('known_words_list');
-            var customWordListContainer = document.getElementById('custom_word_list_container');
-            var customWordListInput = document.getElementById('custom_word_list');
-            var sliderContainer = document.getElementById('custom_word_list_slider_container');
-
-            if (dropdown.value === '__custom__') {
-                customWordListContainer.style.display = 'block';
-            } else {
-                customWordListContainer.style.display = 'none';
-                customWordListInput.value = '';
-                sliderContainer.style.display = 'none';
-                resetSlider();
-            }
-        }
-
-        function resetSlider() {
-            var slider = document.getElementById('custom_word_list_limit');
-            slider.value = 0;
-            slider.max = 0;
-            updateSliderLabel();
-        }
-
-        function updateSliderFromFile() {
-            var fileInput = document.getElementById('custom_word_list');
-            var sliderContainer = document.getElementById('custom_word_list_slider_container');
-            var slider = document.getElementById('custom_word_list_limit');
-
-            if (!fileInput.files || !fileInput.files[0]) {
-                sliderContainer.style.display = 'none';
-                resetSlider();
-                return;
-            }
-
-            var file = fileInput.files[0];
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                var content = e.target.result;
-                var lines = content.split('\n').filter(function(line) {
-                    return line.trim() !== '';
-                });
-                var wordCount = lines.length;
-
-                slider.max = wordCount;
-                slider.value = wordCount;  // Default to all words
-                sliderContainer.style.display = 'block';
-                updateSliderLabel();
-            };
-
-            reader.readAsText(file);
-        }
-
-        function updateSliderLabel() {
-            var slider = document.getElementById('custom_word_list_limit');
-            var label = document.getElementById('custom_word_list_limit_label');
-            var value = parseInt(slider.value);
-            var max = parseInt(slider.max);
-
-            if (max === 0) {
-                label.textContent = 'No file selected';
-            } else if (value === max) {
-                label.textContent = 'all ' + max + ' words';
-            } else if (value === 0) {
-                label.textContent = 'no exclusions (furigana on all words)';
-            } else {
-                label.textContent = 'first ' + value + ' words';
-            }
-
-            // Update slider track gradient
-            updateSliderTrack();
-        }
-
-        function updateSliderTrack() {
-            var slider = document.getElementById('custom_word_list_limit');
-            var value = parseInt(slider.value);
-            var max = parseInt(slider.max);
-            var percent = max > 0 ? (value / max) * 100 : 0;
-            slider.style.background = 'linear-gradient(to right, #0d6efd 0%, #0d6efd ' + percent + '%, #dee2e6 ' + percent + '%, #dee2e6 100%)';
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('fm_add').addEventListener('change', updateApplyToDropdown);
-            document.getElementById('fm_replace').addEventListener('change', updateApplyToDropdown);
-            document.getElementById('fm_remove').addEventListener('change', updateApplyToDropdown);
-            document.getElementById('known_words_list').addEventListener('change', updateCustomWordListVisibility);
-            document.getElementById('custom_word_list').addEventListener('change', updateSliderFromFile);
-            document.getElementById('custom_word_list_limit').addEventListener('input', updateSliderLabel);
-            updateApplyToDropdown();
-        });
-    </script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
-    <style>
-        /* Custom range slider with two-tone track */
-        .custom-range-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            outline: none;
-            background: #dee2e6;
-            margin: 10px 0;
-        }
-
-        .custom-range-slider::-webkit-slider-runnable-track {
-            height: 8px;
-            border-radius: 4px;
-            background: transparent;
-        }
-
-        .custom-range-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #0d6efd;
-            cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            margin-top: -6px;
-        }
-
-        .custom-range-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #0d6efd;
-            cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .custom-range-slider::-moz-range-track {
-            height: 8px;
-            border-radius: 4px;
-            background: transparent;
-        }
-
-        .custom-range-slider::-moz-range-progress {
-            height: 8px;
-            border-radius: 4px;
-            background: #0d6efd;
-        }
-    </style>
+    <meta name="description" content="Add, replace, or remove furigana in Japanese ebooks.">
+    <title>Furiganalyse · Japanese ebook assistance</title>
     <link href="{{ url_for('assets', path='styles.css') }}" rel="stylesheet">
+    <script src="{{ url_for('assets', path='upload.js') }}" defer></script>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
-<a href="https://github.com/itsupera/furiganalyse" class="github-corner d-none d-sm-block" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
-<div class="main-wrapper">
-<div class="py-3">
-    <h1>📖 Furiganalyse 📖</h1>
-</div>
-<div class="mb-3">
-    <form id="form" action="/submit" method="post" enctype=multipart/form-data>
-        <div class="vstack gap-1">
-            <ul class="list-group">
-                <li class="list-group-item container-sm">
-                    <h3>Select a file (EPUB, AZW3, MOBI, TXT, HTML)</h3>
-                    <div class="mb-3">
-                        <input class="form-control" type="file" name=file accept="{{supported_input_exts}}" multiple="false" oninput="fileSelected(this.form);"/>
+<header class="site-header">
+    <a class="brand" href="{{ url_for('get_root') }}" aria-label="Furiganalyse home">
+        <span class="brand-mark" aria-hidden="true">振</span>
+        <span><strong>Furiganalyse</strong><small>Japanese ebook assistance</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#converter">Converter</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="https://github.com/itsupera/furiganalyse">Source</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-copy">
+            <span class="eyebrow"><span class="status-dot"></span> Deterministic private processing</span>
+            <h1>Make Japanese ebooks easier to read.</h1>
+            <p class="hero-lede">Add local reading support while controlling how existing ruby, generated readings, and writing direction are handled.</p>
+            <div class="hero-points" aria-label="Key benefits">
+                <span>Original file never modified</span>
+                <span>Live conversion progress</span>
+                <span>No provider or model calls</span>
+            </div>
+        </div>
+        <figure class="hero-visual">
+            <img src="{{ url_for('assets', path='furiganalyse.jpg') }}" alt="Japanese text with furigana on an e-reader">
+            <figcaption><ruby>読書<rt>どくしょ</rt></ruby>、自分のペースで。</figcaption>
+        </figure>
+    </section>
+
+    <section class="workspace" id="converter">
+        <form class="converter-card" id="form" action="{{ url_for('task_handler') }}" method="post" enctype="multipart/form-data">
+            <div class="section-heading">
+                <div><span class="section-kicker">Converter</span><h2>Prepare your ebook</h2></div>
+                <span class="step-count">4 steps</span>
+            </div>
+
+            <fieldset class="form-section">
+                <legend><span class="step-number">1</span><span>Choose a book<small>EPUB, AZW3, MOBI, TXT, or HTML</small></span></legend>
+                <label class="file-drop" for="book-file" id="file-drop">
+                    <input id="book-file" type="file" name="file" accept="{{ supported_input_accept }}" required>
+                    <span class="upload-icon" aria-hidden="true">↥</span>
+                    <strong id="file-title">Drop your ebook here</strong>
+                    <span id="file-detail">or click to browse · your original file is never modified</span>
+                </label>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend><span class="step-number">2</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
+                <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
+                    <label class="choice-card">
+                        <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>
+                        <span class="choice-content"><strong>Add</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Keep publisher readings and fill gaps</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="furigana_mode" id="fm_replace" value="replace">
+                        <span class="choice-content"><strong>Replace generated</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Refresh non-publisher assistance</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="furigana_mode" id="fm_remove" value="remove">
+                        <span class="choice-content"><strong>Remove</strong><span class="japanese-preview">次の駅</span><small>Remove generated reading assistance</small></span>
+                    </label>
+                </div>
+
+                <div class="field-row" id="known-words-row">
+                    <label for="known_words_list"><strong>Known-word filter</strong><small>Skip readings for words you already know</small></label>
+                    <select name="known_words_list" id="known_words_list">
+                        <option value="" selected>Apply to all words</option>
+                        {% for list_name, display_name, word_count in known_words_lists %}
+                        <option value="{{ list_name }}">Exclude {{ display_name }} · {{ "{:,}".format(word_count) }} words</option>
+                        {% endfor %}
+                        <option value="__custom__">Use a custom word list</option>
+                    </select>
+                </div>
+
+                <div class="subpanel" id="custom_word_list_container" hidden>
+                    <label for="custom_word_list"><strong>Custom known-word list</strong><small>One word per line · UTF-8 · maximum 1 MB</small></label>
+                    <input type="file" name="custom_word_list" id="custom_word_list" accept=".txt,.csv,text/plain,text/csv">
+                    <div id="custom_word_list_slider_container" hidden>
+                        <div class="range-label"><label for="custom_word_list_limit">Words to exclude</label><output id="custom_word_list_limit_label">No file selected</output></div>
+                        <input type="range" name="custom_word_list_limit" id="custom_word_list_limit" min="0" max="0" value="0">
                     </div>
-                </li>
+                </div>
+            </fieldset>
 
-                <li class="list-group-item container-sm hstack gap-3">
-                    <div class="vstack d-none d-sm-block" style="flex: 3">
-                        <h3>Furigana</h3>
-                        <div class="card">
-                            <div class="card-body" style="font-size: x-large">
-                                <p>次の<ruby>駅<rt>ステーション</rt></ruby></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-none d-sm-block">→</div>
-                    <div class="btn-group" role="group" style="flex: 7">
-                        <input class="btn-check" type="radio" name="furigana_mode" id="fm_add" value="add" checked>
-                        <label class="card btn btn-outline-primary" for="fm_add">
-                            <div class="card-header">
-                                Add
-                            </div>
-                            <div class="card-body" style="font-size: x-large">
-                                <ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>ステーション</rt></ruby>
-                            </div>
-                        </label>
+            <fieldset class="form-section">
+                <legend><span class="step-number">3</span><span>Book layout<small>Preserve or set the reading direction</small></span></legend>
+                <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Writing direction">
+                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb" checked><span class="choice-content"><strong>Horizontal</strong><span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span></span></label>
+                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl"><span class="choice-content"><strong>Vertical · right to left</strong><span class="direction-sample direction-vertical">次の駅で降りた。</span></span></label>
+                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-lr" value="vertical-lr"><span class="choice-content"><strong>Vertical · left to right</strong><span class="direction-sample direction-vertical direction-lr">次の駅で降りた。</span></span></label>
+                </div>
+            </fieldset>
 
-                        <input class="btn-check"  type="radio" name="furigana_mode" id="fm_replace" value="replace">
-                        <label class="card btn btn-outline-primary" for="fm_replace">
-                            <div class="card-header">
-                                Override
-                            </div>
-                            <div class="card-body" style="font-size: x-large">
-                                <ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby>
-                            </div>
-                        </label>
-
-                        <input class="btn-check"  type="radio" name="furigana_mode" id="fm_remove" value="remove">
-                        <label class="card btn btn-outline-primary" for="fm_remove">
-                            <div class="card-header">
-                                Remove
-                            </div>
-                            <div class="card-body" style="font-size: x-large">
-                                次の駅
-                            </div>
-                        </label>
-                    </div>
-                </li>
-
-                <li class="list-group-item container-sm vstack gap-2">
-                    <div class="hstack gap-3">
-                        <h3 class="text-nowrap">Apply to</h3>
-                        <select class="form-select container-sm" name="known_words_list" id="known_words_list" form="form">
-                            <option value="" selected>all words</option>
-                            {% for list_name, display_name, word_count in known_words_lists %}
-                            <option value="{{ list_name }}">words not in {{ display_name }} ({{ word_count }} words)</option>
-                            {% endfor %}
-                            <option value="__custom__">words not in custom list (upload below)</option>
-                        </select>
-                    </div>
-                    <div id="custom_word_list_container" style="display: none;">
-                        <label for="custom_word_list" class="form-label">Upload custom word list (one word per line, UTF-8, max 1MB)</label>
-                        <input class="form-control" type="file" name="custom_word_list" id="custom_word_list" accept=".txt,.csv">
-                        <div id="custom_word_list_slider_container" class="mt-2" style="display: none;">
-                            <label for="custom_word_list_limit" class="form-label">Words to exclude: <span id="custom_word_list_limit_label">No file selected</span></label>
-                            <input type="range" class="custom-range-slider" name="custom_word_list_limit" id="custom_word_list_limit" min="0" max="0" value="0">
-                        </div>
-                    </div>
-                </li>
-
-                <li class="list-group-item container-sm vstack gap-1">
-                    <h3>Writing style</h3>
-                    <div class="btn-group d-flex" role="group">
-                        <input class="btn-check" type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb" checked>
-                        <label class="w-100 card btn btn-outline-primary" for="wm_horizontal-tb">
-                            <div class="card-header">
-                                Horizontal
-                            </div>
-                            <div class="card-body" style="writing-mode: horizontal-tb; font-size: x-large">
-                                <p>次の駅で</p><p>降りた。</p>
-                                <p>↓</p>
-                            </div>
-
-                        </label>
-                        <input class="btn-check" type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl">
-                        <label class="w-100 card btn btn-outline-primary" for="wm_vertical-rl">
-                            <div class="card-header">
-                                Vertical, Right to Left
-                            </div>
-                            <div class="card-body" style="writing-mode: vertical-rl; font-size: x-large">
-                                <p>次の駅で</p><p>降りた。</p>
-                                <p>↓</p>
-                            </div>
-
-                        </label>
-                        <input class="btn-check" type="radio" name="writing_mode" id="wm_vertical-lr" value="vertical-lr">
-                        <label class="w-100 card btn btn-outline-primary" for="wm_vertical-lr">
-                            <div class="card-header">
-                                Vertical, Left to Right
-                            </div>
-                            <div class="card-body" style="writing-mode: vertical-lr; font-size: x-large">
-                                <p>次の駅で</p><p>降りた。</p>
-                                <p>↑</p>
-                            </div>
-
-                        </label>
-                    </div>
-                </li>
-                <li class="list-group-item container-sm hstack">
-                    <h3>Output format</h3>
-                    <select class="form-select container-sm" name="of" id="of" form="form">
-                        <option value="epub" selected>EPUB</option>
+            <fieldset class="form-section form-section--last">
+                <legend><span class="step-number">4</span><span>Output<small>Choose the file you want back</small></span></legend>
+                <div class="field-row">
+                    <label for="of"><strong>Output format</strong><small>EPUB is recommended for reading apps</small></label>
+                    <select name="of" id="of">
+                        <option value="epub" selected>EPUB · recommended</option>
                         <option value="azw3">AZW3</option>
                         <option value="mobi">MOBI</option>
-                        <option value="many_txt">Many text files (one per book part)</option>
+                        <option value="many_txt">ZIP · one text file per book part</option>
                         <option value="single_txt">Single text file</option>
-                        <option value="apkg">Anki Deck (each sentence as a card)</option>
-                        <option value="html">HTML (readable in web browser)</option>
+                        <option value="apkg">Anki deck · legacy sentence cards</option>
+                        <option value="html">HTML document</option>
                     </select>
-                </li>
+                </div>
+            </fieldset>
 
-                <li class="list-group-item container-sm">
-                    <input class="btn btn-primary" type=submit id="upload" name="upload" value=Convert! disabled/>
-                </li>
-            </ul>
-        </div>
-    </form>
-</div>
-<div class="container-sm">
-    <p>
-        This webapp annotates Japanese ebooks (EPUB, AZW3 or MOBI format) with furigana,
-        to help Japanese language learners in their studies.
-    </p>
-    <p>
-        For suggestions and reporting issues, <a href="https://github.com/itsupera/furiganalyse/issues">click here</a>.
-    </p>
-    <p>
-        Source code available on <a href="https://github.com/itsupera/furiganalyse">project page</a>
-    </p>
-</div>
-</div>
+            <div class="submit-panel">
+                <div><strong>Ready when you are</strong><small>Aggregate progress is logged; book text is not included in progress telemetry.</small></div>
+                <button class="primary-button" type="submit" id="upload" disabled><span>Convert ebook</span><span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+
+        <aside class="capability-column" id="capabilities">
+            <section class="info-card">
+                <span class="section-kicker">Available in the web converter</span>
+                <h2>Reading controls that work today</h2>
+                <ul class="feature-list">
+                    <li><span>読</span><div><strong>Furigana modes</strong><small>Add, replace, or remove generated readings.</small></div></li>
+                    <li><span>級</span><div><strong>Known-word filters</strong><small>JLPT lists or your own explicit local list.</small></div></li>
+                    <li><span>縦</span><div><strong>Writing direction</strong><small>Horizontal and both vertical directions.</small></div></li>
+                    <li><span>進</span><div><strong>Live progress</strong><small>Sections, characters, elapsed time, rate, and ETA.</small></div></li>
+                </ul>
+            </section>
+
+            <section class="info-card info-card--tinted">
+                <div class="card-title-row"><span class="section-kicker">Reviewed pipeline</span><span class="status-badge">CLI · synthetic fixtures</span></div>
+                <h2>Vocabulary, grammar, and adaptive assistance</h2>
+                <p>Deterministic Phase 7/8 mechanics have passed fixture and Calibre review:</p>
+                <div class="pipeline-list">
+                    <span>Vocabulary &amp; expression notes</span>
+                    <span>Grammar contexts &amp; backlinks</span>
+                    <span>Learner assistance states</span>
+                    <span>Exposure-aware density</span>
+                    <span>Adaptive XHTML &amp; EPUB packaging</span>
+                </div>
+                <p class="fine-print">These controls are not yet enabled for arbitrary uploaded books. Current presets and grammar data are synthetic regression fixtures, not production learner assessments.</p>
+            </section>
+
+            <section class="privacy-card">
+                <span aria-hidden="true">⌁</span>
+                <div><strong>Privacy boundary</strong><p>No provider, SDK, model, or network dictionary lookup runs during conversion. Temporary jobs are cleaned by the server retention policy.</p></div>
+            </section>
+        </aside>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <span>Furiganalyse · deterministic Japanese reading support</span>
+    <span><a href="https://github.com/itsupera/furiganalyse/issues">Report an issue</a> · <a href="https://www.buymeacoffee.com/itsupera">Support the project</a></span>
+</footer>
 </body>
+</html>
