@@ -193,6 +193,9 @@ progress::-webkit-progress-value { background: linear-gradient(90deg, var(--acce
 progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), #56a879); border-radius: 999px; }
 .progress-track-note { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: .7rem; }
 .metric-grid { margin-top: 28px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--radius-small); overflow: hidden; }
+.metric-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; margin-top: 14px !important; }
+.metric-grid--two article:nth-child(2n) { border-right: 0 !important; }
+.metric-grid--two article { border-bottom: 0 !important; }
 .metric-grid article { min-height: 120px; padding: 18px; display: flex; gap: 11px; border-right: 1px solid var(--line); background: #fcfcf9; }
 .metric-grid article:nth-child(3n) { border-right: 0; }
 .metric-grid article:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
@@ -200,6 +203,9 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .metric-grid small, .metric-grid span:not(.metric-icon) { color: var(--muted); font-size: .66rem; }
 .metric-grid strong { margin: 4px 0; font-size: 1rem; }
 .metric-icon { flex: 0 0 28px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--accent-dark); background: var(--accent-light); }
+.bilingual-progress-panel { margin-top: 24px; padding: 18px 20px; border: 1px solid #cce3d4; border-radius: var(--radius-small); background: #f2f8f4; }
+.bilingual-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.status-badge--active { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent); }
 .stage-strip { margin-top: 26px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
 .stage-strip span { position: relative; padding-top: 16px; color: #8a958e; text-align: center; font-size: .66rem; }
 .stage-strip span::before { content: ""; position: absolute; top: 4px; left: 0; right: 0; height: 3px; background: #dfe5df; }

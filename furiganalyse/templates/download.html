@@ -47,6 +47,31 @@
             <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
 
+        <div id="bilingual-progress-panel" class="bilingual-progress-panel" hidden>
+            <div class="bilingual-progress-header">
+                <span class="section-kicker">LLM Bilingual Companion</span>
+                <span class="status-badge" id="bilingual-status-badge">Standby</span>
+            </div>
+            <div class="metric-grid metric-grid--two">
+                <article>
+                    <span class="metric-icon" aria-hidden="true">🤖</span>
+                    <div>
+                        <small>Translation Engine &amp; Model</small>
+                        <strong id="progress-trans-model">Local Ollama · qwen2.5:3b</strong>
+                        <span id="progress-trans-backend">Self-hosted local inference</span>
+                    </div>
+                </article>
+                <article>
+                    <span class="metric-icon" aria-hidden="true">訳</span>
+                    <div>
+                        <small>Companion Paragraphs</small>
+                        <strong id="progress-trans-paragraphs">0 / 0 paragraphs</strong>
+                        <span id="progress-trans-cache">0 disk cache hits</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+
         <div class="stage-strip" aria-label="Conversion stages">
             <span>Prepare</span><span>Analyze</span><span>Dictionary</span><span>Select</span><span>Adapt</span><span>Package</span>
         </div>

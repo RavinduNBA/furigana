@@ -60,8 +60,11 @@ def test_job_page_renders_all_progress_metrics_and_safe_result_states():
         "conversion-progress", "progress-sections", "progress-characters",
         "progress-remaining", "progress-elapsed", "progress-eta", "progress-rate",
         "progress-size", "progress-words", "progress-matches", "result", "error",
+        "bilingual-progress-panel", "progress-trans-model", "progress-trans-paragraphs",
+        "progress-trans-cache", "bilingual-status-badge",
     ):
         assert f'id="{element_id}"' in html
+    assert "LLM Bilingual Companion" in html
     assert "Why sections, not pages?" in html
     assert "Aggregate telemetry only" in html
     assert '<script src="https://' not in html

@@ -63,6 +63,35 @@
         byId("progress-size").textContent = formatBytes(progress.input_bytes) + " → " + formatBytes(progress.output_bytes);
         byId("progress-status-note").textContent = progress.stage === "processing" ?
             "Adding furigana in canonical section order" : combinedPrefix + stageLabel(progress.stage);
+
+        const transPanel = byId("bilingual-progress-panel");
+        if (transPanel && (progress.translation_backend || progress.stage === "bilingual-translation")) {
+            transPanel.hidden = false;
+            const modelEl = byId("progress-trans-model");
+            const backendEl = byId("progress-trans-backend");
+            const paraEl = byId("progress-trans-paragraphs");
+            const cacheEl = byId("progress-trans-cache");
+            const badgeEl = byId("bilingual-status-badge");
+
+            if (modelEl && progress.translation_backend) modelEl.textContent = progress.translation_backend;
+            if (backendEl) {
+                backendEl.textContent = progress.stage === "bilingual-translation" ?
+                    "Translating scene batches on local CPU…" :
+                    (progress.stage === "complete" ? "Companion translation ready" : "Self-hosted local inference");
+            }
+            if (paraEl && progress.translation_paragraphs_total !== undefined) {
+                paraEl.textContent = formatNumber(progress.translation_paragraphs_completed || 0) + " / " + formatNumber(progress.translation_paragraphs_total) + " paragraphs";
+            }
+            if (cacheEl && progress.translation_cache_hits !== undefined) {
+                cacheEl.textContent = formatNumber(progress.translation_cache_hits) + " disk cache hits · " + formatNumber(progress.translation_chapters_completed || 0) + " / " + formatNumber(progress.translation_chapters_total || 0) + " chapters";
+            }
+            if (badgeEl) {
+                const isActive = progress.stage === "bilingual-translation";
+                badgeEl.textContent = isActive ? "Translating" : (progress.stage === "complete" ? "Ready" : "Active");
+                badgeEl.classList.toggle("status-badge--active", isActive);
+            }
+        }
+
         updateStages(progress.stage);
     }
     function showComplete() {

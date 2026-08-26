@@ -637,7 +637,6 @@ def run_dictionary_study_pipeline(
     )
 
     if options.bilingual_companion:
-        progress({"stage": "bilingual-translation"})
         from furiganalyse.bilingual_context import build_book_context
         from furiganalyse.bilingual_epub import package_bilingual_epub
         from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
@@ -653,15 +652,52 @@ def run_dictionary_study_pipeline(
         trans_cache = TranslationCache(cache_dir=work / "translation_cache")
         translated_chapters = []
 
-        for ch in book.get("chapters", []):
+        chapters = book.get("chapters", [])
+        total_chapters = len(chapters)
+        total_paragraphs = sum(len(ch.get("blocks", [])) for ch in chapters)
+        completed_paragraphs = 0
+        total_cache_hits = 0
+
+        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
+        provider_display = "Local Ollama · qwen2.5:3b" if options.bilingual_provider == "ollama" else (
+            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
+                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+            )
+        )
+
+        progress({
+            "stage": "bilingual-translation",
+            "translation_model": model_name,
+            "translation_backend": provider_display,
+            "translation_chapters_completed": 0,
+            "translation_chapters_total": total_chapters,
+            "translation_paragraphs_completed": 0,
+            "translation_paragraphs_total": total_paragraphs,
+            "translation_cache_hits": 0,
+        })
+
+        for i, ch in enumerate(chapters, start=1):
             trans_ch = translate_chapter(
                 ch,
                 book_context,
                 provider=provider,
                 cache=trans_cache,
-                model=options.bilingual_model or "gpt-4o-mini",
+                model=model_name,
             )
             translated_chapters.append(trans_ch)
+            completed_paragraphs += len(trans_ch.paragraphs)
+            total_cache_hits += trans_ch.cache_hits
+
+            progress({
+                "stage": "bilingual-translation",
+                "translation_model": model_name,
+                "translation_backend": provider_display,
+                "translation_chapters_completed": i,
+                "translation_chapters_total": total_chapters,
+                "translation_paragraphs_completed": completed_paragraphs,
+                "translation_paragraphs_total": total_paragraphs,
+                "translation_cache_hits": total_cache_hits,
+            })
 
         package_bilingual_epub(base_epub_target, output, translated_chapters)
 
