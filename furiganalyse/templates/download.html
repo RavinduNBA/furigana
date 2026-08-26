@@ -20,6 +20,10 @@
         <span class="brand-mark" aria-hidden="true">振</span>
         <span><strong>Furiganalyse</strong><small>Japanese ebook assistance {% if app_version %}<span class="version-tag">v{{ app_version }}</span>{% endif %}</small></span>
     </a>
+    <nav class="site-nav">
+        <a href="{{ url_for('get_root') }}">Converter</a>
+        <a href="{{ url_for('get_ollama_dashboard') }}"><strong>Ollama Dashboard</strong></a>
+    </nav>
     <span class="header-status"><span class="status-dot status-dot--pulse"></span><span id="header-status-text">Conversion running</span></span>
 </header>
 

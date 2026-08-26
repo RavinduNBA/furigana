@@ -112,6 +112,67 @@ def get_root(request: Request):
     )
 
 
+@app.get("/ollama", response_class=HTMLResponse)
+def get_ollama_dashboard(request: Request):
+    open_webui_port = os.environ.get("OPEN_WEBUI_PORT", "8080")
+    # Build URL to open webui on current host
+    host = request.headers.get("host", "localhost:5000").split(":")[0]
+    open_webui_url = f"http://{host}:{open_webui_port}"
+    return templates.TemplateResponse(
+        "ollama.html",
+        {
+            "request": request,
+            "app_version": APP_VERSION,
+            "open_webui_url": open_webui_url,
+        },
+    )
+
+
+@app.get("/api/ollama/status")
+def get_ollama_status_api():
+    from furiganalyse.ollama_dashboard import get_ollama_dashboard_data
+    return JSONResponse(get_ollama_dashboard_data())
+
+
+@app.post("/api/ollama/pull")
+async def post_ollama_pull_api(request: Request):
+    from furiganalyse.ollama_dashboard import _http_post
+    body = await request.json()
+    model = body.get("model", "").strip()
+    if not model:
+        return JSONResponse(status_code=400, content={"error": "Model name required"})
+    try:
+        res = _http_post("/api/pull", {"name": model, "stream": False}, timeout=600)
+        return JSONResponse(res)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
+@app.delete("/api/ollama/model")
+def delete_ollama_model_api(name: str):
+    from furiganalyse.ollama_dashboard import _http_delete
+    if not name:
+        return JSONResponse(status_code=400, content={"error": "Model name required"})
+    try:
+        res = _http_delete("/api/delete", {"name": name})
+        return JSONResponse(res)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
+@app.post("/api/ollama/test")
+async def post_ollama_test_api(request: Request):
+    from furiganalyse.ollama_dashboard import run_translation_test
+    body = await request.json()
+    model = body.get("model", "qwen2.5:3b")
+    text = body.get("text", "司波達也は静かに立ち上がった。")
+    try:
+        res = run_translation_test(model=model, japanese_text=text)
+        return JSONResponse(res)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
 @app.get("/api/recent_conversions")
 def get_recent_conversions_api():
     return JSONResponse(load_recent_conversions(OUTPUT_FOLDER))

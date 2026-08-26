@@ -125,3 +125,36 @@ def test_recent_conversions_lifecycle_and_rendering(tmp_path):
     assert "book_11 - Guided.epub" in html
     assert "Download" in html
 
+
+def test_ollama_dashboard_template_renders():
+    html = templates.get_template("ollama.html").render({
+        "request": request("/ollama"),
+        "app_version": "0.7.8",
+        "open_webui_url": "http://127.0.0.1:8080",
+    })
+
+    for element_id in (
+        "ollama-online-badge", "ollama-version-display", "ollama-latency-display",
+        "ram-percent-badge", "ram-used-display", "ram-total-display", "ram-avail-display",
+        "disk-percent-badge", "disk-free-display", "disk-used-display",
+        "models-table-body", "pull-model-input", "pull-model-btn", "pull-status-box",
+        "sandbox-model", "sandbox-japanese", "sandbox-submit-btn", "sandbox-result",
+    ):
+        assert f'id="{element_id}"' in html
+    assert "Ollama Telemetry &amp; Models" in html
+    assert "Open WebUI ↗" in html
+
+
+def test_ollama_dashboard_data_and_telemetry():
+    from furiganalyse.ollama_dashboard import get_ollama_dashboard_data, get_system_telemetry
+
+    telemetry = get_system_telemetry()
+    assert "cpu_count" in telemetry
+    assert "mem_total_bytes" in telemetry
+    assert "disk_total_bytes" in telemetry
+
+    data = get_ollama_dashboard_data()
+    assert "online" in data
+    assert "installed_models" in data
+    assert "telemetry" in data
+

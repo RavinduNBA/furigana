@@ -1,0 +1,217 @@
+(function () {
+    "use strict";
+
+    function byId(id) { return document.getElementById(id); }
+
+    function formatBytes(bytes) {
+        if (!bytes) return "0 B";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+        if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
+        return (bytes / 1073741824).toFixed(2) + " GB";
+    }
+
+    async function fetchDashboardData() {
+        try {
+            const resp = await fetch("/api/ollama/status");
+            if (!resp.ok) throw new Error("Dashboard status unavailable");
+            const data = await resp.json();
+            updateUI(data);
+        } catch (err) {
+            console.error("Dashboard fetch error:", err);
+            byId("ollama-online-badge").textContent = "Offline";
+            byId("ollama-online-badge").className = "status-badge status-badge--error";
+        }
+    }
+
+    function updateUI(data) {
+        // 1. Service Status
+        const onlineBadge = byId("ollama-online-badge");
+        if (data.online) {
+            onlineBadge.textContent = "Online · v" + data.version;
+            onlineBadge.className = "status-badge status-badge--active";
+            byId("ollama-version-display").textContent = "Ollama v" + data.version;
+            byId("ollama-latency-display").textContent = data.latency_ms + " ms";
+        } else {
+            onlineBadge.textContent = "Offline";
+            onlineBadge.className = "status-badge status-badge--error";
+            byId("ollama-version-display").textContent = "Offline";
+            byId("ollama-latency-display").textContent = "—";
+        }
+
+        // 2. Hardware Telemetry
+        const tel = data.telemetry || {};
+        if (tel.mem_total_bytes) {
+            byId("ram-percent-badge").textContent = tel.mem_percent + "%";
+            byId("ram-used-display").textContent = formatBytes(tel.mem_used_bytes);
+            byId("ram-total-display").textContent = "of " + formatBytes(tel.mem_total_bytes) + " total RAM";
+            byId("ram-avail-display").textContent = formatBytes(tel.mem_available_bytes);
+        }
+        if (tel.disk_total_bytes) {
+            byId("disk-percent-badge").textContent = tel.disk_percent + "%";
+            byId("disk-free-display").textContent = formatBytes(tel.disk_free_bytes);
+            byId("disk-used-display").textContent = formatBytes(tel.disk_used_bytes);
+        }
+
+        // 3. Models Table
+        const tbody = byId("models-table-body");
+        const select = byId("sandbox-model");
+        const runningNames = (data.loaded_models || []).map(m => m.name || m.model);
+
+        if (!data.installed_models || data.installed_models.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="table-empty-cell">No models found in local storage. Pull one below.</td></tr>';
+            select.innerHTML = '<option value="">No models installed</option>';
+            return;
+        }
+
+        let rowsHtml = "";
+        let selectHtml = "";
+
+        data.installed_models.forEach(function (m) {
+            const isLoaded = runningNames.includes(m.name) || runningNames.includes(m.model);
+            const statusBadge = isLoaded ?
+                '<span class="status-badge status-badge--active">Loaded in RAM</span>' :
+                '<span class="status-badge">On Disk</span>';
+
+            const family = (m.details && m.details.family) ? m.details.family : (m.name.split(":")[0]);
+            const quant = (m.details && m.details.quantization_level) ? m.details.quantization_level : "Q4_K_M";
+
+            rowsHtml += `
+                <tr>
+                    <td><strong>${m.name}</strong></td>
+                    <td>${formatBytes(m.size)}</td>
+                    <td><span class="mode-pill">${family} · ${quant}</span></td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="small-btn test-model-btn" data-model="${m.name}" type="button">Test</button>
+                        <button class="small-btn small-btn--danger delete-model-btn" data-model="${m.name}" type="button">Delete</button>
+                    </td>
+                </tr>
+            `;
+
+            selectHtml += `<option value="${m.name}">${m.name} (${formatBytes(m.size)})</option>`;
+        });
+
+        tbody.innerHTML = rowsHtml;
+        select.innerHTML = selectHtml;
+
+        // Bind delete & test buttons
+        document.querySelectorAll(".delete-model-btn").forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                const modelName = btn.dataset.model;
+                if (confirm("Are you sure you want to delete model '" + modelName + "'?")) {
+                    btn.disabled = true;
+                    btn.textContent = "Deleting…";
+                    try {
+                        const r = await fetch("/api/ollama/model?name=" + encodeURIComponent(modelName), {method: "DELETE"});
+                        if (r.ok) {
+                            fetchDashboardData();
+                        } else {
+                            alert("Failed to delete model.");
+                        }
+                    } catch (e) {
+                        alert("Error: " + e.message);
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll(".test-model-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                select.value = btn.dataset.model;
+                byId("sandbox-japanese").scrollIntoView({behavior: "smooth"});
+            });
+        });
+    }
+
+    // Model Pull Handler
+    const pullBtn = byId("pull-model-btn");
+    const pullInput = byId("pull-model-input");
+    const pullStatusBox = byId("pull-status-box");
+    const pullStatusText = byId("pull-status-text");
+
+    if (pullBtn) {
+        pullBtn.addEventListener("click", async function () {
+            const model = pullInput.value.trim();
+            if (!model) return;
+
+            pullBtn.disabled = true;
+            pullStatusBox.hidden = false;
+            pullStatusText.textContent = "Pulling model '" + model + "' in background… (this may take a minute)";
+
+            try {
+                const res = await fetch("/api/ollama/pull", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({model: model})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    pullStatusText.textContent = "Successfully downloaded '" + model + "'!";
+                    pullInput.value = "";
+                    fetchDashboardData();
+                } else {
+                    pullStatusText.textContent = "Failed: " + (data.error || "Unknown error");
+                }
+            } catch (err) {
+                pullStatusText.textContent = "Error pulling model: " + err.message;
+            } finally {
+                pullBtn.disabled = false;
+            }
+        });
+    }
+
+    document.querySelectorAll(".tag-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            pullInput.value = btn.dataset.model;
+        });
+    });
+
+    // Translation Sandbox Handler
+    const sandboxBtn = byId("sandbox-submit-btn");
+    if (sandboxBtn) {
+        sandboxBtn.addEventListener("click", async function () {
+            const model = byId("sandbox-model").value;
+            const text = byId("sandbox-japanese").value.trim();
+            if (!text || !model) return;
+
+            sandboxBtn.disabled = true;
+            sandboxBtn.querySelector("span").textContent = "Translating…";
+            const resultBox = byId("sandbox-result");
+            const metaBox = byId("sandbox-meta");
+
+            resultBox.innerHTML = '<span class="sandbox-placeholder">Translating with ' + model + '…</span>';
+            metaBox.hidden = true;
+
+            try {
+                const res = await fetch("/api/ollama/test", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({model: model, text: text})
+                });
+                const data = await res.json();
+
+                if (res.ok && data.english) {
+                    resultBox.textContent = data.english;
+                    byId("sandbox-time").textContent = (data.duration_ms / 1000).toFixed(2) + "s";
+                    byId("sandbox-tokens").textContent = data.eval_count + " tokens";
+                    byId("sandbox-speed").textContent = data.tokens_per_second + " tok/s";
+                    metaBox.hidden = false;
+                } else {
+                    resultBox.textContent = "Error: " + (data.error || "Translation returned empty result");
+                }
+            } catch (err) {
+                resultBox.textContent = "Request error: " + err.message;
+            } finally {
+                sandboxBtn.disabled = false;
+                sandboxBtn.querySelector("span").textContent = "Translate Japanese";
+            }
+        });
+    }
+
+    const refreshBtn = byId("refresh-models-btn");
+    if (refreshBtn) refreshBtn.addEventListener("click", fetchDashboardData);
+
+    fetchDashboardData();
+    setInterval(fetchDashboardData, 10000);
+}());
