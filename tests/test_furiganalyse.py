@@ -81,11 +81,12 @@ from furiganalyse.parsing import (
             """
             <body class="p-text">
               <div class="main2">
-                <p id="1">1つの<ruby>成功体験<rt>せいこうたいけん</rt></ruby>は<a>ハーバード<ruby>大学<rt>だいがく</rt></ruby>。</a>その<ruby>真<rt>ま</rt></ruby>ん<ruby>中<rt>なか</rt></ruby>を<span>はじめに、<ruby>第一<rt>だいいち</rt></ruby>。</span>
+                <p id="1">1つの<ruby>成功<rt>せいこう</rt></ruby><ruby>体験<rt>たいけん</rt></ruby>は<a>ハーバード<ruby>大学<rt>だいがく</rt></ruby>。</a>その<ruby>真<rt>ま</rt></ruby>ん<ruby>中<rt>なか</rt></ruby>を<span>はじめに、<ruby>第<rt>だい</rt></ruby><ruby>一<rt>いち</rt></ruby>。</span>
                 </p>その<ruby>後<rt>ご</rt></ruby>で</div>
             </body>
             """,
         ),
+
         (
             "Romaji is not modified",
             '<body><p id="2">No kanji around here<br class="main"/></p></body>',

@@ -135,7 +135,12 @@ def build_guided_reading_plan(
                 "reason": "publisher-ruby-preserved",
             })
             continue
-        kind = "function" if category in FUNCTION_CATEGORIES else "unmatched"
+        pos_str = token.get("part_of_speech") or ""
+        is_function = (
+            category in FUNCTION_CATEGORIES
+            or ("非自立" in pos_str and token["surface"] in {"の", "こと", "もの", "わけ", "はず", "よう", "ほう"})
+        )
+        kind = "function" if is_function else "unmatched"
         meaning = (
             _function_gloss(token["surface"], token["lemma"], category)
             if kind == "function"
@@ -166,7 +171,9 @@ def build_guided_reading_plan(
         kind, surface, lemma, reading, part_of_speech, meaning = key
         item_id = f"guided-item-{item_number:05d}"
         occurrences = []
-        for occurrence_number, token in enumerate(tokens, 1):
+        # For grammar/particles (function words), only link the first occurrence in the book
+        target_tokens = [tokens[0]] if kind == "function" else tokens
+        for occurrence_number, token in enumerate(target_tokens, 1):
             occurrence_id = f"{item_id}-occ-{occurrence_number:05d}"
             occurrences.append({
                 "id": occurrence_id,
@@ -352,7 +359,9 @@ def render_guided_reading(
                 and not _has_ancestor(owner, "a", parents)
                 and not _has_ancestor(owner, "ruby", parents)
             )
-            if local_name(owner.tag) == "a" and first.attribute == "tail":
+            # Text in the tail of a ruby or a element is positioned *after*
+            # the closing tag and is safe to wrap in a guided-link.
+            if local_name(owner.tag) in {"a", "ruby"} and first.attribute == "tail":
                 safe = (
                     owner is last.owner
                     and first.attribute == last.attribute
