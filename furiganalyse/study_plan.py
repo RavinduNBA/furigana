@@ -14,6 +14,10 @@ SCHEMA_VERSION = 1
 DISPLAY_MEANING_MAX_CHARS = 120
 ITEM_KINDS = {"vocabulary", "expression", "name"}
 
+# Single-character kanji numerals that appear in dates and numbers and should
+# never be classified as JMNedict proper names.
+_NUMERIC_KANJI = frozenset("一二三四五六七八九十百千万億〇零")
+
 
 class StudyPlanError(ValueError):
     """Raised when an annotation plan or its schema-v4 source is invalid."""
@@ -163,7 +167,11 @@ def _short_meaning(value: str) -> str:
 
 
 def _source_key(value: _Proposal):
-    priority = {"expression": 0, "name": 1, "vocabulary": 2}[value.kind]
+    # Expressions are preferred first (longest match wins).
+    # JMdict vocabulary is preferred over JMNedict names so that common words
+    # like 確認, 最初, 記録 are not misclassified as proper names when furigana
+    # ruby has altered the tokenisation context.
+    priority = {"expression": 0, "vocabulary": 1, "name": 2}[value.kind]
     return (
         value.chapter_id,
         value.block_id,
@@ -255,6 +263,10 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
             raise StudyPlanError(
                 f"Unknown candidate token: {candidate.get('token_id')}"
             )
+        pos = token.get("part_of_speech") or candidate.get("part_of_speech") or ""
+        surface = candidate.get("surface") or token.get("surface") or ""
+        if pos.startswith(("助詞", "助動詞", "記号")) or ("非自立" in pos and surface in {"の", "こと", "もの", "わけ", "はず", "よう", "ほう"}):
+            continue
         entries = _required_list(match.get("entries"), "JMdict entries")
         if not entries or not entries[0].get("senses"):
             raise StudyPlanError(f"JMdict match has no senses: {match.get('id')}")
@@ -364,10 +376,28 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
             )
         )
 
+    # Build a set of candidate IDs that already have a JMdict vocabulary match
+    # so we can skip JMnedict name proposals that would only shadow them.
+    vocabulary_candidate_ids = {
+        match["candidate_id"]
+        for match in report["dictionary_matches"]
+        if "candidate_id" in match
+    }
+
     for match in report["name_dictionary_matches"]:
         name = names.get(match.get("name_id"))
         if name is None:
             raise StudyPlanError(f"Unknown name match: {match.get('name_id')}")
+        # Skip: the same span already has a JMdict vocabulary match — vocabulary
+        # wins over names by design (changed in _source_key priority order as
+        # well, but filtering here avoids producing a ghost proposal entirely).
+        if name.get("candidate_id") in vocabulary_candidate_ids:
+            continue
+        # Skip: single numeric kanji (一, 九, 年 in dates, etc.) matched as
+        # JMNedict person/place names — these are never meaningful name entries.
+        surface = name.get("surface", "")
+        if len(surface) == 1 and surface in _NUMERIC_KANJI:
+            continue
         entries = _required_list(match.get("entries"), "JMnedict entries")
         if not entries or not entries[0].get("translations"):
             raise StudyPlanError(f"Name match has no translations: {match.get('id')}")
