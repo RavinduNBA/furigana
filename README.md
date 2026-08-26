@@ -103,6 +103,21 @@ The web deployment uses one API worker so its in-process job registry remains
 consistent; conversion work still runs concurrently in a separate process
 pool.
 
+### Lightsail systemd service
+
+The checked-in [`deploy/furiganalyse.service`](deploy/furiganalyse.service)
+runs the web app as the unprivileged `ubuntu` user and restarts it after a
+failure. Install it on the Lightsail host with:
+
+```bash
+sudo ln -sfn /home/ubuntu/furiganalyse/deploy/furiganalyse.service /etc/systemd/system/furiganalyse.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now furiganalyse.service
+```
+
+Deployments can then use `sudo systemctl restart furiganalyse.service`, with
+health checked locally at `http://127.0.0.1:5000/`.
+
 Local development setup
 ------------------------
 
