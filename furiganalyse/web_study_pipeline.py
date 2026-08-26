@@ -182,6 +182,24 @@ a.study-link:focus, a.grammar-link:focus, a.study-note__backlink:focus,
 a.grammar-note__backlink:focus { outline: 2px solid #d28b00 !important; }
 """
 
+WEB_NOTE_STYLE = """
+html, body { writing-mode: horizontal-tb !important; -webkit-writing-mode: horizontal-tb !important;
+  margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+.study-notes, .grammar-notes { writing-mode: horizontal-tb !important;
+  -webkit-writing-mode: horizontal-tb !important; direction: ltr; box-sizing: border-box;
+  width: 100%; min-width: 0; max-width: 42rem; margin: 0 auto; padding: .8rem 1rem 2rem;
+  overflow-wrap: anywhere; word-break: normal; text-align: start; }
+.study-note, .grammar-study-note { writing-mode: horizontal-tb !important;
+  -webkit-writing-mode: horizontal-tb !important; box-sizing: border-box;
+  min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.study-note__context, .grammar-study-note__context { box-sizing: border-box;
+  max-width: 100%; margin: .5em 0; padding: .5em .75em; overflow-wrap: anywhere; }
+.study-note__details, .grammar-study-note__details { max-width: 100%; }
+.study-note__details dd, .grammar-study-note__details dd { margin-left: 1em; }
+.study-note__heading, .grammar-study-note__heading,
+.study-note__backlink, .grammar-study-note__backlink { overflow-wrap: anywhere; }
+"""
+
 
 def _prepare_web_linked_files(files: dict[str, bytes]) -> dict[str, bytes]:
     """Add scoped reader-facing affordances without changing publisher CSS."""
@@ -199,6 +217,14 @@ def _prepare_web_linked_files(files: dict[str, bytes]) -> dict[str, bytes]:
             "type": "text/css",
         })
         style.text = WEB_LINK_STYLE
+        if path.endswith(("/study-notes.xhtml", "/grammar-notes.xhtml")):
+            root.set("lang", "ja")
+            root.set("{http://www.w3.org/XML/1998/namespace}lang", "ja")
+            note_style = ET.SubElement(head, xhtml + "style", {
+                "id": "furiganalyse-web-note-style",
+                "type": "text/css",
+            })
+            note_style.text = WEB_NOTE_STYLE
         if path.endswith("/study-notes.xhtml"):
             body = root.find(xhtml + "body")
             if body is None:

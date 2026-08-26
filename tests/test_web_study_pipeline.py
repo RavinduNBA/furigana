@@ -106,7 +106,20 @@ def test_dictionary_study_and_experimental_epubs_are_deterministic(
                 for name in archive.namelist()
                 if name.endswith(".xhtml")
             )
+            note_name = next(
+                name for name in archive.namelist()
+                if name.endswith("/study-notes.xhtml")
+            )
+            note_root = ET.fromstring(archive.read(note_name))
+            note_style = note_root.find(
+                f"{X}head/{X}style[@id='furiganalyse-web-note-style']"
+            )
         assert "furiganalyse-web-link-style" in xhtml
+        assert note_root.get("lang") == "ja"
+        assert note_root.get("{http://www.w3.org/XML/1998/namespace}lang") == "ja"
+        assert note_style is not None
+        assert "writing-mode: horizontal-tb !important" in note_style.text
+        assert "max-width: 100%; margin: .5em 0" in note_style.text
         assert "not sentence translation" in xhtml
         if experimental:
             assert xhtml.count('class="adaptive-meaning-assistance"') == summaries[0][
