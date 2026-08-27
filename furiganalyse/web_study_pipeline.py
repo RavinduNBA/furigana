@@ -454,6 +454,78 @@ def _bounded_web_report(
     return bounded_report
 
 
+def _sanitize_plan_for_linked_output(
+    source: Path, book: dict[str, Any], plan: dict[str, Any]
+) -> dict[str, Any]:
+    from furiganalyse.linked_output import _leaf_blocks, _visible_map
+
+    if not source.exists():
+        return plan
+
+    with zipfile.ZipFile(source) as z:
+        archive_files = {name: z.read(name) for name in z.namelist()}
+
+    block_refs = {}
+    for ch in book.get("chapters", []):
+        ch_path = ch.get("source_path")
+        if not ch_path or ch_path not in archive_files:
+            continue
+        try:
+            root = ET.fromstring(archive_files[ch_path])
+            blocks_xml = list(_leaf_blocks(root))
+            for i, b in enumerate(ch.get("blocks", [])):
+                if i < len(blocks_xml):
+                    _, refs, rubies = _visible_map(blocks_xml[i])
+                    block_refs[b["id"]] = (refs, rubies)
+        except Exception:
+            continue
+
+    sanitized_items = []
+    dropped_count = 0
+    for item in plan.get("items", []):
+        valid_occs = []
+        for occ in item.get("occurrences", []):
+            b_id = occ.get("block_id")
+            if b_id in block_refs:
+                refs, rubies = block_refs[b_id]
+                start, end = occ.get("block_start", 0), occ.get("block_end", 0)
+                if occ.get("annotation_target") == "ruby":
+                    valid_occs.append(occ)
+                elif end <= len(refs):
+                    first, last = refs[start], refs[end - 1]
+                    contained = [
+                        v for v in rubies if v.start >= start and v.end <= end
+                    ]
+                    if contained or (
+                        first.owner is last.owner
+                        and first.attribute == last.attribute
+                    ):
+                        valid_occs.append(occ)
+                    else:
+                        dropped_count += 1
+                else:
+                    dropped_count += 1
+            else:
+                valid_occs.append(occ)
+
+        if valid_occs:
+            item_copy = dict(item)
+            for num, occ in enumerate(valid_occs, start=1):
+                occ["occurrence_number"] = num
+                occ["id"] = f"{item['id']}-occ-{num:04d}"
+                occ["source_anchor_id"] = f"src-{item['id']}-occ-{num:04d}"
+            item_copy["occurrences"] = valid_occs
+            item_copy["source_anchor_id"] = valid_occs[0]["source_anchor_id"]
+            item_copy["sentence_id"] = valid_occs[0]["sentence_id"]
+            sanitized_items.append(item_copy)
+
+    if dropped_count > 0:
+        result = dict(plan)
+        result["items"] = sanitized_items
+        return result
+    return plan
+
+
 def run_dictionary_study_pipeline(
     input_epub: str | Path,
     output_epub: str | Path,
@@ -683,6 +755,7 @@ def run_dictionary_study_pipeline(
                 _write_json(work / "annotation-plan-enriched.json", annotation_plan)
 
     progress({"stage": "linked-rendering", "study_items": len(annotation_plan["items"])})
+    annotation_plan = _sanitize_plan_for_linked_output(source, book, annotation_plan)
     linked = create_linked_output(source, book, annotation_plan)
     guided_plan = None
     guided_report = None
