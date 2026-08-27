@@ -1,6 +1,11 @@
 (function () {
     "use strict";
 
+    const OLLAMA_STATUS_ENDPOINT = "/api/ollama/status";
+    const BYTES_PER_KB = 1024;
+    const BYTES_PER_MB = 1048576;
+    const BYTES_PER_GB = 1073741824;
+
     const form = document.getElementById("form");
     if (!form) return;
 
@@ -28,9 +33,9 @@
     const studyLimit = document.getElementById("per_chapter_item_limit");
 
     function formatBytes(bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-        return (bytes / 1048576).toFixed(1) + " MB";
+        if (bytes < BYTES_PER_KB) return bytes + " B";
+        if (bytes < BYTES_PER_MB) return (bytes / BYTES_PER_KB).toFixed(1) + " KB";
+        return (bytes / BYTES_PER_MB).toFixed(1) + " MB";
     }
 
     function updateBookFile() {
@@ -92,7 +97,6 @@
         const combined = pipelineCombined && pipelineCombined.checked;
         const guided = pipelineGuided && pipelineGuided.checked;
         const dictionary = study || combined || guided;
-        const assistedFurigana = combined || guided;
         const replaceMode = document.getElementById("fm_replace");
         const removeMode = document.getElementById("fm_remove");
         replaceMode.disabled = false;
@@ -155,11 +159,30 @@
             updateBookFile();
         }
     });
-    const bilingualCompanion = document.getElementById("bilingual_companion");
-    const bilingualSettings = document.getElementById("bilingual-settings");
-    const bilingualProvider = document.getElementById("bilingual_provider");
-    const bilingualKeyRow = document.getElementById("bilingual-key-row");
-    const bilingualUrlRow = document.getElementById("bilingual-url-row");
+    const bilingualModelInput = document.getElementById("bilingual_model");
+    const bilingualKeyInput = document.getElementById("bilingual_api_key");
+    const bilingualUrlInput = document.getElementById("bilingual_base_url");
+
+    function applyProviderPlaceholders(prov, modelInput, keyInput, urlInput) {
+        if (!modelInput || !keyInput || !urlInput) return;
+        if (prov === "hetzner") {
+            modelInput.placeholder = "e.g. Qwen/Qwen3.6-35B-A3B-FP8 (default)";
+            keyInput.placeholder = "Hetzner API Token (from experiments.hetzner.com)";
+            urlInput.placeholder = "inference.hetzner.com/api/v1 (default)";
+        } else if (prov === "openai") {
+            modelInput.placeholder = "e.g. gpt-4o-mini (default), gpt-4o";
+            keyInput.placeholder = "sk-...";
+            urlInput.placeholder = "api.openai.com/v1 (default)";
+        } else if (prov === "openrouter") {
+            modelInput.placeholder = "e.g. anthropic/claude-3.5-sonnet";
+            keyInput.placeholder = "sk-or-v1-...";
+            urlInput.placeholder = "openrouter.ai/api/v1 (default)";
+        } else if (prov === "ollama") {
+            modelInput.placeholder = "e.g. qwen2.5:3b, qwen2.5:7b";
+            keyInput.placeholder = "Not required for local Ollama";
+            urlInput.placeholder = "localhost:11434/v1 (default)";
+        }
+    }
 
     function updateBilingual() {
         if (!bilingualCompanion || !bilingualSettings) return;
@@ -169,6 +192,7 @@
             const prov = bilingualProvider.value;
             if (bilingualKeyRow) bilingualKeyRow.hidden = (prov === "none" || prov === "ollama");
             if (bilingualUrlRow) bilingualUrlRow.hidden = (prov === "none");
+            applyProviderPlaceholders(prov, bilingualModelInput, bilingualKeyInput, bilingualUrlInput);
         }
     }
 
@@ -182,6 +206,9 @@
     const llmProvider = document.getElementById("llm_provider");
     const llmEnrichKeyRow = document.getElementById("llm-enrich-key-row");
     const llmEnrichUrlRow = document.getElementById("llm-enrich-url-row");
+    const llmModelInput = document.getElementById("llm_model");
+    const llmKeyInput = document.getElementById("llm_api_key");
+    const llmUrlInput = document.getElementById("llm_base_url");
 
     function updateLLMEnrich() {
         if (!llmEnrichSettings) return;
@@ -192,6 +219,7 @@
             const prov = llmProvider.value;
             if (llmEnrichKeyRow) llmEnrichKeyRow.hidden = (prov === "none" || prov === "ollama");
             if (llmEnrichUrlRow) llmEnrichUrlRow.hidden = (prov === "none");
+            applyProviderPlaceholders(prov, llmModelInput, llmKeyInput, llmUrlInput);
         }
     }
 
@@ -203,6 +231,7 @@
         submitButton.disabled = true;
         submitButton.querySelector("span").textContent = "Uploading…";
     });
+
     async function loadInstalledOllamaModels() {
         const modelInput = document.getElementById("bilingual_model");
         const llmModelInput = document.getElementById("llm_model");
@@ -210,7 +239,7 @@
         if (!modelInputs.length) return;
 
         try {
-            const resp = await fetch("/api/ollama/status");
+            const resp = await fetch(OLLAMA_STATUS_ENDPOINT);
             if (!resp.ok) return;
             const data = await resp.json();
             if (data.installed_models && data.installed_models.length > 0) {
@@ -221,7 +250,7 @@
                     document.body.appendChild(datalist);
                 }
                 datalist.innerHTML = data.installed_models.map(m => {
-                    const sz = m.size ? ` (${(m.size / 1073741824).toFixed(1)} GB)` : "";
+                    const sz = m.size ? ` (${(m.size / BYTES_PER_GB).toFixed(1)} GB)` : "";
                     return `<option value="${m.name}">${m.name}${sz}</option>`;
                 }).join("");
                 modelInputs.forEach(input => {

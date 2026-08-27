@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Add, replace, or remove furigana in Japanese ebooks.">
     <title>Furiganalyse · Japanese ebook assistance</title>
-    <link href="{{ url_for('assets', path='styles.css') }}?v=20260826c" rel="stylesheet">
-    <script src="{{ url_for('assets', path='upload.js') }}?v=20260826c" defer></script>
+    <link href="{{ url_for('assets', path='styles.css') }}{% if app_version %}?v={{ app_version }}{% endif %}" rel="stylesheet">
+    <script src="{{ url_for('assets', path='upload.js') }}{% if app_version %}?v={{ app_version }}{% endif %}" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -15,10 +15,10 @@
         <span><strong>Furiganalyse</strong><small>Japanese ebook assistance {% if app_version %}<span class="version-tag">v{{ app_version }}</span>{% endif %}</small></span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
-        <a href="#converter">Converter</a>
+        <a href="#converter" class="is-active">Converter</a>
         <a href="#recent">Recent</a>
         <a href="#capabilities">Capabilities</a>
-        <a href="{{ url_for('get_ollama_dashboard') }}"><strong>Ollama Dashboard</strong></a>
+        <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
         <a href="https://github.com/RavinduNBA/furigana">Source</a>
     </nav>
 </header>
@@ -45,7 +45,7 @@
         <form class="converter-card" id="form" action="{{ url_for('task_handler') }}" method="post" enctype="multipart/form-data">
             <div class="section-heading">
                 <div><span class="section-kicker">Converter</span><h2>Prepare your ebook</h2></div>
-                <span class="step-count">5 steps</span>
+                <span class="step-count">7 steps</span>
             </div>
 
             <fieldset class="form-section">
@@ -184,21 +184,22 @@
                         <label for="bilingual_provider"><strong>Translation backend</strong><small>Select LLM provider or local endpoint</small></label>
                         <select name="bilingual_provider" id="bilingual_provider">
                             <option value="none">Offline rule-based fallback (No API key needed)</option>
-                            <option value="ollama" selected>Local Ollama · qwen2.5:3b (Installed & Ready)</option>
+                            <option value="hetzner">Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
+                            <option value="ollama" selected>Local Ollama · qwen2.5:3b (Installed &amp; Ready)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
                         </select>
                     </div>
                     <div class="field-row" id="bilingual-key-row">
                         <label for="bilingual_api_key"><strong>API Key</strong><small>Used only for this conversion session; never permanently logged</small></label>
-                        <input type="password" name="bilingual_api_key" id="bilingual_api_key" placeholder="sk-..." autocomplete="off">
+                        <input type="password" name="bilingual_api_key" id="bilingual_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
                     <div class="field-row" id="bilingual-model-row">
-                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>Choose installed Ollama model (e.g. qwen2.5:3b, qwen2.5:7b) or custom</small></label>
-                        <input type="text" name="bilingual_model" id="bilingual_model" placeholder="e.g. qwen2.5:3b, qwen2.5:7b">
+                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small></label>
+                        <input type="text" name="bilingual_model" id="bilingual_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="bilingual-url-row">
-                        <label for="bilingual_base_url"><strong>Custom API base URL (optional)</strong><small>e.g. http://localhost:11434/v1</small></label>
+                        <label for="bilingual_base_url"><strong>Custom API base URL (optional)</strong><small>Leave blank for provider default</small></label>
                         <input type="text" name="bilingual_base_url" id="bilingual_base_url" placeholder="Default endpoint URL">
                     </div>
                 </div>
@@ -229,21 +230,22 @@
                         <label for="llm_provider"><strong>LLM backend</strong><small>Same provider as bilingual companion, or configure independently</small></label>
                         <select name="llm_provider" id="llm_provider">
                             <option value="none">Off (no enrichment)</option>
+                            <option value="hetzner">Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
                             <option value="ollama" selected>Local Ollama · qwen2.5:3b or 7b</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="openrouter">OpenRouter (Claude, DeepSeek, Llama 3)</option>
                         </select>
                     </div>
                     <div class="field-row" id="llm-enrich-model-row">
-                        <label for="llm_model"><strong>Model (optional)</strong><small>Leave blank to use the same model as bilingual companion, or specify e.g. qwen2.5:3b</small></label>
-                        <input type="text" name="llm_model" id="llm_model" placeholder="e.g. qwen2.5:3b">
+                        <label for="llm_model"><strong>Model (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small></label>
+                        <input type="text" name="llm_model" id="llm_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="llm-enrich-key-row">
-                        <label for="llm_api_key"><strong>API Key</strong><small>Leave blank if using Ollama</small></label>
-                        <input type="password" name="llm_api_key" id="llm_api_key" placeholder="sk-..." autocomplete="off">
+                        <label for="llm_api_key"><strong>API Key</strong><small>Leave blank if using local Ollama</small></label>
+                        <input type="password" name="llm_api_key" id="llm_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
                     <div class="field-row" id="llm-enrich-url-row">
-                        <label for="llm_base_url"><strong>Custom base URL (optional)</strong><small>e.g. http://localhost:11434/v1</small></label>
+                        <label for="llm_base_url"><strong>Custom base URL (optional)</strong><small>Leave blank for provider default</small></label>
                         <input type="text" name="llm_base_url" id="llm_base_url" placeholder="Default endpoint">
                     </div>
                 </div>
@@ -340,7 +342,7 @@
 
 <footer class="site-footer">
     <span>Furiganalyse{% if app_version %} v{{ app_version }}{% endif %} · dictionary data from <a href="https://www.edrdg.org/">EDRDG</a> under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></span>
-    <span><a href="https://github.com/itsupera/furiganalyse/issues">Report an issue</a> · <a href="https://www.buymeacoffee.com/itsupera">Support the project</a></span>
+    <span><a href="https://github.com/RavinduNBA/furigana/issues">Report an issue</a> · <a href="https://github.com/RavinduNBA/furigana">GitHub</a></span>
 </footer>
 </body>
 </html>

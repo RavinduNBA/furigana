@@ -122,7 +122,10 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         max_retries: int = 3,
     ):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
-        self.base_url = base_url.rstrip("/")
+        raw_url = (base_url or "https://api.openai.com/v1").strip().rstrip("/")
+        if not (raw_url.startswith("http://") or raw_url.startswith("https://")):
+            raw_url = "https://" + raw_url
+        self.base_url = raw_url
         self.default_model = default_model
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
@@ -221,17 +224,20 @@ def get_llm_provider(
     name = (provider_name or "mock").lower()
     if name == "mock":
         return MockLLMProvider()
-    if name in {"openai", "openrouter", "ollama", "vllm", "deepseek", "openai_compatible"}:
+    if name in {"openai", "openrouter", "ollama", "vllm", "deepseek", "hetzner", "openai_compatible"}:
         default_url = {
             "openai": "https://api.openai.com/v1",
             "openrouter": "https://openrouter.ai/api/v1",
             "ollama": "http://localhost:11434/v1",
             "deepseek": "https://api.deepseek.com/v1",
+            "hetzner": "https://inference.hetzner.com/api/v1",
         }.get(name, "https://api.openai.com/v1")
         default_model = model
         if not default_model:
             if name == "ollama":
                 default_model = "qwen2.5:3b"
+            elif name == "hetzner":
+                default_model = "Qwen/Qwen3.6-35B-A3B-FP8"
             elif name == "openai":
                 default_model = "gpt-4o-mini"
             elif name == "deepseek":

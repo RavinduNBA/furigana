@@ -797,8 +797,10 @@ def run_dictionary_study_pipeline(
 
         model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
         provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
-            f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
-                f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+            f"Hetzner · {model_name}" if options.bilingual_provider == "hetzner" else (
+                f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
+                    f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+                )
             )
         )
 
