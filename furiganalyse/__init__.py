@@ -1,3 +1,3 @@
-"""Furiganalyse: Japanese ebook reading assistance and dictionary study."""
+"""Furiganalyse — Japanese EPUB assistance, furigana generation, and study companion."""
 
-__version__ = "0.7.9"
+__version__ = "0.8.0"

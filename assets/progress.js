@@ -4,6 +4,8 @@
     const config = window.furiganalyseJob;
     if (!config) return;
 
+    let latestProgressData = null;
+
     const DEFAULT_POLL_INTERVAL_MS = 1000;
     const INITIAL_POLL_DELAY_MS = 250;
     const BYTES_PER_KB = 1024;
