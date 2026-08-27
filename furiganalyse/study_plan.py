@@ -285,8 +285,10 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
         reading = candidate.get("reading") if publisher else (
             candidate_reading
             if prefer_occurrence_reading and candidate_reading
-            else (readings[0].get("text") if readings else candidate_reading)
+            else (readings[0].get("text") if readings and readings[0].get("text") else (candidate_reading or candidate.get("reading") or candidate["surface"]))
         )
+        if not reading:
+            reading = candidate.get("reading") or candidate_reading or candidate["surface"]
         proposals.append(
             _Proposal(
                 kind="vocabulary",
@@ -342,6 +344,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
         selected_sense = selected_entry["senses"][0]
         glosses = _required_list(selected_sense.get("glosses"), "expression glosses")
         readings = _required_list(selected_entry.get("readings"), "expression readings")
+        expr_reading = (readings[0].get("text") if readings and readings[0].get("text") else None) or expression.get("reading") or expression["surface"]
         proposals.append(
             _Proposal(
                 kind="expression",
@@ -349,7 +352,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 surface=expression["surface"],
                 lemma=None,
                 normalized_form=expression["normalized_form"],
-                reading=readings[0].get("text") if readings else None,
+                reading=expr_reading,
                 reading_source="JMdict",
                 chapter_id=expression["chapter_id"],
                 block_id=expression["block_id"],
@@ -414,6 +417,9 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 f"Incomplete JMnedict translation: {selected_translation.get('id')}"
             )
         meaning = f"{translations[0]} ({'; '.join(name_types)})"
+        name_readings = selected_entry.get("readings", [])
+        name_entry_reading = name_readings[0].get("text") if name_readings else None
+        name_reading = name.get("reading") or name_entry_reading or name["surface"]
         proposals.append(
             _Proposal(
                 kind="name",
@@ -421,8 +427,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 surface=name["surface"],
                 lemma=None,
                 normalized_form=None,
-                reading=name.get("reading")
-                or selected_entry["readings"][0].get("text"),
+                reading=name_reading,
                 reading_source=(
                     "publisher"
                     if name.get("classification_evidence") == "publisher_ruby"

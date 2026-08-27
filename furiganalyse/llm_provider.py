@@ -118,8 +118,8 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         api_key: str | None = None,
         base_url: str = "https://api.openai.com/v1",
         default_model: str = "gpt-4o-mini",
-        timeout_seconds: int = 60,
-        max_retries: int = 3,
+        timeout_seconds: int = 15,
+        max_retries: int = 2,
     ):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
         raw_url = (base_url or "https://api.openai.com/v1").strip().rstrip("/")
@@ -202,9 +202,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             except urllib.error.HTTPError as exc:
                 err_msg = exc.read().decode("utf-8", errors="replace")
                 logger.warning(f"HTTP {exc.code} from LLM provider (attempt {attempt}/{self.max_retries}): {err_msg}")
-                if attempt == self.max_retries or exc.code in {400, 401, 403}:
+                if attempt == self.max_retries or exc.code in {400, 401, 403, 404, 429}:
                     raise LLMProviderError(f"LLM API HTTP {exc.code}: {err_msg}") from exc
-                time.sleep(2**attempt)
+                time.sleep(1)
             except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
                 logger.warning(f"Connection error to LLM provider (attempt {attempt}/{self.max_retries}): {exc}")
                 if attempt == self.max_retries:
@@ -245,11 +245,13 @@ def get_llm_provider(
             else:
                 default_model = "gpt-4o-mini"
 
-        timeout = 240 if name == "ollama" else 90
+        timeout = 180 if name == "ollama" else 15
+        retries = 2 if name == "ollama" else 1
         return OpenAICompatibleProvider(
             api_key=api_key,
             base_url=base_url or default_url,
             default_model=default_model,
             timeout_seconds=timeout,
+            max_retries=retries,
         )
     raise ValueError(f"Unsupported LLM provider: {provider_name}")

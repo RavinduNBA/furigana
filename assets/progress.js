@@ -306,18 +306,33 @@
         if (cancelBtn) cancelBtn.hidden = true;
     }
 
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 6;
+
     async function poll() {
         try {
             const response = await fetch(config.statusUrl, {headers: {"Accept": "application/json"}, cache: "no-store"});
-            if (!response.ok) throw new Error("status unavailable");
+            if (!response.ok) {
+                consecutiveErrors++;
+                if (consecutiveErrors <= MAX_CONSECUTIVE_ERRORS) {
+                    return window.setTimeout(poll, DEFAULT_POLL_INTERVAL_MS);
+                }
+                throw new Error("status unavailable");
+            }
             const data = await response.json();
+            consecutiveErrors = 0;
             updateProgress(data.progress);
             if (data.status === "complete") return showComplete(data.progress);
             if (data.status === "cancelled" || (data.progress && data.progress.stage === "cancelled")) return showCancelled();
             if (data.status === "error") return showError();
             window.setTimeout(poll, DEFAULT_POLL_INTERVAL_MS);
         } catch (error) {
-            showError();
+            consecutiveErrors++;
+            if (consecutiveErrors <= MAX_CONSECUTIVE_ERRORS) {
+                window.setTimeout(poll, DEFAULT_POLL_INTERVAL_MS);
+            } else {
+                showError();
+            }
         }
     }
 
