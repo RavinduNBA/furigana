@@ -204,8 +204,53 @@
                 </div>
             </fieldset>
 
+            <fieldset class="form-section" id="llm-enrich-section">
+                <legend><span class="step-number">6</span><span>LLM Intelligence <small>Optional context-aware enrichment of furigana and study notes</small></span></legend>
+                <div class="field-row">
+                    <label class="checkbox-row" for="llm_enrich_nouns">
+                        <input type="checkbox" name="llm_enrich_nouns" id="llm_enrich_nouns" value="true">
+                        <span>
+                            <strong>Proper noun furigana correction</strong>
+                            <small>Sends unrecognised character names and world terms to the LLM to get the correct author-intended reading. One batch call per book, cached on re-conversion.</small>
+                        </span>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="checkbox-row" for="llm_enrich_glosses">
+                        <input type="checkbox" name="llm_enrich_glosses" id="llm_enrich_glosses" value="true">
+                        <span>
+                            <strong>Contextual study note glosses</strong>
+                            <small>Replaces generic JMdict definitions with book-specific usage descriptions for selected study items (e.g. "magic circuit monitor" instead of generic "nurse").</small>
+                        </span>
+                    </label>
+                </div>
+                <div id="llm-enrich-settings" class="bilingual-settings" hidden>
+                    <div class="field-row">
+                        <label for="llm_provider"><strong>LLM backend</strong><small>Same provider as bilingual companion, or configure independently</small></label>
+                        <select name="llm_provider" id="llm_provider">
+                            <option value="none">Off (no enrichment)</option>
+                            <option value="ollama" selected>Local Ollama · qwen2.5:3b or 7b</option>
+                            <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
+                            <option value="openrouter">OpenRouter (Claude, DeepSeek, Llama 3)</option>
+                        </select>
+                    </div>
+                    <div class="field-row" id="llm-enrich-model-row">
+                        <label for="llm_model"><strong>Model (optional)</strong><small>Leave blank to use the same model as bilingual companion, or specify e.g. qwen2.5:3b</small></label>
+                        <input type="text" name="llm_model" id="llm_model" placeholder="e.g. qwen2.5:3b">
+                    </div>
+                    <div class="field-row" id="llm-enrich-key-row">
+                        <label for="llm_api_key"><strong>API Key</strong><small>Leave blank if using Ollama</small></label>
+                        <input type="password" name="llm_api_key" id="llm_api_key" placeholder="sk-..." autocomplete="off">
+                    </div>
+                    <div class="field-row" id="llm-enrich-url-row">
+                        <label for="llm_base_url"><strong>Custom base URL (optional)</strong><small>e.g. http://localhost:11434/v1</small></label>
+                        <input type="text" name="llm_base_url" id="llm_base_url" placeholder="Default endpoint">
+                    </div>
+                </div>
+            </fieldset>
+
             <fieldset class="form-section form-section--last">
-                <legend><span class="step-number">6</span><span>Output<small>Choose the file you want back</small></span></legend>
+                <legend><span class="step-number">7</span><span>Output<small>Choose the file you want back</small></span></legend>
                 <div class="field-row">
                     <label for="of"><strong>Output format</strong><small>EPUB is recommended for reading apps</small></label>
                     <select name="of" id="of">

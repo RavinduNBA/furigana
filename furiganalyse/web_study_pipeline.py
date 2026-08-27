@@ -64,6 +64,13 @@ class WebStudyOptions:
     bilingual_api_key: str | None = None
     bilingual_base_url: str | None = None
     bilingual_model: str | None = None
+    # LLM enrichment options (independent of bilingual companion)
+    llm_enrich_nouns: bool = False    # Module 4: proper noun furigana correction
+    llm_enrich_glosses: bool = False  # Module 3: contextual study note glosses
+    llm_provider: str = "none"
+    llm_api_key: str | None = None
+    llm_base_url: str | None = None
+    llm_model: str | None = None
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -540,6 +547,52 @@ def run_dictionary_study_pipeline(
     del vocabulary_model
     del base_report
     gc.collect()
+
+    # Module 4: LLM Proper Noun Furigana Correction (optional, independent of bilingual companion)
+    if options.llm_enrich_nouns and options.llm_provider not in {"none", "", None}:
+        from furiganalyse.proper_noun_resolver import (
+            apply_proper_noun_overrides,
+            collect_unresolved_proper_nouns,
+            resolve_proper_nouns,
+        )
+        from furiganalyse.llm_provider import get_llm_provider
+
+        enrich_model = options.llm_model or options.bilingual_model
+        progress({
+            "stage": "tokenizing",
+            "log": f"Module 4: Collecting unresolved proper nouns for LLM furigana correction…",
+        })
+        unresolved = collect_unresolved_proper_nouns(vocabulary, book)
+        if unresolved:
+            progress({
+                "stage": "tokenizing",
+                "log": f"Module 4: Found {len(unresolved)} proper nouns not in JMnedict — sending to {enrich_model or options.llm_provider} for correction…",
+            })
+            llm_provider_instance = get_llm_provider(
+                provider_name=options.llm_provider,
+                api_key=options.llm_api_key,
+                base_url=options.llm_base_url,
+                model=enrich_model,
+            )
+            overrides = resolve_proper_nouns(
+                unresolved,
+                llm_provider_instance,
+                model=enrich_model,
+                cache_dir=work / "llm_cache",
+                progress_callback=progress,
+            )
+            if overrides:
+                vocabulary = apply_proper_noun_overrides(vocabulary, overrides)
+                progress({
+                    "stage": "tokenizing",
+                    "log": f"Module 4 complete: patched {len(overrides)} proper noun readings in vocabulary",
+                })
+        else:
+            progress({
+                "stage": "tokenizing",
+                "log": "Module 4: All proper nouns already resolved by JMnedict — no LLM call needed",
+            })
+
     _write_json(work / "book.json", book)
     _write_json(work / "vocabulary.json", vocabulary)
 
@@ -564,6 +617,40 @@ def run_dictionary_study_pipeline(
     ))
     annotation_plan = promote_dictionary_only_plan(phase4_plan)
     _write_json(work / "annotation-plan.json", annotation_plan)
+
+    # Module 3: LLM Contextual Study Note Gloss Enrichment (optional, all conversion modes)
+    if options.llm_enrich_glosses and options.llm_provider not in {"none", "", None}:
+        from furiganalyse.contextual_gloss import (
+            apply_gloss_enrichments,
+            collect_gloss_candidates,
+            enrich_glosses,
+        )
+        from furiganalyse.llm_provider import get_llm_provider as _get_llm
+
+        enrich_model = options.llm_model or options.bilingual_model
+        gloss_candidates = collect_gloss_candidates(annotation_plan, book)
+        if gloss_candidates:
+            progress({
+                "stage": "study-selection",
+                "log": f"Module 3: Enriching {len(gloss_candidates)} study note glosses with {enrich_model or options.llm_provider}\u2026",
+            })
+            _llm = _get_llm(
+                provider_name=options.llm_provider,
+                api_key=options.llm_api_key,
+                base_url=options.llm_base_url,
+                model=enrich_model,
+            )
+            glosses = enrich_glosses(
+                gloss_candidates,
+                _llm,
+                model=enrich_model,
+                cache_dir=work / "llm_cache",
+                progress_callback=progress,
+            )
+            if glosses:
+                annotation_plan = apply_gloss_enrichments(annotation_plan, glosses)
+                _write_json(work / "annotation-plan-enriched.json", annotation_plan)
+
     progress({"stage": "linked-rendering", "study_items": len(annotation_plan["items"])})
     linked = create_linked_output(source, book, annotation_plan)
     guided_plan = None

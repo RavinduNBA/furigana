@@ -175,13 +175,39 @@
     if (bilingualCompanion) bilingualCompanion.addEventListener("change", updateBilingual);
     if (bilingualProvider) bilingualProvider.addEventListener("change", updateBilingual);
 
+    // LLM enrichment panel toggle
+    const llmEnrichNouns = document.getElementById("llm_enrich_nouns");
+    const llmEnrichGlosses = document.getElementById("llm_enrich_glosses");
+    const llmEnrichSettings = document.getElementById("llm-enrich-settings");
+    const llmProvider = document.getElementById("llm_provider");
+    const llmEnrichKeyRow = document.getElementById("llm-enrich-key-row");
+    const llmEnrichUrlRow = document.getElementById("llm-enrich-url-row");
+
+    function updateLLMEnrich() {
+        if (!llmEnrichSettings) return;
+        const eitherChecked = (llmEnrichNouns && llmEnrichNouns.checked) ||
+                              (llmEnrichGlosses && llmEnrichGlosses.checked);
+        llmEnrichSettings.hidden = !eitherChecked;
+        if (eitherChecked && llmProvider) {
+            const prov = llmProvider.value;
+            if (llmEnrichKeyRow) llmEnrichKeyRow.hidden = (prov === "none" || prov === "ollama");
+            if (llmEnrichUrlRow) llmEnrichUrlRow.hidden = (prov === "none");
+        }
+    }
+
+    if (llmEnrichNouns) llmEnrichNouns.addEventListener("change", updateLLMEnrich);
+    if (llmEnrichGlosses) llmEnrichGlosses.addEventListener("change", updateLLMEnrich);
+    if (llmProvider) llmProvider.addEventListener("change", updateLLMEnrich);
+
     form.addEventListener("submit", function () {
         submitButton.disabled = true;
         submitButton.querySelector("span").textContent = "Uploading…";
     });
     async function loadInstalledOllamaModels() {
         const modelInput = document.getElementById("bilingual_model");
-        if (!modelInput) return;
+        const llmModelInput = document.getElementById("llm_model");
+        const modelInputs = [modelInput, llmModelInput].filter(Boolean);
+        if (!modelInputs.length) return;
 
         try {
             const resp = await fetch("/api/ollama/status");
@@ -193,15 +219,17 @@
                     datalist = document.createElement("datalist");
                     datalist.id = "ollama-models-list";
                     document.body.appendChild(datalist);
-                    modelInput.setAttribute("list", "ollama-models-list");
                 }
                 datalist.innerHTML = data.installed_models.map(m => {
                     const sz = m.size ? ` (${(m.size / 1073741824).toFixed(1)} GB)` : "";
                     return `<option value="${m.name}">${m.name}${sz}</option>`;
                 }).join("");
-                if (!modelInput.value && data.installed_models[0]) {
-                    modelInput.placeholder = "e.g. " + data.installed_models[0].name;
-                }
+                modelInputs.forEach(input => {
+                    input.setAttribute("list", "ollama-models-list");
+                    if (!input.value && data.installed_models[0]) {
+                        input.placeholder = "e.g. " + data.installed_models[0].name;
+                    }
+                });
             }
         } catch (e) {}
     }
@@ -210,6 +238,7 @@
     updateMode();
     updatePipeline();
     updateBilingual();
+    updateLLMEnrich();
     loadInstalledOllamaModels();
     updateBookFile();
 }());

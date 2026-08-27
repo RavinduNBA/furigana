@@ -216,6 +216,12 @@ async def task_handler(
     bilingual_api_key: str = Form(default=""),
     bilingual_base_url: str = Form(default=""),
     bilingual_model: str = Form(default=""),
+    llm_enrich_nouns: bool = Form(default=False),
+    llm_enrich_glosses: bool = Form(default=False),
+    llm_provider: str = Form(default="none"),
+    llm_api_key: str = Form(default=""),
+    llm_base_url: str = Form(default=""),
+    llm_model: str = Form(default=""),
     redirect: bool = Form(default=True),
 ):
     if pipeline_mode not in {"furigana", "study", "combined", "guided"}:
@@ -320,6 +326,12 @@ async def task_handler(
         bilingual_api_key,
         bilingual_base_url,
         bilingual_model,
+        llm_enrich_nouns,
+        llm_enrich_glosses,
+        llm_provider,
+        llm_api_key,
+        llm_base_url,
+        llm_model,
     )
 
     if redirect:
@@ -363,6 +375,12 @@ def furiganalyse_task(
     bilingual_api_key: str = "",
     bilingual_base_url: str = "",
     bilingual_model: str = "",
+    llm_enrich_nouns: bool = False,
+    llm_enrich_glosses: bool = False,
+    llm_provider: str = "none",
+    llm_api_key: str = "",
+    llm_base_url: str = "",
+    llm_model: str = "",
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
     output_filename = generate_output_filename(filename, output_format, pipeline_mode)
@@ -444,6 +462,12 @@ def furiganalyse_task(
                     bilingual_api_key=bilingual_api_key if bilingual_api_key else None,
                     bilingual_base_url=bilingual_base_url if bilingual_base_url else None,
                     bilingual_model=bilingual_model if bilingual_model else None,
+                    llm_enrich_nouns=llm_enrich_nouns,
+                    llm_enrich_glosses=llm_enrich_glosses,
+                    llm_provider=llm_provider if llm_provider else "none",
+                    llm_api_key=llm_api_key if llm_api_key else None,
+                    llm_base_url=llm_base_url if llm_base_url else None,
+                    llm_model=llm_model if llm_model else None,
                 ),
                 progress_callback=dictionary_progress,
             )
