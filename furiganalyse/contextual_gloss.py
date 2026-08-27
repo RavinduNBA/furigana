@@ -233,6 +233,9 @@ def enrich_glosses(
                         all_glosses[item_id] = gloss
         except Exception as exc:
             logger.warning("enrich_glosses: batch %d failed (%s), skipping", batch_num, exc)
+            if "403" in str(exc) or "401" in str(exc) or "not permitted" in str(exc):
+                logger.warning("enrich_glosses: LLM auth/permission error — stopping enrichment batches early")
+                break
 
     if progress_callback:
         try:

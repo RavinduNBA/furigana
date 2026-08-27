@@ -555,6 +555,20 @@ def furiganalyse_task(
 async def status_handler(uid: UUID):
     job = jobs.get(uid)
     if not job:
+        # Disk fallback for surviving server restarts
+        task_folder = Path(OUTPUT_FOLDER) / str(uid)
+        progress_path = task_folder / "progress.json"
+        if progress_path.is_file():
+            prog = read_progress(str(progress_path))
+            status_str = "complete" if (prog and prog.get("stage") == "complete") else (
+                "error" if (prog and prog.get("stage") == "error") else "in_progress"
+            )
+            return {
+                "uid": str(uid),
+                "status": status_str,
+                "progress": prog,
+                "result": None,
+            }
         return Response("Uid not found!", status_code=404)
     value = job.model_dump()
     value["progress"] = read_progress(job.progress_path) if job.progress_path else None
@@ -611,43 +625,51 @@ def delete_recent_conversion_api(uid: str):
 @app.get('/jobs/{uid}/file')
 def get_file(uid: UUID):
     job = jobs.get(uid)
+    task_folder = Path(OUTPUT_FOLDER) / str(uid)
+
+    if job and job.result:
+        file_path = decode_filepath(job.result)
+        if os.path.isfile(file_path):
+            return FileResponse(path=file_path, filename=os.path.basename(file_path))
+
+    # Disk fallback (e.g. after server restart or recent conversions list)
+    if task_folder.is_dir():
+        candidates = [
+            f for f in task_folder.iterdir()
+            if f.is_file()
+            and f.name not in {"progress.json", "custom_word_list.txt"}
+            and not f.name.endswith("-stage.epub")
+            and not f.name.startswith(".")
+            and "Bilingual Companion" not in f.name
+            and f.suffix in {".epub", ".azw3", ".mobi", ".zip", ".txt", ".html", ".apkg"}
+        ]
+        if candidates:
+            target = sorted(candidates, key=lambda p: p.stat().st_mtime, reverse=True)[0]
+            return FileResponse(path=str(target), filename=target.name)
+
     if not job:
         return Response("Uid not found!", status_code=404)
 
-    prog = read_progress(job.progress_path) if job.progress_path else None
-    main_ready = prog and prog.get("main_file_ready")
-
-    if job.status != "complete" and not main_ready:
-        return Response("Job not completed yet!", status_code=400)
-
-    if not job.result:
-        return Response("Something went wrong!", status_code=500)
-
-    file_path = decode_filepath(job.result)
-    if not os.path.isfile(file_path):
-        return Response("Converted file not ready yet!", status_code=400)
-
-    filename = os.path.basename(file_path)
-    return FileResponse(path=file_path, filename=filename)
+    return Response("File not ready yet!", status_code=400)
 
 
 @app.get('/jobs/{uid}/bilingual_file')
 def get_bilingual_file(uid: UUID):
+    task_folder = Path(OUTPUT_FOLDER) / str(uid)
+    if task_folder.is_dir():
+        companion_candidates = [
+            f for f in task_folder.iterdir()
+            if f.is_file() and "Bilingual Companion" in f.name and f.suffix == ".epub"
+        ]
+        if companion_candidates:
+            target = companion_candidates[0]
+            return FileResponse(path=str(target), filename=target.name)
+
     job = jobs.get(uid)
     if not job:
         return Response("Uid not found!", status_code=404)
 
-    task_folder = Path(OUTPUT_FOLDER) / str(uid)
-    companion_candidates = [
-        f for f in task_folder.iterdir()
-        if f.is_file() and "Bilingual Companion" in f.name and f.suffix == ".epub"
-    ]
-    if not companion_candidates:
-        return Response("Bilingual companion not ready yet!", status_code=400)
-
-    file_path = str(companion_candidates[0])
-    filename = os.path.basename(file_path)
-    return FileResponse(path=file_path, filename=filename)
+    return Response("Bilingual companion not found!", status_code=404)
 
 
 OUTPUT_FORMAT_TO_EXTENSION = {
