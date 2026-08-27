@@ -185,10 +185,8 @@
     }
 
     function updateBilingual() {
-        if (!bilingualCompanion || !bilingualSettings) return;
-        const enabled = bilingualCompanion.checked;
-        bilingualSettings.hidden = !enabled;
-        if (enabled && bilingualProvider) {
+        if (!bilingualSettings) return;
+        if (bilingualProvider) {
             const prov = bilingualProvider.value;
             if (bilingualKeyRow) bilingualKeyRow.hidden = (prov === "none" || prov === "ollama");
             if (bilingualUrlRow) bilingualUrlRow.hidden = (prov === "none");
@@ -212,10 +210,7 @@
 
     function updateLLMEnrich() {
         if (!llmEnrichSettings) return;
-        const eitherChecked = (llmEnrichNouns && llmEnrichNouns.checked) ||
-                              (llmEnrichGlosses && llmEnrichGlosses.checked);
-        llmEnrichSettings.hidden = !eitherChecked;
-        if (eitherChecked && llmProvider) {
+        if (llmProvider) {
             const prov = llmProvider.value;
             if (llmEnrichKeyRow) llmEnrichKeyRow.hidden = (prov === "none" || prov === "ollama");
             if (llmEnrichUrlRow) llmEnrichUrlRow.hidden = (prov === "none");

@@ -179,13 +179,13 @@
                         </span>
                     </label>
                 </div>
-                <div id="bilingual-settings" class="bilingual-settings" hidden>
+                <div id="bilingual-settings" class="bilingual-settings">
                     <div class="field-row">
                         <label for="bilingual_provider"><strong>Translation backend</strong><small>Select LLM provider or local endpoint</small></label>
                         <select name="bilingual_provider" id="bilingual_provider">
                             <option value="none">Offline rule-based fallback (No API key needed)</option>
-                            <option value="hetzner">Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
-                            <option value="ollama" selected>Local Ollama · qwen2.5:3b (Installed &amp; Ready)</option>
+                            <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
+                            <option value="ollama">Local Ollama · qwen2.5:3b (Installed &amp; Ready)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
                         </select>
@@ -225,13 +225,13 @@
                         </span>
                     </label>
                 </div>
-                <div id="llm-enrich-settings" class="bilingual-settings" hidden>
+                <div id="llm-enrich-settings" class="bilingual-settings">
                     <div class="field-row">
                         <label for="llm_provider"><strong>LLM backend</strong><small>Same provider as bilingual companion, or configure independently</small></label>
                         <select name="llm_provider" id="llm_provider">
                             <option value="none">Off (no enrichment)</option>
-                            <option value="hetzner">Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
-                            <option value="ollama" selected>Local Ollama · qwen2.5:3b or 7b</option>
+                            <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
+                            <option value="ollama">Local Ollama · qwen2.5:3b or 7b</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="openrouter">OpenRouter (Claude, DeepSeek, Llama 3)</option>
                         </select>
