@@ -189,6 +189,50 @@ async def post_ollama_stream_test_api(request: Request):
     )
 
 
+@app.get("/api/series")
+def get_series_profiles_api():
+    from furiganalyse.series_glossary import list_series_profiles
+    return JSONResponse(list_series_profiles())
+
+
+@app.post("/api/series")
+async def post_series_profile_api(request: Request):
+    from furiganalyse.series_glossary import save_series_profile
+    body = await request.json()
+    series_id = body.get("series_id", "").strip()
+    title = body.get("title", "").strip() or series_id
+    if not series_id and not title:
+        return JSONResponse(status_code=400, content={"error": "Series ID or title required"})
+    try:
+        saved = save_series_profile(
+            series_id=series_id or title,
+            title=title or series_id,
+            characters=body.get("characters"),
+            glossary=body.get("glossary"),
+            ruby_overrides=body.get("ruby_overrides"),
+            volume_name=body.get("volume_name", ""),
+        )
+        return JSONResponse(saved)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
+@app.get("/api/series/{series_id}")
+def get_single_series_profile_api(series_id: str):
+    from furiganalyse.series_glossary import load_series_profile
+    data = load_series_profile(series_id)
+    if data is None:
+        return JSONResponse(status_code=404, content={"error": "Series profile not found"})
+    return JSONResponse(data)
+
+
+@app.delete("/api/series/{series_id}")
+def delete_series_profile_api(series_id: str):
+    from furiganalyse.series_glossary import delete_series_profile
+    ok = delete_series_profile(series_id)
+    return JSONResponse({"deleted": ok})
+
+
 @app.get("/api/recent_conversions")
 def get_recent_conversions_api():
     return JSONResponse(load_recent_conversions(OUTPUT_FOLDER))
@@ -222,6 +266,8 @@ async def task_handler(
     llm_api_key: str = Form(default=""),
     llm_base_url: str = Form(default=""),
     llm_model: str = Form(default=""),
+    publisher_ruby_propagation: bool = Form(default=True),
+    series_profile_id: str = Form(default=""),
     redirect: bool = Form(default=True),
 ):
     if pipeline_mode not in {"furigana", "study", "combined", "guided"}:
@@ -332,6 +378,8 @@ async def task_handler(
         llm_api_key,
         llm_base_url,
         llm_model,
+        publisher_ruby_propagation,
+        series_profile_id,
     )
 
     if redirect:
@@ -381,6 +429,8 @@ def furiganalyse_task(
     llm_api_key: str = "",
     llm_base_url: str = "",
     llm_model: str = "",
+    publisher_ruby_propagation: bool = True,
+    series_profile_id: str = "",
 ) -> str:
     input_filepath = os.path.join(task_folder, filename)
     output_filename = generate_output_filename(filename, output_format, pipeline_mode)
@@ -468,6 +518,8 @@ def furiganalyse_task(
                     llm_api_key=llm_api_key if llm_api_key else None,
                     llm_base_url=llm_base_url if llm_base_url else None,
                     llm_model=llm_model if llm_model else None,
+                    publisher_ruby_propagation=publisher_ruby_propagation,
+                    series_profile_id=series_profile_id if series_profile_id else None,
                 ),
                 progress_callback=dictionary_progress,
             )

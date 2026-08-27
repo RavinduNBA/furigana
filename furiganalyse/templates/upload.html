@@ -208,6 +208,21 @@
             <fieldset class="form-section" id="llm-enrich-section">
                 <legend><span class="step-number">6</span><span>LLM Intelligence <small>Optional context-aware enrichment of furigana and study notes</small></span></legend>
                 <div class="field-row">
+                    <label class="checkbox-row" for="publisher_ruby_propagation">
+                        <input type="checkbox" name="publisher_ruby_propagation" id="publisher_ruby_propagation" value="true" checked>
+                        <span>
+                            <strong>Publisher ruby propagation (Module 2)</strong>
+                            <small>Automatically propagates author-assigned &lt;ruby&gt; readings to all unannotated occurrences book-wide (instant, 100% deterministic).</small>
+                        </span>
+                    </label>
+                </div>
+                <div class="field-row" id="series-profile-row">
+                    <label for="series_profile_id"><strong>Series Memory Profile (optional)</strong><small>Apply known character names &amp; world terms saved from earlier volumes</small></label>
+                    <select name="series_profile_id" id="series_profile_id">
+                        <option value="">No series profile (standalone book)</option>
+                    </select>
+                </div>
+                <div class="field-row">
                     <label class="checkbox-row" for="llm_enrich_nouns">
                         <input type="checkbox" name="llm_enrich_nouns" id="llm_enrich_nouns" value="true">
                         <span>

@@ -258,11 +258,29 @@
         } catch (e) {}
     }
 
+    async function loadSeriesProfiles() {
+        const seriesSelect = document.getElementById("series_profile_id");
+        if (!seriesSelect) return;
+        try {
+            const resp = await fetch("/api/series");
+            if (!resp.ok) return;
+            const profiles = await resp.json();
+            if (profiles && profiles.length > 0) {
+                seriesSelect.innerHTML = '<option value="">No series profile (standalone book)</option>' +
+                    profiles.map(p => {
+                        const stats = `${p.character_count} chars, ${p.glossary_count} terms`;
+                        return `<option value="${p.series_id}">${p.title} (${stats})</option>`;
+                    }).join("");
+            }
+        } catch (e) {}
+    }
+
     bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
     updatePipeline();
     updateBilingual();
     updateLLMEnrich();
     loadInstalledOllamaModels();
+    loadSeriesProfiles();
     updateBookFile();
 }());

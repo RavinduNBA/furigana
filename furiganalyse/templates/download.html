@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Conversion progress · Furiganalyse</title>
-    <link href="{{ url_for('assets', path='styles.css') }}?v=20260826c" rel="stylesheet">
+    <link href="{{ url_for('assets', path='styles.css') }}{% if app_version %}?v={{ app_version }}{% endif %}" rel="stylesheet">
     <script>
         window.furiganalyseJob = {
             statusUrl: "{{ url_for('status_handler', uid=uid) }}",
             fileUrl: "{{ url_for('get_file', uid=uid) }}"
         };
     </script>
-    <script src="{{ url_for('assets', path='progress.js') }}?v=20260826c" defer></script>
+    <script src="{{ url_for('assets', path='progress.js') }}{% if app_version %}?v={{ app_version }}{% endif %}" defer></script>
 </head>
 <body class="job-page">
 <header class="site-header">
@@ -22,7 +22,8 @@
     </a>
     <nav class="site-nav">
         <a href="{{ url_for('get_root') }}">Converter</a>
-        <a href="{{ url_for('get_ollama_dashboard') }}"><strong>Ollama Dashboard</strong></a>
+        <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
+        <a href="https://github.com/RavinduNBA/furigana">Source</a>
     </nav>
     <span class="header-status"><span class="status-dot status-dot--pulse"></span><span id="header-status-text">Conversion running</span></span>
 </header>
@@ -79,7 +80,10 @@
             <div class="discovered-context-panel" id="discovered-context-panel" hidden>
                 <div class="context-panel-header">
                     <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
-                    <span class="context-item-count" id="context-item-count">0 items discovered</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="context-item-count" id="context-item-count">0 items discovered</span>
+                        <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
+                    </div>
                 </div>
                 <div class="context-panel-body">
                     <div class="context-group">
@@ -88,7 +92,7 @@
                             <span class="fine-print">Discovering cast members…</span>
                         </div>
                     </div>
-                    <div class="context-group" style="margin-top: 10px;">
+                    <div class="context-group">
                         <small>World Glossary &amp; Light Novel Terms</small>
                         <div class="context-chips-row" id="glossary-chips-row">
                             <span class="fine-print">Extracting novel terms…</span>
@@ -186,7 +190,7 @@
     <section class="result-card result-card--error" id="error" hidden>
         <div class="result-icon" aria-hidden="true">!</div>
         <div><span class="section-kicker">Conversion stopped</span><h2>We could not finish this ebook</h2><p>Your source file was not modified. Try another format or report the issue without attaching copyrighted book text.</p></div>
-        <div class="result-actions"><a class="primary-button" href="{{ url_for('get_root') }}">Try again</a><a class="secondary-button" href="https://github.com/itsupera/furiganalyse/issues">Report issue</a></div>
+        <div class="result-actions"><a class="primary-button" href="{{ url_for('get_root') }}">Try again</a><a class="secondary-button" href="https://github.com/RavinduNBA/furigana/issues">Report issue</a></div>
     </section>
 
     <section class="job-privacy"><span aria-hidden="true">⌁</span><p><strong>Aggregate telemetry only.</strong> Progress records stages, counts, timing, and sizes—not book text, uploaded filenames, credentials, or provider data.</p></section>
@@ -222,6 +226,9 @@
     {% endif %}
 </main>
 
-<footer class="site-footer"><span>Furiganalyse{% if app_version %} v{{ app_version }}{% endif %} · deterministic Japanese reading support</span><a href="{{ url_for('get_root') }}">Back to converter</a></footer>
+<footer class="site-footer">
+    <span>Furiganalyse{% if app_version %} v{{ app_version }}{% endif %} · deterministic Japanese reading support</span>
+    <span><a href="{{ url_for('get_root') }}">Back to converter</a> · <a href="https://github.com/RavinduNBA/furigana/issues">Report an issue</a></span>
+</footer>
 </body>
 </html>

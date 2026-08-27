@@ -71,6 +71,9 @@ class WebStudyOptions:
     llm_api_key: str | None = None
     llm_base_url: str | None = None
     llm_model: str | None = None
+    # Module 2 & Series Memory options
+    publisher_ruby_propagation: bool = True  # Module 2: propagate author ruby
+    series_profile_id: str | None = None    # Series Profile ID to load pre-context from
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -547,6 +550,34 @@ def run_dictionary_study_pipeline(
     del vocabulary_model
     del base_report
     gc.collect()
+
+    # Step A: Apply Series Memory Profile if selected (Cross-Volume Consistency)
+    if options.series_profile_id:
+        from furiganalyse.series_glossary import (
+            apply_series_profile_to_vocabulary,
+            load_series_profile,
+        )
+        series_data = load_series_profile(options.series_profile_id)
+        if series_data:
+            vocabulary, patch_count = apply_series_profile_to_vocabulary(series_data, vocabulary)
+            progress({
+                "stage": "tokenizing",
+                "log": f"Series Memory: Applied {patch_count} character & term overrides from series '{series_data.get('title')}'",
+            })
+
+    # Step B: Module 2: Publisher Ruby Propagation (extract and propagate author-assigned readings)
+    if options.publisher_ruby_propagation:
+        from furiganalyse.ruby_override import (
+            apply_publisher_ruby_propagation,
+            extract_publisher_ruby_map,
+        )
+        ruby_map = extract_publisher_ruby_map(book)
+        if ruby_map:
+            vocabulary, patch_count = apply_publisher_ruby_propagation(vocabulary, ruby_map)
+            progress({
+                "stage": "tokenizing",
+                "log": f"Module 2: Extracted {len(ruby_map)} author ruby terms; propagated to {patch_count} unannotated instances",
+            })
 
     # Module 4: LLM Proper Noun Furigana Correction (optional, independent of bilingual companion)
     if options.llm_enrich_nouns and options.llm_provider not in {"none", "", None}:

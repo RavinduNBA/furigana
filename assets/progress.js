@@ -3,24 +3,49 @@
 
     const config = window.furiganalyseJob;
     if (!config) return;
-    const pollingInterval = 1000;
+
+    const DEFAULT_POLL_INTERVAL_MS = 1000;
+    const INITIAL_POLL_DELAY_MS = 250;
+    const BYTES_PER_KB = 1024;
+    const BYTES_PER_MB = 1048576;
+    const SECONDS_PER_MINUTE = 60;
 
     function byId(id) { return document.getElementById(id); }
     function formatNumber(value) { return Number(value || 0).toLocaleString(); }
     function formatDuration(seconds) {
         if (seconds === null || seconds === undefined) return "calculating…";
-        const minutes = Math.floor(seconds / 60);
-        const remainder = Math.round(seconds % 60);
+        const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+        const remainder = Math.round(seconds % SECONDS_PER_MINUTE);
         return minutes ? minutes + "m " + remainder + "s" : remainder + "s";
     }
     function formatBytes(bytes) {
         if (bytes === null || bytes === undefined) return "pending";
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-        return (bytes / 1048576).toFixed(1) + " MB";
+        if (bytes < BYTES_PER_KB) return bytes + " B";
+        if (bytes < BYTES_PER_MB) return (bytes / BYTES_PER_KB).toFixed(1) + " KB";
+        return (bytes / BYTES_PER_MB).toFixed(1) + " MB";
     }
     function stageLabel(stage) {
-        return ({queued: "Queued", preparing: "Preparing files", extracting: "Extracting ebook", "canonical-analysis": "Mapping canonical chapters", tokenizing: "Tokenizing Japanese text", "dictionary-lookup": "Looking up JMdict vocabulary", "expression-lookup": "Looking up JMdict expressions", "name-lookup": "Looking up JMnedict names", "study-selection": "Selecting study items", "linked-rendering": "Building notes and backlinks", "assistance-selection": "Applying assistance states", "density-planning": "Scheduling assistance density", "adaptive-rendering": "Rendering adaptive assistance", "bilingual-translation": "Translating companion chapters", processing: "Annotating Japanese text", packaging: "Packaging output", complete: "Complete", cancelled: "Cancelled", error: "Stopped"})[stage] || "Working";
+        return ({
+            queued: "Queued",
+            preparing: "Preparing files",
+            extracting: "Extracting ebook",
+            "canonical-analysis": "Mapping canonical chapters",
+            tokenizing: "Tokenizing Japanese text",
+            "dictionary-lookup": "Looking up JMdict vocabulary",
+            "expression-lookup": "Looking up JMdict expressions",
+            "name-lookup": "Looking up JMnedict names",
+            "study-selection": "Selecting study items",
+            "linked-rendering": "Building notes and backlinks",
+            "assistance-selection": "Applying assistance states",
+            "density-planning": "Scheduling assistance density",
+            "adaptive-rendering": "Rendering adaptive assistance",
+            "bilingual-translation": "Translating companion chapters",
+            processing: "Annotating Japanese text",
+            packaging: "Packaging output",
+            complete: "Complete",
+            cancelled: "Cancelled",
+            error: "Stopped"
+        })[stage] || "Working";
     }
 
     function getPipelineActionSummary(progress) {
@@ -115,8 +140,10 @@
             element.classList.toggle("is-complete", current > index || stage === "complete");
         });
     }
+
     function updateProgress(progress) {
         if (!progress) return;
+        latestProgressData = progress;
         const percent = progress.percent || 0;
         byId("conversion-progress").value = percent;
         byId("conversion-progress").textContent = percent + "%";
@@ -226,7 +253,7 @@
         if (consoleEl && progress.log_lines && progress.log_lines.length > 0) {
             consoleEl.innerHTML = progress.log_lines.map(line => {
                 const isHighlight = line.includes("ready") || line.includes("Ready") || line.includes("Complete") || line.includes("packaged");
-                const isPass = line.includes("Pass 1") || line.includes("Pass 2") || line.includes("Translating") || line.includes("Ollama");
+                const isPass = line.includes("Pass 1") || line.includes("Pass 2") || line.includes("Translating") || line.includes("Ollama") || line.includes("Hetzner") || line.includes("Series") || line.includes("Module 2");
                 const cls = isHighlight ? "console-log-line--highlight" : (isPass ? "console-log-line--pass" : "console-log-line--normal");
                 return `<div class="console-log-line ${cls}">${escapeHtml(line)}</div>`;
             }).join("");
@@ -235,9 +262,11 @@
 
         updateStages(progress.stage);
     }
+
     function escapeHtml(str) {
         return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
+
     function showComplete(progress) {
         byId("conversion-progress").value = 100;
         byId("conversion-progress").textContent = "100%";
@@ -256,6 +285,7 @@
         if (cancelBtn) cancelBtn.hidden = true;
         updateStages("complete");
     }
+
     function showCancelled() {
         byId("job-title").textContent = "Conversion cancelled";
         byId("job-description").textContent = "Conversion was stopped by user. No partial files were saved.";
@@ -265,8 +295,9 @@
         const cancelBtn = byId("cancel-button");
         if (cancelBtn) cancelBtn.hidden = true;
     }
+
     function showError() {
-        byId("job-title").textContent = "Conversion stopped";
+        byId("job-title").textContent = "Conversion failed";
         byId("job-description").textContent = "No partially converted file will be offered.";
         byId("header-status-text").textContent = "Needs attention";
         document.querySelector(".header-status .status-dot").classList.remove("status-dot--pulse");
@@ -274,6 +305,7 @@
         const cancelBtn = byId("cancel-button");
         if (cancelBtn) cancelBtn.hidden = true;
     }
+
     async function poll() {
         try {
             const response = await fetch(config.statusUrl, {headers: {"Accept": "application/json"}, cache: "no-store"});
@@ -283,7 +315,7 @@
             if (data.status === "complete") return showComplete(data.progress);
             if (data.status === "cancelled" || (data.progress && data.progress.stage === "cancelled")) return showCancelled();
             if (data.status === "error") return showError();
-            window.setTimeout(poll, pollingInterval);
+            window.setTimeout(poll, DEFAULT_POLL_INTERVAL_MS);
         } catch (error) {
             showError();
         }
@@ -306,5 +338,52 @@
         });
     }
 
-    window.setTimeout(poll, 250);
+    const saveSeriesBtn = byId("save-series-btn");
+    if (saveSeriesBtn) {
+        saveSeriesBtn.addEventListener("click", async function () {
+            if (!latestProgressData) {
+                alert("Context data is still generating. Please wait a moment.");
+                return;
+            }
+            const defaultName = prompt("Enter a Series Name to save this Cast & Glossary for next volumes:", "My Light Novel Series");
+            if (!defaultName) return;
+
+            const casts = (latestProgressData.cast_summary || []).reduce((acc, c) => {
+                acc[c.name] = { kanji: c.name, romanized: c.romanized || c.name, role: c.role || "Character" };
+                return acc;
+            }, {});
+            const glossary = (latestProgressData.glossary_summary || []).reduce((acc, g) => {
+                acc[g.japanese] = { japanese: g.japanese, preferred_translation: g.translation || g.definition || "" };
+                return acc;
+            }, {});
+
+            try {
+                saveSeriesBtn.disabled = true;
+                saveSeriesBtn.textContent = "Saving…";
+                const resp = await fetch("/api/series", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: defaultName,
+                        characters: casts,
+                        glossary: glossary
+                    })
+                });
+                if (resp.ok) {
+                    alert("Series Memory profile saved! You can now select '" + defaultName + "' when converting Volume 2, 3, etc.");
+                    saveSeriesBtn.textContent = "✓ Saved to Series";
+                } else {
+                    alert("Failed to save series profile.");
+                    saveSeriesBtn.disabled = false;
+                    saveSeriesBtn.textContent = "💾 Save to Series Memory";
+                }
+            } catch (e) {
+                alert("Error saving series: " + e.message);
+                saveSeriesBtn.disabled = false;
+                saveSeriesBtn.textContent = "💾 Save to Series Memory";
+            }
+        });
+    }
+
+    window.setTimeout(poll, INITIAL_POLL_DELAY_MS);
 }());
