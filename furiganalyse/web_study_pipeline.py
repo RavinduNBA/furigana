@@ -457,7 +457,7 @@ def _bounded_web_report(
 def _sanitize_plan_for_linked_output(
     source: Path, book: dict[str, Any], plan: dict[str, Any]
 ) -> dict[str, Any]:
-    from furiganalyse.linked_output import _leaf_blocks, _visible_map
+    from furiganalyse.linked_output import _leaf_blocks, _parent_map, _visible_map
 
     if not source.exists():
         return plan
@@ -473,10 +473,11 @@ def _sanitize_plan_for_linked_output(
         try:
             root = ET.fromstring(archive_files[ch_path])
             blocks_xml = list(_leaf_blocks(root))
+            parents = _parent_map(root)
             for i, b in enumerate(ch.get("blocks", [])):
                 if i < len(blocks_xml):
                     _, refs, rubies = _visible_map(blocks_xml[i])
-                    block_refs[b["id"]] = (refs, rubies)
+                    block_refs[b["id"]] = (refs, rubies, parents)
         except Exception:
             continue
 
@@ -487,7 +488,7 @@ def _sanitize_plan_for_linked_output(
         for occ in item.get("occurrences", []):
             b_id = occ.get("block_id")
             if b_id in block_refs:
-                refs, rubies = block_refs[b_id]
+                refs, rubies, parents = block_refs[b_id]
                 start, end = occ.get("block_start", 0), occ.get("block_end", 0)
                 if occ.get("annotation_target") == "ruby":
                     valid_occs.append(occ)
@@ -496,7 +497,13 @@ def _sanitize_plan_for_linked_output(
                     contained = [
                         v for v in rubies if v.start >= start and v.end <= end
                     ]
-                    if contained or (
+                    if contained:
+                        ruby_parents = [parents.get(v.element) for v in contained]
+                        if len(set(ruby_parents)) == 1 and None not in ruby_parents:
+                            valid_occs.append(occ)
+                        else:
+                            dropped_count += 1
+                    elif (
                         first.owner is last.owner
                         and first.attribute == last.attribute
                     ):

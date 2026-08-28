@@ -395,3 +395,91 @@ def test_bilingual_companion_pipeline_end_to_end(tmp_path, monkeypatch):
         assert len(trans_docs) > 0
         content = z.read(trans_docs[0]).decode("utf-8")
         assert "English Companion Translation" in content
+
+
+def test_sanitize_plan_drops_multiparent_ruby_occurrences(tmp_path):
+    from furiganalyse.linked_output import create_linked_output
+    from furiganalyse.web_study_pipeline import _sanitize_plan_for_linked_output
+    import zipfile
+
+    source = tmp_path / "source.epub"
+    build_fixture(source)
+
+    # Modify the chapter XHTML inside the epub to have a span around one ruby and another ruby outside
+    with zipfile.ZipFile(source, "r") as zin:
+        files = {name: zin.read(name) for name in zin.namelist()}
+
+    ch_path = "EPUB/text/chapter-01.xhtml"
+    root = ET.fromstring(files[ch_path])
+    # replace first p with nested span ruby
+    for p in root.iter(X + "p"):
+        p.clear()
+        p.text = "これでは"
+        span = ET.SubElement(p, X + "span", {"class": "em-sesame"})
+        ruby1 = ET.SubElement(span, X + "ruby")
+        ruby1.text = "一般"
+        rt1 = ET.SubElement(ruby1, X + "rt")
+        rt1.text = "いっぱん"
+        ruby2 = ET.SubElement(p, X + "ruby")
+        ruby2.text = "市民"
+        rt2 = ET.SubElement(ruby2, X + "rt")
+        rt2.text = "しみん"
+        ruby2.tail = "と変わらない。"
+        break
+
+    files[ch_path] = ET.tostring(root, encoding="utf-8")
+    with zipfile.ZipFile(source, "w") as zout:
+        for name, data in files.items():
+            zout.writestr(name, data)
+
+    from furiganalyse.book_analysis import extract_book
+    book_model = extract_book(source)
+    from dataclasses import asdict
+    book = asdict(book_model)
+
+    target_block = book["chapters"][0]["blocks"][1]
+    golden_plan = json.loads(
+        Path("tests/phase4_golden/annotation-plan-v1.json").read_text(encoding="utf-8")
+    )
+    fake_plan = promote_dictionary_only_plan(golden_plan)
+    fake_plan["items"] = [
+        {
+            "id": "study-item-0001",
+            "chapter_id": book["chapters"][0]["id"],
+            "block_id": target_block["id"],
+            "sentence_id": target_block["sentences"][0]["id"],
+            "source_anchor_id": "src-study-item-0001-occ-0001",
+            "note_anchor_id": "note-study-item-0001",
+            "dictionary_form": "一般市民",
+            "reading": "いっぱんしみん",
+            "primary_gloss": "general public; ordinary citizens",
+            "token_ids": ["t-0001"],
+            "candidate_ids": ["c-0001"],
+            "occurrences": [
+                {
+                    "id": "study-item-0001-occ-0001",
+                    "chapter_id": book["chapters"][0]["id"],
+                    "block_id": target_block["id"],
+                    "sentence_id": target_block["sentences"][0]["id"],
+                    "token_ids": ["t-0001"],
+                    "candidate_ids": ["c-0001"],
+                    "occurrence_number": 1,
+                    "source_anchor_id": "src-study-item-0001-occ-0001",
+                    "note_anchor_id": "note-study-item-0001",
+                    "block_start": 4,
+                    "block_end": 8,
+                    "sentence_start": 4,
+                    "sentence_end": 8,
+                    "surface": "一般市民",
+                }
+            ],
+        }
+    ]
+
+    sanitized = _sanitize_plan_for_linked_output(source, book, fake_plan)
+    # The invalid cross-parent ruby occurrence should be dropped without exception
+    assert len(sanitized["items"]) == 0
+
+    # Ensure create_linked_output completes cleanly
+    linked = create_linked_output(source, book, sanitized)
+    assert len(linked.files) > 0

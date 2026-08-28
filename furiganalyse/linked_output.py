@@ -182,7 +182,9 @@ def _wrap_ruby_boundary(
     if prefix_text:
         anchor.text = prefix_text
     for r in ruby_list:
-        parent.remove(r)
+        r_parent = parents.get(r) if parents.get(r) is not None else parent
+        if r_parent is not None and r in list(r_parent):
+            r_parent.remove(r)
         anchor.append(r)
     parent.insert(position, anchor)
     anchor.tail = remaining_tail if remaining_tail else None
