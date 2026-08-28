@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ollama Status &amp; Telemetry · Furiganalyse</title>
-    <link href="{{ url_for('assets', path='styles.css') }}?v=20260826d" rel="stylesheet">
-    <script src="{{ url_for('assets', path='ollama.js') }}?v=20260826d" defer></script>
+    <link href="{{ url_for('assets', path='styles.css') }}{% if app_version %}?v={{ app_version }}{% endif %}" rel="stylesheet">
+    <script src="{{ url_for('assets', path='ollama.js') }}{% if app_version %}?v={{ app_version }}{% endif %}" defer></script>
 </head>
 <body class="ollama-page">
 <header class="site-header">
@@ -15,10 +15,11 @@
     </a>
     <nav class="site-nav">
         <a href="{{ url_for('get_root') }}">Converter</a>
-        <a href="{{ url_for('get_ollama_dashboard') }}" class="is-active"><strong>Ollama Dashboard</strong></a>
+        <a href="{{ url_for('get_ollama_dashboard') }}" class="is-active">Ollama Dashboard</a>
         {% if open_webui_url %}
         <a href="{{ open_webui_url }}" target="_blank" rel="noopener">Open WebUI ↗</a>
         {% endif %}
+        <a href="https://github.com/RavinduNBA/furigana">Source</a>
     </nav>
 </header>
 
@@ -75,7 +76,7 @@
     </div>
 
     <!-- Model Management Section -->
-    <section class="converter-card" style="margin-top: 28px;">
+    <section class="converter-card mt-lg">
         <div class="section-heading">
             <div>
                 <span class="section-kicker">Model Manager</span>
@@ -122,7 +123,7 @@
     </section>
 
     <!-- Interactive Translation Sandbox -->
-    <section class="converter-card" style="margin-top: 28px;">
+    <section class="converter-card mt-lg">
         <div class="section-heading">
             <div>
                 <span class="section-kicker">Interactive Playground</span>
@@ -138,11 +139,13 @@
                     <option value="qwen2.5:3b">qwen2.5:3b</option>
                 </select>
 
-                <label for="sandbox-japanese" style="margin-top: 14px;"><strong>Japanese Source Text</strong></label>
-                <textarea id="sandbox-japanese" rows="3" placeholder="Enter Japanese text to test...">司波達也は、国立魔法大学付属第一高校の門をくぐった。「さすがはお兄様」と深雪は微笑んだ。</textarea>
+                <div class="mt-md">
+                    <label for="sandbox-japanese"><strong>Japanese Source Text</strong></label>
+                    <textarea id="sandbox-japanese" rows="3" placeholder="Enter Japanese text to test...">司波達也は、国立魔法大学付属第一高校の門をくぐった。「さすがはお兄様」と深雪は微笑んだ。</textarea>
+                </div>
 
-                <div class="sandbox-context-toggle" style="margin-top: 12px;">
-                    <label class="checkbox-row" for="sandbox-use-context" style="padding: 8px 12px;">
+                <div class="sandbox-context-toggle mt-md">
+                    <label class="checkbox-row checkbox-row--compact" for="sandbox-use-context">
                         <input type="checkbox" id="sandbox-use-context" checked>
                         <span>
                             <strong>Inject Phase 10 Cast &amp; Glossary Context</strong>
@@ -151,7 +154,7 @@
                     </label>
                 </div>
 
-                <div id="sandbox-context-panel" style="margin-top: 8px;">
+                <div id="sandbox-context-panel" class="mt-sm">
                     <label for="sandbox-context"><strong>Cast &amp; Terminology Pre-Context</strong></label>
                     <textarea id="sandbox-context" rows="3" placeholder="Character names and terms...">Characters in this scene:
 - 司波達也 (Tatsuya Shiba, male protagonist)
@@ -161,7 +164,7 @@ Terms:
 - 国立魔法大学付属第一高校 -> "First High School affiliated with the National Magic University"</textarea>
                 </div>
 
-                <button class="primary-button" id="sandbox-submit-btn" type="button" style="margin-top: 14px; width: 100%;">
+                <button class="primary-button mt-md w-full" id="sandbox-submit-btn" type="button">
                     <span>Translate Japanese (Live Stream)</span> →
                 </button>
             </div>
@@ -180,5 +183,10 @@ Terms:
         </div>
     </section>
 </main>
+
+<footer class="site-footer">
+    <span>Furiganalyse{% if app_version %} v{{ app_version }}{% endif %} · local AI inference &amp; telemetry</span>
+    <span><a href="{{ url_for('get_root') }}">Back to converter</a> · <a href="https://github.com/RavinduNBA/furigana/issues">Report an issue</a></span>
+</footer>
 </body>
 </html>

@@ -1,19 +1,28 @@
 (function () {
     "use strict";
 
+    const OLLAMA_STATUS_ENDPOINT = "/api/ollama/status";
+    const OLLAMA_MODEL_ENDPOINT = "/api/ollama/model";
+    const OLLAMA_PULL_ENDPOINT = "/api/ollama/pull";
+    const OLLAMA_STREAM_TEST_ENDPOINT = "/api/ollama/stream_test";
+    const TELEMETRY_REFRESH_INTERVAL_MS = 10000;
+    const BYTES_PER_KB = 1024;
+    const BYTES_PER_MB = 1048576;
+    const BYTES_PER_GB = 1073741824;
+
     function byId(id) { return document.getElementById(id); }
 
     function formatBytes(bytes) {
         if (!bytes) return "0 B";
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-        if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
-        return (bytes / 1073741824).toFixed(2) + " GB";
+        if (bytes < BYTES_PER_KB) return bytes + " B";
+        if (bytes < BYTES_PER_MB) return (bytes / BYTES_PER_KB).toFixed(1) + " KB";
+        if (bytes < BYTES_PER_GB) return (bytes / BYTES_PER_MB).toFixed(1) + " MB";
+        return (bytes / BYTES_PER_GB).toFixed(2) + " GB";
     }
 
     async function fetchDashboardData() {
         try {
-            const resp = await fetch("/api/ollama/status");
+            const resp = await fetch(OLLAMA_STATUS_ENDPOINT);
             if (!resp.ok) throw new Error("Dashboard status unavailable");
             const data = await resp.json();
             updateUI(data);
@@ -103,7 +112,7 @@
                     btn.disabled = true;
                     btn.textContent = "Deleting…";
                     try {
-                        const r = await fetch("/api/ollama/model?name=" + encodeURIComponent(modelName), {method: "DELETE"});
+                        const r = await fetch(OLLAMA_MODEL_ENDPOINT + "?name=" + encodeURIComponent(modelName), {method: "DELETE"});
                         if (r.ok) {
                             fetchDashboardData();
                         } else {
@@ -140,7 +149,7 @@
             pullStatusText.textContent = "Pulling model '" + model + "' in background… (this may take a minute)";
 
             try {
-                const res = await fetch("/api/ollama/pull", {
+                const res = await fetch(OLLAMA_PULL_ENDPOINT, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({model: model})
@@ -199,7 +208,7 @@
             byId("sandbox-speed").textContent = "0.0 tok/s";
 
             try {
-                const res = await fetch("/api/ollama/stream_test", {
+                const res = await fetch(OLLAMA_STREAM_TEST_ENDPOINT, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({model: model, text: text, context: contextText})
@@ -257,5 +266,5 @@
     if (refreshBtn) refreshBtn.addEventListener("click", fetchDashboardData);
 
     fetchDashboardData();
-    setInterval(fetchDashboardData, 10000);
+    setInterval(fetchDashboardData, TELEMETRY_REFRESH_INTERVAL_MS);
 }());

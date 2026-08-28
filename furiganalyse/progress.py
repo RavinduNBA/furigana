@@ -88,11 +88,12 @@ class ProgressWriter:
         self.values.update({key: value for key, value in event.items() if key in allowed})
         if "log" in event and event["log"]:
             timestamp = time.strftime("%H:%M:%S")
-            line = f"[{timestamp}] {event['log']}"
+            log_msg = str(event["log"])
+            line = log_msg if log_msg.startswith("[") else f"[{timestamp}] {log_msg}"
             logs = self.values.setdefault("log_lines", [])
             logs.append(line)
-            if len(logs) > 120:
-                self.values["log_lines"] = logs[-120:]
+            if len(logs) > 500:
+                self.values["log_lines"] = logs[-500:]
         elapsed = max(0.0, time.monotonic() - self.started)
         total = int(self.values["characters_total"])
         processed = int(self.values["characters_processed"])

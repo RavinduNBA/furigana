@@ -72,6 +72,7 @@ def process_epub_file(
             "sections_completed": 0,
             "characters_total": total_characters,
             "characters_processed": 0,
+            "log": f"Furigana Engine: Loaded {len(documents)} XHTML sections ({total_characters:,} visible characters) for annotation",
         })
 
     processed_characters = 0
@@ -84,15 +85,20 @@ def process_epub_file(
             convert_html_to_txt(tree, txt_outputfile)
         else:
             tree.write(html_filepath, encoding="utf-8")
-        processed_characters += int(document["characters"])
+        chars_in_doc = int(document["characters"])
+        processed_characters += chars_in_doc
         if progress_callback:
-            progress_callback({
+            event = {
                 "stage": "processing",
                 "sections_total": len(documents),
                 "sections_completed": index,
                 "characters_total": total_characters,
                 "characters_processed": processed_characters,
-            })
+            }
+            if chars_in_doc > 0:
+                doc_name = os.path.basename(str(document["document"]))
+                event["log"] = f"Furigana Pass: Section {index}/{len(documents)} ({doc_name}) annotated [{chars_in_doc:,} chars]"
+            progress_callback(event)
 
 
 def _ensure_ruby_css_rules(unzipped_input_fpath: str):

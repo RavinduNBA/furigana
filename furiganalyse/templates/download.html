@@ -140,8 +140,24 @@
                     <span class="console-dot console-dot--green"></span>
                 </div>
                 <span class="console-title">🖥️ Backend Pipeline Live Console</span>
+                <span class="console-count-badge" id="console-log-count">1 entry</span>
             </div>
-            <span class="console-live-badge"><span class="status-dot status-dot--pulse"></span> LIVE LOGS</span>
+            <div class="console-header-actions">
+                <button type="button" id="console-filter-btn" class="console-tool-btn" title="Toggle log search and category filters">🔍 Filter</button>
+                <button type="button" id="console-autoscroll-btn" class="console-tool-btn active" title="Toggle automatic scrolling to bottom">⬇ Auto-scroll: ON</button>
+                <button type="button" id="console-expand-btn" class="console-tool-btn" title="Toggle expanded console view">⤢ Expand</button>
+                <button type="button" id="console-copy-btn" class="console-tool-btn" title="Copy all console output to clipboard">📋 Copy Logs</button>
+                <span class="console-live-badge"><span class="status-dot status-dot--pulse"></span> LIVE</span>
+            </div>
+        </div>
+        <div class="console-filter-bar" id="console-filter-bar" hidden>
+            <input type="text" id="console-search-input" class="console-search-input" placeholder="Search log entries (e.g. LLM, Module, section, Error)…" aria-label="Search logs">
+            <div class="console-filter-chips">
+                <button type="button" class="filter-chip active" data-filter="all">All</button>
+                <button type="button" class="filter-chip" data-filter="phases">Phases</button>
+                <button type="button" class="filter-chip" data-filter="modules">Modules &amp; LLM</button>
+                <button type="button" class="filter-chip" data-filter="errors">Errors / Warnings</button>
+            </div>
         </div>
         <div class="console-body" id="backend-console-logs">
             <div class="console-log-line console-log-line--dim">[00:00:00] Initializing conversion pipeline…</div>

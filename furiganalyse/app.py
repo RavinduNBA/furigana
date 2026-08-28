@@ -441,6 +441,12 @@ def furiganalyse_task(
         input_bytes=os.path.getsize(input_filepath),
     )
 
+    input_size = os.path.getsize(input_filepath)
+    progress.update({
+        "stage": "preparing",
+        "log": f"Starting conversion: '{filename}' ({input_size:,} bytes) · Pipeline: {pipeline_mode.upper()} · Furigana: {furigana_mode}",
+    })
+
     try:
         if pipeline_mode in {"study", "combined", "guided"}:
             assisted_furigana = pipeline_mode in {"combined", "guided"}
@@ -459,6 +465,7 @@ def furiganalyse_task(
                     "stage": "preparing",
                     "pipeline_mode": pipeline_mode,
                     "combined_phase": "furigana",
+                    "log": f"Phase 1: Generating full furigana ruby annotations (Mode: {furigana_mode}, Writing: {writing_mode})…",
                 })
                 main(
                     input_filepath,
@@ -477,12 +484,20 @@ def furiganalyse_task(
                     ),
                     progress_callback=furigana_progress,
                 )
+                furi_size = os.path.getsize(furi_stage)
                 study_input = str(furi_stage)
+                progress.update({
+                    "stage": "preparing",
+                    "pipeline_mode": pipeline_mode,
+                    "combined_phase": "dictionary",
+                    "log": f"Phase 1 Complete: Intermediate furigana EPUB created ({furi_size:,} bytes). Transitioning to Phase 2 (Study & Vocabulary Engine)…",
+                })
 
             progress.update({
                 "stage": "preparing",
                 "pipeline_mode": pipeline_mode,
                 "combined_phase": "dictionary" if assisted_furigana else None,
+                "log": f"Phase 2: Initializing dictionary analysis & vocabulary extraction (Study limit: {'All' if per_chapter_item_limit == 0 else per_chapter_item_limit} items/chapter)…",
             })
             study_output = output_filepath
 
@@ -523,13 +538,15 @@ def furiganalyse_task(
                 ),
                 progress_callback=dictionary_progress,
             )
+            final_out_size = os.path.getsize(output_filepath)
             progress.update({
                 "stage": "complete",
                 "pipeline_mode": pipeline_mode,
                 "combined_phase": (
                     "dictionary" if assisted_furigana else None
                 ),
-                "output_bytes": os.path.getsize(output_filepath),
+                "output_bytes": final_out_size,
+                "log": f"[SUCCESS] Conversion 100% complete! Output file ready: {os.path.basename(output_filepath)} ({final_out_size:,} bytes)",
             })
         else:
             main(
@@ -543,10 +560,19 @@ def furiganalyse_task(
                 custom_word_list_limit=custom_word_list_limit if custom_word_list_limit > 0 else None,
                 progress_callback=progress.update,
             )
-    except Exception:
-        progress.update({"stage": "error"})
-        logging.error("Conversion worker failed")
+            final_out_size = os.path.getsize(output_filepath)
+            progress.update({
+                "stage": "complete",
+                "output_bytes": final_out_size,
+                "log": f"[SUCCESS] Conversion 100% complete! Output file ready: {os.path.basename(output_filepath)} ({final_out_size:,} bytes)",
+            })
+    except Exception as exc:
+        err_msg = f"[ERROR] Conversion failed: {type(exc).__name__}: {exc}"
+        progress.update({"stage": "error", "log": err_msg})
+        logging.exception("Conversion worker failed")
         raise
+
+    return path_hash
 
     return path_hash
 

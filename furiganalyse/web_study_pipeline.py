@@ -605,12 +605,16 @@ def run_dictionary_study_pipeline(
     progress({
         "stage": "dictionary-lookup",
         "words_total": len(base_report.candidates),
-        "log": f"Tokenized book: Found {len(base_report.candidates):,} unique vocabulary candidates",
+        "log": f"Tokenized book: Found {len(base_report.candidates):,} unique vocabulary candidates across {chapter_count} chapters",
     })
     jmdict = SqliteJmdictProvider(
         jmdict_index, max_matches=1, max_senses_per_match=1
     )
     try:
+        progress({
+            "stage": "dictionary-lookup",
+            "log": f"Querying local JMdict database for {len(base_report.candidates):,} vocabulary candidates and multi-word expressions…",
+        })
         vocabulary_model = enrich_vocabulary_report(
             base_report,
             jmdict,
@@ -626,6 +630,10 @@ def run_dictionary_study_pipeline(
         jmnedict_index, max_matches=1, max_translations_per_match=1
     )
     try:
+        progress({
+            "stage": "name-lookup",
+            "log": "Querying local JMnedict database for character names and proper nouns…",
+        })
         vocabulary_model = enrich_name_report(
             vocabulary_model,
             jmnedict,
@@ -743,6 +751,11 @@ def run_dictionary_study_pipeline(
     ))
     annotation_plan = promote_dictionary_only_plan(phase4_plan)
     _write_json(work / "annotation-plan.json", annotation_plan)
+    total_occs = sum(len(it["occurrences"]) for it in annotation_plan["items"])
+    progress({
+        "stage": "study-selection",
+        "log": f"Study Annotation Plan: Selected {len(annotation_plan['items']):,} study items ({total_occs:,} occurrences) across {chapter_count} chapters",
+    })
 
     # Module 3: LLM Contextual Study Note Gloss Enrichment (optional, all conversion modes)
     if options.llm_enrich_glosses and options.llm_provider not in {"none", "", None}:
@@ -758,7 +771,7 @@ def run_dictionary_study_pipeline(
         if gloss_candidates:
             progress({
                 "stage": "study-selection",
-                "log": f"Module 3: Enriching {len(gloss_candidates)} study note glosses with {enrich_model or options.llm_provider}\u2026",
+                "log": f"Module 3: Enriching {len(gloss_candidates)} study note glosses with {enrich_model or options.llm_provider}…",
             })
             _llm = _get_llm(
                 provider_name=options.llm_provider,
@@ -777,8 +790,17 @@ def run_dictionary_study_pipeline(
                 annotation_plan = apply_gloss_enrichments(annotation_plan, glosses)
                 _write_json(work / "annotation-plan-enriched.json", annotation_plan)
 
-    progress({"stage": "linked-rendering", "study_items": len(annotation_plan["items"])})
+    progress({
+        "stage": "linked-rendering",
+        "study_items": len(annotation_plan["items"]),
+        "log": f"Sanitizing annotation plan against XHTML DOM element boundaries…",
+    })
     annotation_plan = _sanitize_plan_for_linked_output(source, book, annotation_plan)
+    progress({
+        "stage": "linked-rendering",
+        "study_items": len(annotation_plan["items"]),
+        "log": f"Rendering interactive popups and study notes across {chapter_count} chapters…",
+    })
     linked = create_linked_output(source, book, annotation_plan)
     guided_plan = None
     guided_report = None

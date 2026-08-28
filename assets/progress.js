@@ -251,18 +251,81 @@
         }
 
         // Render Live Backend Console Logs
-        const consoleEl = byId("backend-console-logs");
-        if (consoleEl && progress.log_lines && progress.log_lines.length > 0) {
-            consoleEl.innerHTML = progress.log_lines.map(line => {
-                const isHighlight = line.includes("ready") || line.includes("Ready") || line.includes("Complete") || line.includes("packaged");
-                const isPass = line.includes("Pass 1") || line.includes("Pass 2") || line.includes("Translating") || line.includes("Ollama") || line.includes("Hetzner") || line.includes("Series") || line.includes("Module 2");
-                const cls = isHighlight ? "console-log-line--highlight" : (isPass ? "console-log-line--pass" : "console-log-line--normal");
-                return `<div class="console-log-line ${cls}">${escapeHtml(line)}</div>`;
-            }).join("");
-            consoleEl.scrollTop = consoleEl.scrollHeight;
+        if (progress.log_lines && progress.log_lines.length > 0) {
+            allLogLines = progress.log_lines;
+            renderConsoleLogs();
         }
 
         updateStages(progress.stage);
+    }
+
+    let allLogLines = [];
+    let activeFilterCategory = "all";
+    let activeSearchQuery = "";
+    let autoScrollEnabled = true;
+
+    function getLineClass(line) {
+        if (line.includes("[ERROR]") || line.includes("failed") || line.includes("Failed") || line.includes("Exception") || line.includes("Error:")) {
+            return "console-log-line--error";
+        }
+        if (line.includes("[WARN]") || line.includes("Warning") || line.includes("skipped")) {
+            return "console-log-line--warn";
+        }
+        if (line.includes("[SUCCESS]") || line.includes("100% complete") || line.includes("ready") || line.includes("Ready") || line.includes("Complete") || line.includes("packaged")) {
+            return "console-log-line--highlight";
+        }
+        if (line.includes("Module 2") || line.includes("Module 3") || line.includes("Module 4") || line.includes("Pass 1") || line.includes("Pass 2") || line.includes("Series Memory") || line.includes("LLM") || line.includes("Ollama") || line.includes("Hetzner") || line.includes("Translating")) {
+            return "console-log-line--module";
+        }
+        if (line.includes("Phase 1") || line.includes("Phase 2") || line.includes("Furigana Pass") || line.includes("Furigana Engine") || line.includes("Tokenized") || line.includes("Dictionary") || line.includes("JMdict") || line.includes("JMnedict") || line.includes("Annotation Plan") || line.includes("Sanitizing") || line.includes("Starting conversion")) {
+            return "console-log-line--phase";
+        }
+        if (line.includes("Initializing")) {
+            return "console-log-line--dim";
+        }
+        return "console-log-line--normal";
+    }
+
+    function renderConsoleLogs() {
+        const consoleEl = byId("backend-console-logs");
+        if (!consoleEl) return;
+
+        let filtered = allLogLines;
+
+        if (activeFilterCategory === "phases") {
+            filtered = filtered.filter(l => l.includes("Phase") || l.includes("Furigana Pass") || l.includes("Furigana Engine") || l.includes("Tokenized") || l.includes("Dictionary") || l.includes("JMdict") || l.includes("JMnedict") || l.includes("Annotation Plan") || l.includes("Sanitizing") || l.includes("Packaging") || l.includes("Starting conversion") || l.includes("Extracted EPUB"));
+        } else if (activeFilterCategory === "modules") {
+            filtered = filtered.filter(l => l.includes("Module") || l.includes("Pass 1") || l.includes("Pass 2") || l.includes("Series Memory") || l.includes("LLM") || l.includes("Ollama") || l.includes("Hetzner") || l.includes("Cast") || l.includes("Glossary") || l.includes("Translating") || l.includes("enriched"));
+        } else if (activeFilterCategory === "errors") {
+            filtered = filtered.filter(l => l.includes("[ERROR]") || l.includes("[WARN]") || l.includes("failed") || l.includes("Failed") || l.includes("Exception") || l.includes("Error:") || l.includes("Warning"));
+        }
+
+        if (activeSearchQuery) {
+            const q = activeSearchQuery.toLowerCase();
+            filtered = filtered.filter(l => l.toLowerCase().includes(q));
+        }
+
+        const countBadge = byId("console-log-count");
+        if (countBadge) {
+            if (filtered.length === allLogLines.length) {
+                countBadge.textContent = `${allLogLines.length} ${allLogLines.length === 1 ? "entry" : "entries"}`;
+            } else {
+                countBadge.textContent = `${filtered.length} / ${allLogLines.length} shown`;
+            }
+        }
+
+        if (filtered.length === 0) {
+            consoleEl.innerHTML = `<div class="console-log-line console-log-line--dim">No logs match the current filter.</div>`;
+        } else {
+            consoleEl.innerHTML = filtered.map(line => {
+                const cls = getLineClass(line);
+                return `<div class="console-log-line ${cls}">${escapeHtml(line)}</div>`;
+            }).join("");
+        }
+
+        if (autoScrollEnabled) {
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
     }
 
     function escapeHtml(str) {
@@ -398,6 +461,93 @@
                 alert("Error saving series: " + e.message);
                 saveSeriesBtn.disabled = false;
                 saveSeriesBtn.textContent = "💾 Save to Series Memory";
+            }
+        });
+    }
+
+    // Console Interactive Toolbar Actions
+    const filterToggleBtn = byId("console-filter-btn");
+    const filterBar = byId("console-filter-bar");
+    if (filterToggleBtn && filterBar) {
+        filterToggleBtn.addEventListener("click", function () {
+            const isHidden = filterBar.hidden;
+            filterBar.hidden = !isHidden;
+            filterToggleBtn.classList.toggle("active", isHidden);
+            if (isHidden) {
+                const input = byId("console-search-input");
+                if (input) input.focus();
+            }
+        });
+    }
+
+    const searchInput = byId("console-search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            activeSearchQuery = searchInput.value.trim();
+            renderConsoleLogs();
+        });
+    }
+
+    const filterChips = document.querySelectorAll(".console-filter-chips .filter-chip");
+    filterChips.forEach(chip => {
+        chip.addEventListener("click", function () {
+            filterChips.forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+            activeFilterCategory = chip.getAttribute("data-filter") || "all";
+            renderConsoleLogs();
+        });
+    });
+
+    const autoscrollBtn = byId("console-autoscroll-btn");
+    if (autoscrollBtn) {
+        autoscrollBtn.addEventListener("click", function () {
+            autoScrollEnabled = !autoScrollEnabled;
+            autoscrollBtn.classList.toggle("active", autoScrollEnabled);
+            autoscrollBtn.textContent = autoScrollEnabled ? "⬇ Auto-scroll: ON" : "⏸ Auto-scroll: OFF";
+            if (autoScrollEnabled) {
+                const consoleEl = byId("backend-console-logs");
+                if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        });
+    }
+
+    const expandBtn = byId("console-expand-btn");
+    const consoleCard = byId("backend-console-card");
+    if (expandBtn && consoleCard) {
+        expandBtn.addEventListener("click", function () {
+            const isExpanded = consoleCard.classList.toggle("is-expanded");
+            expandBtn.textContent = isExpanded ? "⤡ Collapse" : "⤢ Expand";
+            expandBtn.classList.toggle("active", isExpanded);
+        });
+    }
+
+    const copyBtn = byId("console-copy-btn");
+    if (copyBtn) {
+        copyBtn.addEventListener("click", async function () {
+            if (allLogLines.length === 0) {
+                alert("No console logs available to copy yet.");
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(allLogLines.join("\n"));
+                const origText = copyBtn.textContent;
+                copyBtn.textContent = "✓ Copied!";
+                copyBtn.style.color = "#4ade80";
+                setTimeout(() => {
+                    copyBtn.textContent = origText;
+                    copyBtn.style.color = "";
+                }, 2000);
+            } catch (err) {
+                // Fallback for older browsers
+                const ta = document.createElement("textarea");
+                ta.value = allLogLines.join("\n");
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                document.body.removeChild(ta);
+                const origText = copyBtn.textContent;
+                copyBtn.textContent = "✓ Copied!";
+                setTimeout(() => { copyBtn.textContent = origText; }, 2000);
             }
         });
     }
