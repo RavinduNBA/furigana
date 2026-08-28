@@ -510,16 +510,39 @@ def _sanitize_plan_for_linked_output(
 
         if valid_occs:
             item_copy = dict(item)
-            for num, occ in enumerate(valid_occs, start=1):
-                occ["occurrence_number"] = num
-                occ["id"] = f"{item['id']}-occ-{num:04d}"
-                occ["source_anchor_id"] = f"src-{item['id']}-occ-{num:04d}"
+            primary = valid_occs[0]
+            item_copy["chapter_id"] = primary["chapter_id"]
+            item_copy["block_id"] = primary["block_id"]
+            item_copy["sentence_id"] = primary["sentence_id"]
+            item_copy["token_ids"] = primary["token_ids"]
+            item_copy["candidate_ids"] = primary["candidate_ids"]
+            item_copy["expression_id"] = primary.get("expression_id")
+            item_copy["name_id"] = primary.get("name_id")
+            item_copy["publisher_ruby_id"] = primary.get("publisher_ruby_id")
             item_copy["occurrences"] = valid_occs
-            item_copy["source_anchor_id"] = valid_occs[0]["source_anchor_id"]
-            item_copy["sentence_id"] = valid_occs[0]["sentence_id"]
             sanitized_items.append(item_copy)
 
     if dropped_count > 0:
+        sanitized_items.sort(
+            key=lambda it: (
+                it["chapter_id"],
+                it["block_id"],
+                it["sentence_id"],
+                it["occurrences"][0]["sentence_start"],
+            )
+        )
+        for item_idx, item_obj in enumerate(sanitized_items, start=1):
+            item_id = f"study-item-{item_idx:04d}"
+            item_obj["id"] = item_id
+            item_obj["note_anchor_id"] = f"note-study-item-{item_idx:04d}"
+            for occ_idx, occ_obj in enumerate(item_obj["occurrences"], start=1):
+                occ_id = f"{item_id}-occ-{occ_idx:04d}"
+                source_anchor_id = f"src-{item_id}-occ-{occ_idx:04d}"
+                occ_obj["occurrence_number"] = occ_idx
+                occ_obj["id"] = occ_id
+                occ_obj["source_anchor_id"] = source_anchor_id
+            item_obj["source_anchor_id"] = item_obj["occurrences"][0]["source_anchor_id"]
+
         result = dict(plan)
         result["items"] = sanitized_items
         return result
