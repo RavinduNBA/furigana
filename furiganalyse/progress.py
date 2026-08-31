@@ -92,8 +92,15 @@ class ProgressWriter:
             line = log_msg if log_msg.startswith("[") else f"[{timestamp}] {log_msg}"
             logs = self.values.setdefault("log_lines", [])
             logs.append(line)
-            if len(logs) > 500:
-                self.values["log_lines"] = logs[-500:]
+            if len(logs) > 1000:
+                self.values["log_lines"] = logs[-1000:]
+            # Append directly to conversion.log in task directory
+            try:
+                log_file = self.path.parent / "conversion.log"
+                with open(log_file, "a", encoding="utf-8") as lf:
+                    lf.write(f"{line}\n")
+            except Exception:
+                pass
         elapsed = max(0.0, time.monotonic() - self.started)
         total = int(self.values["characters_total"])
         processed = int(self.values["characters_processed"])

@@ -663,7 +663,7 @@ def get_file(uid: UUID):
         candidates = [
             f for f in task_folder.iterdir()
             if f.is_file()
-            and f.name not in {"progress.json", "custom_word_list.txt"}
+            and f.name not in {"progress.json", "custom_word_list.txt", "conversion.log"}
             and not f.name.endswith("-stage.epub")
             and not f.name.startswith(".")
             and "Bilingual Companion" not in f.name
@@ -677,6 +677,26 @@ def get_file(uid: UUID):
         return Response("Uid not found!", status_code=404)
 
     return Response("File not ready yet!", status_code=400)
+
+
+@app.get('/jobs/{uid}/logs/download')
+def download_conversion_log(uid: UUID):
+    task_folder = Path(OUTPUT_FOLDER) / str(uid)
+    log_file = task_folder / "conversion.log"
+    if log_file.is_file():
+        return FileResponse(path=str(log_file), filename=f"conversion_{uid}.log", media_type="text/plain")
+    prog_file = task_folder / "progress.json"
+    if prog_file.is_file():
+        try:
+            data = json.loads(prog_file.read_text(encoding="utf-8"))
+            lines = data.get("log_lines") or []
+            if lines:
+                content = "\n".join(lines) + "\n"
+                log_file.write_text(content, encoding="utf-8")
+                return FileResponse(path=str(log_file), filename=f"conversion_{uid}.log", media_type="text/plain")
+        except Exception:
+            pass
+    return Response("Log not available", status_code=404)
 
 
 @app.get('/jobs/{uid}/bilingual_file')
@@ -791,7 +811,7 @@ async def start_furiganalyse_task(
     furigana_mode: str,
     *args,
 ) -> None:
-    pipeline_mode = args[5] if len(args) > 5 else "furigana"
+    pipeline_mode = args[4] if len(args) > 4 and args[4] else "furigana"
     output_filename = generate_output_filename(safe_filename, of, pipeline_mode)
     try:
         jobs[uid].result = await run_in_process(

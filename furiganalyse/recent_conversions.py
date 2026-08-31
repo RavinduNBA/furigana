@@ -1,14 +1,16 @@
-"""Manage and persist the list of recent ebook conversions (up to 10)."""
+"""Manage, persist, and housekeep recent ebook conversions (up to 10)."""
 
 from __future__ import annotations
 
 import json
+import logging
 import os
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+logger = logging.getLogger(__name__)
 
 MAX_RECENT_CONVERSIONS = 10
 
@@ -46,12 +48,97 @@ def load_recent_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
     return []
 
 
+def ensure_job_conversion_log(task_dir: Path) -> None:
+    """Ensure conversion.log exists in the task directory from progress.json if available."""
+    log_file = task_dir / "conversion.log"
+    prog_file = task_dir / "progress.json"
+    if not log_file.is_file() and prog_file.is_file():
+        try:
+            data = json.loads(prog_file.read_text(encoding="utf-8"))
+            log_lines = data.get("log_lines") or []
+            if log_lines:
+                log_file.write_text("\n".join(log_lines) + "\n", encoding="utf-8")
+        except Exception:
+            pass
+
+
+def housekeep_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
+    """Enforce retention of at most 10 recent conversions, save verbose logs, and purge older/orphaned folders."""
+    path = get_recent_conversions_path(output_folder)
+    items = load_recent_conversions(output_folder)
+
+    # 1. Separate top 10 from older items
+    retained_items = items[:MAX_RECENT_CONVERSIONS]
+    dropped_items = items[MAX_RECENT_CONVERSIONS:]
+
+    out_dir = Path(output_folder)
+    if not out_dir.is_dir():
+        return retained_items
+
+    # 2. Delete folders for dropped items
+    for item in dropped_items:
+        uid = item.get("uid")
+        if uid:
+            task_dir = out_dir / uid
+            if task_dir.is_dir():
+                try:
+                    shutil.rmtree(task_dir, ignore_errors=True)
+                    logger.info("Housekeeping: purged older conversion folder %s", uid)
+                except Exception as exc:
+                    logger.warning("Housekeeping failed to remove folder %s: %s", uid, exc)
+
+    # 3. Ensure verbose logs are saved and intermediate scratch files removed in retained items
+    retained_uids: set[str] = set()
+    for item in retained_items:
+        uid = item.get("uid")
+        if not uid:
+            continue
+        retained_uids.add(uid)
+        task_dir = out_dir / uid
+        if task_dir.is_dir():
+            ensure_job_conversion_log(task_dir)
+            # Remove heavy intermediate scratch directories to save disk space
+            study_work = task_dir / "study-work"
+            if study_work.is_dir():
+                shutil.rmtree(study_work, ignore_errors=True)
+            stage_furi = task_dir / "furigana-stage.epub"
+            if stage_furi.is_file():
+                try:
+                    stage_furi.unlink()
+                except Exception:
+                    pass
+
+    # 4. Scan output directory for any orphaned subdirectories not in retained_uids
+    try:
+        for sub in out_dir.iterdir():
+            if sub.is_dir() and not sub.name.startswith("."):
+                if sub.name not in retained_uids:
+                    try:
+                        shutil.rmtree(sub, ignore_errors=True)
+                        logger.info("Housekeeping: purged orphaned folder %s", sub.name)
+                    except Exception as exc:
+                        logger.warning("Housekeeping failed to remove %s: %s", sub.name, exc)
+    except Exception:
+        pass
+
+    # 5. Save the updated recent_conversions.json
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(retained_items, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception:
+        pass
+
+    return retained_items
+
+
 def record_conversion(
     output_folder: str | Path,
     uid: str,
     filename: str,
     output_filename: str,
-    pipeline_mode: str,
+    pipeline_mode: str = "furigana",
     furigana_mode: str = "add",
     status: str = "in_progress",
     output_bytes: Optional[int] = None,
@@ -59,7 +146,10 @@ def record_conversion(
     path = get_recent_conversions_path(output_folder)
     items = load_recent_conversions(output_folder)
 
-    # Check if entry already exists (e.g. updating from in_progress to complete)
+    # Normalize pipeline_mode
+    if isinstance(pipeline_mode, bool) or not pipeline_mode:
+        pipeline_mode = "furigana"
+
     now_str = format_timestamp()
     existing_idx = next((i for i, item in enumerate(items) if item.get("uid") == uid), None)
 
@@ -82,7 +172,10 @@ def record_conversion(
     else:
         items.insert(0, record)
 
-    items = items[:MAX_RECENT_CONVERSIONS]
+    # Ensure log is saved in task dir
+    task_dir = Path(output_folder) / uid
+    if task_dir.is_dir():
+        ensure_job_conversion_log(task_dir)
 
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -92,7 +185,8 @@ def record_conversion(
     except Exception:
         pass
 
-    return items
+    # Run housekeeping
+    return housekeep_conversions(output_folder)
 
 
 def remove_recent_conversion(output_folder: str | Path, uid: str) -> list[dict[str, Any]]:
@@ -113,15 +207,15 @@ def remove_recent_conversion(output_folder: str | Path, uid: str) -> list[dict[s
     task_dir = Path(output_folder) / uid
     if task_dir.is_dir():
         try:
-            shutil.rmtree(task_dir)
+            shutil.rmtree(task_dir, ignore_errors=True)
         except Exception:
             pass
 
-    return items
+    return housekeep_conversions(output_folder)
 
 
 def cleanup_orphaned_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
-    """Marks any leftover 'in_progress' jobs as 'stopped' and purges orphaned scratch work."""
+    """Marks any leftover 'in_progress' jobs as 'stopped' and triggers full housekeeping."""
     path = get_recent_conversions_path(output_folder)
     items = load_recent_conversions(output_folder)
     changed = False
@@ -140,22 +234,4 @@ def cleanup_orphaned_conversions(output_folder: str | Path) -> list[dict[str, An
         except Exception:
             pass
 
-    # Clean up any leftover study-work or scratch folders in output directory
-    out_dir = Path(output_folder)
-    if out_dir.is_dir():
-        for sub in out_dir.iterdir():
-            if sub.is_dir():
-                study_work = sub / "study-work"
-                if study_work.is_dir():
-                    try:
-                        shutil.rmtree(study_work)
-                    except Exception:
-                        pass
-                stage_furi = sub / "furigana-stage.epub"
-                if stage_furi.is_file():
-                    try:
-                        stage_furi.unlink()
-                    except Exception:
-                        pass
-
-    return items
+    return housekeep_conversions(output_folder)
