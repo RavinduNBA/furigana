@@ -197,23 +197,18 @@ def enrich_glosses(
                     pass
             return cached
 
-    all_glosses: dict[str, str] = {}
-    total_batches = (len(candidates) + MAX_ITEMS_PER_BATCH - 1) // MAX_ITEMS_PER_BATCH
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    for batch_idx in range(0, len(candidates), MAX_ITEMS_PER_BATCH):
-        batch = candidates[batch_idx:batch_idx + MAX_ITEMS_PER_BATCH]
-        batch_num = batch_idx // MAX_ITEMS_PER_BATCH + 1
+    MAX_WORKERS = 3
+    all_glosses: dict[str, Any] = {}
+    batches = [
+        (idx // MAX_ITEMS_PER_BATCH + 1, candidates[idx:idx + MAX_ITEMS_PER_BATCH])
+        for idx in range(0, len(candidates), MAX_ITEMS_PER_BATCH)
+    ]
+    total_batches = len(batches)
 
-        if progress_callback:
-            try:
-                progress_callback({
-                    "log": f"Contextual gloss enrichment: batch {batch_num}/{total_batches} ({len(batch)} items)…",
-                    "translation_latest_japanese": "  ".join(c["surface"] for c in batch[:10]),
-                    "translation_latest_english": f"Generating contextual glosses (batch {batch_num}/{total_batches})…",
-                })
-            except Exception:
-                pass
-
+    def _process_single_batch(batch_info: tuple[int, list[dict[str, Any]]]) -> tuple[int, dict[str, Any], float, str]:
+        batch_num, batch = batch_info
         user_content = json.dumps(
             [
                 {
@@ -240,55 +235,67 @@ def enrich_glosses(
             max_tokens=8192,
         )
 
-        try:
-            start_t = time.time()
-            resp = provider.generate(req)
-            elapsed = time.time() - start_t
-            import re
-            raw = (resp.content or "").strip()
-            if not raw and isinstance(getattr(resp, "raw", None), dict):
-                choices = resp.raw.get("choices", [])
-                if choices:
-                    msg = choices[0].get("message", {})
-                    raw = (msg.get("content") or msg.get("reasoning") or "").strip()
-            if raw.startswith("```"):
-                raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
-                raw = re.sub(r"\n?```$", "", raw.strip())
-            # Find outermost JSON array if surrounded by commentary
-            json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
-            if json_match:
-                raw = json_match.group(0)
-            parsed = json.loads(raw)
-            if isinstance(parsed, list):
-                batch_count = 0
-                for item in parsed:
-                    item_id = item.get("id", "")
-                    gloss = item.get("gloss", "")
-                    selected_sense_id = item.get("selected_sense_id")
-                    if item_id and gloss:
-                        all_glosses[item_id] = {
-                            "gloss": gloss,
-                            "selected_sense_id": selected_sense_id,
-                        }
-                        batch_count += 1
+        start_t = time.time()
+        resp = provider.generate(req)
+        elapsed = time.time() - start_t
+        import re
+        raw = (resp.content or "").strip()
+        if not raw and isinstance(getattr(resp, "raw", None), dict):
+            choices = resp.raw.get("choices", [])
+            if choices:
+                msg = choices[0].get("message", {})
+                raw = (msg.get("content") or msg.get("reasoning") or "").strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw.strip())
+        json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
+        if json_match:
+            raw = json_match.group(0)
+        parsed = json.loads(raw)
+        batch_results: dict[str, Any] = {}
+        if isinstance(parsed, list):
+            for item in parsed:
+                item_id = item.get("id", "")
+                gloss = item.get("gloss", "")
+                selected_sense_id = item.get("selected_sense_id")
+                if item_id and gloss:
+                    batch_results[item_id] = {
+                        "gloss": gloss,
+                        "selected_sense_id": selected_sense_id,
+                    }
+        return batch_num, batch_results, elapsed, raw
+
+    completed_batches = 0
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        future_map = {
+            executor.submit(_process_single_batch, b_info): b_info
+            for b_info in batches
+        }
+
+        for future in as_completed(future_map):
+            b_info = future_map[future]
+            batch_num = b_info[0]
+            try:
+                b_num, batch_results, elapsed, raw = future.result()
+                all_glosses.update(batch_results)
+                completed_batches += 1
                 if progress_callback:
                     try:
                         progress_callback({
-                            "log": f"Module 3: Batch {batch_num}/{total_batches} enriched ({batch_count} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
+                            "log": f"Module 3: Batch {b_num}/{total_batches} enriched ({len(batch_results)} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
                         })
                     except Exception:
                         pass
-        except Exception as exc:
-            preview = repr(raw[:100]) if "raw" in locals() and raw else "empty/None"
-            logger.warning("enrich_glosses: batch %d failed (%s, preview=%s), skipping remaining batches", batch_num, exc, preview)
-            if progress_callback:
-                try:
-                    progress_callback({
-                        "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc} | preview: {preview}). Using standard JMdict definitions.",
-                    })
-                except Exception:
-                    pass
-            break
+            except Exception as exc:
+                completed_batches += 1
+                logger.warning("enrich_glosses: batch %d failed (%s)", batch_num, exc)
+                if progress_callback:
+                    try:
+                        progress_callback({
+                            "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc}). Using standard JMdict definitions.",
+                        })
+                    except Exception:
+                        pass
 
     if progress_callback:
         try:
