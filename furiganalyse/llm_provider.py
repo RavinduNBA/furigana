@@ -111,14 +111,14 @@ class MockLLMProvider(BaseLLMProvider):
 
 
 class OpenAICompatibleProvider(BaseLLMProvider):
-    """Provider for OpenAI, OpenRouter, Ollama, vLLM, DeepSeek, etc."""
+    """Provider for OpenAI, OpenRouter, Ollama, vLLM, DeepSeek, Hetzner, etc."""
 
     def __init__(
         self,
         api_key: str | None = None,
         base_url: str = "https://api.openai.com/v1",
         default_model: str = "gpt-4o-mini",
-        timeout_seconds: int = 15,
+        timeout_seconds: int = 180,
         max_retries: int = 2,
     ):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
@@ -157,6 +157,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         data_bytes = json.dumps(payload).encode("utf-8")
 
         for attempt in range(1, self.max_retries + 1):
+            start_time = time.time()
             try:
                 req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
                 with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
@@ -179,6 +180,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                                 except Exception:
                                     pass
                         full_content = "".join(accumulated)
+                        elapsed = time.time() - start_time
+                        logger.info(
+                            "LLM stream [%s] finished in %.1fs (%d chars)",
+                            model,
+                            elapsed,
+                            len(full_content),
+                        )
                         return LLMResponse(
                             content=full_content,
                             prompt_tokens=0,
@@ -188,27 +196,55 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         )
                     else:
                         resp_body = resp.read().decode("utf-8")
+                        elapsed = time.time() - start_time
                         result = json.loads(resp_body)
                         choice = result["choices"][0]
                         content = choice["message"]["content"]
                         usage = result.get("usage", {})
+                        p_tok = usage.get("prompt_tokens", 0)
+                        c_tok = usage.get("completion_tokens", 0)
+                        logger.info(
+                            "LLM [%s] response received in %.1fs (Prompt: %d tokens, Completion: %d tokens, Output: %d chars)",
+                            model,
+                            elapsed,
+                            p_tok,
+                            c_tok,
+                            len(content),
+                        )
                         return LLMResponse(
                             content=content,
-                            prompt_tokens=usage.get("prompt_tokens", 0),
-                            completion_tokens=usage.get("completion_tokens", 0),
+                            prompt_tokens=p_tok,
+                            completion_tokens=c_tok,
                             model=result.get("model", model),
                             raw=result,
                         )
             except urllib.error.HTTPError as exc:
+                elapsed = time.time() - start_time
                 err_msg = exc.read().decode("utf-8", errors="replace")
-                logger.warning(f"HTTP {exc.code} from LLM provider (attempt {attempt}/{self.max_retries}): {err_msg}")
+                logger.warning(
+                    "HTTP %d from LLM provider [%s] after %.1fs (attempt %d/%d): %s",
+                    exc.code,
+                    model,
+                    elapsed,
+                    attempt,
+                    self.max_retries,
+                    err_msg,
+                )
                 if attempt == self.max_retries or exc.code in {400, 401, 403, 404, 429}:
                     raise LLMProviderError(f"LLM API HTTP {exc.code}: {err_msg}") from exc
                 time.sleep(1)
             except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
-                logger.warning(f"Connection error to LLM provider (attempt {attempt}/{self.max_retries}): {exc}")
+                elapsed = time.time() - start_time
+                logger.warning(
+                    "Connection/timeout error to LLM [%s] after %.1fs (attempt %d/%d): %s",
+                    model,
+                    elapsed,
+                    attempt,
+                    self.max_retries,
+                    exc,
+                )
                 if attempt == self.max_retries:
-                    raise LLMProviderError(f"LLM connection error: {exc}") from exc
+                    raise LLMProviderError(f"LLM connection error after {elapsed:.1f}s: {exc}") from exc
                 time.sleep(2**attempt)
 
         raise LLMProviderError("Exceeded maximum retries contacting LLM provider")
@@ -245,8 +281,8 @@ def get_llm_provider(
             else:
                 default_model = "gpt-4o-mini"
 
-        timeout = 180 if name == "ollama" else 15
-        retries = 2 if name == "ollama" else 1
+        timeout = 180
+        retries = 2
         return OpenAICompatibleProvider(
             api_key=api_key,
             base_url=base_url or default_url,

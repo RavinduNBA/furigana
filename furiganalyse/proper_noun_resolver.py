@@ -210,7 +210,7 @@ def resolve_proper_nouns(
     if progress_callback:
         try:
             progress_callback({
-                "log": f"Proper noun resolution: sending {len(candidates)} candidates to {model or 'LLM'} for reading/romanization…",
+                "log": f"Module 4 (Proper Nouns): Sending {len(candidates)} unresolved proper nouns to {model or 'LLM'} for reading/romanization…",
                 "translation_current_chapter": "LLM Proper Noun Resolution",
                 "translation_latest_japanese": "  ".join(c["surface"] for c in candidates[:20]),
                 "translation_latest_english": "Resolving readings and romanizations…",
@@ -241,7 +241,9 @@ def resolve_proper_nouns(
     )
 
     try:
+        start_t = time.time()
         resp = provider.generate(req)
+        elapsed = time.time() - start_t
         raw = resp.content.strip()
         # Strip any markdown code fences the model may add
         if raw.startswith("```"):
@@ -249,7 +251,14 @@ def resolve_proper_nouns(
             raw = re.sub(r"\n?```$", "", raw.strip())
         parsed = json.loads(raw)
         if not isinstance(parsed, list):
-            logger.warning("resolve_proper_nouns: LLM returned non-list, skipping")
+            logger.warning("resolve_proper_nouns: LLM returned non-list, skipping. Response preview: %s", raw[:300])
+            if progress_callback:
+                try:
+                    progress_callback({
+                        "log": f"Module 4 (Proper Nouns): LLM response format unexpected (preview: {raw[:150]}). Using dictionary-only readings.",
+                    })
+                except Exception:
+                    pass
             return {}
 
         overrides: dict[str, dict[str, Any]] = {}
@@ -266,9 +275,10 @@ def resolve_proper_nouns(
                 }
 
         logger.info(
-            "resolve_proper_nouns: resolved %d/%d candidates via LLM",
+            "resolve_proper_nouns: resolved %d/%d candidates via LLM in %.1fs",
             len(overrides),
             len(candidates),
+            elapsed,
         )
 
         if progress_callback:
@@ -278,7 +288,7 @@ def resolve_proper_nouns(
                     for s, v in list(overrides.items())[:8]
                 )
                 progress_callback({
-                    "log": f"Proper noun resolution complete: {len(overrides)} resolved. Examples: {sample}",
+                    "log": f"Module 4 complete: {len(overrides)} proper names resolved via {model or 'LLM'} in {elapsed:.1f}s. Sample: {sample}",
                     "translation_latest_english": sample or "No resolutions returned",
                 })
             except Exception:
@@ -294,7 +304,7 @@ def resolve_proper_nouns(
         if progress_callback:
             try:
                 progress_callback({
-                    "log": f"Proper noun resolution: LLM call failed ({exc}), using dictionary-only readings",
+                    "log": f"Module 4 (Proper Nouns): LLM call failed ({exc}). Using dictionary-only readings.",
                 })
             except Exception:
                 pass

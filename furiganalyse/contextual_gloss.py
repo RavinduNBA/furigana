@@ -218,7 +218,9 @@ def enrich_glosses(
         )
 
         try:
+            start_t = time.time()
             resp = provider.generate(req)
+            elapsed = time.time() - start_t
             import re
             raw = resp.content.strip()
             if raw.startswith("```"):
@@ -226,19 +228,35 @@ def enrich_glosses(
                 raw = re.sub(r"\n?```$", "", raw.strip())
             parsed = json.loads(raw)
             if isinstance(parsed, list):
+                batch_count = 0
                 for item in parsed:
                     item_id = item.get("id", "")
                     gloss = item.get("gloss", "")
                     if item_id and gloss:
                         all_glosses[item_id] = gloss
+                        batch_count += 1
+                if progress_callback:
+                    try:
+                        progress_callback({
+                            "log": f"Module 3: Batch {batch_num}/{total_batches} enriched ({batch_count} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
+                        })
+                    except Exception:
+                        pass
         except Exception as exc:
             logger.warning("enrich_glosses: batch %d failed (%s), skipping remaining batches", batch_num, exc)
+            if progress_callback:
+                try:
+                    progress_callback({
+                        "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc}). Using standard JMdict definitions.",
+                    })
+                except Exception:
+                    pass
             break
 
     if progress_callback:
         try:
             progress_callback({
-                "log": f"Contextual gloss enrichment complete: {len(all_glosses)}/{len(candidates)} study items enriched",
+                "log": f"Module 3 complete: {len(all_glosses)}/{len(candidates)} contextual study glosses enriched",
             })
         except Exception:
             pass
