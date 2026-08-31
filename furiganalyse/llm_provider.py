@@ -199,7 +199,10 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         elapsed = time.time() - start_time
                         result = json.loads(resp_body)
                         choice = result["choices"][0]
-                        content = choice["message"]["content"]
+                        msg = choice.get("message", {})
+                        content = msg.get("content")
+                        if content is None:
+                            content = msg.get("text") or msg.get("reasoning") or ""
                         usage = result.get("usage", {})
                         p_tok = usage.get("prompt_tokens", 0)
                         c_tok = usage.get("completion_tokens", 0)

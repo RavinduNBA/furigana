@@ -24,29 +24,21 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 CACHE_SCHEMA_VERSION = 1
-MAX_ITEMS_PER_BATCH = 40   # keep prompts manageable on CPU models
+MAX_ITEMS_PER_BATCH = 6   # 6 items per batch ensures reasoning models finish within token and timeout budgets
 
-SYSTEM_PROMPT = """You are a Japanese language expert and literary analyst specialising in light novels.
-
-You will receive a JSON array of vocabulary items that appear in a Japanese novel.
-Each item includes: the Japanese surface form, the reading, the standard JMdict dictionary sense,
-and 1-3 short sentences from the actual book where the word appears.
-
-For each item, write a SHORT contextual gloss (1-2 sentences, max 120 characters) that:
-1. Gives the most relevant meaning for this specific book's context.
-2. If the word has a culturally specific or domain-specific meaning (magic, school hierarchy, etc.),
-   explain that — don't just restate the dictionary definition.
-3. If the JMdict sense is perfectly applicable, you may use a shorter version of it.
+SYSTEM_PROMPT = """You are a Japanese light novel terminology expert.
+For each vocabulary item from the novel, provide a concise 1-2 sentence contextual gloss explaining its meaning in this light novel.
+If the term has a novel-specific or hierarchy-specific meaning (magic, school division, CAD, etc.), explain that directly.
 
 Respond ONLY with a valid JSON array. Each element must have exactly these keys:
-  id (the item id from input), gloss (the contextual 1-2 sentence description)
+  id (the item id from input), gloss (the contextual description)
 
 Do NOT add any text outside the JSON array.
 
 Example:
 [
   {"id": "item-001", "gloss": "Spell activation device worn on the wrist; standard equipment for magic high school students."},
-  {"id": "item-002", "gloss": "Senpai (upperclassman); used here respectfully by Miyuki to address the student council president."}
+  {"id": "item-002", "gloss": "Course 2 reserve student at First High (Weed), subject to social hierarchy and discrimination."}
 ]
 """
 
@@ -212,9 +204,10 @@ def enrich_glosses(
                 LLMMessage(role="system", content=SYSTEM_PROMPT),
                 LLMMessage(role="user", content=user_content),
             ],
-            temperature=0.2,
+            temperature=0.1,
             model=model,
             response_json=False,
+            max_tokens=8192,
         )
 
         try:
@@ -222,10 +215,19 @@ def enrich_glosses(
             resp = provider.generate(req)
             elapsed = time.time() - start_t
             import re
-            raw = resp.content.strip()
+            raw = (resp.content or "").strip()
+            if not raw and isinstance(getattr(resp, "raw", None), dict):
+                choices = resp.raw.get("choices", [])
+                if choices:
+                    msg = choices[0].get("message", {})
+                    raw = (msg.get("content") or msg.get("reasoning") or "").strip()
             if raw.startswith("```"):
-                raw = re.sub(r"^```[^\n]*\n?", "", raw)
+                raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
                 raw = re.sub(r"\n?```$", "", raw.strip())
+            # Find outermost JSON array if surrounded by commentary
+            json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
+            if json_match:
+                raw = json_match.group(0)
             parsed = json.loads(raw)
             if isinstance(parsed, list):
                 batch_count = 0
@@ -243,11 +245,12 @@ def enrich_glosses(
                     except Exception:
                         pass
         except Exception as exc:
-            logger.warning("enrich_glosses: batch %d failed (%s), skipping remaining batches", batch_num, exc)
+            preview = repr(raw[:100]) if "raw" in locals() and raw else "empty/None"
+            logger.warning("enrich_glosses: batch %d failed (%s, preview=%s), skipping remaining batches", batch_num, exc, preview)
             if progress_callback:
                 try:
                     progress_callback({
-                        "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc}). Using standard JMdict definitions.",
+                        "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc} | preview: {preview}). Using standard JMdict definitions.",
                     })
                 except Exception:
                     pass
@@ -285,6 +288,7 @@ def apply_gloss_enrichments(
         if item_id in glosses:
             item = dict(item)
             item["contextual_gloss"] = glosses[item_id]
+            item["display_meaning"] = glosses[item_id]
             patch_count += 1
         patched_items.append(item)
 
