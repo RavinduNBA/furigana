@@ -123,3 +123,39 @@ def test_apply_gloss_enrichments_with_sense_disambiguation():
     assert item["contextual_gloss"] == "Official stance / pretense (the facade of equal educational opportunity)."
     assert item["display_meaning"] == "Official stance / pretense (the facade of equal educational opportunity)."
     assert item["selected_sense_id"] == "jmdict-1524230-sense-0002"
+
+
+def test_apply_gloss_enrichments_with_dictionary_senses():
+    plan = {
+        "items": [
+            {
+                "id": "item-mahou",
+                "surface": "魔法",
+                "kind": "vocabulary",
+                "source_sense_ids": ["jmdict-1524230-sense-0001", "jmdict-1524230-sense-0002"],
+                "selected_sense_id": "jmdict-1524230-sense-0001",
+                "display_meaning": "magic",
+                "dictionary_senses": [
+                    "magic; witchcraft; sorcery",
+                    "mysterious art; miraculous power",
+                    "spell; incantation",
+                ],
+            }
+        ]
+    }
+    glosses = {
+        "item-mahou": {
+            "gloss": "The arcane energy system governing modern technological casting.",
+            "selected_sense_id": "jmdict-1524230-sense-0001",
+        }
+    }
+
+    enriched = apply_gloss_enrichments(plan, glosses)
+    item = enriched["items"][0]
+    assert item["contextual_gloss"] == "The arcane energy system governing modern technological casting."
+    assert "[Dictionary] 1. magic; witchcraft; sorcery · 2. mysterious art; miraculous power · 3. spell; incantation" in item["display_meaning"]
+    assert item["dictionary_senses"] == [
+        "magic; witchcraft; sorcery",
+        "mysterious art; miraculous power",
+        "spell; incantation",
+    ]

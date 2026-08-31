@@ -90,13 +90,18 @@ def collect_gloss_candidates(
 
         # Extract all candidate senses
         candidate_senses = []
-        for m in item.get("meanings", []):
-            for s in m.get("senses", []):
-                s_id = s.get("id", "")
-                glosses = s.get("glosses", [])
-                g_text = "; ".join(g.get("text", "") for g in glosses if g.get("text"))
-                if g_text:
-                    candidate_senses.append({"sense_id": s_id, "gloss": g_text})
+        if item.get("dictionary_senses"):
+            for idx, ds in enumerate(item["dictionary_senses"]):
+                s_id = item.get("source_sense_ids", [])[idx] if idx < len(item.get("source_sense_ids", [])) else f"{item_id}-sense-{idx+1}"
+                candidate_senses.append({"sense_id": s_id, "gloss": ds})
+        elif item.get("meanings"):
+            for m in item.get("meanings", []):
+                for s in m.get("senses", []):
+                    s_id = s.get("id", "")
+                    glosses = s.get("glosses", [])
+                    g_text = "; ".join(g.get("text", "") for g in glosses if g.get("text"))
+                    if g_text:
+                        candidate_senses.append({"sense_id": s_id, "gloss": g_text})
 
         # Primary baseline gloss
         primary_gloss = candidate_senses[0]["gloss"] if candidate_senses else item.get("display_meaning", "")
@@ -315,7 +320,7 @@ def apply_gloss_enrichments(
     annotation_plan: dict[str, Any],
     glosses: dict[str, Any],
 ) -> dict[str, Any]:
-    """Patch annotation plan items with contextual glosses and disambiguated senses.
+    """Patch annotation plan items with contextual glosses and dictionary senses.
 
     Returns a modified copy of the annotation plan.
     """
@@ -337,9 +342,27 @@ def apply_gloss_enrichments(
                 gloss = str(val)
                 selected_sense_id = None
 
+            # Extract up to 3 dictionary senses from meanings if available
+            dict_senses = item.get("dictionary_senses") or []
+            if not dict_senses and item.get("meanings"):
+                for m in item.get("meanings", []):
+                    for s in m.get("senses", []):
+                        g_texts = [g.get("text", "") for g in s.get("glosses", []) if g.get("text")]
+                        if g_texts:
+                            dict_senses.append("; ".join(g_texts))
+                        if len(dict_senses) >= 3:
+                            break
+                    if len(dict_senses) >= 3:
+                        break
+
             if gloss:
                 item["contextual_gloss"] = gloss
-                item["display_meaning"] = gloss
+                if dict_senses and item.get("kind") != "name":
+                    dict_str = " · ".join(f"{i}. {s}" for i, s in enumerate(dict_senses[:3], 1))
+                    item["display_meaning"] = f"{gloss}\n[Dictionary] {dict_str}"
+                    item["dictionary_senses"] = dict_senses[:3]
+                else:
+                    item["display_meaning"] = gloss
                 patch_count += 1
 
             # Update selected_sense_id if a valid matching sense was disambiguated

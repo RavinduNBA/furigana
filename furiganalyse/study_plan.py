@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
@@ -77,6 +77,7 @@ class StudyItem:
     selection_reason: str
     note_anchor_id: str
     occurrences: list[StudyOccurrence]
+    dictionary_senses: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -131,6 +132,7 @@ class _Proposal:
     dictionary_dataset_version: str
     display_meaning: str
     selection_reason: str
+    dictionary_senses: list[str] = field(default_factory=list)
 
 
 def _required_mapping(value: Any, name: str) -> dict[str, Any]:
@@ -243,6 +245,12 @@ def _preferred_occurrence_reading(
     return reading, "tokenizer"
 
 
+def _extract_gloss_text(g: Any) -> str:
+    if isinstance(g, dict):
+        return g.get("text", "") or ""
+    return str(g) if g else ""
+
+
 def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
     tokens = _indexed(report["tokens"], "token")
     candidates = _indexed(report["candidates"], "candidate")
@@ -289,6 +297,11 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
         )
         if not reading:
             reading = candidate.get("reading") or candidate_reading or candidate["surface"]
+        dict_senses = []
+        for s in selected_entry.get("senses", [])[:3]:
+            g_list = [_extract_gloss_text(g) for g in s.get("glosses", []) if _extract_gloss_text(g)]
+            if g_list:
+                dict_senses.append("; ".join(g_list))
         proposals.append(
             _Proposal(
                 kind="vocabulary",
@@ -328,6 +341,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 dictionary_dataset_version=dictionary["dataset_version"],
                 display_meaning=_short_meaning(glosses[0]),
                 selection_reason="first-compatible-jmdict-entry-and-sense",
+                dictionary_senses=dict_senses,
             )
         )
 
@@ -345,6 +359,11 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
         glosses = _required_list(selected_sense.get("glosses"), "expression glosses")
         readings = _required_list(selected_entry.get("readings"), "expression readings")
         expr_reading = (readings[0].get("text") if readings and readings[0].get("text") else None) or expression.get("reading") or expression["surface"]
+        expr_senses = []
+        for s in selected_entry.get("senses", [])[:3]:
+            g_list = [_extract_gloss_text(g) for g in s.get("glosses", []) if _extract_gloss_text(g)]
+            if g_list:
+                expr_senses.append("; ".join(g_list))
         proposals.append(
             _Proposal(
                 kind="expression",
@@ -376,6 +395,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 dictionary_dataset_version=dictionary["dataset_version"],
                 display_meaning=_short_meaning(glosses[0]),
                 selection_reason="longest-expression-first-compatible-sense",
+                dictionary_senses=expr_senses,
             )
         )
 
@@ -416,7 +436,9 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
             raise StudyPlanError(
                 f"Incomplete JMnedict translation: {selected_translation.get('id')}"
             )
-        meaning = f"{translations[0]} ({'; '.join(name_types)})"
+        types_text = "; ".join(name_types)
+        meaning = f"{translations[0]} ({types_text})"
+        name_senses = [f"{t} ({types_text})" for t in translations[:3]]
         name_readings = selected_entry.get("readings", [])
         name_entry_reading = name_readings[0].get("text") if name_readings else None
         name_reading = name.get("reading") or name_entry_reading or name["surface"]
@@ -455,6 +477,7 @@ def _proposals(report: dict[str, Any], prefer_occurrence_reading: bool = False):
                 dictionary_dataset_version=name_dictionary["dataset_version"],
                 display_meaning=_short_meaning(meaning),
                 selection_reason="first-compatible-jmnedict-entry-and-translation",
+                dictionary_senses=name_senses,
             )
         )
     return proposals, tokens, candidates, expressions, names
@@ -646,6 +669,7 @@ def create_annotation_plan(
                 selection_reason=primary.selection_reason,
                 note_anchor_id=f"note-{item_id}",
                 occurrences=occurrence_records,
+                dictionary_senses=primary.dictionary_senses,
             )
         )
 
