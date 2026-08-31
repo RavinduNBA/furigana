@@ -23,22 +23,33 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 MAX_ITEMS_PER_BATCH = 6   # 6 items per batch ensures reasoning models finish within token and timeout budgets
 
-SYSTEM_PROMPT = """You are a Japanese light novel terminology expert.
-For each vocabulary item from the novel, provide a concise 1-2 sentence contextual gloss explaining its meaning in this light novel.
-If the term has a novel-specific or hierarchy-specific meaning (magic, school division, CAD, etc.), explain that directly.
+SYSTEM_PROMPT = """You are a Japanese light novel terminology expert and literary translator.
+You will receive vocabulary items extracted from a novel, each with its surface form, reading, candidate dictionary senses, and in-book context sentences (with the target word marked in 【brackets】).
+
+For each item:
+1. Disambiguate the meaning: select the most accurate dictionary sense from "candidate_senses" that fits the sentence context.
+2. Write a precise, natural in-universe contextual gloss (1-2 sentences, max 120 chars) explaining its exact meaning in this context.
+   Avoid single-word or literal dictionary artifacts (e.g., for 建前 in institutional contexts, write "Official stance / pretense (as in the facade of equal educational opportunity)", NOT "face").
 
 Respond ONLY with a valid JSON array. Each element must have exactly these keys:
-  id (the item id from input), gloss (the contextual description)
+  id (the item id from input), gloss (the context-aware explanation), selected_sense_id (optional matching sense id from candidate_senses)
 
 Do NOT add any text outside the JSON array.
 
-Example:
+Example output:
 [
-  {"id": "item-001", "gloss": "Spell activation device worn on the wrist; standard equipment for magic high school students."},
-  {"id": "item-002", "gloss": "Course 2 reserve student at First High (Weed), subject to social hierarchy and discrimination."}
+  {
+    "id": "item-001",
+    "gloss": "Official stance / pretense (referring to the public facade of equal educational opportunity).",
+    "selected_sense_id": "jmdict-1524230-sense-0002"
+  },
+  {
+    "id": "item-002",
+    "gloss": "Course 2 reserve student at First High (Weed), subject to social hierarchy and discrimination."
+  }
 ]
 """
 
@@ -54,42 +65,60 @@ def collect_gloss_candidates(
     *,
     max_items: int = 200,
 ) -> list[dict[str, Any]]:
-    """Build a list of study items with their in-book context sentences.
+    """Build a list of study items with multi-sense definitions and highlighted context sentences.
 
-    Returns a list of dicts: { id, surface, reading, jmdict_gloss, context_sentences }
+    Returns a list of dicts: { id, surface, reading, candidate_senses, jmdict_gloss, context_sentences }
     """
-    # Build block_id -> sentence texts lookup
+    # Build sentence_id -> text lookup
+    sentence_lookup: dict[str, str] = {}
     block_sentences: dict[str, str] = {}
     for chapter in canonical_book.get("chapters", []):
         for block in chapter.get("blocks", []):
             bid = block.get("id", "")
-            block_sentences[bid] = " ".join(
-                s.get("text", "") for s in block.get("sentences", [])
-            )[:200]
+            sentences = block.get("sentences", [])
+            for s in sentences:
+                sid = s.get("id", "")
+                if sid:
+                    sentence_lookup[sid] = s.get("text", "")
+            block_sentences[bid] = " ".join(s.get("text", "") for s in sentences)[:200]
 
     results = []
     for item in annotation_plan.get("items", [])[:max_items]:
         item_id = item.get("id", "")
         surface = item.get("surface", "")
         reading = item.get("reading", "")
-        # Get the first JMdict gloss if available
-        gloss = ""
-        meanings = item.get("meanings", [])
-        if meanings:
-            first_meaning = meanings[0]
-            senses = first_meaning.get("senses", [])
-            if senses:
-                glosses = senses[0].get("glosses", [])
-                if glosses:
-                    gloss = "; ".join(g.get("text", "") for g in glosses[:3])
 
-        # Collect up to 3 unique context sentences from occurrences
+        # Extract all candidate senses
+        candidate_senses = []
+        for m in item.get("meanings", []):
+            for s in m.get("senses", []):
+                s_id = s.get("id", "")
+                glosses = s.get("glosses", [])
+                g_text = "; ".join(g.get("text", "") for g in glosses if g.get("text"))
+                if g_text:
+                    candidate_senses.append({"sense_id": s_id, "gloss": g_text})
+
+        # Primary baseline gloss
+        primary_gloss = candidate_senses[0]["gloss"] if candidate_senses else item.get("display_meaning", "")
+
+        # Collect up to 3 unique context sentences from occurrences with target word highlighted
         context_sentences = []
         for occ in item.get("occurrences", [])[:5]:
-            bid = occ.get("block_id", "")
-            sentence = block_sentences.get(bid, "")
-            if sentence and sentence not in context_sentences:
-                context_sentences.append(sentence)
+            sid = occ.get("sentence_id", "")
+            stext = sentence_lookup.get(sid, "")
+            if stext:
+                start = occ.get("sentence_start")
+                end = occ.get("sentence_end")
+                if start is not None and end is not None and 0 <= start < end <= len(stext):
+                    highlighted = f"{stext[:start]}【{stext[start:end]}】{stext[end:]}"
+                else:
+                    highlighted = stext
+            else:
+                bid = occ.get("block_id", "")
+                highlighted = block_sentences.get(bid, "")
+
+            if highlighted and highlighted not in context_sentences:
+                context_sentences.append(highlighted)
             if len(context_sentences) >= 3:
                 break
 
@@ -97,7 +126,8 @@ def collect_gloss_candidates(
             "id": item_id,
             "surface": surface,
             "reading": reading,
-            "jmdict_gloss": gloss,
+            "candidate_senses": candidate_senses,
+            "jmdict_gloss": primary_gloss,
             "context_sentences": context_sentences,
         })
 
@@ -190,7 +220,7 @@ def enrich_glosses(
                     "id": c["id"],
                     "surface": c["surface"],
                     "reading": c["reading"],
-                    "jmdict_gloss": c["jmdict_gloss"],
+                    "candidate_senses": c.get("candidate_senses") or ([{"sense_id": "sense-1", "gloss": c.get("jmdict_gloss", "")}] if c.get("jmdict_gloss") else []),
                     "context_sentences": c["context_sentences"],
                 }
                 for c in batch
@@ -234,8 +264,12 @@ def enrich_glosses(
                 for item in parsed:
                     item_id = item.get("id", "")
                     gloss = item.get("gloss", "")
+                    selected_sense_id = item.get("selected_sense_id")
                     if item_id and gloss:
-                        all_glosses[item_id] = gloss
+                        all_glosses[item_id] = {
+                            "gloss": gloss,
+                            "selected_sense_id": selected_sense_id,
+                        }
                         batch_count += 1
                 if progress_callback:
                     try:
@@ -272,9 +306,9 @@ def enrich_glosses(
 
 def apply_gloss_enrichments(
     annotation_plan: dict[str, Any],
-    glosses: dict[str, str],
+    glosses: dict[str, Any],
 ) -> dict[str, Any]:
-    """Patch annotation plan items with contextual glosses.
+    """Patch annotation plan items with contextual glosses and disambiguated senses.
 
     Returns a modified copy of the annotation plan.
     """
@@ -283,19 +317,36 @@ def apply_gloss_enrichments(
 
     patched_items = []
     patch_count = 0
+    sense_update_count = 0
     for item in annotation_plan.get("items", []):
         item_id = item.get("id", "")
         if item_id in glosses:
             item = dict(item)
-            item["contextual_gloss"] = glosses[item_id]
-            item["display_meaning"] = glosses[item_id]
-            patch_count += 1
+            val = glosses[item_id]
+            if isinstance(val, dict):
+                gloss = val.get("gloss", "")
+                selected_sense_id = val.get("selected_sense_id")
+            else:
+                gloss = str(val)
+                selected_sense_id = None
+
+            if gloss:
+                item["contextual_gloss"] = gloss
+                item["display_meaning"] = gloss
+                patch_count += 1
+
+            # Update selected_sense_id if a valid matching sense was disambiguated
+            if selected_sense_id and selected_sense_id in item.get("source_sense_ids", []):
+                item["selected_sense_id"] = selected_sense_id
+                sense_update_count += 1
+
         patched_items.append(item)
 
     logger.info(
-        "apply_gloss_enrichments: enriched %d/%d study items with contextual glosses",
+        "apply_gloss_enrichments: enriched %d/%d study items with contextual glosses (%d senses disambiguated)",
         patch_count,
         len(patched_items),
+        sense_update_count,
     )
 
     result = dict(annotation_plan)
