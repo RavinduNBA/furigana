@@ -121,7 +121,8 @@ def test_apply_gloss_enrichments_with_sense_disambiguation():
     enriched = apply_gloss_enrichments(plan, glosses)
     item = enriched["items"][0]
     assert item["contextual_gloss"] == "Official stance / pretense (the facade of equal educational opportunity)."
-    assert item["display_meaning"] == "Official stance / pretense (the facade of equal educational opportunity)."
+    assert "✦ Story Context:" in item["display_meaning"]
+    assert "Official stance / pretense" in item["display_meaning"]
     assert item["selected_sense_id"] == "jmdict-1524230-sense-0002"
 
 
@@ -153,9 +154,39 @@ def test_apply_gloss_enrichments_with_dictionary_senses():
     enriched = apply_gloss_enrichments(plan, glosses)
     item = enriched["items"][0]
     assert item["contextual_gloss"] == "The arcane energy system governing modern technological casting."
-    assert "[Dictionary] 1. magic; witchcraft; sorcery · 2. mysterious art; miraculous power · 3. spell; incantation" in item["display_meaning"]
+    assert "✦ Story Context:\nThe arcane energy system governing modern technological casting." in item["display_meaning"]
+    assert "📖 Standard Dictionary:\n  1. magic; witchcraft; sorcery\n  2. mysterious art; miraculous power\n  3. spell; incantation" in item["display_meaning"]
     assert item["dictionary_senses"] == [
         "magic; witchcraft; sorcery",
         "mysterious art; miraculous power",
         "spell; incantation",
     ]
+
+
+def test_enrich_glosses_retries_on_failure(tmp_path):
+    mock_provider = MagicMock()
+    # First attempt fails with invalid json, second attempt succeeds
+    mock_provider.generate.side_effect = [
+        LLMResponse(content="not valid json", prompt_tokens=10, completion_tokens=5, model="test-model"),
+        LLMResponse(
+            content='[{"id": "item-1", "gloss": "Enriched meaning on retry", "selected_sense_id": "sense-1"}]',
+            prompt_tokens=20,
+            completion_tokens=10,
+            model="test-model",
+        ),
+    ]
+
+    candidates = [
+        {
+            "id": "item-1",
+            "surface": "魔法",
+            "reading": "まほう",
+            "candidate_senses": [{"sense_id": "sense-1", "gloss": "magic"}],
+            "context_sentences": ["魔法の練習をする。"],
+        }
+    ]
+
+    glosses = enrich_glosses(candidates, mock_provider, model="test-model", cache_dir=tmp_path)
+    assert "item-1" in glosses
+    assert glosses["item-1"]["gloss"] == "Enriched meaning on retry"
+    assert mock_provider.generate.call_count == 2

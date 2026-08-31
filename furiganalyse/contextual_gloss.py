@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -240,35 +241,51 @@ def enrich_glosses(
             max_tokens=8192,
         )
 
-        start_t = time.time()
-        resp = provider.generate(req)
-        elapsed = time.time() - start_t
-        import re
-        raw = (resp.content or "").strip()
-        if not raw and isinstance(getattr(resp, "raw", None), dict):
-            choices = resp.raw.get("choices", [])
-            if choices:
-                msg = choices[0].get("message", {})
-                raw = (msg.get("content") or msg.get("reasoning") or "").strip()
-        if raw.startswith("```"):
-            raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
-            raw = re.sub(r"\n?```$", "", raw.strip())
-        json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
-        if json_match:
-            raw = json_match.group(0)
-        parsed = json.loads(raw)
-        batch_results: dict[str, Any] = {}
-        if isinstance(parsed, list):
-            for item in parsed:
-                item_id = item.get("id", "")
-                gloss = item.get("gloss", "")
-                selected_sense_id = item.get("selected_sense_id")
-                if item_id and gloss:
-                    batch_results[item_id] = {
-                        "gloss": gloss,
-                        "selected_sense_id": selected_sense_id,
-                    }
-        return batch_num, batch_results, elapsed, raw
+        last_exc: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                start_t = time.time()
+                resp = provider.generate(req)
+                elapsed = time.time() - start_t
+                raw = (resp.content or "").strip()
+                if not raw and isinstance(getattr(resp, "raw", None), dict):
+                    choices = resp.raw.get("choices", [])
+                    if choices:
+                        msg = choices[0].get("message", {})
+                        raw = (msg.get("content") or msg.get("reasoning") or "").strip()
+                if raw.startswith("```"):
+                    raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
+                    raw = re.sub(r"\n?```$", "", raw.strip())
+                json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(0)
+                parsed = json.loads(raw)
+                batch_results: dict[str, Any] = {}
+                if isinstance(parsed, list):
+                    for item in parsed:
+                        item_id = item.get("id", "")
+                        gloss = item.get("gloss", "")
+                        selected_sense_id = item.get("selected_sense_id")
+                        if item_id and gloss:
+                            batch_results[item_id] = {
+                                "gloss": gloss,
+                                "selected_sense_id": selected_sense_id,
+                            }
+                if batch_results:
+                    return batch_num, batch_results, elapsed, raw
+                raise ValueError(f"Parsed JSON produced 0 valid gloss items (raw: {raw[:100]})")
+            except Exception as exc:
+                last_exc = exc
+                logger.warning(
+                    "enrich_glosses: batch %d attempt %d/3 failed (%s)",
+                    batch_num,
+                    attempt,
+                    exc,
+                )
+                if attempt < 3:
+                    time.sleep(1.5 * attempt)
+
+        raise last_exc or RuntimeError(f"Batch {batch_num} failed after 3 attempts")
 
     completed_batches = 0
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
@@ -293,11 +310,11 @@ def enrich_glosses(
                         pass
             except Exception as exc:
                 completed_batches += 1
-                logger.warning("enrich_glosses: batch %d failed (%s)", batch_num, exc)
+                logger.warning("enrich_glosses: batch %d failed after 3 retries (%s)", batch_num, exc)
                 if progress_callback:
                     try:
                         progress_callback({
-                            "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc}). Using standard JMdict definitions.",
+                            "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed after 3 retries ({exc}). Using standard JMdict definitions.",
                         })
                     except Exception:
                         pass
@@ -358,11 +375,14 @@ def apply_gloss_enrichments(
             if gloss:
                 item["contextual_gloss"] = gloss
                 if dict_senses and item.get("kind") != "name":
-                    dict_str = " · ".join(f"{i}. {s}" for i, s in enumerate(dict_senses[:3], 1))
-                    item["display_meaning"] = f"{gloss}\n[Dictionary] {dict_str}"
+                    dict_str = "\n".join(f"  {i}. {s}" for i, s in enumerate(dict_senses[:3], 1))
+                    item["display_meaning"] = (
+                        f"✦ Story Context:\n{gloss}\n\n"
+                        f"📖 Standard Dictionary:\n{dict_str}"
+                    )
                     item["dictionary_senses"] = dict_senses[:3]
                 else:
-                    item["display_meaning"] = gloss
+                    item["display_meaning"] = f"✦ Story Context:\n{gloss}"
                 patch_count += 1
 
             # Update selected_sense_id if a valid matching sense was disambiguated
