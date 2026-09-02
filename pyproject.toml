@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "furiganalyse"
-version = "1.0.0"
+version = "1.0.1"
 description = "Annotate Japanese ebooks with furigana"
 authors = ["Itsupera <itsupera@gmail.com>"]
 license = "MIT license"

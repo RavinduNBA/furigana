@@ -55,12 +55,16 @@
             <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
 
-        <!-- Discovered Cast & World Glossary Context Panel (Always visible when cast/glossary are discovered) -->
-        <div class="discovered-context-panel" id="discovered-context-panel" hidden>
+        {% set casts = initial_progress.get('cast_summary', []) if initial_progress else [] %}
+        {% set gloss = initial_progress.get('glossary_summary', []) if initial_progress else [] %}
+        {% set has_context = (casts|length > 0) or (gloss|length > 0) %}
+
+        <!-- Discovered Cast & World Glossary Context Panel (Server-rendered + JS updated) -->
+        <div class="discovered-context-panel" id="discovered-context-panel"{% if not has_context %} hidden{% endif %}>
             <div class="context-panel-header">
                 <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="context-item-count" id="context-item-count">0 items discovered</span>
+                    <span class="context-item-count" id="context-item-count">{{ (casts|length + gloss|length) }} items discovered</span>
                     <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
                 </div>
             </div>
@@ -68,13 +72,32 @@
                 <div class="context-group">
                     <small>Key Characters &amp; Roles</small>
                     <div class="context-chips-row" id="cast-chips-row">
-                        <span class="fine-print">Discovering cast members…</span>
+                        {% if casts %}
+                            {% for c in casts %}
+                            <div class="context-chip context-chip--cast">
+                                <strong>{{ c.name }}</strong>
+                                <span>{{ c.romanized or c.name }}</span>
+                                <small>{{ c.role or "Character" }}</small>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="fine-print">Discovering cast members…</span>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="context-group">
                     <small>World Glossary &amp; Light Novel Terms</small>
                     <div class="context-chips-row" id="glossary-chips-row">
-                        <span class="fine-print">Extracting novel terms…</span>
+                        {% if gloss %}
+                            {% for g in gloss %}
+                            <div class="context-chip context-chip--glossary">
+                                <strong>{{ g.japanese }}</strong>
+                                <span>{{ g.translation or g.definition or "" }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="fine-print">Extracting novel terms…</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>

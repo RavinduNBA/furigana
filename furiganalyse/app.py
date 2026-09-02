@@ -498,6 +498,18 @@ async def task_handler(
 def get_download(request: Request, uid: UUID):
     recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
     current_user = get_current_user(request)
+
+    # Read progress from memory or disk for server-side rendering
+    job = jobs.get(uid)
+    progress_data = None
+    if job and job.progress_path and os.path.isfile(job.progress_path):
+        progress_data = read_progress(job.progress_path)
+    else:
+        task_folder = Path(OUTPUT_FOLDER) / str(uid)
+        progress_path = task_folder / "progress.json"
+        if progress_path.is_file():
+            progress_data = read_progress(str(progress_path))
+
     return templates.TemplateResponse(
         "download.html",
         {
@@ -506,6 +518,7 @@ def get_download(request: Request, uid: UUID):
             "recent_conversions": recent_conversions,
             "app_version": APP_VERSION,
             "current_user": current_user,
+            "initial_progress": progress_data or {},
         },
     )
 
