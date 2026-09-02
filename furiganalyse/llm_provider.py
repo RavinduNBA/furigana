@@ -235,6 +235,19 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                     self.max_retries,
                     err_msg,
                 )
+                # Auto-fallback to verified working default models on 404 (endpoint not found / deprecated) or 402
+                if exc.code in {402, 404} and attempt < self.max_retries:
+                    if "openrouter.ai" in self.base_url and model != "nvidia/nemotron-3.5-lightning:free":
+                        logger.info("OpenRouter model [%s] returned HTTP %d. Auto-switching to fallback default: nvidia/nemotron-3.5-lightning:free", model, exc.code)
+                        model = "nvidia/nemotron-3.5-lightning:free"
+                        time.sleep(0.5)
+                        continue
+                    elif "generativelanguage.googleapis.com" in self.base_url and model != "gemini-flash-latest":
+                        logger.info("Google AI Studio model [%s] returned HTTP %d. Auto-switching to fallback default: gemini-flash-latest", model, exc.code)
+                        model = "gemini-flash-latest"
+                        time.sleep(0.5)
+                        continue
+
                 if attempt == self.max_retries or exc.code in {400, 401, 403, 404, 429}:
                     raise LLMProviderError(f"LLM API HTTP {exc.code}: {err_msg}") from exc
                 time.sleep(1)
@@ -338,9 +351,9 @@ def get_llm_provider(
             elif name == "hetzner":
                 default_model = "Qwen/Qwen3.6-35B-A3B-FP8"
             elif name in {"google", "gemini"}:
-                default_model = "gemini-2.0-flash"
+                default_model = "gemini-flash-latest"
             elif name == "openrouter":
-                default_model = "anthropic/claude-3.5-sonnet"
+                default_model = "nvidia/nemotron-3.5-lightning:free"
             elif name == "deepseek":
                 default_model = "deepseek-chat"
             else:

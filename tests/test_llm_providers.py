@@ -33,7 +33,7 @@ def test_get_llm_provider_google():
     prov = get_llm_provider("google", api_key="dummy-key")
     assert isinstance(prov, OpenAICompatibleProvider)
     assert prov.base_url == "https://generativelanguage.googleapis.com/v1beta/openai"
-    assert prov.default_model == "gemini-2.0-flash"
+    assert prov.default_model == "gemini-flash-latest"
     assert prov.api_key == "dummy-key"
 
 
@@ -41,5 +41,5 @@ def test_get_llm_provider_openrouter():
     prov = get_llm_provider("openrouter", api_key="dummy-key")
     assert isinstance(prov, OpenAICompatibleProvider)
     assert prov.base_url == "https://openrouter.ai/api/v1"
-    assert prov.default_model == "anthropic/claude-3.5-sonnet"
+    assert prov.default_model == "nvidia/nemotron-3.5-lightning:free"
     assert prov.api_key == "dummy-key"

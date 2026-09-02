@@ -170,11 +170,11 @@
             keyInput.placeholder = "Pre-configured / Custom Hetzner Token";
             urlInput.placeholder = "inference.hetzner.com/api/v1 (default)";
         } else if (prov === "google") {
-            modelInput.placeholder = "e.g. gemini-2.0-flash (default), gemini-1.5-pro";
+            modelInput.placeholder = "e.g. gemini-flash-latest (default), gemini-pro-latest";
             keyInput.placeholder = "Pre-configured / Google AI Studio Key";
             urlInput.placeholder = "generativelanguage.googleapis.com/v1beta/openai (default)";
         } else if (prov === "openrouter") {
-            modelInput.placeholder = "e.g. anthropic/claude-3.5-sonnet, deepseek/deepseek-chat";
+            modelInput.placeholder = "e.g. nvidia/nemotron-3.5-lightning:free (default), deepseek/deepseek-chat";
             keyInput.placeholder = "Pre-configured / OpenRouter Key (sk-or-v1-...)";
             urlInput.placeholder = "openrouter.ai/api/v1 (default)";
         } else if (prov === "deepseek") {
