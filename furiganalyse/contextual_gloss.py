@@ -55,8 +55,8 @@ Example output:
 """
 
 
-def _items_hash(items: list[dict[str, Any]]) -> str:
-    key = json.dumps(sorted(i["id"] for i in items), sort_keys=True)
+def _items_hash(items: list[dict[str, Any]], series_context: str = "") -> str:
+    key = json.dumps([sorted(i["id"] for i in items), series_context], sort_keys=True)
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
 
 
@@ -175,6 +175,7 @@ def enrich_glosses(
     provider: Any,
     *,
     model: str | None = None,
+    series_profile: dict[str, Any] | None = None,
     cache_dir: Path | None = None,
     progress_callback: Any = None,
 ) -> dict[str, str]:
@@ -183,11 +184,19 @@ def enrich_glosses(
     Returns a dict mapping item_id -> contextual_gloss string.
     """
     from furiganalyse.llm_provider import LLMMessage, LLMRequest
+    from furiganalyse.series_glossary import build_series_prompt_context
 
     if not candidates:
         return {}
 
-    items_hash = _items_hash(candidates)
+    series_ctx_str = build_series_prompt_context(series_profile)
+    active_system_prompt = (
+        f"{SYSTEM_PROMPT}\n\nSERIES CONTEXT & LORE (from Series Memory):\n{series_ctx_str}\n"
+        if series_ctx_str
+        else SYSTEM_PROMPT
+    )
+
+    items_hash = _items_hash(candidates, series_ctx_str)
     cache_path = (cache_dir / f"contextual_glosses_{items_hash}.json") if cache_dir else None
 
     if cache_path:
@@ -232,7 +241,7 @@ def enrich_glosses(
 
         req = LLMRequest(
             messages=[
-                LLMMessage(role="system", content=SYSTEM_PROMPT),
+                LLMMessage(role="system", content=active_system_prompt),
                 LLMMessage(role="user", content=user_content),
             ],
             temperature=0.1,

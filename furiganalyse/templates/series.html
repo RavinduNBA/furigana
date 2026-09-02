@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Series Memory Profiles · Furiganalyse</title>
+    <link href="{{ url_for('assets', path='styles.css') }}{% if app_version %}?v={{ app_version }}{% endif %}" rel="stylesheet">
+    <script src="{{ url_for('assets', path='series.js') }}{% if app_version %}?v={{ app_version }}{% endif %}" defer></script>
+</head>
+<body>
+<header class="site-header">
+    <a class="brand" href="{{ url_for('get_root') }}" aria-label="Furiganalyse home">
+        <span class="brand-mark" aria-hidden="true">振</span>
+        <span><strong>Furiganalyse</strong><small>Japanese ebook assistance {% if app_version %}<span class="version-tag">v{{ app_version }}</span>{% endif %}</small></span>
+    </a>
+    <nav class="site-nav">
+        <a href="{{ url_for('get_root') }}">Converter</a>
+        <a href="{{ url_for('get_series_dashboard') }}" class="active">Series Memory</a>
+        <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
+        <a href="https://github.com/RavinduNBA/furigana">Source</a>
+        {% if current_user and current_user != 'anonymous' %}
+        <a href="{{ url_for('logout') }}" title="Sign out ({{ current_user }})">Sign Out</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="shell">
+    <section class="intro">
+        <span class="eyebrow">Cross-Volume Knowledge Base</span>
+        <h1>Series Memory &amp; Lore Database</h1>
+        <p>Manage character rosters, light novel terminology, and author-assigned ruby overrides preserved across multi-volume series.</p>
+    </section>
+
+    <div class="series-dashboard-layout">
+        <!-- Sidebar: Series Profiles List -->
+        <aside class="series-sidebar card">
+            <div class="card-header-row">
+                <h2>Saved Series</h2>
+                <button type="button" class="primary-button btn-small" id="btn-create-series">+ New Profile</button>
+            </div>
+            <div class="series-list" id="series-list">
+                {% if series_profiles %}
+                    {% for p in series_profiles %}
+                    <div class="series-list-item{% if loop.first %} active{% endif %}" data-id="{{ p.series_id }}">
+                        <div class="series-item-title">{{ p.title }}</div>
+                        <div class="series-item-stats">
+                            <span>👥 {{ p.character_count }} chars</span>
+                            <span>📖 {{ p.glossary_count }} terms</span>
+                            <span>💎 {{ p.ruby_override_count }} ruby</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-notice">No series profiles saved yet. Click "+ New Profile" or save one from a conversion completion page!</div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Detail & Editor Workspace -->
+        <section class="series-workspace card" id="series-workspace">
+            <div id="series-loading-spinner" class="loading-box" hidden>Loading series profile…</div>
+            <div id="series-content-area">
+                <!-- Profile Header & Metadata -->
+                <div class="series-profile-header">
+                    <div>
+                        <span class="section-kicker" id="series-slug-kicker">Series ID: mahouka</span>
+                        <h2 id="series-title-display">Loading…</h2>
+                    </div>
+                    <div class="series-header-actions">
+                        <button type="button" class="secondary-button btn-small" id="btn-export-json">📥 Export JSON</button>
+                        <button type="button" class="danger-button btn-small" id="btn-delete-series">🗑️ Delete Series</button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tab-strip" id="series-tab-strip">
+                    <button type="button" class="tab-btn active" data-tab="characters">👥 Characters (<span id="tab-char-count">0</span>)</button>
+                    <button type="button" class="tab-btn" data-tab="glossary">📖 World Glossary (<span id="tab-gloss-count">0</span>)</button>
+                    <button type="button" class="tab-btn" data-tab="ruby">💎 Ruby Overrides (<span id="tab-ruby-count">0</span>)</button>
+                    <button type="button" class="tab-btn" data-tab="lore">📜 Lore &amp; Synopsis</button>
+                </div>
+
+                <!-- Tab 1: Characters -->
+                <div class="tab-pane active" id="pane-characters">
+                    <div class="table-actions-row">
+                        <input type="text" id="filter-chars" class="search-input" placeholder="Search character names, readings, or roles…">
+                        <button type="button" class="primary-button btn-small" id="btn-add-character">+ Add Character</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-characters">
+                            <thead>
+                                <tr>
+                                    <th>Kanji / Name</th>
+                                    <th>Hiragana Reading</th>
+                                    <th>Romanized</th>
+                                    <th>Role / Status</th>
+                                    <th>Speaking Tone</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-characters">
+                                <tr><td colspan="6" class="text-center text-muted">Select a series to view characters</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: World Glossary -->
+                <div class="tab-pane" id="pane-glossary" hidden>
+                    <div class="table-actions-row">
+                        <input type="text" id="filter-glossary" class="search-input" placeholder="Search light novel terms or translations…">
+                        <button type="button" class="primary-button btn-small" id="btn-add-glossary">+ Add Term</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-glossary">
+                            <thead>
+                                <tr>
+                                    <th>Japanese Term</th>
+                                    <th>Reading</th>
+                                    <th>Author Ruby</th>
+                                    <th>Translation</th>
+                                    <th>Definition / Lore</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-glossary">
+                                <tr><td colspan="7" class="text-center text-muted">Select a series to view glossary</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Ruby Overrides -->
+                <div class="tab-pane" id="pane-ruby" hidden>
+                    <div class="table-actions-row">
+                        <input type="text" id="filter-ruby" class="search-input" placeholder="Search ruby terms or overrides…">
+                        <button type="button" class="primary-button btn-small" id="btn-add-ruby">+ Add Ruby Override</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-ruby">
+                            <thead>
+                                <tr>
+                                    <th>Kanji / Word</th>
+                                    <th>Forced Ruby Reading (Hiragana/Katakana)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-ruby">
+                                <tr><td colspan="3" class="text-center text-muted">Select a series to view ruby overrides</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Lore & Synopsis -->
+                <div class="tab-pane" id="pane-lore" hidden>
+                    <form id="form-lore" class="lore-form">
+                        <div class="field-row">
+                            <label for="lore-title"><strong>Series Display Title</strong></label>
+                            <input type="text" id="lore-title" required>
+                        </div>
+                        <div class="field-row">
+                            <label for="lore-synopsis"><strong>Synopsis &amp; Narrative Overview</strong><small>Injected into LLM prompt for scene understanding</small></label>
+                            <textarea id="lore-synopsis" rows="4" placeholder="Brief overview of the main plot premise…"></textarea>
+                        </div>
+                        <div class="field-row">
+                            <label for="lore-world"><strong>World Setting, Factions &amp; Magic System</strong><small>Injected into LLM prompt for world-specific vocabulary</small></label>
+                            <textarea id="lore-world" rows="4" placeholder="Description of the magic/science system, institutional hierarchies, schools, and factions…"></textarea>
+                        </div>
+                        <div class="field-row">
+                            <label><strong>Volumes Processed in this Profile</strong></label>
+                            <div class="chips-container" id="lore-volumes-chips"></div>
+                        </div>
+                        <div class="form-actions-row">
+                            <button type="submit" class="primary-button" id="btn-save-lore">💾 Save Lore &amp; Details</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- Modal: Edit / Add Character -->
+<dialog id="modal-char" class="app-modal">
+    <form method="dialog" id="form-modal-char">
+        <h3 id="modal-char-title">Add / Edit Character</h3>
+        <div class="field-row">
+            <label for="char-kanji"><strong>Kanji Name</strong> (e.g. 司波達也)</label>
+            <input type="text" id="char-kanji" required>
+        </div>
+        <div class="field-row">
+            <label for="char-reading"><strong>Hiragana Reading</strong> (e.g. しばたつや)</label>
+            <input type="text" id="char-reading" required>
+        </div>
+        <div class="field-row">
+            <label for="char-romanized"><strong>Romanized English Name</strong> (e.g. Tatsuya Shiba)</label>
+            <input type="text" id="char-romanized">
+        </div>
+        <div class="field-row">
+            <label for="char-role"><strong>Role / Status</strong> (e.g. Protagonist, Weed, First High)</label>
+            <input type="text" id="char-role" placeholder="Protagonist / Supporting / Antagonist…">
+        </div>
+        <div class="field-row">
+            <label for="char-tone"><strong>Speaking Tone / Voice</strong> (e.g. Calm, polite, formal)</label>
+            <input type="text" id="char-tone" placeholder="Calm, stoic, respectful…">
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="secondary-button" id="btn-cancel-char">Cancel</button>
+            <button type="submit" class="primary-button" id="btn-save-char-submit">Save Character</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Modal: Edit / Add Glossary Item -->
+<dialog id="modal-glossary" class="app-modal">
+    <form method="dialog" id="form-modal-glossary">
+        <h3 id="modal-glossary-title">Add / Edit Glossary Term</h3>
+        <div class="field-row">
+            <label for="gloss-term"><strong>Japanese Term</strong> (e.g. 魔法科高校)</label>
+            <input type="text" id="gloss-term" required>
+        </div>
+        <div class="field-row">
+            <label for="gloss-reading"><strong>Reading</strong> (e.g. まほうかこうこう)</label>
+            <input type="text" id="gloss-reading">
+        </div>
+        <div class="field-row">
+            <label for="gloss-ruby"><strong>Author Ruby Override (optional)</strong></label>
+            <input type="text" id="gloss-ruby" placeholder="e.g. ウィード for 劣等生">
+        </div>
+        <div class="field-row">
+            <label for="gloss-trans"><strong>Preferred English Translation</strong></label>
+            <input type="text" id="gloss-trans" placeholder="e.g. Magic High School">
+        </div>
+        <div class="field-row">
+            <label for="gloss-defn"><strong>Definition &amp; Lore Context</strong></label>
+            <textarea id="gloss-defn" rows="2" placeholder="Explanation of the term within the series world…"></textarea>
+        </div>
+        <div class="field-row">
+            <label for="gloss-cat"><strong>Category</strong></label>
+            <select id="gloss-cat">
+                <option value="magic">Magic / System</option>
+                <option value="tech">Tech / Devices</option>
+                <option value="organization">Organization / School</option>
+                <option value="rank">Rank / Status</option>
+                <option value="general" selected>General</option>
+            </select>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="secondary-button" id="btn-cancel-glossary">Cancel</button>
+            <button type="submit" class="primary-button" id="btn-save-glossary-submit">Save Term</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Modal: Edit / Add Ruby Override -->
+<dialog id="modal-ruby" class="app-modal">
+    <form method="dialog" id="form-modal-ruby">
+        <h3 id="modal-ruby-title">Add / Edit Ruby Override</h3>
+        <div class="field-row">
+            <label for="ruby-kanji"><strong>Kanji / Surface</strong> (e.g. 劣等生)</label>
+            <input type="text" id="ruby-kanji" required>
+        </div>
+        <div class="field-row">
+            <label for="ruby-reading"><strong>Forced Ruby Reading</strong> (e.g. ウィード)</label>
+            <input type="text" id="ruby-reading" required>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="secondary-button" id="btn-cancel-ruby">Cancel</button>
+            <button type="submit" class="primary-button" id="btn-save-ruby-submit">Save Override</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Modal: Create New Profile -->
+<dialog id="modal-create" class="app-modal">
+    <form method="dialog" id="form-modal-create">
+        <h3>Create New Series Memory Profile</h3>
+        <div class="field-row">
+            <label for="create-title"><strong>Series Title</strong> (e.g. 魔法科高校の劣等生)</label>
+            <input type="text" id="create-title" placeholder="Series title…" required>
+        </div>
+        <div class="field-row">
+            <label for="create-id"><strong>Slug ID (optional)</strong> (e.g. mahouka)</label>
+            <input type="text" id="create-id" placeholder="Leave blank to auto-generate">
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="secondary-button" id="btn-cancel-create">Cancel</button>
+            <button type="submit" class="primary-button" id="btn-save-create-submit">Create Profile</button>
+        </div>
+    </form>
+</dialog>
+
+</body>
+</html>

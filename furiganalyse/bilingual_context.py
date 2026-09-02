@@ -155,10 +155,14 @@ def build_book_context(
     overrides: dict[str, Any] | None = None,
     model: str | None = None,
     progress_callback: Any = None,
+    series_profile: dict[str, Any] | None = None,
 ) -> BookContextData:
     """Builds a structured BookContextData using LLM discovery with fallback to rule-based indexing."""
+    from furiganalyse.series_glossary import build_series_prompt_context
+
     candidates = extract_context_candidates(canonical_book, vocabulary_report)
     title = canonical_book.get("title", "Japanese Novel")
+    series_ctx_str = build_series_prompt_context(series_profile) if series_profile else ""
 
     context_data: BookContextData | None = None
 
@@ -186,13 +190,16 @@ def build_book_context(
             except Exception:
                 pass
 
-        user_content = (
-            f"Title: {title}\n\n"
-            f"Candidate Proper Names: {', '.join(candidates['candidate_names'][:30])}\n"
-            f"Publisher Ruby / Specialized Terms: {', '.join(candidates['ruby_terms'][:30])}\n"
-            f"Frequent Expressions: {', '.join(candidates['frequent_expressions'][:30])}\n\n"
-            f"Text Excerpts:\n" + "\n\n".join(sample_texts)
-        )
+        user_content_parts = [f"Title: {title}\n"]
+        if series_ctx_str:
+            user_content_parts.append(f"ESTABLISHED SERIES CONTEXT & CAST (from Series Memory):\n{series_ctx_str}\n")
+        user_content_parts.extend([
+            f"Candidate Proper Names: {', '.join(candidates['candidate_names'][:30])}\n",
+            f"Publisher Ruby / Specialized Terms: {', '.join(candidates['ruby_terms'][:30])}\n",
+            f"Frequent Expressions: {', '.join(candidates['frequent_expressions'][:30])}\n\n",
+            f"Text Excerpts:\n" + "\n\n".join(sample_texts),
+        ])
+        user_content = "\n".join(user_content_parts)
 
         accumulated_stream: list[str] = []
         import time
@@ -259,6 +266,26 @@ def build_book_context(
             glossary=glossary,
             chapter_outlines=chapter_outlines,
         )
+
+    # Pre-seed / merge series profile cast & terms if provided
+    if series_profile:
+        for name, char in series_profile.get("characters", {}).items():
+            if isinstance(char, dict) and name not in context_data.characters:
+                context_data.characters[name] = CharacterProfile(
+                    kanji=name,
+                    romanized=char.get("romanized") or char.get("reading") or name,
+                    role=char.get("role") or "Character",
+                    gender=char.get("gender") or "unknown",
+                    aliases=char.get("aliases") or [],
+                )
+        for term, item in series_profile.get("glossary", {}).items():
+            if isinstance(item, dict) and term not in context_data.glossary:
+                context_data.glossary[term] = GlossaryItem(
+                    japanese=term,
+                    preferred_translation=item.get("preferred_translation") or item.get("translation") or term,
+                    definition=item.get("definition") or "",
+                    category=item.get("category") or "general",
+                )
 
     # Apply manual user overrides if supplied
     if overrides:

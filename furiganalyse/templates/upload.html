@@ -15,9 +15,9 @@
         <span><strong>Furiganalyse</strong><small>Japanese ebook assistance {% if app_version %}<span class="version-tag">v{{ app_version }}</span>{% endif %}</small></span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
-        <a href="#converter" class="is-active">Converter</a>
-        <a href="#recent">Recent</a>
+        <a href="#how-it-works">How It Works</a>
         <a href="#capabilities">Capabilities</a>
+        <a href="{{ url_for('get_series_dashboard') }}">Series Memory</a>
         <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
         <a href="https://github.com/RavinduNBA/furigana">Source</a>
         {% if current_user and current_user != 'anonymous' %}
@@ -188,9 +188,11 @@
                         <select name="bilingual_provider" id="bilingual_provider">
                             <option value="none">Offline rule-based fallback (No API key needed)</option>
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
+                            <option value="google">Google AI Studio · Gemini (gemini-2.0-flash)</option>
+                            <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
                             <option value="ollama">Local Ollama · qwen2.5:3b (Installed &amp; Ready)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
-                            <option value="openrouter">OpenRouter (Claude 3.5 Sonnet, DeepSeek, Llama 3)</option>
+                            <option value="deepseek">DeepSeek (deepseek-chat)</option>
                         </select>
                     </div>
                     <div class="field-row" id="bilingual-key-row">
@@ -198,7 +200,7 @@
                         <input type="password" name="bilingual_api_key" id="bilingual_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
                     <div class="field-row" id="bilingual-model-row">
-                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small></label>
+                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, gemini-2.0-flash, claude-3.5-sonnet</small></label>
                         <input type="text" name="bilingual_model" id="bilingual_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="bilingual-url-row">
@@ -254,9 +256,11 @@
                         <select name="llm_provider" id="llm_provider">
                             <option value="none">Off (no enrichment)</option>
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
+                            <option value="google">Google AI Studio · Gemini (gemini-2.0-flash)</option>
+                            <option value="openrouter">OpenRouter (Claude, DeepSeek, Llama 3)</option>
                             <option value="ollama">Local Ollama · qwen2.5:3b or 7b</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
-                            <option value="openrouter">OpenRouter (Claude, DeepSeek, Llama 3)</option>
+                            <option value="deepseek">DeepSeek (deepseek-chat)</option>
                         </select>
                     </div>
                     <div class="field-row" id="llm-enrich-model-row">

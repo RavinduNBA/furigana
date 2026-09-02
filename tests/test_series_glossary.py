@@ -66,6 +66,18 @@ def test_series_glossary_lifecycle(monkeypatch):
         assert patched["candidates"][0]["reading"] == "じゅうしぞく"
         assert patched["name_occurrences"][0]["reading"] == "しばたつや"
 
+        # Prompt Injection Context Builder test
+        prompt_ctx = sg.build_series_prompt_context(loaded2)
+        assert "SERIES TITLE: The Irregular at Magic High School" in prompt_ctx
+        assert "司波達也 (しばたつや / Tatsuya Shiba)" in prompt_ctx
+        assert "魔法式" in prompt_ctx
+        assert "十師族 【じゅうしぞく】" in prompt_ctx
+
         # Delete
         assert sg.delete_series_profile("mahouka") is True
         assert sg.load_series_profile("mahouka") is None
+
+
+def test_series_prompt_context_empty():
+    assert sg.build_series_prompt_context(None) == ""
+    assert sg.build_series_prompt_context({}) == ""

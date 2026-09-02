@@ -61,10 +61,10 @@ Example output:
 """
 
 
-def _candidate_hash(candidates: list[dict[str, Any]]) -> str:
+def _candidate_hash(candidates: list[dict[str, Any]], series_context: str = "") -> str:
     """Deterministic hash of the candidate list for cache keying."""
     key = json.dumps(
-        sorted(c["surface"] for c in candidates), ensure_ascii=False, sort_keys=True
+        [sorted(c["surface"] for c in candidates), series_context], ensure_ascii=False, sort_keys=True
     )
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
 
@@ -173,6 +173,7 @@ def resolve_proper_nouns(
     provider: Any,
     *,
     model: str | None = None,
+    series_profile: dict[str, Any] | None = None,
     cache_dir: Path | None = None,
     progress_callback: Any = None,
 ) -> dict[str, dict[str, Any]]:
@@ -182,11 +183,19 @@ def resolve_proper_nouns(
         { "達也": {"reading": "たつや", "romanized": "Tatsuya", "entity_type": "person"}, ... }
     """
     from furiganalyse.llm_provider import LLMMessage, LLMRequest
+    from furiganalyse.series_glossary import build_series_prompt_context
 
     if not candidates:
         return {}
 
-    candidate_hash = _candidate_hash(candidates)
+    series_ctx_str = build_series_prompt_context(series_profile)
+    active_system_prompt = (
+        f"{SYSTEM_PROMPT}\n\nESTABLISHED SERIES CAST & MEMORY:\n{series_ctx_str}\n"
+        if series_ctx_str
+        else SYSTEM_PROMPT
+    )
+
+    candidate_hash = _candidate_hash(candidates, series_ctx_str)
     cache_path = (
         (cache_dir / f"proper_noun_overrides_{candidate_hash}.json")
         if cache_dir
@@ -232,12 +241,13 @@ def resolve_proper_nouns(
 
     req = LLMRequest(
         messages=[
-            LLMMessage(role="system", content=SYSTEM_PROMPT),
+            LLMMessage(role="system", content=active_system_prompt),
             LLMMessage(role="user", content=user_content),
         ],
         temperature=0.1,
         model=model,
         response_json=False,
+        max_tokens=8192,
     )
 
     try:

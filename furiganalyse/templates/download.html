@@ -22,6 +22,7 @@
     </a>
     <nav class="site-nav">
         <a href="{{ url_for('get_root') }}">Converter</a>
+        <a href="{{ url_for('get_series_dashboard') }}">Series Memory</a>
         <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
         <a href="https://github.com/RavinduNBA/furigana">Source</a>
         {% if current_user and current_user != 'anonymous' %}

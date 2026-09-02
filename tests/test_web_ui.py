@@ -321,4 +321,50 @@ def test_clear_all_recent_conversions(tmp_path, monkeypatch):
     assert not task2.exists()
 
 
+def test_series_dashboard_and_api(tmp_path, monkeypatch):
+    import furiganalyse.series_glossary as sg
+    from furiganalyse import auth
+    from starlette.testclient import TestClient
+    from furiganalyse.app import app
+
+    monkeypatch.setattr(sg, "DEFAULT_STORAGE_DIR", tmp_path / "series")
+
+    token = auth.create_session_token("testadmin")
+    client = TestClient(app, cookies={"furiganalyse_session": token})
+
+    # Check GET /series
+    resp = client.get("/series")
+    assert resp.status_code == 200
+    assert "Series Memory &amp; Lore Database" in resp.text
+
+    # Post new series profile
+    resp_post = client.post("/api/series", json={
+        "series_id": "test-series",
+        "title": "Test Series Title",
+        "synopsis": "A fantasy world...",
+        "world_setting": "Magic circuits...",
+        "characters": {
+            "主人公": {"kanji": "主人公", "reading": "しゅじんこう", "role": "Hero"}
+        },
+        "glossary": {
+            "魔法": {"japanese": "魔法", "preferred_translation": "Magic"}
+        },
+        "ruby_overrides": {"術式": "じゅつしき"}
+    })
+    assert resp_post.status_code == 200
+    assert resp_post.json()["series_id"] == "test-series"
+
+    # Get single profile
+    resp_get = client.get("/api/series/test-series")
+    assert resp_get.status_code == 200
+    data = resp_get.json()
+    assert data["title"] == "Test Series Title"
+    assert "主人公" in data["characters"]
+
+    # Delete profile
+    resp_del = client.delete("/api/series/test-series")
+    assert resp_del.status_code == 200
+    assert resp_del.json()["deleted"] is True
+
+
 

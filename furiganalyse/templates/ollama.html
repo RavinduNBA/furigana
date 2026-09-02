@@ -15,6 +15,7 @@
     </a>
     <nav class="site-nav">
         <a href="{{ url_for('get_root') }}">Converter</a>
+        <a href="{{ url_for('get_series_dashboard') }}">Series Memory</a>
         <a href="{{ url_for('get_ollama_dashboard') }}" class="is-active">Ollama Dashboard</a>
         {% if open_webui_url %}
         <a href="{{ open_webui_url }}" target="_blank" rel="noopener">Open WebUI ↗</a>

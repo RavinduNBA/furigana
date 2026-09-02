@@ -662,6 +662,7 @@ def run_dictionary_study_pipeline(
     gc.collect()
 
     # Step A: Apply Series Memory Profile if selected (Cross-Volume Consistency)
+    series_data = None
     if options.series_profile_id:
         from furiganalyse.series_glossary import (
             apply_series_profile_to_vocabulary,
@@ -719,6 +720,7 @@ def run_dictionary_study_pipeline(
                 unresolved,
                 llm_provider_instance,
                 model=enrich_model,
+                series_profile=series_data,
                 cache_dir=work / "llm_cache",
                 progress_callback=progress,
             )
@@ -790,6 +792,7 @@ def run_dictionary_study_pipeline(
                 gloss_candidates,
                 _llm,
                 model=enrich_model,
+                series_profile=series_data,
                 cache_dir=work / "llm_cache",
                 progress_callback=progress,
             )
@@ -1021,6 +1024,7 @@ def run_dictionary_study_pipeline(
             provider=provider,
             model=model_name,
             progress_callback=progress,
+            series_profile=series_data,
         )
 
         cast_summary = [

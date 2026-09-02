@@ -167,16 +167,24 @@
         if (!modelInput || !keyInput || !urlInput) return;
         if (prov === "hetzner") {
             modelInput.placeholder = "e.g. Qwen/Qwen3.6-35B-A3B-FP8 (default)";
-            keyInput.placeholder = "Hetzner API Token (from experiments.hetzner.com)";
+            keyInput.placeholder = "Pre-configured / Custom Hetzner Token";
             urlInput.placeholder = "inference.hetzner.com/api/v1 (default)";
+        } else if (prov === "google") {
+            modelInput.placeholder = "e.g. gemini-2.0-flash (default), gemini-1.5-pro";
+            keyInput.placeholder = "Pre-configured / Google AI Studio Key";
+            urlInput.placeholder = "generativelanguage.googleapis.com/v1beta/openai (default)";
+        } else if (prov === "openrouter") {
+            modelInput.placeholder = "e.g. anthropic/claude-3.5-sonnet, deepseek/deepseek-chat";
+            keyInput.placeholder = "Pre-configured / OpenRouter Key (sk-or-v1-...)";
+            urlInput.placeholder = "openrouter.ai/api/v1 (default)";
+        } else if (prov === "deepseek") {
+            modelInput.placeholder = "e.g. deepseek-chat (default), deepseek-reasoner";
+            keyInput.placeholder = "sk-...";
+            urlInput.placeholder = "api.deepseek.com/v1 (default)";
         } else if (prov === "openai") {
             modelInput.placeholder = "e.g. gpt-4o-mini (default), gpt-4o";
             keyInput.placeholder = "sk-...";
             urlInput.placeholder = "api.openai.com/v1 (default)";
-        } else if (prov === "openrouter") {
-            modelInput.placeholder = "e.g. anthropic/claude-3.5-sonnet";
-            keyInput.placeholder = "sk-or-v1-...";
-            urlInput.placeholder = "openrouter.ai/api/v1 (default)";
         } else if (prov === "ollama") {
             modelInput.placeholder = "e.g. qwen2.5:3b, qwen2.5:7b";
             keyInput.placeholder = "Not required for local Ollama";

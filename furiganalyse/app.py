@@ -300,6 +300,22 @@ async def post_ollama_stream_test_api(request: Request):
     )
 
 
+@app.get("/series", response_class=HTMLResponse)
+def get_series_dashboard(request: Request):
+    from furiganalyse.series_glossary import list_series_profiles
+    current_user = get_current_user(request)
+    series_profiles = list_series_profiles()
+    return templates.TemplateResponse(
+        "series.html",
+        {
+            "request": request,
+            "app_version": APP_VERSION,
+            "current_user": current_user,
+            "series_profiles": series_profiles,
+        },
+    )
+
+
 @app.get("/api/series")
 def get_series_profiles_api():
     from furiganalyse.series_glossary import list_series_profiles
@@ -321,6 +337,9 @@ async def post_series_profile_api(request: Request):
             characters=body.get("characters"),
             glossary=body.get("glossary"),
             ruby_overrides=body.get("ruby_overrides"),
+            synopsis=body.get("synopsis", ""),
+            world_setting=body.get("world_setting", ""),
+            plot_memories=body.get("plot_memories"),
             volume_name=body.get("volume_name", ""),
         )
         return JSONResponse(saved)

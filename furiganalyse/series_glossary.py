@@ -5,7 +5,7 @@ established publisher ruby overrides across multiple volumes of a light novel se
 
 Storage:
 - Stored as JSON documents in `data/series/<series_slug>.json`
-- Each series profile contains cumulative characters, terminology, and ruby overrides.
+- Each series profile contains cumulative characters, terminology, ruby overrides, and plot memories.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-SERIES_SCHEMA_VERSION = 1
+SERIES_SCHEMA_VERSION = 2
 DEFAULT_STORAGE_DIR = Path(os.environ.get("FURIGANALYSE_SERIES_DIR", "data/series"))
 
 
@@ -45,13 +45,16 @@ def list_series_profiles() -> list[dict[str, Any]]:
     for path in sorted(storage_dir.glob("*.json")):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-            if data.get("schema_version") == SERIES_SCHEMA_VERSION:
+            if data.get("schema_version") in {1, SERIES_SCHEMA_VERSION}:
                 profiles.append({
                     "series_id": data.get("series_id", path.stem),
                     "title": data.get("title", path.stem),
+                    "synopsis": data.get("synopsis", ""),
+                    "world_setting": data.get("world_setting", ""),
                     "character_count": len(data.get("characters", {})),
                     "glossary_count": len(data.get("glossary", {})),
                     "ruby_override_count": len(data.get("ruby_overrides", {})),
+                    "plot_memory_count": len(data.get("plot_memories", [])),
                     "volumes_processed": data.get("volumes_processed", []),
                     "updated_at": data.get("updated_at", ""),
                 })
@@ -69,7 +72,10 @@ def load_series_profile(series_id: str) -> dict[str, Any] | None:
         return None
 
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("schema_version") in {1, SERIES_SCHEMA_VERSION}:
+            return data
+        return None
     except Exception as exc:
         logger.error("Failed to read series profile %s: %s", path, exc)
         return None
@@ -81,6 +87,9 @@ def save_series_profile(
     characters: dict[str, Any] | None = None,
     glossary: dict[str, Any] | None = None,
     ruby_overrides: dict[str, str] | None = None,
+    synopsis: str = "",
+    world_setting: str = "",
+    plot_memories: list[dict[str, Any]] | None = None,
     volume_name: str = "",
 ) -> dict[str, Any]:
     """Create or update a series profile, merging existing data."""
@@ -93,9 +102,12 @@ def save_series_profile(
         "schema_version": SERIES_SCHEMA_VERSION,
         "series_id": slug,
         "title": title or slug,
+        "synopsis": synopsis,
+        "world_setting": world_setting,
         "characters": {},
         "glossary": {},
         "ruby_overrides": {},
+        "plot_memories": [],
         "volumes_processed": [],
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
@@ -123,6 +135,13 @@ def save_series_profile(
     if ruby_overrides:
         merged_ruby.update(ruby_overrides)
 
+    # Merge plot memories
+    merged_plots = list(existing.get("plot_memories", []))
+    if plot_memories:
+        for pm in plot_memories:
+            if pm not in merged_plots:
+                merged_plots.append(pm)
+
     # Volumes list
     volumes = list(existing.get("volumes_processed", []))
     if volume_name and volume_name not in volumes:
@@ -132,9 +151,12 @@ def save_series_profile(
         "schema_version": SERIES_SCHEMA_VERSION,
         "series_id": slug,
         "title": title or existing.get("title", slug),
+        "synopsis": synopsis or existing.get("synopsis", ""),
+        "world_setting": world_setting or existing.get("world_setting", ""),
         "characters": merged_chars,
         "glossary": merged_glossary,
         "ruby_overrides": merged_ruby,
+        "plot_memories": merged_plots,
         "volumes_processed": volumes,
         "created_at": existing.get("created_at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())),
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -144,7 +166,14 @@ def save_series_profile(
         json.dumps(profile_data, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    logger.info("Saved series profile '%s' to %s (%d chars, %d glossary terms)", title, path, len(merged_chars), len(merged_glossary))
+    logger.info(
+        "Saved series profile '%s' to %s (%d chars, %d glossary terms, %d plot memories)",
+        title,
+        path,
+        len(merged_chars),
+        len(merged_glossary),
+        len(merged_plots),
+    )
     return profile_data
 
 
@@ -157,6 +186,71 @@ def delete_series_profile(series_id: str) -> bool:
         logger.info("Deleted series profile %s", path)
         return True
     return False
+
+
+def build_series_prompt_context(series_profile: dict[str, Any] | None, max_items: int = 40) -> str:
+    """Build a dense, structured context block for LLM prompt injection."""
+    if not series_profile:
+        return ""
+
+    lines = []
+    title = series_profile.get("title", "").strip()
+    synopsis = series_profile.get("synopsis", "").strip()
+    world_setting = series_profile.get("world_setting", "").strip()
+
+    if title:
+        lines.append(f"SERIES TITLE: {title}")
+    if synopsis:
+        lines.append(f"SERIES SYNOPSIS: {synopsis}")
+    if world_setting:
+        lines.append(f"WORLD SETTING & MAGIC SYSTEM: {world_setting}")
+
+    characters = series_profile.get("characters", {})
+    if characters:
+        lines.append("\nESTABLISHED KEY CHARACTERS:")
+        for name, char in list(characters.items())[:max_items]:
+            if isinstance(char, dict):
+                reading = char.get("reading") or char.get("hiragana") or ""
+                romanized = char.get("romanized") or ""
+                role = char.get("role") or "Character"
+                gender = char.get("gender") or ""
+                tone = char.get("speaking_tone") or ""
+                aliases = char.get("aliases") or []
+                alias_str = f" Aliases: {', '.join(aliases)}." if aliases else ""
+                gender_str = f", Gender: {gender}" if gender else ""
+                tone_str = f", Tone: {tone}" if tone else ""
+                lines.append(f"- {name} ({reading}{' / ' + romanized if romanized and romanized != reading else ''}): {role}{gender_str}{tone_str}.{alias_str}")
+            else:
+                lines.append(f"- {name}: {char}")
+
+    ruby_overrides = series_profile.get("ruby_overrides", {})
+    glossary = series_profile.get("glossary", {})
+    if ruby_overrides or glossary:
+        lines.append("\nESTABLISHED WORLD GLOSSARY & AUTHOR RUBY:")
+        for term, custom_reading in list(ruby_overrides.items())[:20]:
+            lines.append(f"- {term} 【{custom_reading}】: (Author ruby override)")
+        for term, item in list(glossary.items())[:max_items]:
+            if isinstance(item, dict):
+                trans = item.get("preferred_translation") or item.get("translation") or ""
+                defn = item.get("definition") or ""
+                reading = item.get("reading") or ""
+                trans_str = f" -> {trans}" if trans else ""
+                defn_str = f" ({defn})" if defn else ""
+                reading_str = f" 【{reading}】" if reading else ""
+                lines.append(f"- {term}{reading_str}{trans_str}{defn_str}")
+            else:
+                lines.append(f"- {term}: {item}")
+
+    plot_memories = series_profile.get("plot_memories", [])
+    if plot_memories:
+        lines.append("\nPREVIOUS VOLUME STORY MEMORY & REVELATIONS:")
+        for pm in plot_memories[:5]:
+            if isinstance(pm, dict):
+                v_title = pm.get("volume_title") or f"Volume {pm.get('volume_number', '')}"
+                v_sum = pm.get("summary") or ""
+                lines.append(f"- {v_title}: {v_sum}")
+
+    return "\n".join(lines).strip()
 
 
 def apply_series_profile_to_vocabulary(
@@ -176,9 +270,10 @@ def apply_series_profile_to_vocabulary(
     # Build combined surface -> reading map
     readings_map: dict[str, str] = dict(ruby_overrides)
     for surface, char in characters.items():
-        reading = char.get("reading") or char.get("hiragana")
-        if reading and surface not in readings_map:
-            readings_map[surface] = reading
+        if isinstance(char, dict):
+            reading = char.get("reading") or char.get("hiragana")
+            if reading and surface not in readings_map:
+                readings_map[surface] = reading
 
     if not readings_map:
         return vocabulary, 0
