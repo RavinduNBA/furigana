@@ -55,6 +55,31 @@
             <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
 
+        <!-- Discovered Cast & World Glossary Context Panel (Always visible when cast/glossary are discovered) -->
+        <div class="discovered-context-panel" id="discovered-context-panel" hidden>
+            <div class="context-panel-header">
+                <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="context-item-count" id="context-item-count">0 items discovered</span>
+                    <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
+                </div>
+            </div>
+            <div class="context-panel-body">
+                <div class="context-group">
+                    <small>Key Characters &amp; Roles</small>
+                    <div class="context-chips-row" id="cast-chips-row">
+                        <span class="fine-print">Discovering cast members…</span>
+                    </div>
+                </div>
+                <div class="context-group">
+                    <small>World Glossary &amp; Light Novel Terms</small>
+                    <div class="context-chips-row" id="glossary-chips-row">
+                        <span class="fine-print">Extracting novel terms…</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="bilingual-progress-panel" class="bilingual-progress-panel" hidden>
             <div class="bilingual-progress-header">
                 <span class="section-kicker">LLM Bilingual Companion</span>
@@ -77,31 +102,6 @@
                         <span id="progress-trans-cache">0 disk cache hits</span>
                     </div>
                 </article>
-            </div>
-
-            <!-- Discovered Cast & World Glossary Context Panel -->
-            <div class="discovered-context-panel" id="discovered-context-panel" hidden>
-                <div class="context-panel-header">
-                    <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <span class="context-item-count" id="context-item-count">0 items discovered</span>
-                        <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
-                    </div>
-                </div>
-                <div class="context-panel-body">
-                    <div class="context-group">
-                        <small>Key Characters &amp; Roles</small>
-                        <div class="context-chips-row" id="cast-chips-row">
-                            <span class="fine-print">Discovering cast members…</span>
-                        </div>
-                    </div>
-                    <div class="context-group">
-                        <small>World Glossary &amp; Light Novel Terms</small>
-                        <div class="context-chips-row" id="glossary-chips-row">
-                            <span class="fine-print">Extracting novel terms…</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Live Streaming Output Feed -->

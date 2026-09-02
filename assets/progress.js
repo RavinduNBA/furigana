@@ -206,37 +206,37 @@
             if (streamEn && progress.translation_latest_english) {
                 streamEn.textContent = progress.translation_latest_english;
             }
+        }
 
-            // Render Discovered Context Panel
-            const contextPanel = byId("discovered-context-panel");
-            const castRow = byId("cast-chips-row");
-            const glossRow = byId("glossary-chips-row");
-            const countEl = byId("context-item-count");
+        // Render Discovered Context Panel (Cast & Glossary) whenever available
+        const contextPanel = byId("discovered-context-panel");
+        const castRow = byId("cast-chips-row");
+        const glossRow = byId("glossary-chips-row");
+        const countEl = byId("context-item-count");
 
-            if (contextPanel && (progress.cast_summary || progress.glossary_summary)) {
-                contextPanel.hidden = false;
-                const casts = progress.cast_summary || [];
-                const gloss = progress.glossary_summary || [];
-                if (countEl) countEl.textContent = (casts.length + gloss.length) + " items discovered";
+        if (contextPanel && (progress.cast_summary || progress.glossary_summary)) {
+            contextPanel.hidden = false;
+            const casts = progress.cast_summary || [];
+            const gloss = progress.glossary_summary || [];
+            if (countEl) countEl.textContent = (casts.length + gloss.length) + " items discovered";
 
-                if (castRow && casts.length > 0) {
-                    castRow.innerHTML = casts.map(c => `
-                        <div class="context-chip context-chip--cast">
-                            <strong>${c.name}</strong>
-                            <span>${c.romanized || c.name}</span>
-                            <small>${c.role || "Character"}</small>
-                        </div>
-                    `).join("");
-                }
+            if (castRow && casts.length > 0) {
+                castRow.innerHTML = casts.map(c => `
+                    <div class="context-chip context-chip--cast">
+                        <strong>${c.name}</strong>
+                        <span>${c.romanized || c.name}</span>
+                        <small>${c.role || "Character"}</small>
+                    </div>
+                `).join("");
+            }
 
-                if (glossRow && gloss.length > 0) {
-                    glossRow.innerHTML = gloss.map(g => `
-                        <div class="context-chip context-chip--glossary">
-                            <strong>${g.japanese}</strong>
-                            <span>${g.translation || g.definition || ""}</span>
-                        </div>
-                    `).join("");
-                }
+            if (glossRow && gloss.length > 0) {
+                glossRow.innerHTML = gloss.map(g => `
+                    <div class="context-chip context-chip--glossary">
+                        <strong>${g.japanese}</strong>
+                        <span>${g.translation || g.definition || ""}</span>
+                    </div>
+                `).join("");
             }
         }
 
