@@ -749,6 +749,13 @@ async def cancel_job_handler(uid: UUID):
     return {"status": "cancelled", "uid": str(uid)}
 
 
+@app.delete("/api/recent_conversions")
+def clear_all_recent_conversions_api():
+    from furiganalyse.recent_conversions import clear_all_recent_conversions
+    items = clear_all_recent_conversions(OUTPUT_FOLDER)
+    return JSONResponse(items)
+
+
 @app.delete("/api/recent_conversions/{uid}")
 def delete_recent_conversion_api(uid: str):
     from furiganalyse.recent_conversions import remove_recent_conversion

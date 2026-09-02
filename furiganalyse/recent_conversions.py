@@ -214,6 +214,31 @@ def remove_recent_conversion(output_folder: str | Path, uid: str) -> list[dict[s
     return housekeep_conversions(output_folder)
 
 
+def clear_all_recent_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
+    """Clears all recent conversions and purges their task directories from disk."""
+    path = get_recent_conversions_path(output_folder)
+    items = load_recent_conversions(output_folder)
+    out_dir = Path(output_folder)
+
+    for item in items:
+        uid = item.get("uid")
+        if uid:
+            task_dir = out_dir / uid
+            if task_dir.is_dir():
+                try:
+                    shutil.rmtree(task_dir, ignore_errors=True)
+                except Exception:
+                    pass
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("[]", encoding="utf-8")
+    except Exception:
+        pass
+
+    return []
+
+
 def cleanup_orphaned_conversions(output_folder: str | Path) -> list[dict[str, Any]]:
     """Marks any leftover 'in_progress' jobs as 'stopped' and triggers full housekeeping."""
     path = get_recent_conversions_path(output_folder)

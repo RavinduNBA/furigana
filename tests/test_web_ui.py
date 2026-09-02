@@ -267,4 +267,58 @@ def test_early_main_download_serves_converted_file_not_input(tmp_path, monkeypat
     assert Path(response.path).read_text(encoding="utf-8") == "CONVERTED GUIDED EPUB WITH RUBY & NOTES"
 
 
+def test_clear_all_recent_conversions(tmp_path, monkeypatch):
+    from furiganalyse.recent_conversions import (
+        record_conversion,
+        load_recent_conversions,
+        clear_all_recent_conversions,
+        remove_recent_conversion,
+    )
+
+    record_conversion(
+        output_folder=tmp_path,
+        uid="job-1",
+        filename="test1.epub",
+        furigana_mode="add",
+        output_filename="test1_out.epub",
+        status="complete",
+        pipeline_mode="study",
+        output_bytes=100,
+    )
+    record_conversion(
+        output_folder=tmp_path,
+        uid="job-2",
+        filename="test2.epub",
+        furigana_mode="add",
+        output_filename="test2_out.epub",
+        status="complete",
+        pipeline_mode="guided",
+        output_bytes=200,
+    )
+
+    task1 = tmp_path / "job-1"
+    task1.mkdir(exist_ok=True)
+    (task1 / "test1.epub").write_text("dummy", encoding="utf-8")
+
+    task2 = tmp_path / "job-2"
+    task2.mkdir(exist_ok=True)
+    (task2 / "test2.epub").write_text("dummy", encoding="utf-8")
+
+    items = load_recent_conversions(tmp_path)
+    assert len(items) == 2
+
+    # Remove single item
+    items_after_remove = remove_recent_conversion(tmp_path, "job-1")
+    assert len(items_after_remove) == 1
+    assert items_after_remove[0]["uid"] == "job-2"
+    assert not task1.exists()
+    assert task2.exists()
+
+    # Clear all
+    items_after_clear = clear_all_recent_conversions(tmp_path)
+    assert items_after_clear == []
+    assert load_recent_conversions(tmp_path) == []
+    assert not task2.exists()
+
+
 

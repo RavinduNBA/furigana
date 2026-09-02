@@ -295,16 +295,24 @@
             <section class="info-card recent-card" id="recent">
                 <div class="card-title-row">
                     <span class="section-kicker">History</span>
-                    <span class="status-badge">{{ recent_conversions|length }} saved</span>
+                    <div class="recent-header-actions">
+                        <span class="status-badge" id="recent-count-badge">{{ recent_conversions|length }} saved</span>
+                        {% if recent_conversions %}
+                        <button type="button" class="clear-recent-btn" id="clear-recent-btn" title="Clear all recent conversions">Clear all</button>
+                        {% endif %}
+                    </div>
                 </div>
                 <h2>Recent conversions</h2>
                 {% if recent_conversions %}
                 <ul class="recent-list">
                     {% for item in recent_conversions %}
-                    <li class="recent-item">
+                    <li class="recent-item" data-uid="{{ item.uid }}">
                         <div class="recent-meta">
                             <span class="mode-pill mode-pill--{{ item.pipeline_mode }}">{{ item.pipeline_mode|capitalize }}</span>
-                            <span class="recent-time">{{ item.timestamp }}</span>
+                            <div class="recent-meta-right">
+                                <span class="recent-time">{{ item.timestamp }}</span>
+                                <button type="button" class="recent-del-item-btn" data-uid="{{ item.uid }}" title="Remove this conversion from history" aria-label="Remove item">✕</button>
+                            </div>
                         </div>
                         <a class="recent-name-link" href="{{ url_for('get_download', uid=item.uid) }}" title="Open completion page: {{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</a>
                         <div class="recent-actions-row">

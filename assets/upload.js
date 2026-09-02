@@ -275,6 +275,65 @@
         } catch (e) {}
     }
 
+    function initRecentConversionsControls() {
+        const clearBtn = document.getElementById("clear-recent-btn");
+        if (clearBtn) {
+            clearBtn.addEventListener("click", async function () {
+                if (!confirm("Are you sure you want to clear all recent conversions?")) return;
+                try {
+                    clearBtn.disabled = true;
+                    clearBtn.textContent = "Clearing…";
+                    const resp = await fetch("/api/recent_conversions", { method: "DELETE" });
+                    if (resp.ok) {
+                        const list = document.querySelector(".recent-list");
+                        if (list) {
+                            list.innerHTML = '<p class="recent-empty-note">Your last 10 conversions will appear here for fast re-downloading.</p>';
+                        }
+                        const badge = document.getElementById("recent-count-badge");
+                        if (badge) badge.textContent = "0 saved";
+                        clearBtn.remove();
+                    } else {
+                        alert("Failed to clear recent conversions.");
+                        clearBtn.disabled = false;
+                        clearBtn.textContent = "Clear all";
+                    }
+                } catch (e) {
+                    alert("Error: " + e.message);
+                    clearBtn.disabled = false;
+                    clearBtn.textContent = "Clear all";
+                }
+            });
+        }
+
+        document.querySelectorAll(".recent-del-item-btn").forEach(btn => {
+            btn.addEventListener("click", async function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const uid = this.dataset.uid;
+                if (!uid) return;
+                if (!confirm("Remove this conversion from history?")) return;
+                try {
+                    const resp = await fetch("/api/recent_conversions/" + uid, { method: "DELETE" });
+                    if (resp.ok) {
+                        const itemEl = this.closest(".recent-item");
+                        if (itemEl) itemEl.remove();
+                        const remaining = document.querySelectorAll(".recent-item").length;
+                        const badge = document.getElementById("recent-count-badge");
+                        if (badge) badge.textContent = remaining + " saved";
+                        if (remaining === 0) {
+                            const list = document.querySelector(".recent-list");
+                            if (list) {
+                                list.innerHTML = '<p class="recent-empty-note">Your last 10 conversions will appear here for fast re-downloading.</p>';
+                            }
+                            const clearBtnEl = document.getElementById("clear-recent-btn");
+                            if (clearBtnEl) clearBtnEl.remove();
+                        }
+                    }
+                } catch (e) {}
+            });
+        });
+    }
+
     bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
     updatePipeline();
@@ -282,5 +341,6 @@
     updateLLMEnrich();
     loadInstalledOllamaModels();
     loadSeriesProfiles();
+    initRecentConversionsControls();
     updateBookFile();
 }());
