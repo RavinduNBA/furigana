@@ -301,11 +301,23 @@ def enrich_glosses(
                 b_num, batch_results, elapsed, raw = future.result()
                 all_glosses.update(batch_results)
                 completed_batches += 1
+                logger.info(
+                    "Module 3: Batch %d/%d LLM response (%d glosses in %.1fs):\n%s",
+                    b_num,
+                    total_batches,
+                    len(batch_results),
+                    elapsed,
+                    raw,
+                )
                 if progress_callback:
                     try:
                         progress_callback({
                             "log": f"Module 3: Batch {b_num}/{total_batches} enriched ({len(batch_results)} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
                         })
+                        for item_id, res in list(batch_results.items())[:3]:
+                            progress_callback({
+                                "log": f"  ↳ [{item_id}] {res.get('gloss')}",
+                            })
                     except Exception:
                         pass
             except Exception as exc:

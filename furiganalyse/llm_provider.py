@@ -207,12 +207,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         p_tok = usage.get("prompt_tokens", 0)
                         c_tok = usage.get("completion_tokens", 0)
                         logger.info(
-                            "LLM [%s] response received in %.1fs (Prompt: %d tokens, Completion: %d tokens, Output: %d chars)",
+                            "LLM [%s] response received in %.1fs (Prompt: %d tokens, Completion: %d tokens, Output: %d chars):\n%s",
                             model,
                             elapsed,
                             p_tok,
                             c_tok,
                             len(content),
+                            content,
                         )
                         return LLMResponse(
                             content=content,

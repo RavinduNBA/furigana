@@ -245,6 +245,7 @@ def resolve_proper_nouns(
         resp = provider.generate(req)
         elapsed = time.time() - start_t
         raw = resp.content.strip()
+        logger.info("Module 4 (Proper Nouns) LLM response (%d characters in %.1fs):\n%s", len(raw), elapsed, raw)
         # Strip any markdown code fences the model may add
         if raw.startswith("```"):
             raw = re.sub(r"^```[^\n]*\n?", "", raw)
@@ -273,6 +274,18 @@ def resolve_proper_nouns(
                     "romanized": romanized,
                     "entity_type": entity_type,
                 }
+
+        if progress_callback and overrides:
+            try:
+                progress_callback({
+                    "log": f"Module 4: LLM resolved {len(overrides)} proper nouns in {elapsed:.1f}s",
+                })
+                for surf, details in list(overrides.items())[:5]:
+                    progress_callback({
+                        "log": f"  ↳ 【{surf}】→ {details.get('reading')} ({details.get('romanized')})",
+                    })
+            except Exception:
+                pass
 
         logger.info(
             "resolve_proper_nouns: resolved %d/%d candidates via LLM in %.1fs",
