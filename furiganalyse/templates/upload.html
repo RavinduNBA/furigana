@@ -306,14 +306,15 @@
                             <span class="mode-pill mode-pill--{{ item.pipeline_mode }}">{{ item.pipeline_mode|capitalize }}</span>
                             <span class="recent-time">{{ item.timestamp }}</span>
                         </div>
-                        <strong class="recent-name" title="{{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</strong>
+                        <a class="recent-name-link" href="{{ url_for('get_download', uid=item.uid) }}" title="Open completion page: {{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</a>
                         <div class="recent-actions-row">
+                            <a class="recent-details-link" href="{{ url_for('get_download', uid=item.uid) }}" title="View completion details, logs &amp; cast">Details ↗</a>
                             {% if item.status == 'complete' %}
-                            <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
+                            <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}" title="Direct download">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
                             {% elif item.status == 'in_progress' %}
-                            <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">View progress <span class="status-dot status-dot--pulse"></span></a>
+                            <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">In progress <span class="status-dot status-dot--pulse"></span></a>
                             {% else %}
-                            <span class="recent-error-tag">Conversion stopped</span>
+                            <span class="recent-error-tag">Stopped</span>
                             {% endif %}
                         </div>
                     </li>
