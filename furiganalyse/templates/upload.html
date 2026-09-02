@@ -223,6 +223,11 @@
                     <label for="series_profile_id"><strong>Series Memory Profile (optional)</strong><small>Apply known character names &amp; world terms saved from earlier volumes</small></label>
                     <select name="series_profile_id" id="series_profile_id">
                         <option value="">No series profile (standalone book)</option>
+                        {% if series_profiles %}
+                            {% for p in series_profiles %}
+                            <option value="{{ p.series_id }}">{{ p.title }} ({{ p.character_count }} chars, {{ p.glossary_count }} terms)</option>
+                            {% endfor %}
+                        {% endif %}
                     </select>
                 </div>
                 <div class="field-row">

@@ -196,12 +196,16 @@ def logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 def get_root(request: Request):
+    from furiganalyse.series_glossary import list_series_profiles
+
     dictionaries_ready = all(Path(path).is_file() for path in (
         os.environ.get("FURIGANALYSE_JMDICT_INDEX", "data/edrdg/JMdict.sqlite"),
         os.environ.get("FURIGANALYSE_JMNEDICT_INDEX", "data/edrdg/JMnedict.sqlite"),
     ))
     recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
     current_user = get_current_user(request)
+    series_profiles = list_series_profiles()
+
     return templates.TemplateResponse(
         "upload.html",
         {
@@ -211,6 +215,7 @@ def get_root(request: Request):
             "known_words_lists": list_available_word_lists(),
             "dictionaries_ready": dictionaries_ready,
             "recent_conversions": recent_conversions,
+            "series_profiles": series_profiles,
             "app_version": APP_VERSION,
             "current_user": current_user,
         },
