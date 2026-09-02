@@ -16,10 +16,19 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
+import urllib.parse
 from starlette.middleware.cors import CORSMiddleware
 
 from furiganalyse import __version__ as APP_VERSION
 from furiganalyse.__main__ import main, SUPPORTED_INPUT_EXTS
+from furiganalyse.auth import (
+    SESSION_COOKIE_NAME,
+    SESSION_MAX_AGE,
+    authenticate,
+    create_session_token,
+    get_current_user,
+    is_auth_enabled,
+)
 from furiganalyse.known_words import list_available_word_lists
 from furiganalyse.params import OutputFormat, FuriganaMode, WritingMode
 from furiganalyse.progress import ProgressWriter, read_progress
@@ -59,11 +68,42 @@ root_path = os.getenv("ROOT_PATH", "")
 app = FastAPI(root_path=root_path, lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    path = request.url.path
+    # Allow public assets and login/logout endpoints without authentication
+    if (
+        path.startswith("/assets")
+        or path in {"/login", "/logout", "/favicon.ico"}
+        or not is_auth_enabled()
+    ):
+        return await call_next(request)
+
+    user = get_current_user(request)
+    if not user:
+        if path.startswith("/api/") or "application/json" in request.headers.get("accept", ""):
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"error": "Authentication required. Please sign in."},
+            )
+        query_str = f"?{request.url.query}" if request.url.query else ""
+        next_target = urllib.parse.quote(f"{path}{query_str}")
+        return RedirectResponse(
+            url=f"/login?next={next_target}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    request.state.user = user
+    return await call_next(request)
+
+
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 OUTPUT_FOLDER = '/tmp/furiganalysed/'
@@ -92,6 +132,68 @@ def validate_word_list_file(contents: bytes) -> tuple[bool, str]:
     return True, ""
 
 
+@app.get("/login", response_class=HTMLResponse)
+def get_login_page(request: Request, next: str = ""):
+    if is_auth_enabled() and get_current_user(request):
+        target = next if next and next.startswith("/") and not next.startswith("//") else "/"
+        return RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "app_version": APP_VERSION,
+            "next_url": next,
+            "username": "admin",
+            "error_message": None,
+        },
+    )
+
+
+@app.post("/login", response_class=HTMLResponse)
+def post_login(
+    request: Request,
+    username: str = Form(""),
+    password: str = Form(""),
+    next: str = Form(""),
+    remember_me: str = Form(""),
+):
+    if authenticate(username, password):
+        target = next if next and next.startswith("/") and not next.startswith("//") else "/"
+        response = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
+        token = create_session_token(username.strip() or "admin")
+        max_age = SESSION_MAX_AGE if remember_me else None
+        is_secure = request.headers.get("x-forwarded-proto", request.url.scheme) == "https"
+        response.set_cookie(
+            key=SESSION_COOKIE_NAME,
+            value=token,
+            max_age=max_age,
+            httponly=True,
+            samesite="lax",
+            secure=is_secure,
+        )
+        return response
+
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "app_version": APP_VERSION,
+            "next_url": next,
+            "username": username,
+            "error_message": "Invalid username or password. Please try again.",
+        },
+        status_code=status.HTTP_401_UNAUTHORIZED,
+    )
+
+
+@app.get("/logout")
+@app.post("/logout")
+def logout(request: Request):
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie(key=SESSION_COOKIE_NAME)
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
 def get_root(request: Request):
     dictionaries_ready = all(Path(path).is_file() for path in (
@@ -99,6 +201,7 @@ def get_root(request: Request):
         os.environ.get("FURIGANALYSE_JMNEDICT_INDEX", "data/edrdg/JMnedict.sqlite"),
     ))
     recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
+    current_user = get_current_user(request)
     return templates.TemplateResponse(
         "upload.html",
         {
@@ -109,6 +212,7 @@ def get_root(request: Request):
             "dictionaries_ready": dictionaries_ready,
             "recent_conversions": recent_conversions,
             "app_version": APP_VERSION,
+            "current_user": current_user,
         },
     )
 
@@ -119,12 +223,14 @@ def get_ollama_dashboard(request: Request):
     # Build URL to open webui on current host
     host = request.headers.get("host", "localhost:5000").split(":")[0]
     open_webui_url = f"http://{host}:{open_webui_port}"
+    current_user = get_current_user(request)
     return templates.TemplateResponse(
         "ollama.html",
         {
             "request": request,
             "app_version": APP_VERSION,
             "open_webui_url": open_webui_url,
+            "current_user": current_user,
         },
     )
 
@@ -391,6 +497,7 @@ async def task_handler(
 @app.get("/jobs/{uid}", response_class=HTMLResponse)
 def get_download(request: Request, uid: UUID):
     recent_conversions = load_recent_conversions(OUTPUT_FOLDER)
+    current_user = get_current_user(request)
     return templates.TemplateResponse(
         "download.html",
         {
@@ -398,6 +505,7 @@ def get_download(request: Request, uid: UUID):
             "uid": uid,
             "recent_conversions": recent_conversions,
             "app_version": APP_VERSION,
+            "current_user": current_user,
         },
     )
 
