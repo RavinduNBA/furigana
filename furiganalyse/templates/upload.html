@@ -44,6 +44,24 @@
         </figure>
     </section>
 
+{% macro info_bubble(title, tag, description, list_items=None, align='center') %}
+<span class="info-bubble{% if align == 'right' %} info-bubble--right{% elif align == 'left' %} info-bubble--left{% endif %}">
+    <button type="button" class="info-bubble-trigger" aria-label="More info: {{ title }}" tabindex="0">i</button>
+    <span class="info-bubble-content" role="tooltip">
+        <strong class="info-bubble-title">{{ title }}</strong>
+        {% if tag %}<span class="info-bubble-tag">{{ tag }}</span>{% endif %}
+        <span>{{ description }}</span>
+        {% if list_items %}
+        <ul class="info-bubble-list">
+            {% for item in list_items %}
+            <li>{{ item|safe }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </span>
+</span>
+{% endmacro %}
+
     <section class="workspace" id="converter">
         <form class="converter-card" id="form" action="{{ url_for('task_handler') }}" method="post" enctype="multipart/form-data">
             <div class="section-heading">
@@ -52,7 +70,13 @@
             </div>
 
             <fieldset class="form-section">
-                <legend><span class="step-number">1</span><span>Choose a book<small>EPUB, AZW3, MOBI, TXT, or HTML</small></span></legend>
+                <legend>
+                    <span class="step-number">1</span>
+                    <span>Choose a book
+                        {{ info_bubble('Ebook File Input', 'Non-Destructive Processing', 'Upload your Japanese ebook in standard reflowable format. Your original file is strictly parsed in memory and is never overwritten or permanently stored on the server.', ['<strong>Supported:</strong> EPUB (.epub), Kindle (.azw3, .mobi), Text (.txt), HTML (.html)', '<strong>DRM Notice:</strong> Ensure files are DRM-free before conversion']) }}
+                        <small>EPUB, AZW3, MOBI, TXT, or HTML</small>
+                    </span>
+                </legend>
                 <label class="file-drop" for="book-file" id="file-drop">
                     <input id="book-file" type="file" name="file" accept="{{ supported_input_accept }}" required>
                     <span class="upload-icon" aria-hidden="true">↥</span>
@@ -62,47 +86,86 @@
             </fieldset>
 
             <fieldset class="form-section">
-                <legend><span class="step-number">2</span><span>Processing mode<small>Choose furigana, dictionary study, or guided language analysis</small></span></legend>
+                <legend>
+                    <span class="step-number">2</span>
+                    <span>Processing mode
+                        {{ info_bubble('Pipeline Architecture', 'Core Transformation Layer', 'Select how Furiganalyse processes the linguistic structure of your book. Choose between fast pure furigana generation or interactive dictionary note layers.', ['<strong>Furigana:</strong> Pure reading ruby above kanji', '<strong>Dictionary Study:</strong> Chapter vocabulary notes & study links', '<strong>Combined:</strong> Dual-layer (full furigana + study notes)', '<strong>Guided:</strong> Maximum pedagogical assistance with particles']) }}
+                        <small>Choose furigana, dictionary study, or guided language analysis</small>
+                    </span>
+                </legend>
                 <div class="choice-grid choice-grid--four" role="radiogroup" aria-label="Processing mode">
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-furigana" value="furigana" checked>
-                        <span class="choice-content"><strong>Furigana converter</strong><small>Fast reading annotation with your known-word filter.</small></span>
+                        <span class="choice-content">
+                            <strong>Furigana converter {{ info_bubble('Furigana Converter Mode', 'Fast · Pure Reading', 'Generates standard <ruby> furigana annotations above all kanji characters using MeCab morphological analysis. Supports known-word frequency filters. Does not create dictionary links or study card pages.', ['<strong>Best for:</strong> General novel reading on e-readers without clutter', '<strong>Speed:</strong> Instantaneous rule-based generation'], 'left') }}</strong>
+                            <small>Fast reading annotation with your known-word filter.</small>
+                        </span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-study" value="study" {% if not dictionaries_ready %}disabled{% endif %}>
-                        <span class="choice-content"><strong>Dictionary Study EPUB</strong><small>Selected dictionary glosses, expressions, proper names, and backlinks · not sentence translation.</small></span>
+                        <span class="choice-content">
+                            <strong>Dictionary Study EPUB {{ info_bubble('Dictionary Study Mode', 'Vocabulary & Character Focus', 'Scans the book for high-value vocabulary, idioms, and character names, linking them directly to partitioned dictionary study pages at the end of each chapter with bidirectional backlinks.', ['<strong>Best for:</strong> Intermediate/advanced readers who want clean kanji text with clickable instant lookups', '<strong>Features:</strong> Proper names, JLPT prioritization, offline JMdict definitions']) }}</strong>
+                            <small>Selected dictionary glosses, expressions, proper names, and backlinks · not sentence translation.</small>
+                        </span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-combined" value="combined" {% if not dictionaries_ready %}disabled{% endif %}>
-                        <span class="choice-content"><strong>Furigana + Dictionary Study</strong><small>Add broad furigana alongside selected dictionary links, notes, and backlinks · EPUB only.</small></span>
+                        <span class="choice-content">
+                            <strong>Furigana + Dictionary Study {{ info_bubble('Combined Mode', 'Dual-Layer Assistance', 'Merges broad furigana readings with interactive dictionary study cards. Every kanji receives furigana, while key vocabulary words are linked to detailed definition cards.', ['<strong>Best for:</strong> Beginners & intermediate learners tackling challenging light novels', '<strong>EPUB Only:</strong> Interactive note links require EPUB format']) }}</strong>
+                            <small>Add broad furigana alongside selected dictionary links, notes, and backlinks · EPUB only.</small>
+                        </span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="pipeline_mode" id="pipeline-guided" value="guided" {% if not dictionaries_ready %}disabled{% endif %}>
-                        <span class="choice-content"><strong>Guided Reading EPUB</strong><small>Broad furigana plus all safe words, phrases, names, particles, auxiliaries, and local paged notes · no LLM.</small></span>
+                        <span class="choice-content">
+                            <strong>Guided Reading EPUB {{ info_bubble('Guided Reading Architecture', 'Maximum Linguistic Support', 'Complete linguistic breakdown featuring vocabulary, proper nouns, idioms, and a dedicated function-word layer for particles and auxiliaries (助詞・助動詞).', ['<strong>Zero LLM Latency:</strong> 100% deterministic local index matching', '<strong>Includes:</strong> Local paged note sheets with grammar markers'], 'right') }}</strong>
+                            <small>Broad furigana plus all safe words, phrases, names, particles, auxiliaries, and local paged notes · no LLM.</small>
+                        </span>
                     </label>
                 </div>
                 {% if not dictionaries_ready %}<p class="form-notice">Local EDRDG indexes are not ready, so Dictionary Study mode is temporarily unavailable.</p>{% endif %}
             </fieldset>
 
             <fieldset class="form-section" id="furigana-options">
-                <legend><span class="step-number">3</span><span>Reading assistance<small>Choose how generated furigana is handled</small></span></legend>
+                <legend>
+                    <span class="step-number">3</span>
+                    <span>Reading assistance
+                        {{ info_bubble('Reading Assistance Controls', 'Ruby Injection Rules', 'Configure how generated furigana interacts with existing publisher ruby markup and known vocabulary filters.') }}
+                        <small>Choose how generated furigana is handled</small>
+                    </span>
+                </legend>
                 <div class="choice-grid choice-grid--three" role="radiogroup" aria-label="Furigana mode">
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_add" value="add" checked>
-                        <span class="choice-content"><strong>Add (Default)</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Keep publisher ateji &amp; fill missing readings</small></span>
+                        <span class="choice-content">
+                            <strong>Add (Default) {{ info_bubble('Add Furigana (Preserve Publisher Ruby)', 'Recommended', 'Strictly preserves all original author-assigned furigana (such as special ateji, fantasy readings, and character nicknames) and generates readings only for unannotated kanji.', ['<strong>Safe:</strong> Never corrupts author-intended special readings', '<strong>Coverage:</strong> 100% of unannotated kanji receive readings'], 'left') }}</strong>
+                            <span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span>
+                            <small>Keep publisher ateji &amp; fill missing readings</small>
+                        </span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_replace" value="replace">
-                        <span class="choice-content"><strong>Replace all</strong><span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span><small>Full uniform furigana for all kanji</small></span>
+                        <span class="choice-content">
+                            <strong>Replace all {{ info_bubble('Replace All Furigana', 'Uniform Annotation', 'Overwrites all existing furigana in the book with standard dictionary readings generated by MeCab.', ['<strong>Use when:</strong> An ebook has broken, misaligned, or corrupted publisher ruby markup', '<strong>Warning:</strong> Replaces author fantasy ateji with standard readings']) }}</strong>
+                            <span class="japanese-preview"><ruby>次<rt>つぎ</rt></ruby>の<ruby>駅<rt>えき</rt></ruby></span>
+                            <small>Full uniform furigana for all kanji</small>
+                        </span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="furigana_mode" id="fm_remove" value="remove">
-                        <span class="choice-content"><strong>Remove</strong><span class="japanese-preview">次の駅</span><small>Remove all reading assistance</small></span>
+                        <span class="choice-content">
+                            <strong>Remove {{ info_bubble('Remove All Furigana', 'Kanji Immersion', 'Strips all <ruby> tags and reading annotations completely from the book, returning clean, raw kanji text.', ['<strong>Best for:</strong> Advanced readers seeking pure kanji immersion without visual crutches', '<strong>Output:</strong> Pure clean text without ruby overhead'], 'right') }}</strong>
+                            <span class="japanese-preview">次の駅</span>
+                            <small>Remove all reading assistance</small>
+                        </span>
                     </label>
                 </div>
 
                 <div class="field-row" id="known-words-row">
-                    <label for="known_words_list"><strong>Known-word filter</strong><small>Skip readings for words you already know</small></label>
+                    <label for="known_words_list">
+                        <strong>Known-word filter {{ info_bubble('Known-Word Exclusions', 'Customizable Density', 'Omits furigana from words you already recognize to prevent visual clutter and foster kanji recall.', ['<strong>JLPT N5–N1:</strong> Excludes common words based on official test frequency lists', '<strong>Custom List:</strong> Upload your Anki export (.txt/.csv) to exclude your personal deck vocabulary']) }}</strong>
+                        <small>Skip readings for words you already know</small>
+                    </label>
                     <select name="known_words_list" id="known_words_list">
                         <option value="" selected>Apply to all words</option>
                         {% for list_name, display_name, word_count in known_words_lists %}
@@ -123,9 +186,18 @@
             </fieldset>
 
             <fieldset class="form-section" id="study-options" hidden>
-                <legend><span class="step-number">3</span><span>Study assistance<small>Local dictionary glosses—not sentence translation</small></span></legend>
+                <legend>
+                    <span class="step-number">3</span>
+                    <span>Study assistance
+                        {{ info_bubble('Study Notes Budget', 'Local Dictionary Coverage', 'Controls how many distinct vocabulary candidates are linked to end-of-chapter definition sheets.') }}
+                        <small>Local dictionary glosses—not sentence translation</small>
+                    </span>
+                </legend>
                 <div class="field-row">
-                    <label for="per_chapter_item_limit"><strong>Study items per chapter</strong><small>Each selected item links all of its occurrences; particles, punctuation, and unmatched words stay unlinked</small></label>
+                    <label for="per_chapter_item_limit">
+                        <strong>Study items per chapter {{ info_bubble('Per-Chapter Study Budget', 'Flow vs Depth', 'Controls how many distinct study items are linked per chapter. Rare words and JLPT-relevant terms are prioritized first.', ['<strong>50 items (Recommended):</strong> Balances reading momentum with comprehensive lookups', '<strong>All eligible words:</strong> Links every matched word; larger file size and longer conversion time']) }}</strong>
+                        <small>Each selected item links all of its occurrences; particles, punctuation, and unmatched words stay unlinked</small>
+                    </label>
                     <select name="per_chapter_item_limit" id="per_chapter_item_limit">
                         <option value="0">All eligible dictionary words · slowest and largest</option>
                         <option value="5">5 items</option>
@@ -136,7 +208,10 @@
                     </select>
                 </div>
                 <label class="experimental-toggle" for="experimental_adaptive">
-                    <span><strong>Experimental adaptive assistance</strong><small>Apply reviewed Phase 8 mechanics to dictionary items. Synthetic presets are not learner diagnoses.</small></span>
+                    <span>
+                        <strong>Experimental adaptive assistance {{ info_bubble('Adaptive Density Engine', 'Phase 8 Experimental', 'Applies dynamic density balancing to taper off furigana and definition assistance as vocabulary becomes familiar across earlier chapters.', ['<strong>Synthetic Presets:</strong> Predefined scaffolding levels (N5 to N3)', '<strong>Pure Local:</strong> No external model or diagnostic tracking required']) }}</strong>
+                        <small>Apply reviewed Phase 8 mechanics to dictionary items. Synthetic presets are not learner diagnoses.</small>
+                    </span>
                     <input type="checkbox" name="experimental_adaptive" id="experimental_adaptive" value="true">
                 </label>
                 <div class="subpanel" id="experimental-options" hidden>
@@ -162,29 +237,68 @@
             </fieldset>
 
             <fieldset class="form-section" id="layout-options">
-                <legend><span class="step-number">4</span><span>Book layout<small>Preserve or set the reading direction</small></span></legend>
+                <legend>
+                    <span class="step-number">4</span>
+                    <span>Book layout
+                        {{ info_bubble('Writing Mode & Typography', 'E-Reader Layout', 'Select horizontal or vertical Japanese reading layout. Standard CSS writing-mode properties are applied to all XHTML sections.', ['<strong>Auto:</strong> Preserves the publisher original layout', '<strong>Horizontal:</strong> Left-to-right modern format', '<strong>Vertical RL:</strong> Right-to-left authentic Japanese layout']) }}
+                        <small>Preserve or set the reading direction</small>
+                    </span>
+                </legend>
                 <div class="choice-grid choice-grid--four" role="radiogroup" aria-label="Writing direction">
-                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_auto" value="auto" checked><span class="choice-content"><strong>Auto (Original)</strong><small>Keep book's native layout</small></span></label>
-                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb"><span class="choice-content"><strong>Horizontal</strong><span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span></span></label>
-                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl"><span class="choice-content"><strong>Vertical · right to left</strong><span class="direction-sample direction-vertical">次の駅で降りた。</span></span></label>
-                    <label class="choice-card choice-card--compact"><input type="radio" name="writing_mode" id="wm_vertical-lr" value="vertical-lr"><span class="choice-content"><strong>Vertical · left to right</strong><span class="direction-sample direction-vertical direction-lr">次の駅で降りた。</span></span></label>
+                    <label class="choice-card choice-card--compact">
+                        <input type="radio" name="writing_mode" id="wm_auto" value="auto" checked>
+                        <span class="choice-content">
+                            <strong>Auto (Original) {{ info_bubble('Auto Writing Mode', 'Default', 'Retains the original book stylesheet styles and native reading orientation.', align='left') }}</strong>
+                            <small>Keep book's native layout</small>
+                        </span>
+                    </label>
+                    <label class="choice-card choice-card--compact">
+                        <input type="radio" name="writing_mode" id="wm_horizontal-tb" value="horizontal-tb">
+                        <span class="choice-content">
+                            <strong>Horizontal {{ info_bubble('Horizontal Layout', 'horizontal-tb', 'Forces standard left-to-right horizontal text. Recommended for phones and web readers.', align='center') }}</strong>
+                            <span class="direction-sample direction-horizontal">次の駅で<br>降りた。</span>
+                        </span>
+                    </label>
+                    <label class="choice-card choice-card--compact">
+                        <input type="radio" name="writing_mode" id="wm_vertical-rl" value="vertical-rl">
+                        <span class="choice-content">
+                            <strong>Vertical · right to left {{ info_bubble('Vertical Layout', 'vertical-rl', 'Forces authentic Japanese vertical columns reading right-to-left. Recommended for Kindle, Kobo, and dedicated e-ink readers.', align='center') }}</strong>
+                            <span class="direction-sample direction-vertical">次の駅で降りた。</span>
+                        </span>
+                    </label>
+                    <label class="choice-card choice-card--compact">
+                        <input type="radio" name="writing_mode" id="wm_vertical-lr" value="vertical-lr">
+                        <span class="choice-content">
+                            <strong>Vertical · left to right {{ info_bubble('Vertical Left-to-Right', 'vertical-lr', 'Alternative vertical layout for specific e-reading hardware that flips pages left-to-right.', align='right') }}</strong>
+                            <span class="direction-sample direction-vertical direction-lr">次の駅で降りた。</span>
+                        </span>
+                    </label>
                 </div>
             </fieldset>
 
             <fieldset class="form-section" id="bilingual-section">
-                <legend><span class="step-number">5</span><span>Bilingual companion<small>Optional English translation chapters alongside Japanese</small></span></legend>
+                <legend>
+                    <span class="step-number">5</span>
+                    <span>Bilingual companion
+                        {{ info_bubble('Bilingual Translation Companion', 'Parallel Reading Layer', 'Generates high-accuracy English translation companion chapters inserted directly into the EPUB spine alongside each original Japanese chapter.', ['<strong>Non-Destructive:</strong> Japanese text, ruby, and layout remain completely untouched', '<strong>Table of Contents:</strong> Quickly toggle between Japanese chapter and English translation', '<strong>Providers:</strong> Hetzner GPU Cloud, Google Gemini, OpenRouter, Local Ollama, OpenAI, DeepSeek']) }}
+                        <small>Optional English translation chapters alongside Japanese</small>
+                    </span>
+                </legend>
                 <div class="field-row">
                     <label class="checkbox-row" for="bilingual_companion">
                         <input type="checkbox" name="bilingual_companion" id="bilingual_companion" value="true">
                         <span>
-                            <strong>Generate English companion chapters</strong>
+                            <strong>Generate English companion chapters {{ info_bubble('English Companion Chapters', 'Spine Insertion', 'Translates each scene with paragraph-aligned fidelity. Translation results are cached on disk for instant re-runs.') }}</strong>
                             <small>Appends companion translation chapters to the EPUB spine without modifying original Japanese text or ruby.</small>
                         </span>
                     </label>
                 </div>
                 <div id="bilingual-settings" class="bilingual-settings">
                     <div class="field-row">
-                        <label for="bilingual_provider"><strong>Translation backend</strong><small>Select LLM provider or local endpoint</small></label>
+                        <label for="bilingual_provider">
+                            <strong>Translation backend {{ info_bubble('LLM Inference Backend', 'Cloud & Local Endpoints', 'Select your preferred LLM provider. Fast GPU endpoints like Hetzner or Google AI Studio offer high translation accuracy; Local Ollama runs completely offline on your own machine.', ['<strong>Hetzner:</strong> Dedicated cloud GPU (Fastest, High Quality)', '<strong>Google AI Studio:</strong> Gemini Flash with generous free tier', '<strong>OpenRouter:</strong> Multi-provider aggregator with free models', '<strong>Local Ollama:</strong> 100% private offline inference on CPU/GPU']) }}</strong>
+                            <small>Select LLM provider or local endpoint</small>
+                        </label>
                         <select name="bilingual_provider" id="bilingual_provider">
                             <option value="none">Offline rule-based fallback (No API key needed)</option>
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
@@ -196,33 +310,51 @@
                         </select>
                     </div>
                     <div class="field-row" id="bilingual-key-row">
-                        <label for="bilingual_api_key"><strong>API Key</strong><small>Used only for this conversion session; never permanently logged</small></label>
+                        <label for="bilingual_api_key">
+                            <strong>API Key {{ info_bubble('API Key Security', 'Session-Scoped', 'Keys are transmitted securely and used exclusively during your active conversion session. They are never logged or stored permanently in files or databases.') }}</strong>
+                            <small>Used only for this conversion session; never permanently logged</small>
+                        </label>
                         <input type="password" name="bilingual_api_key" id="bilingual_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
                     <div class="field-row" id="bilingual-model-row">
-                        <label for="bilingual_model"><strong>Model identifier (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, gemini-flash-latest</small></label>
+                        <label for="bilingual_model">
+                            <strong>Model identifier (optional) {{ info_bubble('Model Identifier', 'Custom Model Name', 'Specify a custom model slug (e.g. gemini-flash-latest, Qwen/Qwen3.6-35B-A3B-FP8, gpt-4o-mini). Leave blank to use the verified provider default.') }}</strong>
+                            <small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, gemini-flash-latest</small>
+                        </label>
                         <input type="text" name="bilingual_model" id="bilingual_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="bilingual-url-row">
-                        <label for="bilingual_base_url"><strong>Custom API base URL (optional)</strong><small>Leave blank for provider default</small></label>
+                        <label for="bilingual_base_url">
+                            <strong>Custom API base URL (optional) {{ info_bubble('Custom Base URL', 'Self-Hosted / Proxy', 'Point to a custom OpenAI-compatible proxy, private vLLM server, or local Ollama URL (e.g. http://localhost:11434/v1).') }}</strong>
+                            <small>Leave blank for provider default</small>
+                        </label>
                         <input type="text" name="bilingual_base_url" id="bilingual_base_url" placeholder="Default endpoint URL">
                     </div>
                 </div>
             </fieldset>
 
             <fieldset class="form-section" id="llm-enrich-section">
-                <legend><span class="step-number">6</span><span>LLM Intelligence <small>Optional context-aware enrichment of furigana and study notes</small></span></legend>
+                <legend>
+                    <span class="step-number">6</span>
+                    <span>LLM Intelligence
+                        {{ info_bubble('Context-Aware Enrichment Suite', 'Modules 1 through 4', 'Advanced contextual disambiguation suite combining deterministic publisher ruby propagation, persistent Series Memory, proper noun correction, and in-universe glosses.') }}
+                        <small>Optional context-aware enrichment of furigana and study notes</small>
+                    </span>
+                </legend>
                 <div class="field-row">
                     <label class="checkbox-row" for="publisher_ruby_propagation">
                         <input type="checkbox" name="publisher_ruby_propagation" id="publisher_ruby_propagation" value="true" checked>
                         <span>
-                            <strong>Publisher ruby propagation (Module 2)</strong>
+                            <strong>Publisher ruby propagation (Module 2) {{ info_bubble('Module 2: Author Ruby Propagation', '100% Deterministic · Zero Cost', 'Light novel authors often annotate rare kanji, special spells, or character nicknames only once on their first appearance. This module extracts those author-assigned readings and automatically propagates them to all later unannotated occurrences across the whole book.', ['<strong>100% Free:</strong> No LLM API calls required', '<strong>Guaranteed Accuracy:</strong> Preserves author-intended world terminology book-wide']) }}</strong>
                             <small>Automatically propagates author-assigned &lt;ruby&gt; readings to all unannotated occurrences book-wide (instant, 100% deterministic).</small>
                         </span>
                     </label>
                 </div>
                 <div class="field-row" id="series-profile-row">
-                    <label for="series_profile_id"><strong>Series Memory Profile (optional)</strong><small>Apply known character names &amp; world terms saved from earlier volumes</small></label>
+                    <label for="series_profile_id">
+                        <strong>Series Memory Profile (optional) {{ info_bubble('Series Memory & Cross-Volume Persistence', 'Series Profile Engine', 'Select a saved Series Memory Profile to enforce cumulative character readings, roles, voice tones, and world glossaries across multiple volumes of a light novel series.', ['<strong>Auto-Detection:</strong> Uploading an EPUB automatically matches and pre-selects its series profile', '<strong>Consistency:</strong> Prevents names from changing readings between Volume 1 and Volume 20', '<strong>Manage Profiles:</strong> Edit cast and glossaries anytime in the Series Memory Dashboard']) }}</strong>
+                        <small>Apply known character names &amp; world terms saved from earlier volumes</small>
+                    </label>
                     <select name="series_profile_id" id="series_profile_id">
                         <option value="">No series profile (standalone book)</option>
                         {% if series_profiles %}
@@ -236,7 +368,7 @@
                     <label class="checkbox-row" for="llm_enrich_nouns">
                         <input type="checkbox" name="llm_enrich_nouns" id="llm_enrich_nouns" value="true">
                         <span>
-                            <strong>Proper noun furigana correction</strong>
+                            <strong>Proper noun furigana correction {{ info_bubble('Module 4: Proper Noun Furigana Disambiguation', 'LLM + JMnedict Fallback', 'Scans for fictional character names, rare family surnames, and world terms that standard dictionary tokenizers misread (e.g. reading 司波達也 correctly as しばたつや instead of standard morphological splits).', ['<strong>Batched & Fast:</strong> Resolves all unknown names in a single batch request per book', '<strong>Disk Cached:</strong> Re-converting the same novel requires 0 additional API calls']) }}</strong>
                             <small>Sends unrecognised character names and world terms to the LLM to get the correct author-intended reading. One batch call per book, cached on re-conversion.</small>
                         </span>
                     </label>
@@ -245,14 +377,17 @@
                     <label class="checkbox-row" for="llm_enrich_glosses">
                         <input type="checkbox" name="llm_enrich_glosses" id="llm_enrich_glosses" value="true">
                         <span>
-                            <strong>Contextual study note glosses</strong>
+                            <strong>Contextual study note glosses {{ info_bubble('Module 3: In-Universe Contextual Glosses', 'Context-Aware Definitions', 'Replaces generic, dry dictionary definitions with story-accurate, in-universe explanations based on chapter context (e.g. defining 劣等生 as high school course status rather than generic underachiever).', ['<strong>High Relevance:</strong> Explains magical systems, military ranks, and sci-fi technology accurately in context', '<strong>Automatic Fallback:</strong> Reverts smoothly to JMdict standard senses if LLM is unavailable']) }}</strong>
                             <small>Replaces generic JMdict definitions with book-specific usage descriptions for selected study items (e.g. "magic circuit monitor" instead of generic "nurse").</small>
                         </span>
                     </label>
                 </div>
                 <div id="llm-enrich-settings" class="bilingual-settings">
                     <div class="field-row">
-                        <label for="llm_provider"><strong>LLM backend</strong><small>Same provider as bilingual companion, or configure independently</small></label>
+                        <label for="llm_provider">
+                            <strong>LLM backend {{ info_bubble('LLM Enrichment Provider', 'Multi-Provider Engine', 'Choose the backend used for Proper Noun Disambiguation and Contextual Study Note Glosses. Can be configured independently from the Bilingual Companion backend.') }}</strong>
+                            <small>Same provider as bilingual companion, or configure independently</small>
+                        </label>
                         <select name="llm_provider" id="llm_provider">
                             <option value="none">Off (no enrichment)</option>
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
@@ -264,24 +399,42 @@
                         </select>
                     </div>
                     <div class="field-row" id="llm-enrich-model-row">
-                        <label for="llm_model"><strong>Model (optional)</strong><small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small></label>
+                        <label for="llm_model">
+                            <strong>Model (optional) {{ info_bubble('Enrichment Model Slug', 'Custom LLM Slug', 'Specify an alternative model name (e.g. gemini-flash-latest, Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b).') }}</strong>
+                            <small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small>
+                        </label>
                         <input type="text" name="llm_model" id="llm_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="llm-enrich-key-row">
-                        <label for="llm_api_key"><strong>API Key</strong><small>Leave blank if using local Ollama</small></label>
+                        <label for="llm_api_key">
+                            <strong>API Key {{ info_bubble('Enrichment API Key', 'Session Security', 'Used only for this conversion session. Leave blank if using Local Ollama.') }}</strong>
+                            <small>Leave blank if using local Ollama</small>
+                        </label>
                         <input type="password" name="llm_api_key" id="llm_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
                     <div class="field-row" id="llm-enrich-url-row">
-                        <label for="llm_base_url"><strong>Custom base URL (optional)</strong><small>Leave blank for provider default</small></label>
+                        <label for="llm_base_url">
+                            <strong>Custom base URL (optional) {{ info_bubble('Custom Base URL', 'Proxy / Endpoint', 'Custom endpoint base URL for private or self-hosted LLM endpoints.') }}</strong>
+                            <small>Leave blank for provider default</small>
+                        </label>
                         <input type="text" name="llm_base_url" id="llm_base_url" placeholder="Default endpoint">
                     </div>
                 </div>
             </fieldset>
 
             <fieldset class="form-section form-section--last">
-                <legend><span class="step-number">7</span><span>Output<small>Choose the file you want back</small></span></legend>
+                <legend>
+                    <span class="step-number">7</span>
+                    <span>Output
+                        {{ info_bubble('Output File Generation', 'Target Ebook Format', 'Select the output container format for your converted ebook. EPUB is universally supported across reading apps.', ['<strong>EPUB (Recommended):</strong> Supports ruby furigana, interactive dictionary links, and bilingual companion chapters', '<strong>AZW3 / MOBI:</strong> Formatted for Kindle e-readers', '<strong>Text / HTML:</strong> Clean extracted plain text or web chapters for desktop study']) }}
+                        <small>Choose the file you want back</small>
+                    </span>
+                </legend>
                 <div class="field-row">
-                    <label for="of"><strong>Output format</strong><small>EPUB is recommended for reading apps</small></label>
+                    <label for="of">
+                        <strong>Output format {{ info_bubble('Output Format Selector', 'E-Reader Compatibility', 'EPUB is the native and most capable format. Note that interactive Dictionary Study links and Bilingual Companion layers require EPUB.') }}</strong>
+                        <small>EPUB is recommended for reading apps</small>
+                    </label>
                     <select name="of" id="of">
                         <option value="epub" selected>EPUB · recommended</option>
                         <option value="azw3">AZW3</option>
