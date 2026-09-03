@@ -212,18 +212,85 @@ def enrich_glosses(
                     pass
             return cached
 
+    # Check Series Memory glossary first to avoid unnecessary LLM calls
+    series_glosses: dict[str, Any] = {}
+    if series_profile and series_profile.get("glossary"):
+        glossary_data = series_profile["glossary"]
+        for c in candidates:
+            s = c.get("surface", "")
+            if s in glossary_data:
+                entry = glossary_data[s]
+                pref = entry.get("preferred_translation") or entry.get("definition") or entry.get("translation")
+                if pref:
+                    series_glosses[c["id"]] = {
+                        "gloss": pref,
+                        "selected_sense_id": None,
+                        "source": "series_memory",
+                    }
+
+    if series_glosses:
+        logger.info("enrich_glosses: pre-resolved %d/%d study items from Series Memory glossary", len(series_glosses), len(candidates))
+        if progress_callback:
+            try:
+                progress_callback({
+                    "log": f"Module 3: Pre-resolved {len(series_glosses)} glosses directly from Series Memory (zero LLM calls needed)",
+                })
+            except Exception:
+                pass
+
+    remaining_candidates = [c for c in candidates if c["id"] not in series_glosses]
+    if not remaining_candidates:
+        if progress_callback:
+            try:
+                progress_callback({
+                    "log": f"Module 3 complete: All {len(candidates)} study note glosses resolved from Series Memory — zero LLM calls needed!",
+                })
+            except Exception:
+                pass
+        if cache_path:
+            _save_cache(cache_path, series_glosses)
+        return series_glosses
+
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     MAX_WORKERS = 3
-    all_glosses: dict[str, Any] = {}
+    all_glosses: dict[str, Any] = dict(series_glosses)
     batches = [
-        (idx // MAX_ITEMS_PER_BATCH + 1, candidates[idx:idx + MAX_ITEMS_PER_BATCH])
-        for idx in range(0, len(candidates), MAX_ITEMS_PER_BATCH)
+        (idx // MAX_ITEMS_PER_BATCH + 1, remaining_candidates[idx:idx + MAX_ITEMS_PER_BATCH])
+        for idx in range(0, len(remaining_candidates), MAX_ITEMS_PER_BATCH)
     ]
     total_batches = len(batches)
 
+    context_backup_dir = (cache_dir / "context_backups") if cache_dir else Path("data/context_backups")
+    context_backup_dir.mkdir(parents=True, exist_ok=True)
+
     def _process_single_batch(batch_info: tuple[int, list[dict[str, Any]]]) -> tuple[int, dict[str, Any], float, str]:
         batch_num, batch = batch_info
+        ctx_file = context_backup_dir / f"module3_batch_{batch_num}_{items_hash}.json"
+        
+        # Save local context file to disk for fault tolerance and debugging
+        try:
+            ctx_payload = {
+                "module": "module_3_contextual_glosses",
+                "batch_num": batch_num,
+                "total_batches": total_batches,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "status": "pending_llm",
+                "items": [
+                    {
+                        "id": c["id"],
+                        "surface": c["surface"],
+                        "reading": c["reading"],
+                        "context_sentences": c.get("context_sentences", []),
+                    }
+                    for c in batch
+                ],
+                "system_prompt": active_system_prompt,
+            }
+            ctx_file.write_text(json.dumps(ctx_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:
+            logger.debug("Could not save batch context file: %s", e)
+
         user_content = json.dumps(
             [
                 {
@@ -281,6 +348,16 @@ def enrich_glosses(
                                 "selected_sense_id": selected_sense_id,
                             }
                 if batch_results:
+                    try:
+                        ctx_file.write_text(json.dumps({
+                            "module": "module_3_contextual_glosses",
+                            "batch_num": batch_num,
+                            "status": "completed",
+                            "elapsed_seconds": round(elapsed, 2),
+                            "results": batch_results,
+                        }, ensure_ascii=False, indent=2), encoding="utf-8")
+                    except Exception:
+                        pass
                     return batch_num, batch_results, elapsed, raw
                 raise ValueError(f"Parsed JSON produced 0 valid gloss items (raw: {raw[:100]})")
             except Exception as exc:
@@ -321,7 +398,7 @@ def enrich_glosses(
                 if progress_callback:
                     try:
                         progress_callback({
-                            "log": f"Module 3: Batch {b_num}/{total_batches} enriched ({len(batch_results)} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
+                            "log": f"Module 3: Batch {b_num}/{total_batches} enriched ({len(batch_results)} glosses in {elapsed:.1f}s)",
                         })
                         for item_id, res in list(batch_results.items())[:3]:
                             progress_callback({

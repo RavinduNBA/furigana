@@ -217,6 +217,10 @@
             modelInput.placeholder = "e.g. Qwen/Qwen3.6-35B-A3B-FP8 (default)";
             keyInput.placeholder = "Pre-configured / Custom Hetzner Token";
             urlInput.placeholder = "inference.hetzner.com/api/v1 (default)";
+        } else if (prov === "alibaba") {
+            modelInput.placeholder = "e.g. qwen-plus (default), qwen-max, qwen-turbo";
+            keyInput.placeholder = "Pre-configured / Alibaba Model Studio Key";
+            urlInput.placeholder = "Aliyun MaaS Endpoint (pre-configured from CSV)";
         } else if (prov === "google") {
             modelInput.placeholder = "e.g. gemini-flash-latest (default), gemini-pro-latest";
             keyInput.placeholder = "Pre-configured / Google AI Studio Key";

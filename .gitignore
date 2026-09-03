@@ -67,3 +67,12 @@ Thumbs.db
 CLAUDE.md
 GEMINI.md
 AGENTS.md
+
+# API Tokens & Local Runtime Data
+api_tokens/
+data/llm_debug.log
+data/*.log
+data/series/
+data/llm_batches/
+data/context_backups/
+
