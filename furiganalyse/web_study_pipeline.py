@@ -1002,7 +1002,7 @@ def run_dictionary_study_pipeline(
         from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
         from furiganalyse.llm_provider import get_llm_provider
 
-        model_name = options.bilingual_model or ("qwen-plus" if options.bilingual_provider in {"alibaba", "dashscope"} else ("gemini-flash-latest" if options.bilingual_provider in {"google", "gemini"} else "gpt-4o-mini"))
+        model_name = options.bilingual_model or ("qwen-plus-character" if options.bilingual_provider in {"alibaba", "dashscope"} else ("gemini-flash-latest" if options.bilingual_provider in {"google", "gemini"} else "gpt-4o-mini"))
         provider_display = (
             f"Alibaba Cloud (Qwen) · {model_name}" if options.bilingual_provider in {"alibaba", "dashscope"} else (
                 f"Google AI Studio · {model_name}" if options.bilingual_provider in {"google", "gemini"} else (
