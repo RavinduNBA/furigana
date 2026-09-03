@@ -74,8 +74,9 @@ def collect_unresolved_proper_nouns(
     canonical_book: dict[str, Any],
     *,
     max_items: int = MAX_BATCH_SIZE,
+    series_profile: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """Collect proper-noun candidates that have no JMnedict match.
+    """Collect proper-noun candidates that have no JMnedict or Series Memory match.
 
     Returns a list of dicts with keys: surface, context_sentences
     """
@@ -89,6 +90,15 @@ def collect_unresolved_proper_nouns(
         name_id = match.get("name_id", "")
         if name_id in name_occurrences:
             resolved_surfaces.add(name_occurrences[name_id].get("surface", ""))
+
+    # Pre-resolve and skip any surfaces already present in Series Memory
+    if series_profile:
+        for name in (series_profile.get("characters") or {}).keys():
+            resolved_surfaces.add(name)
+        for kanji in (series_profile.get("ruby_overrides") or {}).keys():
+            resolved_surfaces.add(kanji)
+        for term in (series_profile.get("glossary") or {}).keys():
+            resolved_surfaces.add(term)
 
     # Build a quick sentence lookup: block_id -> sentence texts
     block_sentences: dict[str, list[str]] = {}
@@ -126,7 +136,7 @@ def collect_unresolved_proper_nouns(
     candidates = list(seen.values())[:max_items]
     logger.info(
         "collect_unresolved_proper_nouns: found %d unresolved proper nouns "
-        "(%d already resolved by JMnedict)",
+        "(%d already resolved by JMnedict or Series Memory)",
         len(candidates),
         len(resolved_surfaces),
     )
@@ -202,26 +212,54 @@ def resolve_proper_nouns(
         else None
     )
 
-    # Try cache first
-    if cache_path:
-        cached = _load_cache(cache_path)
-        if cached is not None:
-            logger.info("resolve_proper_nouns: loaded %d overrides from cache", len(cached))
-            if progress_callback:
-                try:
-                    progress_callback({
-                        "log": f"Proper noun resolution: loaded {len(cached)} cached overrides (no LLM call needed)",
-                    })
-                except Exception:
-                    pass
-            return cached
+    # Pre-populate from Series Memory so known characters/words do not require an LLM call
+    series_overrides: dict[str, dict[str, Any]] = {}
+    if series_profile:
+        for name, char_data in (series_profile.get("characters") or {}).items():
+            reading = char_data.get("reading") or char_data.get("hiragana") or ""
+            romanized = char_data.get("romanized") or name
+            role = char_data.get("role") or "person"
+            if reading or romanized:
+                series_overrides[name] = {"reading": reading or None, "romanized": romanized or None, "entity_type": role}
+        for kanji, reading in (series_profile.get("ruby_overrides") or {}).items():
+            if kanji not in series_overrides and reading:
+                series_overrides[kanji] = {"reading": reading, "romanized": None, "entity_type": "ruby_override"}
+
+    unresolved_candidates = [c for c in candidates if c["surface"] not in series_overrides]
+    if not unresolved_candidates:
+        logger.info("resolve_proper_nouns: all %d proper nouns resolved directly from Series Memory — no LLM call needed", len(candidates))
+        if progress_callback:
+            try:
+                progress_callback({
+                    "log": f"Module 4: All {len(candidates)} proper nouns resolved from Series Memory — zero LLM calls needed",
+                })
+            except Exception:
+                pass
+        if cache_path:
+            _save_cache(cache_path, candidate_hash, series_overrides)
+        return series_overrides
+
+    # Save local context file to disk for fault tolerance and debug logging
+    context_backup_dir = (cache_dir / "context_backups") if cache_dir else Path("data/context_backups")
+    context_backup_dir.mkdir(parents=True, exist_ok=True)
+    ctx_file = context_backup_dir / f"module4_proper_nouns_{candidate_hash}.json"
+    try:
+        ctx_file.write_text(json.dumps({
+            "module": "module_4_proper_nouns",
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "status": "pending_llm",
+            "candidates": unresolved_candidates,
+            "system_prompt": active_system_prompt,
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as e:
+        logger.debug("Could not write module 4 context file: %s", e)
 
     if progress_callback:
         try:
             progress_callback({
-                "log": f"Module 4 (Proper Nouns): Sending {len(candidates)} unresolved proper nouns to {model or 'LLM'} for reading/romanization…",
+                "log": f"Module 4 (Proper Nouns): Sending {len(unresolved_candidates)} unresolved proper nouns to {model or 'LLM'} for reading/romanization…",
                 "translation_current_chapter": "LLM Proper Noun Resolution",
-                "translation_latest_japanese": "  ".join(c["surface"] for c in candidates[:20]),
+                "translation_latest_japanese": "  ".join(c["surface"] for c in unresolved_candidates[:20]),
                 "translation_latest_english": "Resolving readings and romanizations…",
             })
         except Exception:
@@ -233,7 +271,7 @@ def resolve_proper_nouns(
                 "surface": c["surface"],
                 "context": c.get("context_sentences", [])[:2],
             }
-            for c in candidates
+            for c in unresolved_candidates
         ],
         ensure_ascii=False,
         indent=2,
@@ -284,6 +322,22 @@ def resolve_proper_nouns(
                     "romanized": romanized,
                     "entity_type": entity_type,
                 }
+
+        # Merge pre-resolved series overrides with new LLM resolutions
+        for k, v in series_overrides.items():
+            if k not in overrides:
+                overrides[k] = v
+
+        try:
+            ctx_file.write_text(json.dumps({
+                "module": "module_4_proper_nouns",
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "status": "completed",
+                "elapsed_seconds": round(elapsed, 2),
+                "resolved_count": len(overrides),
+            }, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
 
         if progress_callback and overrides:
             try:

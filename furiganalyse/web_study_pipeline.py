@@ -702,19 +702,22 @@ def run_dictionary_study_pipeline(
         enrich_model = options.llm_model or options.bilingual_model
         progress({
             "stage": "tokenizing",
-            "log": f"Module 4: Collecting unresolved proper nouns for LLM furigana correction…",
+            "log": f"Module 4: Collecting unresolved proper nouns (checking JMnedict and Series Memory)…",
         })
-        unresolved = collect_unresolved_proper_nouns(vocabulary, book)
+        unresolved = collect_unresolved_proper_nouns(vocabulary, book, series_profile=series_data)
         if unresolved:
             progress({
                 "stage": "tokenizing",
-                "log": f"Module 4: Found {len(unresolved)} proper nouns not in JMnedict — sending to {enrich_model or options.llm_provider} for correction…",
+                "log": f"Module 4: Found {len(unresolved)} proper nouns not in JMnedict or Series Memory — sending to LLM service: {options.llm_provider} ({enrich_model or 'default'})…",
             })
             llm_provider_instance = get_llm_provider(
                 provider_name=options.llm_provider,
                 api_key=options.llm_api_key,
                 base_url=options.llm_base_url,
                 model=enrich_model,
+                progress_callback=progress,
+                auto_fallback=True,
+                debug_log_path=work / "llm_debug.log",
             )
             overrides = resolve_proper_nouns(
                 unresolved,
@@ -780,13 +783,16 @@ def run_dictionary_study_pipeline(
         if gloss_candidates:
             progress({
                 "stage": "study-selection",
-                "log": f"Module 3: Enriching {len(gloss_candidates)} study note glosses with {enrich_model or options.llm_provider}…",
+                "log": f"Module 3: Enriching {len(gloss_candidates)} study note glosses with LLM service: {options.llm_provider} ({enrich_model or 'default'})…",
             })
             _llm = _get_llm(
                 provider_name=options.llm_provider,
                 api_key=options.llm_api_key,
                 base_url=options.llm_base_url,
                 model=enrich_model,
+                progress_callback=progress,
+                auto_fallback=True,
+                debug_log_path=work / "llm_debug.log",
             )
             glosses = enrich_glosses(
                 gloss_candidates,
@@ -996,18 +1002,24 @@ def run_dictionary_study_pipeline(
         from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
         from furiganalyse.llm_provider import get_llm_provider
 
-        model_name = options.bilingual_model or ("qwen2.5:3b" if options.bilingual_provider == "ollama" else "gpt-4o-mini")
-        provider_display = "Local Ollama · " + model_name if options.bilingual_provider == "ollama" else (
-            f"Hetzner · {model_name}" if options.bilingual_provider == "hetzner" else (
-                f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
-                    f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else "Offline Fallback"
+        model_name = options.bilingual_model or ("qwen-plus" if options.bilingual_provider in {"alibaba", "dashscope"} else ("gemini-flash-latest" if options.bilingual_provider in {"google", "gemini"} else "gpt-4o-mini"))
+        provider_display = (
+            f"Alibaba Cloud (Qwen) · {model_name}" if options.bilingual_provider in {"alibaba", "dashscope"} else (
+                f"Google AI Studio · {model_name}" if options.bilingual_provider in {"google", "gemini"} else (
+                    f"Hetzner · {model_name}" if options.bilingual_provider == "hetzner" else (
+                        f"OpenAI · {model_name}" if options.bilingual_provider == "openai" else (
+                            f"OpenRouter · {model_name}" if options.bilingual_provider == "openrouter" else (
+                                f"Ollama · {model_name}" if options.bilingual_provider == "ollama" else "Offline Fallback"
+                            )
+                        )
+                    )
                 )
             )
         )
 
         progress({
             "stage": "bilingual-translation",
-            "log": f"Pass 1: Discovering Cast & Terminology Pre-Context using {model_name}…",
+            "log": f"Pass 1: Discovering Cast & Terminology Pre-Context using LLM service: {provider_display}…",
             "main_file_ready": True,
             "main_output_bytes": main_size,
         })
@@ -1017,6 +1029,9 @@ def run_dictionary_study_pipeline(
             api_key=options.bilingual_api_key,
             base_url=options.bilingual_base_url,
             model=options.bilingual_model,
+            progress_callback=progress,
+            auto_fallback=True,
+            debug_log_path=work / "llm_debug.log",
         )
         book_context = build_book_context(
             book,
