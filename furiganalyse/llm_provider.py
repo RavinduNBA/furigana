@@ -543,7 +543,7 @@ def get_llm_provider(
             elif name in {"google", "gemini"}:
                 default_model = "gemini-flash-latest"
             elif name in {"alibaba", "dashscope", "aliyun", "qwen"}:
-                default_model = "qwen-plus"
+                default_model = "qwen-plus-character"
             elif name == "openrouter":
                 default_model = "nvidia/nemotron-3.5-lightning:free"
             elif name == "deepseek":
@@ -569,6 +569,20 @@ def get_llm_provider(
         # Build fallback list for alternative configured providers
         fallbacks: list[tuple[BaseLLMProvider, str, str | None]] = []
 
+        # 0. Alibaba secondary model fallback (if alibaba is primary, fallback to flash-character or vice-versa)
+        if name in {"alibaba", "dashscope", "aliyun", "qwen"} and ali_key:
+            alt_ali_model = "qwen-flash-character" if default_model == "qwen-plus-character" else "qwen-plus-character"
+            alt_ali_prov = OpenAICompatibleProvider(
+                api_key=ali_key,
+                base_url=ali_url or "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+                default_model=alt_ali_model,
+                timeout_seconds=timeout,
+                max_retries=retries,
+                provider_name="alibaba",
+                debug_log_path=debug_log_path,
+            )
+            fallbacks.append((alt_ali_prov, "alibaba", alt_ali_model))
+
         # 1. Google AI Studio fallback
         if name not in {"google", "gemini"}:
             g_key = resolve_provider_api_key("google")
@@ -584,19 +598,19 @@ def get_llm_provider(
                 )
                 fallbacks.append((g_prov, "google", "gemini-flash-latest"))
 
-        # 2. Alibaba Cloud fallback
+        # 2. Alibaba Cloud fallback (when another provider is primary)
         if name not in {"alibaba", "dashscope", "aliyun", "qwen"}:
             if ali_key:
                 a_prov = OpenAICompatibleProvider(
                     api_key=ali_key,
                     base_url=ali_url or "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-                    default_model="qwen-plus",
+                    default_model="qwen-plus-character",
                     timeout_seconds=timeout,
                     max_retries=retries,
                     provider_name="alibaba",
                     debug_log_path=debug_log_path,
                 )
-                fallbacks.append((a_prov, "alibaba", "qwen-plus"))
+                fallbacks.append((a_prov, "alibaba", "qwen-plus-character"))
 
         # 3. OpenRouter fallback
         if name != "openrouter":

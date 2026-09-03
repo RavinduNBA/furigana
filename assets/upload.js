@@ -218,7 +218,7 @@
             keyInput.placeholder = "Pre-configured / Custom Hetzner Token";
             urlInput.placeholder = "inference.hetzner.com/api/v1 (default)";
         } else if (prov === "alibaba") {
-            modelInput.placeholder = "e.g. qwen-plus (default), qwen-max, qwen-turbo";
+            modelInput.placeholder = "e.g. qwen-plus-character (default), qwen-flash-character";
             keyInput.placeholder = "Pre-configured / Alibaba Model Studio Key";
             urlInput.placeholder = "Aliyun MaaS Endpoint (pre-configured from CSV)";
         } else if (prov === "google") {

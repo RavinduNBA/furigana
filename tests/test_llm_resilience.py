@@ -27,8 +27,11 @@ def test_alibaba_credentials_discovery():
 
     prov = get_llm_provider("alibaba")
     assert isinstance(prov, OpenAICompatibleProvider)
-    assert prov.default_model == "qwen-plus"
+    assert prov.default_model == "qwen-plus-character"
     assert "aliyuncs.com" in prov.base_url
+
+    prov_flash = get_llm_provider("alibaba", model="qwen-flash-character")
+    assert prov_flash.default_model == "qwen-flash-character"
 
 
 def test_resilient_fallback_provider_flow():
