@@ -100,12 +100,15 @@
                                     <th>Hiragana Reading</th>
                                     <th>Romanized</th>
                                     <th>Role / Status</th>
+                                    <th>Gender</th>
+                                    <th>Relationships &amp; Ties</th>
+                                    <th>Aliases</th>
                                     <th>Speaking Tone</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-characters">
-                                <tr><td colspan="6" class="text-center text-muted">Select a series to view characters</td></tr>
+                                <tr><td colspan="9" class="text-center text-muted">Select a series to view characters</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -205,16 +208,29 @@
             <input type="text" id="char-romanized">
         </div>
         <div class="field-row">
-            <label for="char-role"><strong>Role / Status</strong> (e.g. Protagonist, Weed, First High)</label>
-            <input type="text" id="char-role" placeholder="Protagonist / Supporting / Antagonist…">
+            <label for="char-role"><strong>Role / Status</strong> (e.g. Protagonist, Heroine, Antagonist)</label>
+            <input type="text" id="char-role" placeholder="Protagonist / Heroine / Supporting / Antagonist…">
         </div>
         <div class="field-row">
-            <label for="char-tone"><strong>Speaking Tone / Voice</strong> (e.g. Calm, polite, formal)</label>
-            <input type="text" id="char-tone" placeholder="Calm, stoic, respectful…">
+            <label for="char-gender"><strong>Gender</strong></label>
+            <select id="char-gender">
+                <option value="unknown">Unknown / Not specified</option>
+                <option value="male">Male (♂)</option>
+                <option value="female">Female (♀)</option>
+                <option value="neutral">Neutral / Non-binary</option>
+            </select>
         </div>
         <div class="field-row">
             <label for="char-relations"><strong>Relationships &amp; Ties (optional)</strong> (e.g. Younger sister of Tatsuya, Classmate of Erika)</label>
             <input type="text" id="char-relations" placeholder="e.g. Younger sister of Tatsuya, Classmate of Erika…">
+        </div>
+        <div class="field-row">
+            <label for="char-aliases"><strong>Aliases &amp; Codenames (optional)</strong> (e.g. Silver, Taurus Silver)</label>
+            <input type="text" id="char-aliases" placeholder="e.g. Silver, Taurus Silver (comma-separated)">
+        </div>
+        <div class="field-row">
+            <label for="char-tone"><strong>Speaking Tone / Voice</strong> (e.g. Calm, polite, formal)</label>
+            <input type="text" id="char-tone" placeholder="Calm, stoic, respectful…">
         </div>
         <div class="modal-buttons">
             <button type="button" class="secondary-button" id="btn-cancel-char">Cancel</button>

@@ -144,20 +144,30 @@
             const reading = typeof c === "object" ? (c.reading || c.hiragana || "") : "";
             const romanized = typeof c === "object" ? (c.romanized || "") : "";
             const role = typeof c === "object" ? (c.role || "") : "";
+            const gender = typeof c === "object" ? (c.gender || "") : "";
             const tone = typeof c === "object" ? (c.speaking_tone || "") : "";
             const rel = typeof c === "object" ? (
                 typeof c.relationships === "object" && c.relationships !== null ?
                     Object.entries(c.relationships).map(([target, desc]) => desc ? `${target} (${desc})` : target).join(", ") :
                     (c.relationships || "")
             ) : "";
-            const relHtml = rel ? `<br><small class="text-muted" title="Relationships & Ties">🔗 ${escapeHtml(rel)}</small>` : "";
+            const aliases = typeof c === "object" ? (
+                Array.isArray(c.aliases) ? c.aliases.join(", ") : (c.aliases || "")
+            ) : "";
+
+            const genderBadge = gender === "male" ? '<span class="gender-tag gender-tag--male">♂ Male</span>' :
+                (gender === "female" ? '<span class="gender-tag gender-tag--female">♀ Female</span>' :
+                (gender && gender !== "unknown" ? `<span class="gender-tag">${escapeHtml(gender)}</span>` : '<span class="text-muted">—</span>'));
 
             return `
                 <tr data-kanji="${escapeHtml(k)}">
                     <td><strong>${escapeHtml(k)}</strong></td>
-                    <td>${escapeHtml(reading)}</td>
-                    <td>${escapeHtml(romanized)}</td>
-                    <td><span class="badge-role">${escapeHtml(role || "Character")}</span>${relHtml}</td>
+                    <td>${escapeHtml(reading || "—")}</td>
+                    <td>${escapeHtml(romanized || "—")}</td>
+                    <td><span class="badge-role">${escapeHtml(role || "Character")}</span></td>
+                    <td>${genderBadge}</td>
+                    <td>${rel ? `<small class="relation-text">🔗 ${escapeHtml(rel)}</small>` : '<span class="text-muted">—</span>'}</td>
+                    <td>${aliases ? `<small class="alias-text">🏷️ ${escapeHtml(aliases)}</small>` : '<span class="text-muted">—</span>'}</td>
                     <td><small class="text-muted">${escapeHtml(tone || "—")}</small></td>
                     <td>
                         <div class="row-actions">
@@ -368,8 +378,10 @@
             byId("char-reading").value = "";
             byId("char-romanized").value = "";
             byId("char-role").value = "";
-            byId("char-tone").value = "";
+            if (byId("char-gender")) byId("char-gender").value = "unknown";
             if (byId("char-relations")) byId("char-relations").value = "";
+            if (byId("char-aliases")) byId("char-aliases").value = "";
+            byId("char-tone").value = "";
             charModal.showModal();
         });
 
@@ -389,11 +401,15 @@
                 byId("char-reading").value = c.reading || c.hiragana || "";
                 byId("char-romanized").value = c.romanized || "";
                 byId("char-role").value = c.role || "";
+                if (byId("char-gender")) byId("char-gender").value = c.gender || "unknown";
                 byId("char-tone").value = c.speaking_tone || "";
                 const relVal = typeof c.relationships === "object" && c.relationships !== null ?
-                    Object.entries(c.relationships).map(([target, desc]) => desc ? `${target} (${desc})` : target).join(", ") :
+                    Object.entries(c.relationships).map(([target, desc]) => desc ? `${target}: ${desc}` : target).join(", ") :
                     (c.relationships || "");
                 if (byId("char-relations")) byId("char-relations").value = relVal;
+                if (byId("char-aliases")) {
+                    byId("char-aliases").value = Array.isArray(c.aliases) ? c.aliases.join(", ") : (c.aliases || "");
+                }
                 charModal.showModal();
             } else if (delBtn) {
                 const confirmed = await window.showConfirmDialog({
@@ -418,13 +434,18 @@
 
             if (!currentProfile.characters) currentProfile.characters = {};
             const relVal = byId("char-relations") ? byId("char-relations").value.trim() : "";
+            const aliasesStr = byId("char-aliases") ? byId("char-aliases").value.trim() : "";
+            const aliasesList = aliasesStr ? aliasesStr.split(",").map(a => a.trim()).filter(Boolean) : [];
+
             currentProfile.characters[kanji] = {
                 kanji,
                 reading: byId("char-reading").value.trim(),
                 romanized: byId("char-romanized").value.trim(),
                 role: byId("char-role").value.trim() || "Character",
-                speaking_tone: byId("char-tone").value.trim(),
+                gender: byId("char-gender") ? byId("char-gender").value : "unknown",
                 relationships: relVal,
+                aliases: aliasesList,
+                speaking_tone: byId("char-tone").value.trim(),
             };
 
             charModal.close();

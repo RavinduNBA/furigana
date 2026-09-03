@@ -427,6 +427,11 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .badge-cat { display: inline-block; padding: 2px 8px; border-radius: 6px; background: var(--blue-light); color: var(--blue); font-size: .72rem; text-transform: capitalize; }
 .lore-text { display: block; max-width: 320px; line-height: 1.4; color: var(--ink); }
 
+.gender-tag { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 6px; font-size: .72rem; font-weight: 600; background: var(--surface-soft); border: 1px solid var(--line); }
+.gender-tag--male { background: rgba(59, 130, 246, 0.12); color: #2563eb; border-color: rgba(59, 130, 246, 0.25); }
+.gender-tag--female { background: rgba(236, 72, 153, 0.12); color: #db2777; border-color: rgba(236, 72, 153, 0.25); }
+.relation-text, .alias-text { display: inline-block; max-width: 220px; line-height: 1.35; font-size: .78rem; color: var(--ink); }
+
 .row-actions { display: flex; gap: 6px; }
 .btn-icon { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: .8rem; transition: background .15s ease; }
 .btn-icon:hover { background: var(--surface-soft); border-color: var(--accent); }
