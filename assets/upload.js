@@ -391,6 +391,43 @@
         });
     }
 
+    function initInfoBubbleInteractivity() {
+        document.addEventListener("click", function (e) {
+            const trigger = e.target.closest(".info-bubble-trigger");
+            const bubble = e.target.closest(".info-bubble");
+
+            // Close all other open bubbles
+            document.querySelectorAll(".info-bubble.is-open").forEach(b => {
+                if (b !== bubble) b.classList.remove("is-open");
+            });
+
+            if (trigger && bubble) {
+                e.preventDefault();
+                e.stopPropagation();
+                bubble.classList.toggle("is-open");
+            }
+        });
+
+        document.querySelectorAll(".info-bubble-trigger").forEach(btn => {
+            btn.addEventListener("mouseleave", function () {
+                // If not explicitly opened via click, blur so focus doesn't lock it open
+                const bubble = this.closest(".info-bubble");
+                if (bubble && !bubble.classList.contains("is-open")) {
+                    this.blur();
+                }
+            });
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                document.querySelectorAll(".info-bubble.is-open").forEach(b => b.classList.remove("is-open"));
+                if (document.activeElement && document.activeElement.classList.contains("info-bubble-trigger")) {
+                    document.activeElement.blur();
+                }
+            }
+        });
+    }
+
     bookFile.dataset.allAccept = bookFile.accept;
     updateMode();
     updatePipeline();
@@ -399,5 +436,6 @@
     loadInstalledOllamaModels();
     loadSeriesProfiles();
     initRecentConversionsControls();
+    initInfoBubbleInteractivity();
     updateBookFile();
 }());

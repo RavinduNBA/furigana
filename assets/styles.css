@@ -585,8 +585,8 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     border-color: #ffffff transparent transparent transparent;
 }
 .info-bubble:hover .info-bubble-content,
-.info-bubble:focus-within .info-bubble-content,
-.info-bubble-trigger:focus .info-bubble-content {
+.info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble.is-open .info-bubble-content {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -598,7 +598,8 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     transform: translateY(4px);
 }
 .info-bubble--right:hover .info-bubble-content,
-.info-bubble--right:focus-within .info-bubble-content {
+.info-bubble--right .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble--right.is-open .info-bubble-content {
     transform: translateY(0);
 }
 .info-bubble--right .info-bubble-content::after {
@@ -612,7 +613,8 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     transform: translateY(4px);
 }
 .info-bubble--left:hover .info-bubble-content,
-.info-bubble--left:focus-within .info-bubble-content {
+.info-bubble--left .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble--left.is-open .info-bubble-content {
     transform: translateY(0);
 }
 .info-bubble--left .info-bubble-content::after {
