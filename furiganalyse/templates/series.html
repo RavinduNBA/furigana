@@ -59,11 +59,17 @@
         <!-- Main Detail & Editor Workspace -->
         <section class="series-workspace card" id="series-workspace">
             <div id="series-loading-spinner" class="loading-box" hidden>Loading series profile…</div>
-            <div id="series-content-area">
+            <div id="series-empty-workspace" class="series-empty-workspace" {% if series_profiles %}hidden{% endif %}>
+                <span class="series-empty-icon" aria-hidden="true">📚</span>
+                <h3>Clean Slate · No Series Profiles</h3>
+                <p>The Series Memory &amp; Lore Database is currently empty. You can start fresh by creating a new series profile or by converting a light novel and clicking <strong>"💾 Save to Series Memory"</strong> on the completion page.</p>
+                <button type="button" class="primary-button" id="btn-create-series-empty">+ Create New Series Profile</button>
+            </div>
+            <div id="series-content-area" {% if not series_profiles %}hidden{% endif %}>
                 <!-- Profile Header & Metadata -->
                 <div class="series-profile-header">
                     <div>
-                        <span class="section-kicker" id="series-slug-kicker">Series ID: mahouka</span>
+                        <span class="section-kicker" id="series-slug-kicker">Series ID: —</span>
                         <h2 id="series-title-display">Loading…</h2>
                     </div>
                     <div class="series-header-actions">

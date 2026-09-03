@@ -435,6 +435,33 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .lore-form textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-input); border-radius: 8px; font-family: inherit; font-size: .88rem; box-sizing: border-box; }
 .form-actions-row { margin-top: 20px; }
 
+.series-empty-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 64px 32px;
+    gap: 12px;
+}
+.series-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 4px;
+}
+.series-empty-workspace h3 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    color: var(--ink);
+}
+.series-empty-workspace p {
+    max-width: 480px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 12px;
+}
+
 /* Modals */
 .app-modal { border: 1px solid var(--line); border-radius: 12px; padding: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.2); width: min(480px, 92vw); background: white; }
 .app-modal::backdrop { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); }
