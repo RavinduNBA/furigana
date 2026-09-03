@@ -117,3 +117,38 @@ def test_find_matching_series_profile():
     assert unmatched["series_id"] == "overlord"
     assert unmatched["title"] == "Overlord"
     assert unmatched["volume_name"] == "Volume 1"
+
+
+def test_character_role_and_relationships_context():
+    profile = {
+        "series_id": "test_series",
+        "title": "Test Light Novel",
+        "characters": {
+            "司波達也": {
+                "reading": "しばたつや",
+                "romanized": "Tatsuya Shiba",
+                "role": "Protagonist",
+                "gender": "male",
+                "speaking_tone": "calm, stoic, respectful",
+                "relationships": {"司波深雪": "younger sister and companion"},
+                "aliases": ["Silver", "Taurus Silver"],
+            },
+            "司波深雪": {
+                "reading": "みゆき",
+                "romanized": "Miyuki Shiba",
+                "role": "Heroine",
+                "gender": "female",
+                "speaking_tone": "polite, affectionate",
+                "relationships": "Elder brother: 司波達也",
+            },
+        },
+    }
+
+    ctx = sg.build_series_prompt_context(profile)
+    assert "Protagonist" in ctx
+    assert "Heroine" in ctx
+    assert "司波深雪: younger sister and companion" in ctx
+    assert "Elder brother: 司波達也" in ctx
+    assert "calm, stoic, respectful" in ctx
+    assert "Aliases: Silver, Taurus Silver" in ctx
+
