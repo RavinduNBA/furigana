@@ -72,8 +72,8 @@
             <fieldset class="form-section">
                 <legend>
                     <span class="step-number">1</span>
-                    <span>Choose a book
-                        {{ info_bubble('Ebook File Input', 'Non-Destructive Processing', 'Upload your Japanese ebook in standard reflowable format. Your original file is strictly parsed in memory and is never overwritten or permanently stored on the server.', ['<strong>Supported:</strong> EPUB (.epub), Kindle (.azw3, .mobi), Text (.txt), HTML (.html)', '<strong>DRM Notice:</strong> Ensure files are DRM-free before conversion']) }}
+                    <span>
+                        <span class="legend-title">Choose a book {{ info_bubble('Ebook File Input', 'Non-Destructive Processing', 'Upload your Japanese ebook in standard reflowable format. Your original file is strictly parsed in memory and is never overwritten or permanently stored on the server.', ['<strong>Supported:</strong> EPUB (.epub), Kindle (.azw3, .mobi), Text (.txt), HTML (.html)', '<strong>DRM Notice:</strong> Ensure files are DRM-free before conversion']) }}</span>
                         <small>EPUB, AZW3, MOBI, TXT, or HTML</small>
                     </span>
                 </legend>
@@ -88,8 +88,8 @@
             <fieldset class="form-section">
                 <legend>
                     <span class="step-number">2</span>
-                    <span>Processing mode
-                        {{ info_bubble('Pipeline Architecture', 'Core Transformation Layer', 'Select how Furiganalyse processes the linguistic structure of your book. Choose between fast pure furigana generation or interactive dictionary note layers.', ['<strong>Furigana:</strong> Pure reading ruby above kanji', '<strong>Dictionary Study:</strong> Chapter vocabulary notes & study links', '<strong>Combined:</strong> Dual-layer (full furigana + study notes)', '<strong>Guided:</strong> Maximum pedagogical assistance with particles']) }}
+                    <span>
+                        <span class="legend-title">Processing mode {{ info_bubble('Pipeline Architecture', 'Core Transformation Layer', 'Select how Furiganalyse processes the linguistic structure of your book. Choose between fast pure furigana generation or interactive dictionary note layers.', ['<strong>Furigana:</strong> Pure reading ruby above kanji', '<strong>Dictionary Study:</strong> Chapter vocabulary notes & study links', '<strong>Combined:</strong> Dual-layer (full furigana + study notes)', '<strong>Guided:</strong> Maximum pedagogical assistance with particles']) }}</span>
                         <small>Choose furigana, dictionary study, or guided language analysis</small>
                     </span>
                 </legend>
@@ -129,8 +129,8 @@
             <fieldset class="form-section" id="furigana-options">
                 <legend>
                     <span class="step-number">3</span>
-                    <span>Reading assistance
-                        {{ info_bubble('Reading Assistance Controls', 'Ruby Injection Rules', 'Configure how generated furigana interacts with existing publisher ruby markup and known vocabulary filters.') }}
+                    <span>
+                        <span class="legend-title">Reading assistance {{ info_bubble('Reading Assistance Controls', 'Ruby Injection Rules', 'Configure how generated furigana interacts with existing publisher ruby markup and known vocabulary filters.') }}</span>
                         <small>Choose how generated furigana is handled</small>
                     </span>
                 </legend>
@@ -188,8 +188,8 @@
             <fieldset class="form-section" id="study-options" hidden>
                 <legend>
                     <span class="step-number">3</span>
-                    <span>Study assistance
-                        {{ info_bubble('Study Notes Budget', 'Local Dictionary Coverage', 'Controls how many distinct vocabulary candidates are linked to end-of-chapter definition sheets.') }}
+                    <span>
+                        <span class="legend-title">Study assistance {{ info_bubble('Study Notes Budget', 'Local Dictionary Coverage', 'Controls how many distinct vocabulary candidates are linked to end-of-chapter definition sheets.') }}</span>
                         <small>Local dictionary glosses—not sentence translation</small>
                     </span>
                 </legend>
@@ -239,8 +239,8 @@
             <fieldset class="form-section" id="layout-options">
                 <legend>
                     <span class="step-number">4</span>
-                    <span>Book layout
-                        {{ info_bubble('Writing Mode & Typography', 'E-Reader Layout', 'Select horizontal or vertical Japanese reading layout. Standard CSS writing-mode properties are applied to all XHTML sections.', ['<strong>Auto:</strong> Preserves the publisher original layout', '<strong>Horizontal:</strong> Left-to-right modern format', '<strong>Vertical RL:</strong> Right-to-left authentic Japanese layout']) }}
+                    <span>
+                        <span class="legend-title">Book layout {{ info_bubble('Writing Mode & Typography', 'E-Reader Layout', 'Select horizontal or vertical Japanese reading layout. Standard CSS writing-mode properties are applied to all XHTML sections.', ['<strong>Auto:</strong> Preserves the publisher original layout', '<strong>Horizontal:</strong> Left-to-right modern format', '<strong>Vertical RL:</strong> Right-to-left authentic Japanese layout']) }}</span>
                         <small>Preserve or set the reading direction</small>
                     </span>
                 </legend>
@@ -279,8 +279,8 @@
             <fieldset class="form-section" id="bilingual-section">
                 <legend>
                     <span class="step-number">5</span>
-                    <span>Bilingual companion
-                        {{ info_bubble('Bilingual Translation Companion', 'Parallel Reading Layer', 'Generates high-accuracy English translation companion chapters inserted directly into the EPUB spine alongside each original Japanese chapter.', ['<strong>Non-Destructive:</strong> Japanese text, ruby, and layout remain completely untouched', '<strong>Table of Contents:</strong> Quickly toggle between Japanese chapter and English translation', '<strong>Providers:</strong> Hetzner GPU Cloud, Google Gemini, OpenRouter, Local Ollama, OpenAI, DeepSeek']) }}
+                    <span>
+                        <span class="legend-title">Bilingual companion {{ info_bubble('Bilingual Translation Companion', 'Parallel Reading Layer', 'Generates high-accuracy English translation companion chapters inserted directly into the EPUB spine alongside each original Japanese chapter.', ['<strong>Non-Destructive:</strong> Japanese text, ruby, and layout remain completely untouched', '<strong>Table of Contents:</strong> Quickly toggle between Japanese chapter and English translation', '<strong>Providers:</strong> Hetzner GPU Cloud, Google Gemini, OpenRouter, Local Ollama, OpenAI, DeepSeek']) }}</span>
                         <small>Optional English translation chapters alongside Japanese</small>
                     </span>
                 </legend>
@@ -336,8 +336,8 @@
             <fieldset class="form-section" id="llm-enrich-section">
                 <legend>
                     <span class="step-number">6</span>
-                    <span>LLM Intelligence
-                        {{ info_bubble('Context-Aware Enrichment Suite', 'Modules 1 through 4', 'Advanced contextual disambiguation suite combining deterministic publisher ruby propagation, persistent Series Memory, proper noun correction, and in-universe glosses.') }}
+                    <span>
+                        <span class="legend-title">LLM Intelligence {{ info_bubble('Context-Aware Enrichment Suite', 'Modules 1 through 4', 'Advanced contextual disambiguation suite combining deterministic publisher ruby propagation, persistent Series Memory, proper noun correction, and in-universe glosses.') }}</span>
                         <small>Optional context-aware enrichment of furigana and study notes</small>
                     </span>
                 </legend>
@@ -425,8 +425,8 @@
             <fieldset class="form-section form-section--last">
                 <legend>
                     <span class="step-number">7</span>
-                    <span>Output
-                        {{ info_bubble('Output File Generation', 'Target Ebook Format', 'Select the output container format for your converted ebook. EPUB is universally supported across reading apps.', ['<strong>EPUB (Recommended):</strong> Supports ruby furigana, interactive dictionary links, and bilingual companion chapters', '<strong>AZW3 / MOBI:</strong> Formatted for Kindle e-readers', '<strong>Text / HTML:</strong> Clean extracted plain text or web chapters for desktop study']) }}
+                    <span>
+                        <span class="legend-title">Output {{ info_bubble('Output File Generation', 'Target Ebook Format', 'Select the output container format for your converted ebook. EPUB is universally supported across reading apps.', ['<strong>EPUB (Recommended):</strong> Supports ruby furigana, interactive dictionary links, and bilingual companion chapters', '<strong>AZW3 / MOBI:</strong> Formatted for Kindle e-readers', '<strong>Text / HTML:</strong> Clean extracted plain text or web chapters for desktop study']) }}</span>
                         <small>Choose the file you want back</small>
                     </span>
                 </legend>

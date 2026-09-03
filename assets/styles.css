@@ -162,6 +162,7 @@ main { width: min(var(--max-width), calc(100% - 40px)); margin: 0 auto; }
 .form-section--last { border-bottom: 0; }
 .form-section legend { width: 100%; display: flex; align-items: flex-start; gap: 12px; margin: 0 0 20px; padding: 0; font-weight: 750; }
 .form-section legend > span:last-child { display: grid; }
+.legend-title { display: inline-flex; align-items: center; gap: 4px; }
 .form-section legend small, .field-row label small, .subpanel label small, .submit-panel small { color: var(--muted); font-weight: 400; font-size: .78rem; }
 .step-number { flex: 0 0 28px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: var(--accent-light); font-size: .78rem; }
 
@@ -586,6 +587,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 }
 .info-bubble:hover .info-bubble-content,
 .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble:focus-within:has(:focus-visible) .info-bubble-content,
 .info-bubble.is-open .info-bubble-content {
     opacity: 1;
     visibility: visible;
@@ -599,6 +601,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 }
 .info-bubble--right:hover .info-bubble-content,
 .info-bubble--right .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble--right:focus-within:has(:focus-visible) .info-bubble-content,
 .info-bubble--right.is-open .info-bubble-content {
     transform: translateY(0);
 }
@@ -614,6 +617,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 }
 .info-bubble--left:hover .info-bubble-content,
 .info-bubble--left .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble--left:focus-within:has(:focus-visible) .info-bubble-content,
 .info-bubble--left.is-open .info-bubble-content {
     transform: translateY(0);
 }
