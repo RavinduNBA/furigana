@@ -85,7 +85,11 @@
             renderCurrentProfile();
         } catch (e) {
             console.error("Error loading series profile:", e);
-            alert("Could not load series profile: " + e.message);
+            await window.showAlertDialog({
+                title: "Series Profile Error",
+                message: "Could not load series profile: " + e.message,
+                type: "error",
+            });
         } finally {
             if (spinner) spinner.hidden = true;
             if (content) content.hidden = false;
@@ -328,7 +332,11 @@
                 createModal.close();
                 window.location.reload();
             } catch (err) {
-                alert("Error creating profile: " + err.message);
+                await window.showAlertDialog({
+                    title: "Creation Failed",
+                    message: "Error creating profile: " + err.message,
+                    type: "error",
+                });
             }
         });
 
@@ -347,7 +355,7 @@
             charModal.showModal();
         });
 
-        byId("tbody-characters")?.addEventListener("click", (e) => {
+        byId("tbody-characters")?.addEventListener("click", async (e) => {
             const editBtn = e.target.closest(".edit-char-btn");
             const delBtn = e.target.closest(".del-char-btn");
             const tr = e.target.closest("tr");
@@ -366,7 +374,14 @@
                 byId("char-tone").value = c.speaking_tone || "";
                 charModal.showModal();
             } else if (delBtn) {
-                if (confirm(`Remove character "${kanji}" from series memory?`)) {
+                const confirmed = await window.showConfirmDialog({
+                    title: "Remove Character",
+                    message: `Remove character "${kanji}" from series memory?`,
+                    confirmText: "Remove",
+                    cancelText: "Keep",
+                    danger: true,
+                });
+                if (confirmed) {
                     delete currentProfile.characters[kanji];
                     saveCurrentProfile();
                 }
@@ -408,7 +423,7 @@
             glossModal.showModal();
         });
 
-        byId("tbody-glossary")?.addEventListener("click", (e) => {
+        byId("tbody-glossary")?.addEventListener("click", async (e) => {
             const editBtn = e.target.closest(".edit-gloss-btn");
             const delBtn = e.target.closest(".del-gloss-btn");
             const tr = e.target.closest("tr");
@@ -428,7 +443,14 @@
                 byId("gloss-cat").value = g.category || "general";
                 glossModal.showModal();
             } else if (delBtn) {
-                if (confirm(`Remove term "${term}" from series glossary?`)) {
+                const confirmed = await window.showConfirmDialog({
+                    title: "Remove Glossary Term",
+                    message: `Remove term "${term}" from series glossary?`,
+                    confirmText: "Remove",
+                    cancelText: "Keep",
+                    danger: true,
+                });
+                if (confirmed) {
                     delete currentProfile.glossary[term];
                     saveCurrentProfile();
                 }
@@ -467,7 +489,7 @@
             rubyModal.showModal();
         });
 
-        byId("tbody-ruby")?.addEventListener("click", (e) => {
+        byId("tbody-ruby")?.addEventListener("click", async (e) => {
             const editBtn = e.target.closest(".edit-ruby-btn");
             const delBtn = e.target.closest(".del-ruby-btn");
             const tr = e.target.closest("tr");
@@ -483,7 +505,14 @@
                 byId("ruby-reading").value = val;
                 rubyModal.showModal();
             } else if (delBtn) {
-                if (confirm(`Remove ruby override for "${kanji}"?`)) {
+                const confirmed = await window.showConfirmDialog({
+                    title: "Remove Ruby Override",
+                    message: `Remove ruby override for "${kanji}"?`,
+                    confirmText: "Remove",
+                    cancelText: "Keep",
+                    danger: true,
+                });
+                if (confirmed) {
                     delete currentProfile.ruby_overrides[kanji];
                     saveCurrentProfile();
                 }
@@ -529,13 +558,24 @@
         // Delete Series
         byId("btn-delete-series")?.addEventListener("click", async () => {
             if (!currentProfile) return;
-            if (confirm(`Are you sure you want to permanently delete series profile "${currentProfile.title}" (${currentProfile.series_id})?`)) {
+            const confirmed = await window.showConfirmDialog({
+                title: "Delete Series Profile",
+                message: `Are you sure you want to permanently delete series profile "${currentProfile.title}" (${currentProfile.series_id})? All saved character readings and glossaries for this series will be lost.`,
+                confirmText: "Delete Profile",
+                cancelText: "Cancel",
+                danger: true,
+            });
+            if (confirmed) {
                 try {
                     const resp = await fetch(`/api/series/${encodeURIComponent(currentProfile.series_id)}`, {method: "DELETE"});
                     if (!resp.ok) throw new Error("Failed to delete");
                     window.location.reload();
                 } catch (err) {
-                    alert("Error deleting series: " + err.message);
+                    await window.showAlertDialog({
+                        title: "Delete Failed",
+                        message: "Error deleting series: " + err.message,
+                        type: "error",
+                    });
                 }
             }
         });
@@ -554,7 +594,11 @@
             renderCurrentProfile();
         } catch (err) {
             console.error("Save error:", err);
-            alert("Error saving profile: " + err.message);
+            await window.showAlertDialog({
+                title: "Save Failed",
+                message: "Error saving profile: " + err.message,
+                type: "error",
+            });
         }
     }
 

@@ -404,7 +404,14 @@
     const cancelBtn = byId("cancel-button");
     if (cancelBtn) {
         cancelBtn.addEventListener("click", async function () {
-            if (confirm("Are you sure you want to cancel this conversion?")) {
+            const confirmed = await window.showConfirmDialog({
+                title: "Cancel Conversion",
+                message: "Are you sure you want to cancel this active conversion process?",
+                confirmText: "Cancel Conversion",
+                cancelText: "Continue Process",
+                danger: true,
+            });
+            if (confirmed) {
                 cancelBtn.disabled = true;
                 cancelBtn.textContent = "Cancelling…";
                 try {
@@ -422,7 +429,11 @@
     if (saveSeriesBtn) {
         saveSeriesBtn.addEventListener("click", async function () {
             if (!latestProgressData) {
-                alert("Context data is still generating. Please wait a moment.");
+                await window.showAlertDialog({
+                    title: "Context Generating",
+                    message: "Context data is still generating. Please wait a moment.",
+                    type: "info",
+                });
                 return;
             }
 
@@ -464,7 +475,14 @@
                 `Enter Series Name for ${detectedVolume} (auto-suggested from book title):` :
                 "Enter a Series Name to save this Cast & Glossary for next volumes:";
 
-            const chosenName = prompt(promptMsg, suggestedTitle);
+            const chosenName = await window.showPromptDialog({
+                title: "Save to Series Memory",
+                message: promptMsg,
+                defaultValue: suggestedTitle,
+                placeholder: "e.g. 魔法科高校の劣等生",
+                confirmText: "Save Series",
+                cancelText: "Cancel",
+            });
             if (!chosenName || !chosenName.trim()) return;
 
             const casts = (latestProgressData.cast_summary || []).reduce((acc, c) => {
@@ -491,15 +509,27 @@
                     })
                 });
                 if (resp.ok) {
-                    alert(`Series Memory profile saved! You can now select '${chosenName.trim()}' when converting subsequent volumes.`);
+                    await window.showAlertDialog({
+                        title: "Series Memory Saved",
+                        message: `Series Memory profile saved! You can now select '${chosenName.trim()}' when converting subsequent volumes.`,
+                        type: "success",
+                    });
                     saveSeriesBtn.textContent = "✓ Saved to Series";
                 } else {
-                    alert("Failed to save series profile.");
+                    await window.showAlertDialog({
+                        title: "Save Failed",
+                        message: "Failed to save series profile to server.",
+                        type: "error",
+                    });
                     saveSeriesBtn.disabled = false;
                     saveSeriesBtn.textContent = "💾 Save to Series Memory";
                 }
             } catch (e) {
-                alert("Error saving series: " + e.message);
+                await window.showAlertDialog({
+                    title: "Error",
+                    message: "Error saving series: " + e.message,
+                    type: "error",
+                });
                 saveSeriesBtn.disabled = false;
                 saveSeriesBtn.textContent = "💾 Save to Series Memory";
             }
@@ -566,7 +596,11 @@
     if (copyBtn) {
         copyBtn.addEventListener("click", async function () {
             if (allLogLines.length === 0) {
-                alert("No console logs available to copy yet.");
+                await window.showAlertDialog({
+                    title: "No Logs Available",
+                    message: "No console logs available to copy yet.",
+                    type: "info",
+                });
                 return;
             }
             try {
@@ -597,7 +631,14 @@
         const clearBtn = byId("clear-recent-btn");
         if (clearBtn) {
             clearBtn.addEventListener("click", async function () {
-                if (!confirm("Are you sure you want to clear all recent conversions?")) return;
+                const confirmed = await window.showConfirmDialog({
+                    title: "Clear Conversion History",
+                    message: "Are you sure you want to clear all recent conversions? Saved files will no longer be stored for re-downloading.",
+                    confirmText: "Clear all",
+                    cancelText: "Keep history",
+                    danger: true,
+                });
+                if (!confirmed) return;
                 try {
                     clearBtn.disabled = true;
                     clearBtn.textContent = "Clearing…";
@@ -611,12 +652,20 @@
                         if (badge) badge.textContent = "0 saved";
                         clearBtn.remove();
                     } else {
-                        alert("Failed to clear recent conversions.");
+                        await window.showAlertDialog({
+                            title: "Error",
+                            message: "Failed to clear recent conversions.",
+                            type: "error",
+                        });
                         clearBtn.disabled = false;
                         clearBtn.textContent = "Clear all";
                     }
                 } catch (e) {
-                    alert("Error: " + e.message);
+                    await window.showAlertDialog({
+                        title: "Error",
+                        message: "Error: " + e.message,
+                        type: "error",
+                    });
                     clearBtn.disabled = false;
                     clearBtn.textContent = "Clear all";
                 }
@@ -629,7 +678,14 @@
                 e.stopPropagation();
                 const uid = this.dataset.uid;
                 if (!uid) return;
-                if (!confirm("Remove this conversion from history?")) return;
+                const confirmed = await window.showConfirmDialog({
+                    title: "Remove Conversion",
+                    message: "Remove this conversion from history?",
+                    confirmText: "Remove",
+                    cancelText: "Keep",
+                    danger: true,
+                });
+                if (!confirmed) return;
                 try {
                     const resp = await fetch("/api/recent_conversions/" + uid, { method: "DELETE" });
                     if (resp.ok) {

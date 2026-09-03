@@ -304,7 +304,14 @@
         const clearBtn = document.getElementById("clear-recent-btn");
         if (clearBtn) {
             clearBtn.addEventListener("click", async function () {
-                if (!confirm("Are you sure you want to clear all recent conversions?")) return;
+                const confirmed = await window.showConfirmDialog({
+                    title: "Clear Conversion History",
+                    message: "Are you sure you want to clear all recent conversions? Saved files will no longer be stored for re-downloading.",
+                    confirmText: "Clear all",
+                    cancelText: "Keep history",
+                    danger: true,
+                });
+                if (!confirmed) return;
                 try {
                     clearBtn.disabled = true;
                     clearBtn.textContent = "Clearing…";
@@ -318,12 +325,20 @@
                         if (badge) badge.textContent = "0 saved";
                         clearBtn.remove();
                     } else {
-                        alert("Failed to clear recent conversions.");
+                        await window.showAlertDialog({
+                            title: "Error",
+                            message: "Failed to clear recent conversions.",
+                            type: "error",
+                        });
                         clearBtn.disabled = false;
                         clearBtn.textContent = "Clear all";
                     }
                 } catch (e) {
-                    alert("Error: " + e.message);
+                    await window.showAlertDialog({
+                        title: "Error",
+                        message: "Error: " + e.message,
+                        type: "error",
+                    });
                     clearBtn.disabled = false;
                     clearBtn.textContent = "Clear all";
                 }
@@ -336,7 +351,14 @@
                 e.stopPropagation();
                 const uid = this.dataset.uid;
                 if (!uid) return;
-                if (!confirm("Remove this conversion from history?")) return;
+                const confirmed = await window.showConfirmDialog({
+                    title: "Remove Conversion",
+                    message: "Remove this conversion from history?",
+                    confirmText: "Remove",
+                    cancelText: "Keep",
+                    danger: true,
+                });
+                if (!confirmed) return;
                 try {
                     const resp = await fetch("/api/recent_conversions/" + uid, { method: "DELETE" });
                     if (resp.ok) {
