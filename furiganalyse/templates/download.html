@@ -12,6 +12,7 @@
             fileUrl: "{{ url_for('get_file', uid=uid) }}"
         };
     </script>
+    <script src="{{ url_for('assets', path='dialogs.js') }}{% if app_version %}?v={{ app_version }}{% endif %}"></script>
     <script src="{{ url_for('assets', path='progress.js') }}{% if app_version %}?v={{ app_version }}{% endif %}" defer></script>
 </head>
 <body class="job-page">
