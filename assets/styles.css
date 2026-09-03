@@ -389,42 +389,6 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
 .mode-pill--combined { background: var(--purple-light); color: var(--purple); }
 .mode-pill--guided { background: var(--amber-light); color: var(--amber); }
 
-/* Ollama Dashboard Styles */
-.ollama-shell { width: min(var(--max-width-dashboard), calc(100% - 40px)); margin: 0 auto; padding: 40px 0 80px; }
-.ollama-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.stat-highlight { margin: 14px 0 10px; }
-.stat-highlight strong { font-size: 1.6rem; color: var(--accent-dark); display: block; font-family: var(--font-serif); }
-.stat-highlight small { color: var(--muted); font-size: .8rem; }
-.stat-meta-row { font-size: .78rem; color: var(--muted); padding-top: 10px; border-top: 1px solid var(--line); }
-.status-badge--error { background: var(--danger-badge-bg); color: var(--danger); }
-
-.ollama-table-container { overflow-x: auto; padding: 0 28px; }
-.ollama-table { width: 100%; border-collapse: collapse; text-align: left; font-size: .88rem; margin: 16px 0; }
-.ollama-table th { padding: 12px 14px; border-bottom: 2px solid var(--line); color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
-.ollama-table td { padding: 14px; border-bottom: 1px solid var(--line); }
-.table-empty-cell { text-align: center; color: var(--muted); padding: 32px !important; }
-
-.small-btn { padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-soft); font-size: .75rem; font-weight: 700; cursor: pointer; color: var(--accent-dark); transition: background .15s ease; }
-.small-btn:hover { background: var(--blue-light); }
-.small-btn--danger { color: var(--danger); border-color: var(--danger-border); }
-.small-btn--danger:hover { background: var(--danger-light); }
-
-.ollama-pull-panel { padding: 24px 28px; background: var(--surface-soft); border-top: 1px solid var(--line); }
-.ollama-pull-panel h3 { margin: 0 0 4px; font-size: 1.1rem; }
-.pull-action-row { display: flex; gap: 12px; margin-top: 14px; }
-.pull-action-row input { flex: 1; }
-.pull-recommendations { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; font-size: .78rem; color: var(--muted); }
-.tag-btn { background: white; border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 4px 10px; font-size: .75rem; cursor: pointer; color: var(--accent); font-weight: 600; transition: background .15s ease; }
-.tag-btn:hover { background: var(--accent-light); }
-.pull-status-box { margin-top: 14px; padding: 10px 14px; border-radius: 8px; background: white; border: 1px solid var(--line); font-size: .82rem; color: var(--accent-dark); }
-
-.sandbox-content { padding: 24px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.sandbox-input-col textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border-input); border-radius: 10px; font-family: inherit; font-size: .9rem; resize: vertical; margin-top: 6px; box-sizing: border-box; }
-.sandbox-output-col { display: flex; flex-direction: column; }
-.sandbox-result-box { flex: 1; min-height: 140px; margin-top: 6px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); font-family: var(--font-serif); line-height: 1.6; font-size: .95rem; }
-.sandbox-placeholder { color: var(--muted); font-style: italic; }
-.sandbox-meta-row { display: flex; gap: 16px; margin-top: 10px; font-size: .78rem; color: var(--muted); }
-
 /* Series Memory Dashboard Layout */
 .series-dashboard-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; margin-top: 24px; }
 .series-sidebar { padding: 20px; background: white; border-radius: 12px; border: 1px solid var(--line); }
@@ -489,8 +453,6 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     .metric-grid article:nth-child(odd) { border-right: 1px solid var(--line); }
     .metric-grid article:nth-child(even) { border-right: 0; }
     .metric-grid article:nth-child(-n+4) { border-bottom: 1px solid var(--line); }
-    .ollama-grid { grid-template-columns: 1fr; }
-    .sandbox-content { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 650px) {

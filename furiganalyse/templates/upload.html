@@ -18,7 +18,6 @@
         <a href="#how-it-works">How It Works</a>
         <a href="#capabilities">Capabilities</a>
         <a href="{{ url_for('get_series_dashboard') }}">Series Memory</a>
-        <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
         <a href="https://github.com/RavinduNBA/furigana">Source</a>
         {% if current_user and current_user != 'anonymous' %}
         <a href="{{ url_for('logout') }}" title="Sign out ({{ current_user }})">Sign Out</a>
@@ -304,7 +303,7 @@
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
                             <option value="google">Google AI Studio · Gemini (gemini-flash-latest)</option>
                             <option value="openrouter">OpenRouter (Multi-model &amp; Free endpoints)</option>
-                            <option value="ollama">Local Ollama · qwen2.5:3b (Installed &amp; Ready)</option>
+                            <option value="ollama">Ollama (Custom / Self-Hosted)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="deepseek">DeepSeek (deepseek-chat)</option>
                         </select>
@@ -393,7 +392,7 @@
                             <option value="hetzner" selected>Hetzner Inference · GPU Cloud (Fastest &amp; High Accuracy)</option>
                             <option value="google">Google AI Studio · Gemini (gemini-flash-latest)</option>
                             <option value="openrouter">OpenRouter (Multi-model &amp; Free endpoints)</option>
-                            <option value="ollama">Local Ollama · qwen2.5:3b or 7b</option>
+                            <option value="ollama">Ollama (Custom / Self-Hosted)</option>
                             <option value="openai">OpenAI (gpt-4o-mini / gpt-4o)</option>
                             <option value="deepseek">DeepSeek (deepseek-chat)</option>
                         </select>
@@ -401,14 +400,14 @@
                     <div class="field-row" id="llm-enrich-model-row">
                         <label for="llm_model">
                             <strong>Model (optional) {{ info_bubble('Enrichment Model Slug', 'Custom LLM Slug', 'Specify an alternative model name (e.g. gemini-flash-latest, Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b).') }}</strong>
-                            <small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, qwen2.5:7b</small>
+                            <small>e.g. Qwen/Qwen3.6-35B-A3B-FP8, gemini-flash-latest</small>
                         </label>
                         <input type="text" name="llm_model" id="llm_model" placeholder="Default model for selected provider">
                     </div>
                     <div class="field-row" id="llm-enrich-key-row">
                         <label for="llm_api_key">
-                            <strong>API Key {{ info_bubble('Enrichment API Key', 'Session Security', 'Used only for this conversion session. Leave blank if using Local Ollama.') }}</strong>
-                            <small>Leave blank if using local Ollama</small>
+                            <strong>API Key {{ info_bubble('Enrichment API Key', 'Session Security', 'Used only for this conversion session. Leave blank if using Ollama.') }}</strong>
+                            <small>Leave blank if using Ollama without API key</small>
                         </label>
                         <input type="password" name="llm_api_key" id="llm_api_key" placeholder="API Key / Hetzner Token" autocomplete="off">
                     </div>
