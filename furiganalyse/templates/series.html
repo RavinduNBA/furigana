@@ -278,12 +278,19 @@
     <form method="dialog" id="form-modal-create">
         <h3>Create New Series Memory Profile</h3>
         <div class="field-row">
+            <label for="create-raw-sample"><strong>Auto-suggest from Book / File Name</strong> <small>Paste an EPUB filename to auto-clean title &amp; slug</small></label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="create-raw-sample" placeholder="e.g. [Novel] 魔法科高校の劣等生 03.epub">
+                <button type="button" class="secondary-button" id="btn-auto-suggest-series" style="white-space: nowrap; padding: 4px 10px;">✨ Suggest</button>
+            </div>
+        </div>
+        <div class="field-row">
             <label for="create-title"><strong>Series Title</strong> (e.g. 魔法科高校の劣等生)</label>
             <input type="text" id="create-title" placeholder="Series title…" required>
         </div>
         <div class="field-row">
             <label for="create-id"><strong>Slug ID (optional)</strong> (e.g. mahouka)</label>
-            <input type="text" id="create-id" placeholder="Leave blank to auto-generate">
+            <input type="text" id="create-id" placeholder="Auto-generated from title">
         </div>
         <div class="modal-buttons">
             <button type="button" class="secondary-button" id="btn-cancel-create">Cancel</button>

@@ -425,8 +425,47 @@
                 alert("Context data is still generating. Please wait a moment.");
                 return;
             }
-            const defaultName = prompt("Enter a Series Name to save this Cast & Glossary for next volumes:", "My Light Novel Series");
-            if (!defaultName) return;
+
+            // Extract book filename/title from download card or log lines for auto-suggestion
+            let rawBookName = "";
+            const downloadNameEl = byId("download-name");
+            if (downloadNameEl && downloadNameEl.textContent) {
+                rawBookName = downloadNameEl.textContent.trim();
+            }
+            if (!rawBookName && latestProgressData.log_lines && latestProgressData.log_lines.length) {
+                for (const line of latestProgressData.log_lines) {
+                    const match = line.match(/Starting conversion:\s*'([^']+)'/);
+                    if (match && match[1]) {
+                        rawBookName = match[1];
+                        break;
+                    }
+                }
+            }
+
+            // Fetch auto-suggested series title and slug
+            let suggestedTitle = "My Light Novel Series";
+            let suggestedId = "";
+            let detectedVolume = "";
+            if (rawBookName) {
+                try {
+                    const sResp = await fetch("/api/series/suggest?query=" + encodeURIComponent(rawBookName));
+                    if (sResp.ok) {
+                        const sData = await sResp.json();
+                        if (sData.title) suggestedTitle = sData.title;
+                        if (sData.series_id) suggestedId = sData.series_id;
+                        if (sData.volume_name) detectedVolume = sData.volume_name;
+                    }
+                } catch (e) {
+                    console.warn("Series suggestion fetch failed:", e);
+                }
+            }
+
+            const promptMsg = detectedVolume ?
+                `Enter Series Name for ${detectedVolume} (auto-suggested from book title):` :
+                "Enter a Series Name to save this Cast & Glossary for next volumes:";
+
+            const chosenName = prompt(promptMsg, suggestedTitle);
+            if (!chosenName || !chosenName.trim()) return;
 
             const casts = (latestProgressData.cast_summary || []).reduce((acc, c) => {
                 acc[c.name] = { kanji: c.name, romanized: c.romanized || c.name, role: c.role || "Character" };
@@ -444,13 +483,15 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        title: defaultName,
+                        series_id: (chosenName.trim() === suggestedTitle.trim() && suggestedId) ? suggestedId : chosenName.trim(),
+                        title: chosenName.trim(),
+                        volume_name: detectedVolume,
                         characters: casts,
                         glossary: glossary
                     })
                 });
                 if (resp.ok) {
-                    alert("Series Memory profile saved! You can now select '" + defaultName + "' when converting Volume 2, 3, etc.");
+                    alert(`Series Memory profile saved! You can now select '${chosenName.trim()}' when converting subsequent volumes.`);
                     saveSeriesBtn.textContent = "✓ Saved to Series";
                 } else {
                     alert("Failed to save series profile.");

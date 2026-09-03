@@ -313,3 +313,103 @@ def apply_series_profile_to_vocabulary(
     result["name_occurrences"] = patched_names
     result["series_profile_applied"] = series_profile.get("series_id")
     return result, patch_count
+
+
+def suggest_series_name(raw_text: str) -> dict[str, str]:
+    """Auto-suggest series title, slug ID, and volume from a book title or filename.
+
+    Examples:
+        '魔法科高校の劣等生 3.epub' -> {'clean_title': '魔法科高校の劣等生', 'slug': '魔法科高校の劣等生', 'volume': 'Volume 3'}
+        'Sword Art Online - Vol 03.epub' -> {'clean_title': 'Sword Art Online', 'slug': 'sword-art-online', 'volume': 'Volume 3'}
+    """
+    if not raw_text:
+        return {"clean_title": "", "slug": "", "volume": ""}
+
+    s = raw_text.strip()
+    # Strip file extension
+    s = re.sub(r"\.[a-zA-Z0-9]+$", "", s)
+    # Strip tags like - Guided, - Enriched, etc.
+    s = re.sub(r"[-_]\s*(Guided|Enriched|Furigana|Bilingual|Converted).*$", "", s, flags=re.IGNORECASE)
+    # Strip brackets like [Light Novel], (Digital), [JAP], (Seven Seas), etc.
+    s = re.sub(r"\[[^\]]*\]", "", s)
+    s = re.sub(r"\([^\)]*\)", "", s)
+
+    # Extract volume indicator if present
+    vol_match = re.search(
+        r"(?:第\s*([0-9０-９]+)\s*巻|[\b_\s-]v(?:ol(?:ume)?)?\.?\s*([0-9]+)|[\b_\s-]+([0-9０-９]+)(?:[\b_\s-]|$))",
+        s,
+        re.IGNORECASE,
+    )
+    vol_str = ""
+    if vol_match:
+        v_num = vol_match.group(1) or vol_match.group(2) or vol_match.group(3)
+        if v_num:
+            try:
+                v_num_clean = v_num.translate(str.maketrans("０１２３４５６７８９", "0123456789"))
+                vol_str = f"Volume {int(v_num_clean)}"
+            except Exception:
+                vol_str = f"Volume {v_num}"
+
+    # Strip volume indicators from title
+    s = re.sub(r"(?:第\s*[0-9０-９]+\s*巻|[\b_\s-]v(?:ol(?:ume)?)?\.?\s*[0-9]+|[\b_\s-]+[0-9０-９]+(?:[\b_\s-]|$))", " ", s, flags=re.IGNORECASE)
+
+    # Normalize whitespace & separators
+    clean_title = re.sub(r"[_\s]+", " ", s).strip(" -_")
+    if not clean_title:
+        clean_title = raw_text
+
+    slug = _slugify(clean_title)
+    return {
+        "clean_title": clean_title,
+        "slug": slug,
+        "volume": vol_str,
+    }
+
+
+def find_matching_series_profile(
+    raw_text: str,
+    existing_profiles: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Find an existing series profile matching the book or suggest a new profile."""
+    suggestion = suggest_series_name(raw_text)
+    clean_title = suggestion["clean_title"].lower()
+    clean_slug = suggestion["slug"].lower()
+    raw_lower = raw_text.lower()
+
+    if existing_profiles is None:
+        existing_profiles = list_series_profiles()
+
+    # Check exact & substring matches against existing profiles
+    for p in existing_profiles:
+        p_id = (p.get("series_id") or "").lower()
+        p_title = (p.get("title") or "").lower()
+
+        # High confidence matches on ID or Title
+        if p_id and (p_id == clean_slug or p_id in raw_lower or clean_slug in p_id):
+            return {
+                "series_id": p.get("series_id"),
+                "title": p.get("title") or suggestion["clean_title"],
+                "is_existing": True,
+                "volume_name": suggestion["volume"],
+                "character_count": p.get("character_count", 0),
+                "glossary_count": p.get("glossary_count", 0),
+            }
+        if p_title and (p_title == clean_title or p_title in clean_title or clean_title in p_title or p_title in raw_lower):
+            return {
+                "series_id": p.get("series_id"),
+                "title": p.get("title"),
+                "is_existing": True,
+                "volume_name": suggestion["volume"],
+                "character_count": p.get("character_count", 0),
+                "glossary_count": p.get("glossary_count", 0),
+            }
+
+    # If no existing match, return newly suggested profile template
+    return {
+        "series_id": suggestion["slug"],
+        "title": suggestion["clean_title"],
+        "is_existing": False,
+        "volume_name": suggestion["volume"],
+        "character_count": 0,
+        "glossary_count": 0,
+    }

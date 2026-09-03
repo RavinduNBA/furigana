@@ -361,6 +361,13 @@ def test_series_dashboard_and_api(tmp_path, monkeypatch):
     assert data["title"] == "Test Series Title"
     assert "主人公" in data["characters"]
 
+    # Test suggest API
+    resp_sug = client.get("/api/series/suggest?query=%E9%AD%94%E6%B3%95%E7%A7%91%E9%AB%98%E6%A0%A1%E3%81%AE%E5%8A%A3%E7%AD%89%E7%94%9F%203.epub")
+    assert resp_sug.status_code == 200
+    sug_data = resp_sug.json()
+    assert sug_data["title"] == "魔法科高校の劣等生"
+    assert sug_data["volume_name"] == "Volume 3"
+
     # Delete profile
     resp_del = client.delete("/api/series/test-series")
     assert resp_del.status_code == 200

@@ -38,6 +38,52 @@
         return (bytes / BYTES_PER_MB).toFixed(1) + " MB";
     }
 
+    async function autoDetectSeriesProfile(filename) {
+        if (!filename) return;
+        const seriesSelect = document.getElementById("series_profile_id");
+        const seriesRow = document.getElementById("series-profile-row");
+        if (!seriesSelect) return;
+
+        try {
+            const resp = await fetch("/api/series/suggest?query=" + encodeURIComponent(filename));
+            if (resp.ok) {
+                const suggestion = await resp.json();
+                if (suggestion && suggestion.series_id) {
+                    let hintEl = document.getElementById("series-auto-detect-hint");
+                    if (!hintEl && seriesRow) {
+                        hintEl = document.createElement("div");
+                        hintEl.id = "series-auto-detect-hint";
+                        hintEl.style.cssText = "margin-top: 6px; font-size: 0.82rem; color: #10b981; display: flex; align-items: center; gap: 4px; font-weight: 500;";
+                        seriesRow.appendChild(hintEl);
+                    }
+
+                    // Check if suggested ID matches an existing dropdown option
+                    const matchedOpt = Array.from(seriesSelect.options).find(opt =>
+                        opt.value === suggestion.series_id ||
+                        (opt.value && suggestion.series_id && opt.value.toLowerCase() === suggestion.series_id.toLowerCase())
+                    );
+
+                    if (matchedOpt) {
+                        seriesSelect.value = matchedOpt.value;
+                        if (hintEl) {
+                            const volStr = suggestion.volume_name ? ` (${suggestion.volume_name})` : "";
+                            hintEl.innerHTML = `✨ Auto-selected Series Memory: <strong>${matchedOpt.text.split('(')[0].trim()}</strong>${volStr}`;
+                            hintEl.hidden = false;
+                        }
+                    } else if (suggestion.title) {
+                        if (hintEl) {
+                            const volStr = suggestion.volume_name ? ` (${suggestion.volume_name})` : "";
+                            hintEl.innerHTML = `💡 Detected series: <strong>${suggestion.title}</strong>${volStr} · <small style="color:var(--text-muted, #888);">Cast & glossary can be saved to series after conversion</small>`;
+                            hintEl.hidden = false;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn("Auto-detect series profile failed:", e);
+        }
+    }
+
     function updateBookFile() {
         const file = bookFile.files && bookFile.files[0];
         submitButton.disabled = !file;
@@ -45,9 +91,12 @@
         if (file) {
             fileTitle.textContent = file.name;
             fileDetail.textContent = formatBytes(file.size) + " · ready to convert";
+            autoDetectSeriesProfile(file.name);
         } else {
             fileTitle.textContent = "Drop your ebook here";
             fileDetail.textContent = "or click to browse · your original file is never modified";
+            const hintEl = document.getElementById("series-auto-detect-hint");
+            if (hintEl) hintEl.hidden = true;
         }
     }
 

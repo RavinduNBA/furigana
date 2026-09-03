@@ -322,6 +322,13 @@ def get_series_profiles_api():
     return JSONResponse(list_series_profiles())
 
 
+@app.get("/api/series/suggest")
+def suggest_series_api(query: str = ""):
+    from furiganalyse.series_glossary import find_matching_series_profile
+    result = find_matching_series_profile(query)
+    return JSONResponse(result)
+
+
 @app.post("/api/series")
 async def post_series_profile_api(request: Request):
     from furiganalyse.series_glossary import save_series_profile

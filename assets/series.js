@@ -266,11 +266,56 @@
         // Create Profile Modal
         const createModal = byId("modal-create");
         const createForm = byId("form-modal-create");
+        const autoSuggestBtn = byId("btn-auto-suggest-series");
+        const rawSampleInput = byId("create-raw-sample");
+        const createTitleInput = byId("create-title");
+        const createIdInput = byId("create-id");
+
+        async function triggerAutoSuggest(rawText) {
+            if (!rawText) return;
+            try {
+                const resp = await fetch("/api/series/suggest?query=" + encodeURIComponent(rawText));
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.title) createTitleInput.value = data.title;
+                    if (data.series_id) createIdInput.value = data.series_id;
+                }
+            } catch (err) {
+                console.warn("Auto suggest error:", err);
+            }
+        }
+
+        autoSuggestBtn?.addEventListener("click", () => {
+            triggerAutoSuggest(rawSampleInput?.value.trim());
+        });
+
+        rawSampleInput?.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                triggerAutoSuggest(rawSampleInput.value.trim());
+            }
+        });
+
+        createTitleInput?.addEventListener("input", (e) => {
+            const val = e.target.value.trim();
+            if (val && (!createIdInput.value || !createIdInput.dataset.manualEdited)) {
+                createIdInput.value = val
+                    .toLowerCase()
+                    .replace(/[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF-]/g, "")
+                    .replace(/[\s_-]+/g, "-")
+                    .replace(/^-+|-+$/g, "");
+            }
+        });
+
+        createIdInput?.addEventListener("input", () => {
+            createIdInput.dataset.manualEdited = "true";
+        });
+
         byId("btn-cancel-create")?.addEventListener("click", () => createModal.close());
         createForm?.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const title = byId("create-title").value.trim();
-            const seriesId = byId("create-id").value.trim();
+            const title = createTitleInput.value.trim();
+            const seriesId = createIdInput.value.trim();
             if (!title) return;
 
             try {
