@@ -17,34 +17,46 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import time
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 MAX_ITEMS_PER_BATCH = 6   # 6 items per batch ensures reasoning models finish within token and timeout budgets
 
-SYSTEM_PROMPT = """You are a Japanese light novel terminology expert.
-For each vocabulary item from the novel, provide a concise 1-2 sentence contextual gloss explaining its meaning in this light novel.
-If the term has a novel-specific or hierarchy-specific meaning (magic, school division, CAD, etc.), explain that directly.
+SYSTEM_PROMPT = """You are a Japanese light novel terminology expert and literary translator.
+You will receive vocabulary items extracted from a novel, each with its surface form, reading, candidate dictionary senses, and in-book context sentences (with the target word marked in 【brackets】).
+
+For each item:
+1. Disambiguate the meaning: select the most accurate dictionary sense from "candidate_senses" that fits the sentence context.
+2. Write a precise, natural in-universe contextual gloss (1-2 sentences, max 120 chars) explaining its exact meaning in this context.
+   Avoid single-word or literal dictionary artifacts (e.g., for 建前 in institutional contexts, write "Official stance / pretense (as in the facade of equal educational opportunity)", NOT "face").
 
 Respond ONLY with a valid JSON array. Each element must have exactly these keys:
-  id (the item id from input), gloss (the contextual description)
+  id (the item id from input), gloss (the context-aware explanation), selected_sense_id (optional matching sense id from candidate_senses)
 
 Do NOT add any text outside the JSON array.
 
-Example:
+Example output:
 [
-  {"id": "item-001", "gloss": "Spell activation device worn on the wrist; standard equipment for magic high school students."},
-  {"id": "item-002", "gloss": "Course 2 reserve student at First High (Weed), subject to social hierarchy and discrimination."}
+  {
+    "id": "item-001",
+    "gloss": "Official stance / pretense (referring to the public facade of equal educational opportunity).",
+    "selected_sense_id": "jmdict-1524230-sense-0002"
+  },
+  {
+    "id": "item-002",
+    "gloss": "Course 2 reserve student at First High (Weed), subject to social hierarchy and discrimination."
+  }
 ]
 """
 
 
-def _items_hash(items: list[dict[str, Any]]) -> str:
-    key = json.dumps(sorted(i["id"] for i in items), sort_keys=True)
+def _items_hash(items: list[dict[str, Any]], series_context: str = "") -> str:
+    key = json.dumps([sorted(i["id"] for i in items), series_context], sort_keys=True)
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
 
 
@@ -54,42 +66,65 @@ def collect_gloss_candidates(
     *,
     max_items: int = 200,
 ) -> list[dict[str, Any]]:
-    """Build a list of study items with their in-book context sentences.
+    """Build a list of study items with multi-sense definitions and highlighted context sentences.
 
-    Returns a list of dicts: { id, surface, reading, jmdict_gloss, context_sentences }
+    Returns a list of dicts: { id, surface, reading, candidate_senses, jmdict_gloss, context_sentences }
     """
-    # Build block_id -> sentence texts lookup
+    # Build sentence_id -> text lookup
+    sentence_lookup: dict[str, str] = {}
     block_sentences: dict[str, str] = {}
     for chapter in canonical_book.get("chapters", []):
         for block in chapter.get("blocks", []):
             bid = block.get("id", "")
-            block_sentences[bid] = " ".join(
-                s.get("text", "") for s in block.get("sentences", [])
-            )[:200]
+            sentences = block.get("sentences", [])
+            for s in sentences:
+                sid = s.get("id", "")
+                if sid:
+                    sentence_lookup[sid] = s.get("text", "")
+            block_sentences[bid] = " ".join(s.get("text", "") for s in sentences)[:200]
 
     results = []
     for item in annotation_plan.get("items", [])[:max_items]:
         item_id = item.get("id", "")
         surface = item.get("surface", "")
         reading = item.get("reading", "")
-        # Get the first JMdict gloss if available
-        gloss = ""
-        meanings = item.get("meanings", [])
-        if meanings:
-            first_meaning = meanings[0]
-            senses = first_meaning.get("senses", [])
-            if senses:
-                glosses = senses[0].get("glosses", [])
-                if glosses:
-                    gloss = "; ".join(g.get("text", "") for g in glosses[:3])
 
-        # Collect up to 3 unique context sentences from occurrences
+        # Extract all candidate senses
+        candidate_senses = []
+        if item.get("dictionary_senses"):
+            for idx, ds in enumerate(item["dictionary_senses"]):
+                s_id = item.get("source_sense_ids", [])[idx] if idx < len(item.get("source_sense_ids", [])) else f"{item_id}-sense-{idx+1}"
+                candidate_senses.append({"sense_id": s_id, "gloss": ds})
+        elif item.get("meanings"):
+            for m in item.get("meanings", []):
+                for s in m.get("senses", []):
+                    s_id = s.get("id", "")
+                    glosses = s.get("glosses", [])
+                    g_text = "; ".join(g.get("text", "") for g in glosses if g.get("text"))
+                    if g_text:
+                        candidate_senses.append({"sense_id": s_id, "gloss": g_text})
+
+        # Primary baseline gloss
+        primary_gloss = candidate_senses[0]["gloss"] if candidate_senses else item.get("display_meaning", "")
+
+        # Collect up to 3 unique context sentences from occurrences with target word highlighted
         context_sentences = []
         for occ in item.get("occurrences", [])[:5]:
-            bid = occ.get("block_id", "")
-            sentence = block_sentences.get(bid, "")
-            if sentence and sentence not in context_sentences:
-                context_sentences.append(sentence)
+            sid = occ.get("sentence_id", "")
+            stext = sentence_lookup.get(sid, "")
+            if stext:
+                start = occ.get("sentence_start")
+                end = occ.get("sentence_end")
+                if start is not None and end is not None and 0 <= start < end <= len(stext):
+                    highlighted = f"{stext[:start]}【{stext[start:end]}】{stext[end:]}"
+                else:
+                    highlighted = stext
+            else:
+                bid = occ.get("block_id", "")
+                highlighted = block_sentences.get(bid, "")
+
+            if highlighted and highlighted not in context_sentences:
+                context_sentences.append(highlighted)
             if len(context_sentences) >= 3:
                 break
 
@@ -97,7 +132,8 @@ def collect_gloss_candidates(
             "id": item_id,
             "surface": surface,
             "reading": reading,
-            "jmdict_gloss": gloss,
+            "candidate_senses": candidate_senses,
+            "jmdict_gloss": primary_gloss,
             "context_sentences": context_sentences,
         })
 
@@ -139,6 +175,7 @@ def enrich_glosses(
     provider: Any,
     *,
     model: str | None = None,
+    series_profile: dict[str, Any] | None = None,
     cache_dir: Path | None = None,
     progress_callback: Any = None,
 ) -> dict[str, str]:
@@ -147,11 +184,19 @@ def enrich_glosses(
     Returns a dict mapping item_id -> contextual_gloss string.
     """
     from furiganalyse.llm_provider import LLMMessage, LLMRequest
+    from furiganalyse.series_glossary import build_series_prompt_context
 
     if not candidates:
         return {}
 
-    items_hash = _items_hash(candidates)
+    series_ctx_str = build_series_prompt_context(series_profile)
+    active_system_prompt = (
+        f"{SYSTEM_PROMPT}\n\nSERIES CONTEXT & LORE (from Series Memory):\n{series_ctx_str}\n"
+        if series_ctx_str
+        else SYSTEM_PROMPT
+    )
+
+    items_hash = _items_hash(candidates, series_ctx_str)
     cache_path = (cache_dir / f"contextual_glosses_{items_hash}.json") if cache_dir else None
 
     if cache_path:
@@ -167,30 +212,25 @@ def enrich_glosses(
                     pass
             return cached
 
-    all_glosses: dict[str, str] = {}
-    total_batches = (len(candidates) + MAX_ITEMS_PER_BATCH - 1) // MAX_ITEMS_PER_BATCH
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    for batch_idx in range(0, len(candidates), MAX_ITEMS_PER_BATCH):
-        batch = candidates[batch_idx:batch_idx + MAX_ITEMS_PER_BATCH]
-        batch_num = batch_idx // MAX_ITEMS_PER_BATCH + 1
+    MAX_WORKERS = 3
+    all_glosses: dict[str, Any] = {}
+    batches = [
+        (idx // MAX_ITEMS_PER_BATCH + 1, candidates[idx:idx + MAX_ITEMS_PER_BATCH])
+        for idx in range(0, len(candidates), MAX_ITEMS_PER_BATCH)
+    ]
+    total_batches = len(batches)
 
-        if progress_callback:
-            try:
-                progress_callback({
-                    "log": f"Contextual gloss enrichment: batch {batch_num}/{total_batches} ({len(batch)} items)…",
-                    "translation_latest_japanese": "  ".join(c["surface"] for c in batch[:10]),
-                    "translation_latest_english": f"Generating contextual glosses (batch {batch_num}/{total_batches})…",
-                })
-            except Exception:
-                pass
-
+    def _process_single_batch(batch_info: tuple[int, list[dict[str, Any]]]) -> tuple[int, dict[str, Any], float, str]:
+        batch_num, batch = batch_info
         user_content = json.dumps(
             [
                 {
                     "id": c["id"],
                     "surface": c["surface"],
                     "reading": c["reading"],
-                    "jmdict_gloss": c["jmdict_gloss"],
+                    "candidate_senses": c.get("candidate_senses") or ([{"sense_id": "sense-1", "gloss": c.get("jmdict_gloss", "")}] if c.get("jmdict_gloss") else []),
                     "context_sentences": c["context_sentences"],
                 }
                 for c in batch
@@ -201,7 +241,7 @@ def enrich_glosses(
 
         req = LLMRequest(
             messages=[
-                LLMMessage(role="system", content=SYSTEM_PROMPT),
+                LLMMessage(role="system", content=active_system_prompt),
                 LLMMessage(role="user", content=user_content),
             ],
             temperature=0.1,
@@ -210,51 +250,95 @@ def enrich_glosses(
             max_tokens=8192,
         )
 
-        try:
-            start_t = time.time()
-            resp = provider.generate(req)
-            elapsed = time.time() - start_t
-            import re
-            raw = (resp.content or "").strip()
-            if not raw and isinstance(getattr(resp, "raw", None), dict):
-                choices = resp.raw.get("choices", [])
-                if choices:
-                    msg = choices[0].get("message", {})
-                    raw = (msg.get("content") or msg.get("reasoning") or "").strip()
-            if raw.startswith("```"):
-                raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
-                raw = re.sub(r"\n?```$", "", raw.strip())
-            # Find outermost JSON array if surrounded by commentary
-            json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
-            if json_match:
-                raw = json_match.group(0)
-            parsed = json.loads(raw)
-            if isinstance(parsed, list):
-                batch_count = 0
-                for item in parsed:
-                    item_id = item.get("id", "")
-                    gloss = item.get("gloss", "")
-                    if item_id and gloss:
-                        all_glosses[item_id] = gloss
-                        batch_count += 1
+        last_exc: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                start_t = time.time()
+                resp = provider.generate(req)
+                elapsed = time.time() - start_t
+                raw = (resp.content or "").strip()
+                if not raw and isinstance(getattr(resp, "raw", None), dict):
+                    choices = resp.raw.get("choices", [])
+                    if choices:
+                        msg = choices[0].get("message", {})
+                        raw = (msg.get("content") or msg.get("reasoning") or "").strip()
+                if raw.startswith("```"):
+                    raw = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", raw)
+                    raw = re.sub(r"\n?```$", "", raw.strip())
+                json_match = re.search(r"\[\s*\{.*\}\s*\]", raw, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(0)
+                parsed = json.loads(raw)
+                batch_results: dict[str, Any] = {}
+                if isinstance(parsed, list):
+                    for item in parsed:
+                        item_id = item.get("id", "")
+                        gloss = item.get("gloss", "")
+                        selected_sense_id = item.get("selected_sense_id")
+                        if item_id and gloss:
+                            batch_results[item_id] = {
+                                "gloss": gloss,
+                                "selected_sense_id": selected_sense_id,
+                            }
+                if batch_results:
+                    return batch_num, batch_results, elapsed, raw
+                raise ValueError(f"Parsed JSON produced 0 valid gloss items (raw: {raw[:100]})")
+            except Exception as exc:
+                last_exc = exc
+                logger.warning(
+                    "enrich_glosses: batch %d attempt %d/3 failed (%s)",
+                    batch_num,
+                    attempt,
+                    exc,
+                )
+                if attempt < 3:
+                    time.sleep(1.5 * attempt)
+
+        raise last_exc or RuntimeError(f"Batch {batch_num} failed after 3 attempts")
+
+    completed_batches = 0
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        future_map = {
+            executor.submit(_process_single_batch, b_info): b_info
+            for b_info in batches
+        }
+
+        for future in as_completed(future_map):
+            b_info = future_map[future]
+            batch_num = b_info[0]
+            try:
+                b_num, batch_results, elapsed, raw = future.result()
+                all_glosses.update(batch_results)
+                completed_batches += 1
+                logger.info(
+                    "Module 3: Batch %d/%d LLM response (%d glosses in %.1fs):\n%s",
+                    b_num,
+                    total_batches,
+                    len(batch_results),
+                    elapsed,
+                    raw,
+                )
                 if progress_callback:
                     try:
                         progress_callback({
-                            "log": f"Module 3: Batch {batch_num}/{total_batches} enriched ({batch_count} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
+                            "log": f"Module 3: Batch {b_num}/{total_batches} enriched ({len(batch_results)} glosses from {model or 'LLM'} in {elapsed:.1f}s)",
+                        })
+                        for item_id, res in list(batch_results.items())[:3]:
+                            progress_callback({
+                                "log": f"  ↳ [{item_id}] {res.get('gloss')}",
+                            })
+                    except Exception:
+                        pass
+            except Exception as exc:
+                completed_batches += 1
+                logger.warning("enrich_glosses: batch %d failed after 3 retries (%s)", batch_num, exc)
+                if progress_callback:
+                    try:
+                        progress_callback({
+                            "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed after 3 retries ({exc}). Using standard JMdict definitions.",
                         })
                     except Exception:
                         pass
-        except Exception as exc:
-            preview = repr(raw[:100]) if "raw" in locals() and raw else "empty/None"
-            logger.warning("enrich_glosses: batch %d failed (%s, preview=%s), skipping remaining batches", batch_num, exc, preview)
-            if progress_callback:
-                try:
-                    progress_callback({
-                        "log": f"Module 3 warning: Batch {batch_num}/{total_batches} failed ({exc} | preview: {preview}). Using standard JMdict definitions.",
-                    })
-                except Exception:
-                    pass
-            break
 
     if progress_callback:
         try:
@@ -272,9 +356,9 @@ def enrich_glosses(
 
 def apply_gloss_enrichments(
     annotation_plan: dict[str, Any],
-    glosses: dict[str, str],
+    glosses: dict[str, Any],
 ) -> dict[str, Any]:
-    """Patch annotation plan items with contextual glosses.
+    """Patch annotation plan items with contextual glosses and dictionary senses.
 
     Returns a modified copy of the annotation plan.
     """
@@ -283,19 +367,57 @@ def apply_gloss_enrichments(
 
     patched_items = []
     patch_count = 0
+    sense_update_count = 0
     for item in annotation_plan.get("items", []):
         item_id = item.get("id", "")
         if item_id in glosses:
             item = dict(item)
-            item["contextual_gloss"] = glosses[item_id]
-            item["display_meaning"] = glosses[item_id]
-            patch_count += 1
+            val = glosses[item_id]
+            if isinstance(val, dict):
+                gloss = val.get("gloss", "")
+                selected_sense_id = val.get("selected_sense_id")
+            else:
+                gloss = str(val)
+                selected_sense_id = None
+
+            # Extract up to 3 dictionary senses from meanings if available
+            dict_senses = item.get("dictionary_senses") or []
+            if not dict_senses and item.get("meanings"):
+                for m in item.get("meanings", []):
+                    for s in m.get("senses", []):
+                        g_texts = [g.get("text", "") for g in s.get("glosses", []) if g.get("text")]
+                        if g_texts:
+                            dict_senses.append("; ".join(g_texts))
+                        if len(dict_senses) >= 3:
+                            break
+                    if len(dict_senses) >= 3:
+                        break
+
+            if gloss:
+                item["contextual_gloss"] = gloss
+                if dict_senses and item.get("kind") != "name":
+                    dict_str = "\n".join(f"  {i}. {s}" for i, s in enumerate(dict_senses[:3], 1))
+                    item["display_meaning"] = (
+                        f"✦ Story Context:\n{gloss}\n\n"
+                        f"📖 Standard Dictionary:\n{dict_str}"
+                    )
+                    item["dictionary_senses"] = dict_senses[:3]
+                else:
+                    item["display_meaning"] = f"✦ Story Context:\n{gloss}"
+                patch_count += 1
+
+            # Update selected_sense_id if a valid matching sense was disambiguated
+            if selected_sense_id and selected_sense_id in item.get("source_sense_ids", []):
+                item["selected_sense_id"] = selected_sense_id
+                sense_update_count += 1
+
         patched_items.append(item)
 
     logger.info(
-        "apply_gloss_enrichments: enriched %d/%d study items with contextual glosses",
+        "apply_gloss_enrichments: enriched %d/%d study items with contextual glosses (%d senses disambiguated)",
         patch_count,
         len(patched_items),
+        sense_update_count,
     )
 
     result = dict(annotation_plan)

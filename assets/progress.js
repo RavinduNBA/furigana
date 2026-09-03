@@ -206,37 +206,37 @@
             if (streamEn && progress.translation_latest_english) {
                 streamEn.textContent = progress.translation_latest_english;
             }
+        }
 
-            // Render Discovered Context Panel
-            const contextPanel = byId("discovered-context-panel");
-            const castRow = byId("cast-chips-row");
-            const glossRow = byId("glossary-chips-row");
-            const countEl = byId("context-item-count");
+        // Render Discovered Context Panel (Cast & Glossary) whenever available
+        const contextPanel = byId("discovered-context-panel");
+        const castRow = byId("cast-chips-row");
+        const glossRow = byId("glossary-chips-row");
+        const countEl = byId("context-item-count");
 
-            if (contextPanel && (progress.cast_summary || progress.glossary_summary)) {
-                contextPanel.hidden = false;
-                const casts = progress.cast_summary || [];
-                const gloss = progress.glossary_summary || [];
-                if (countEl) countEl.textContent = (casts.length + gloss.length) + " items discovered";
+        if (contextPanel && (progress.cast_summary || progress.glossary_summary)) {
+            contextPanel.hidden = false;
+            const casts = progress.cast_summary || [];
+            const gloss = progress.glossary_summary || [];
+            if (countEl) countEl.textContent = (casts.length + gloss.length) + " items discovered";
 
-                if (castRow && casts.length > 0) {
-                    castRow.innerHTML = casts.map(c => `
-                        <div class="context-chip context-chip--cast">
-                            <strong>${c.name}</strong>
-                            <span>${c.romanized || c.name}</span>
-                            <small>${c.role || "Character"}</small>
-                        </div>
-                    `).join("");
-                }
+            if (castRow && casts.length > 0) {
+                castRow.innerHTML = casts.map(c => `
+                    <div class="context-chip context-chip--cast">
+                        <strong>${c.name}</strong>
+                        <span>${c.romanized || c.name}</span>
+                        <small>${c.role || "Character"}</small>
+                    </div>
+                `).join("");
+            }
 
-                if (glossRow && gloss.length > 0) {
-                    glossRow.innerHTML = gloss.map(g => `
-                        <div class="context-chip context-chip--glossary">
-                            <strong>${g.japanese}</strong>
-                            <span>${g.translation || g.definition || ""}</span>
-                        </div>
-                    `).join("");
-                }
+            if (glossRow && gloss.length > 0) {
+                glossRow.innerHTML = gloss.map(g => `
+                    <div class="context-chip context-chip--glossary">
+                        <strong>${g.japanese}</strong>
+                        <span>${g.translation || g.definition || ""}</span>
+                    </div>
+                `).join("");
             }
         }
 
@@ -425,8 +425,47 @@
                 alert("Context data is still generating. Please wait a moment.");
                 return;
             }
-            const defaultName = prompt("Enter a Series Name to save this Cast & Glossary for next volumes:", "My Light Novel Series");
-            if (!defaultName) return;
+
+            // Extract book filename/title from download card or log lines for auto-suggestion
+            let rawBookName = "";
+            const downloadNameEl = byId("download-name");
+            if (downloadNameEl && downloadNameEl.textContent) {
+                rawBookName = downloadNameEl.textContent.trim();
+            }
+            if (!rawBookName && latestProgressData.log_lines && latestProgressData.log_lines.length) {
+                for (const line of latestProgressData.log_lines) {
+                    const match = line.match(/Starting conversion:\s*'([^']+)'/);
+                    if (match && match[1]) {
+                        rawBookName = match[1];
+                        break;
+                    }
+                }
+            }
+
+            // Fetch auto-suggested series title and slug
+            let suggestedTitle = "My Light Novel Series";
+            let suggestedId = "";
+            let detectedVolume = "";
+            if (rawBookName) {
+                try {
+                    const sResp = await fetch("/api/series/suggest?query=" + encodeURIComponent(rawBookName));
+                    if (sResp.ok) {
+                        const sData = await sResp.json();
+                        if (sData.title) suggestedTitle = sData.title;
+                        if (sData.series_id) suggestedId = sData.series_id;
+                        if (sData.volume_name) detectedVolume = sData.volume_name;
+                    }
+                } catch (e) {
+                    console.warn("Series suggestion fetch failed:", e);
+                }
+            }
+
+            const promptMsg = detectedVolume ?
+                `Enter Series Name for ${detectedVolume} (auto-suggested from book title):` :
+                "Enter a Series Name to save this Cast & Glossary for next volumes:";
+
+            const chosenName = prompt(promptMsg, suggestedTitle);
+            if (!chosenName || !chosenName.trim()) return;
 
             const casts = (latestProgressData.cast_summary || []).reduce((acc, c) => {
                 acc[c.name] = { kanji: c.name, romanized: c.romanized || c.name, role: c.role || "Character" };
@@ -444,13 +483,15 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        title: defaultName,
+                        series_id: (chosenName.trim() === suggestedTitle.trim() && suggestedId) ? suggestedId : chosenName.trim(),
+                        title: chosenName.trim(),
+                        volume_name: detectedVolume,
                         characters: casts,
                         glossary: glossary
                     })
                 });
                 if (resp.ok) {
-                    alert("Series Memory profile saved! You can now select '" + defaultName + "' when converting Volume 2, 3, etc.");
+                    alert(`Series Memory profile saved! You can now select '${chosenName.trim()}' when converting subsequent volumes.`);
                     saveSeriesBtn.textContent = "✓ Saved to Series";
                 } else {
                     alert("Failed to save series profile.");
@@ -552,5 +593,65 @@
         });
     }
 
+    function initRecentConversionsControls() {
+        const clearBtn = byId("clear-recent-btn");
+        if (clearBtn) {
+            clearBtn.addEventListener("click", async function () {
+                if (!confirm("Are you sure you want to clear all recent conversions?")) return;
+                try {
+                    clearBtn.disabled = true;
+                    clearBtn.textContent = "Clearing…";
+                    const resp = await fetch("/api/recent_conversions", { method: "DELETE" });
+                    if (resp.ok) {
+                        const list = document.querySelector(".recent-list");
+                        if (list) {
+                            list.innerHTML = '<p class="recent-empty-note">Your last 10 conversions will appear here for fast re-downloading.</p>';
+                        }
+                        const badge = byId("recent-count-badge");
+                        if (badge) badge.textContent = "0 saved";
+                        clearBtn.remove();
+                    } else {
+                        alert("Failed to clear recent conversions.");
+                        clearBtn.disabled = false;
+                        clearBtn.textContent = "Clear all";
+                    }
+                } catch (e) {
+                    alert("Error: " + e.message);
+                    clearBtn.disabled = false;
+                    clearBtn.textContent = "Clear all";
+                }
+            });
+        }
+
+        document.querySelectorAll(".recent-del-item-btn").forEach(btn => {
+            btn.addEventListener("click", async function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const uid = this.dataset.uid;
+                if (!uid) return;
+                if (!confirm("Remove this conversion from history?")) return;
+                try {
+                    const resp = await fetch("/api/recent_conversions/" + uid, { method: "DELETE" });
+                    if (resp.ok) {
+                        const itemEl = this.closest(".recent-item");
+                        if (itemEl) itemEl.remove();
+                        const remaining = document.querySelectorAll(".recent-item").length;
+                        const badge = byId("recent-count-badge");
+                        if (badge) badge.textContent = remaining + " saved";
+                        if (remaining === 0) {
+                            const list = document.querySelector(".recent-list");
+                            if (list) {
+                                list.innerHTML = '<p class="recent-empty-note">Your last 10 conversions will appear here for fast re-downloading.</p>';
+                            }
+                            const clearBtnEl = byId("clear-recent-btn");
+                            if (clearBtnEl) clearBtnEl.remove();
+                        }
+                    }
+                } catch (e) {}
+            });
+        });
+    }
+
+    initRecentConversionsControls();
     window.setTimeout(poll, INITIAL_POLL_DELAY_MS);
 }());

@@ -10,6 +10,7 @@ import urllib.error
 import urllib.request
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
@@ -207,12 +208,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         p_tok = usage.get("prompt_tokens", 0)
                         c_tok = usage.get("completion_tokens", 0)
                         logger.info(
-                            "LLM [%s] response received in %.1fs (Prompt: %d tokens, Completion: %d tokens, Output: %d chars)",
+                            "LLM [%s] response received in %.1fs (Prompt: %d tokens, Completion: %d tokens, Output: %d chars):\n%s",
                             model,
                             elapsed,
                             p_tok,
                             c_tok,
                             len(content),
+                            content,
                         )
                         return LLMResponse(
                             content=content,
@@ -233,6 +235,19 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                     self.max_retries,
                     err_msg,
                 )
+                # Auto-fallback to verified working default models on 404 (endpoint not found / deprecated) or 402
+                if exc.code in {402, 404} and attempt < self.max_retries:
+                    if "openrouter.ai" in self.base_url and model != "nvidia/nemotron-3.5-lightning:free":
+                        logger.info("OpenRouter model [%s] returned HTTP %d. Auto-switching to fallback default: nvidia/nemotron-3.5-lightning:free", model, exc.code)
+                        model = "nvidia/nemotron-3.5-lightning:free"
+                        time.sleep(0.5)
+                        continue
+                    elif "generativelanguage.googleapis.com" in self.base_url and model != "gemini-flash-latest":
+                        logger.info("Google AI Studio model [%s] returned HTTP %d. Auto-switching to fallback default: gemini-flash-latest", model, exc.code)
+                        model = "gemini-flash-latest"
+                        time.sleep(0.5)
+                        continue
+
                 if attempt == self.max_retries or exc.code in {400, 401, 403, 404, 429}:
                     raise LLMProviderError(f"LLM API HTTP {exc.code}: {err_msg}") from exc
                 time.sleep(1)
@@ -253,6 +268,58 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         raise LLMProviderError("Exceeded maximum retries contacting LLM provider")
 
 
+def resolve_provider_api_key(provider_name: str, explicit_key: str | None = None) -> str | None:
+    """Resolve API key from explicit argument, environment variables, or local key files."""
+    if explicit_key and explicit_key.strip():
+        return explicit_key.strip()
+
+    prov = provider_name.lower()
+    if prov in {"google", "gemini"}:
+        env_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if env_key and env_key.strip():
+            return env_key.strip()
+        for fpath in ("/root/furiganalyse/googleaistidioapi.txt", "googleaistidioapi.txt"):
+            try:
+                p = Path(fpath)
+                if p.is_file():
+                    content = p.read_text(encoding="utf-8").strip()
+                    if content:
+                        return content
+            except Exception:
+                pass
+
+    elif prov == "openrouter":
+        env_key = os.environ.get("OPENROUTER_API_KEY")
+        if env_key and env_key.strip():
+            return env_key.strip()
+        for fpath in ("/root/furiganalyse/openrouterapi.txt", "openrouterapi.txt"):
+            try:
+                p = Path(fpath)
+                if p.is_file():
+                    content = p.read_text(encoding="utf-8").strip()
+                    if content:
+                        return content
+            except Exception:
+                pass
+
+    elif prov == "hetzner":
+        env_key = os.environ.get("HETZNER_API_KEY")
+        if env_key and env_key.strip():
+            return env_key.strip()
+
+    elif prov == "openai":
+        env_key = os.environ.get("OPENAI_API_KEY")
+        if env_key and env_key.strip():
+            return env_key.strip()
+
+    elif prov == "deepseek":
+        env_key = os.environ.get("DEEPSEEK_API_KEY")
+        if env_key and env_key.strip():
+            return env_key.strip()
+
+    return None
+
+
 def get_llm_provider(
     provider_name: str = "mock",
     api_key: str | None = None,
@@ -263,22 +330,30 @@ def get_llm_provider(
     name = (provider_name or "mock").lower()
     if name == "mock":
         return MockLLMProvider()
-    if name in {"openai", "openrouter", "ollama", "vllm", "deepseek", "hetzner", "openai_compatible"}:
+
+    resolved_key = resolve_provider_api_key(name, api_key)
+
+    if name in {"openai", "openrouter", "ollama", "vllm", "deepseek", "hetzner", "google", "gemini", "openai_compatible"}:
         default_url = {
             "openai": "https://api.openai.com/v1",
             "openrouter": "https://openrouter.ai/api/v1",
             "ollama": "http://localhost:11434/v1",
             "deepseek": "https://api.deepseek.com/v1",
             "hetzner": "https://inference.hetzner.com/api/v1",
+            "google": "https://generativelanguage.googleapis.com/v1beta/openai",
+            "gemini": "https://generativelanguage.googleapis.com/v1beta/openai",
         }.get(name, "https://api.openai.com/v1")
+
         default_model = model
         if not default_model:
             if name == "ollama":
                 default_model = "qwen2.5:3b"
             elif name == "hetzner":
                 default_model = "Qwen/Qwen3.6-35B-A3B-FP8"
-            elif name == "openai":
-                default_model = "gpt-4o-mini"
+            elif name in {"google", "gemini"}:
+                default_model = "gemini-flash-latest"
+            elif name == "openrouter":
+                default_model = "nvidia/nemotron-3.5-lightning:free"
             elif name == "deepseek":
                 default_model = "deepseek-chat"
             else:
@@ -287,7 +362,7 @@ def get_llm_provider(
         timeout = 180
         retries = 2
         return OpenAICompatibleProvider(
-            api_key=api_key,
+            api_key=resolved_key,
             base_url=base_url or default_url,
             default_model=default_model,
             timeout_seconds=timeout,

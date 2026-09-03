@@ -22,8 +22,12 @@
     </a>
     <nav class="site-nav">
         <a href="{{ url_for('get_root') }}">Converter</a>
+        <a href="{{ url_for('get_series_dashboard') }}">Series Memory</a>
         <a href="{{ url_for('get_ollama_dashboard') }}">Ollama Dashboard</a>
         <a href="https://github.com/RavinduNBA/furigana">Source</a>
+        {% if current_user and current_user != 'anonymous' %}
+        <a href="{{ url_for('logout') }}" title="Sign out ({{ current_user }})">Sign Out</a>
+        {% endif %}
     </nav>
     <span class="header-status"><span class="status-dot status-dot--pulse"></span><span id="header-status-text">Conversion running</span></span>
 </header>
@@ -52,6 +56,54 @@
             <article><span class="metric-icon" aria-hidden="true">↗</span><div><small>Processing rate</small><strong id="progress-rate">0 chars/s</strong><span id="progress-size">File size calculating…</span></div></article>
         </div>
 
+        {% set casts = initial_progress.get('cast_summary', []) if initial_progress else [] %}
+        {% set gloss = initial_progress.get('glossary_summary', []) if initial_progress else [] %}
+        {% set has_context = (casts|length > 0) or (gloss|length > 0) %}
+
+        <!-- Discovered Cast & World Glossary Context Panel (Server-rendered + JS updated) -->
+        <div class="discovered-context-panel" id="discovered-context-panel"{% if not has_context %} hidden{% endif %}>
+            <div class="context-panel-header">
+                <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="context-item-count" id="context-item-count">{{ (casts|length + gloss|length) }} items discovered</span>
+                    <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
+                </div>
+            </div>
+            <div class="context-panel-body">
+                <div class="context-group">
+                    <small>Key Characters &amp; Roles</small>
+                    <div class="context-chips-row" id="cast-chips-row">
+                        {% if casts %}
+                            {% for c in casts %}
+                            <div class="context-chip context-chip--cast">
+                                <strong>{{ c.name }}</strong>
+                                <span>{{ c.romanized or c.name }}</span>
+                                <small>{{ c.role or "Character" }}</small>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="fine-print">Discovering cast members…</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="context-group">
+                    <small>World Glossary &amp; Light Novel Terms</small>
+                    <div class="context-chips-row" id="glossary-chips-row">
+                        {% if gloss %}
+                            {% for g in gloss %}
+                            <div class="context-chip context-chip--glossary">
+                                <strong>{{ g.japanese }}</strong>
+                                <span>{{ g.translation or g.definition or "" }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="fine-print">Extracting novel terms…</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="bilingual-progress-panel" class="bilingual-progress-panel" hidden>
             <div class="bilingual-progress-header">
                 <span class="section-kicker">LLM Bilingual Companion</span>
@@ -74,31 +126,6 @@
                         <span id="progress-trans-cache">0 disk cache hits</span>
                     </div>
                 </article>
-            </div>
-
-            <!-- Discovered Cast & World Glossary Context Panel -->
-            <div class="discovered-context-panel" id="discovered-context-panel" hidden>
-                <div class="context-panel-header">
-                    <span class="context-panel-title">👥 Discovered Cast &amp; Terminology Context</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <span class="context-item-count" id="context-item-count">0 items discovered</span>
-                        <button type="button" id="save-series-btn" class="secondary-button" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;" title="Save this cast and terminology for future volumes">💾 Save to Series Memory</button>
-                    </div>
-                </div>
-                <div class="context-panel-body">
-                    <div class="context-group">
-                        <small>Key Characters &amp; Roles</small>
-                        <div class="context-chips-row" id="cast-chips-row">
-                            <span class="fine-print">Discovering cast members…</span>
-                        </div>
-                    </div>
-                    <div class="context-group">
-                        <small>World Glossary &amp; Light Novel Terms</small>
-                        <div class="context-chips-row" id="glossary-chips-row">
-                            <span class="fine-print">Extracting novel terms…</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Live Streaming Output Feed -->
@@ -215,24 +242,31 @@
     <section class="info-card recent-card recent-card--job-page">
         <div class="card-title-row">
             <span class="section-kicker">History</span>
-            <span class="status-badge">{{ recent_conversions|length }} saved</span>
+            <div class="recent-header-actions">
+                <span class="status-badge" id="recent-count-badge">{{ recent_conversions|length }} saved</span>
+                <button type="button" class="clear-recent-btn" id="clear-recent-btn" title="Clear all recent conversions">Clear all</button>
+            </div>
         </div>
         <h2>Recent conversions</h2>
         <ul class="recent-list">
             {% for item in recent_conversions %}
-            <li class="recent-item">
+            <li class="recent-item" data-uid="{{ item.uid }}">
                 <div class="recent-meta">
                     <span class="mode-pill mode-pill--{{ item.pipeline_mode }}">{{ item.pipeline_mode|capitalize }}</span>
-                    <span class="recent-time">{{ item.timestamp }}</span>
+                    <div class="recent-meta-right">
+                        <span class="recent-time">{{ item.timestamp }}</span>
+                        <button type="button" class="recent-del-item-btn" data-uid="{{ item.uid }}" title="Remove this conversion from history" aria-label="Remove item">✕</button>
+                    </div>
                 </div>
-                <strong class="recent-name" title="{{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</strong>
+                <a class="recent-name-link" href="{{ url_for('get_download', uid=item.uid) }}" title="Open completion page: {{ item.output_filename or item.filename }}">{{ item.output_filename or item.filename }}</a>
                 <div class="recent-actions-row">
+                    <a class="recent-details-link" href="{{ url_for('get_download', uid=item.uid) }}" title="View completion details, logs &amp; cast">Details ↗</a>
                     {% if item.status == 'complete' %}
-                    <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
+                    <a class="recent-dl-link" href="{{ url_for('get_file', uid=item.uid) }}" title="Direct download">Download{% if item.file_size %} ({{ item.file_size }}){% endif %} <span aria-hidden="true">↓</span></a>
                     {% elif item.status == 'in_progress' %}
-                    <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">View progress <span class="status-dot status-dot--pulse"></span></a>
+                    <a class="recent-prog-link" href="{{ url_for('get_download', uid=item.uid) }}">In progress <span class="status-dot status-dot--pulse"></span></a>
                     {% else %}
-                    <span class="recent-error-tag">Conversion stopped</span>
+                    <span class="recent-error-tag">Stopped</span>
                     {% endif %}
                 </div>
             </li>

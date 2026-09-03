@@ -662,6 +662,7 @@ def run_dictionary_study_pipeline(
     gc.collect()
 
     # Step A: Apply Series Memory Profile if selected (Cross-Volume Consistency)
+    series_data = None
     if options.series_profile_id:
         from furiganalyse.series_glossary import (
             apply_series_profile_to_vocabulary,
@@ -719,6 +720,7 @@ def run_dictionary_study_pipeline(
                 unresolved,
                 llm_provider_instance,
                 model=enrich_model,
+                series_profile=series_data,
                 cache_dir=work / "llm_cache",
                 progress_callback=progress,
             )
@@ -790,6 +792,7 @@ def run_dictionary_study_pipeline(
                 gloss_candidates,
                 _llm,
                 model=enrich_model,
+                series_profile=series_data,
                 cache_dir=work / "llm_cache",
                 progress_callback=progress,
             )
@@ -931,17 +934,59 @@ def run_dictionary_study_pipeline(
     }
     _write_json(work / "summary.json", summary)
 
-    if options.bilingual_companion:
-        from furiganalyse.bilingual_context import build_book_context
-        from furiganalyse.bilingual_epub import package_bilingual_epub
-        from furiganalyse.bilingual_translation import TranslationCache, translate_chapter
-        from furiganalyse.llm_provider import get_llm_provider
+    # Extract discovered cast members and glossary terms from annotation plan and vocabulary
+    discovered_casts = []
+    seen_names = set()
+    for item in annotation_plan.get("items", []):
+        if item.get("kind") == "name":
+            name = item.get("surface", "")
+            if name and name not in seen_names:
+                seen_names.add(name)
+                discovered_casts.append({
+                    "name": name,
+                    "romanized": item.get("reading") or name,
+                    "role": "Character / Proper Name",
+                })
+        if len(discovered_casts) >= 20:
+            break
+
+    if len(discovered_casts) < 20:
+        for match in vocabulary.get("name_dictionary_matches", []):
+            name = match.get("surface", "")
+            if name and name not in seen_names:
+                seen_names.add(name)
+                discovered_casts.append({
+                    "name": name,
+                    "romanized": match.get("reading") or name,
+                    "role": "Proper Name",
+                })
+            if len(discovered_casts) >= 20:
+                break
+
+    discovered_glossary = []
+    seen_terms = set()
+    for item in annotation_plan.get("items", []):
+        if item.get("kind") != "name":
+            term = item.get("surface", "")
+            if term and term not in seen_terms:
+                seen_terms.add(term)
+                meaning = item.get("contextual_gloss") or item.get("display_meaning") or ""
+                first_meaning = meaning.split("\n")[0].replace("✦ Story Context:", "").strip()
+                discovered_glossary.append({
+                    "japanese": term,
+                    "translation": first_meaning[:80],
+                    "definition": first_meaning[:120],
+                })
+            if len(discovered_glossary) >= 30:
+                break
 
     progress({
-        "stage": "bilingual-translation",
+        "stage": "complete" if not options.bilingual_companion else "bilingual-translation",
         "main_file_ready": True,
         "main_output_bytes": main_size,
         "study_items": summary["study_items"],
+        "cast_summary": discovered_casts,
+        "glossary_summary": discovered_glossary,
         "log": f"Primary converted ebook ready: {output.name} ({main_size:,} bytes) — Available for download now!",
     })
 
@@ -979,6 +1024,7 @@ def run_dictionary_study_pipeline(
             provider=provider,
             model=model_name,
             progress_callback=progress,
+            series_profile=series_data,
         )
 
         cast_summary = [

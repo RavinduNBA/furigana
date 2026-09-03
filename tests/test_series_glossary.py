@@ -66,6 +66,54 @@ def test_series_glossary_lifecycle(monkeypatch):
         assert patched["candidates"][0]["reading"] == "じゅうしぞく"
         assert patched["name_occurrences"][0]["reading"] == "しばたつや"
 
+        # Prompt Injection Context Builder test
+        prompt_ctx = sg.build_series_prompt_context(loaded2)
+        assert "SERIES TITLE: The Irregular at Magic High School" in prompt_ctx
+        assert "司波達也 (しばたつや / Tatsuya Shiba)" in prompt_ctx
+        assert "魔法式" in prompt_ctx
+        assert "十師族 【じゅうしぞく】" in prompt_ctx
+
         # Delete
         assert sg.delete_series_profile("mahouka") is True
         assert sg.load_series_profile("mahouka") is None
+
+
+def test_series_prompt_context_empty():
+    assert sg.build_series_prompt_context(None) == ""
+    assert sg.build_series_prompt_context({}) == ""
+
+
+def test_suggest_series_name():
+    res1 = sg.suggest_series_name("魔法科高校の劣等生 3.epub")
+    assert res1["clean_title"] == "魔法科高校の劣等生"
+    assert res1["volume"] == "Volume 3"
+    assert res1["slug"] == "魔法科高校の劣等生"
+
+    res2 = sg.suggest_series_name("[Novel] Sword Art Online - Vol 03 (JAP).epub")
+    assert res2["clean_title"] == "Sword Art Online"
+    assert res2["volume"] == "Volume 3"
+    assert res2["slug"] == "sword-art-online"
+
+    res3 = sg.suggest_series_name("ダンジョンに出会いを求めるのは間違っているだろうか 第14巻 - Guided.epub")
+    assert res3["clean_title"] == "ダンジョンに出会いを求めるのは間違っているだろうか"
+    assert res3["volume"] == "Volume 14"
+
+
+def test_find_matching_series_profile():
+    profiles = [
+        {"series_id": "mahouka", "title": "魔法科高校の劣等生", "character_count": 20, "glossary_count": 30},
+        {"series_id": "sao", "title": "Sword Art Online", "character_count": 10, "glossary_count": 15},
+    ]
+
+    # Substring / title match
+    matched = sg.find_matching_series_profile("魔法科高校の劣等生 04.epub", existing_profiles=profiles)
+    assert matched["is_existing"] is True
+    assert matched["series_id"] == "mahouka"
+    assert matched["volume_name"] == "Volume 4"
+
+    # New series suggestion
+    unmatched = sg.find_matching_series_profile("Overlord Vol. 01.epub", existing_profiles=profiles)
+    assert unmatched["is_existing"] is False
+    assert unmatched["series_id"] == "overlord"
+    assert unmatched["title"] == "Overlord"
+    assert unmatched["volume_name"] == "Volume 1"

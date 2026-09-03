@@ -267,4 +267,111 @@ def test_early_main_download_serves_converted_file_not_input(tmp_path, monkeypat
     assert Path(response.path).read_text(encoding="utf-8") == "CONVERTED GUIDED EPUB WITH RUBY & NOTES"
 
 
+def test_clear_all_recent_conversions(tmp_path, monkeypatch):
+    from furiganalyse.recent_conversions import (
+        record_conversion,
+        load_recent_conversions,
+        clear_all_recent_conversions,
+        remove_recent_conversion,
+    )
+
+    record_conversion(
+        output_folder=tmp_path,
+        uid="job-1",
+        filename="test1.epub",
+        furigana_mode="add",
+        output_filename="test1_out.epub",
+        status="complete",
+        pipeline_mode="study",
+        output_bytes=100,
+    )
+    record_conversion(
+        output_folder=tmp_path,
+        uid="job-2",
+        filename="test2.epub",
+        furigana_mode="add",
+        output_filename="test2_out.epub",
+        status="complete",
+        pipeline_mode="guided",
+        output_bytes=200,
+    )
+
+    task1 = tmp_path / "job-1"
+    task1.mkdir(exist_ok=True)
+    (task1 / "test1.epub").write_text("dummy", encoding="utf-8")
+
+    task2 = tmp_path / "job-2"
+    task2.mkdir(exist_ok=True)
+    (task2 / "test2.epub").write_text("dummy", encoding="utf-8")
+
+    items = load_recent_conversions(tmp_path)
+    assert len(items) == 2
+
+    # Remove single item
+    items_after_remove = remove_recent_conversion(tmp_path, "job-1")
+    assert len(items_after_remove) == 1
+    assert items_after_remove[0]["uid"] == "job-2"
+    assert not task1.exists()
+    assert task2.exists()
+
+    # Clear all
+    items_after_clear = clear_all_recent_conversions(tmp_path)
+    assert items_after_clear == []
+    assert load_recent_conversions(tmp_path) == []
+    assert not task2.exists()
+
+
+def test_series_dashboard_and_api(tmp_path, monkeypatch):
+    import furiganalyse.series_glossary as sg
+    from furiganalyse import auth
+    from starlette.testclient import TestClient
+    from furiganalyse.app import app
+
+    monkeypatch.setattr(sg, "DEFAULT_STORAGE_DIR", tmp_path / "series")
+
+    token = auth.create_session_token("testadmin")
+    client = TestClient(app, cookies={"furiganalyse_session": token})
+
+    # Check GET /series
+    resp = client.get("/series")
+    assert resp.status_code == 200
+    assert "Series Memory &amp; Lore Database" in resp.text
+
+    # Post new series profile
+    resp_post = client.post("/api/series", json={
+        "series_id": "test-series",
+        "title": "Test Series Title",
+        "synopsis": "A fantasy world...",
+        "world_setting": "Magic circuits...",
+        "characters": {
+            "主人公": {"kanji": "主人公", "reading": "しゅじんこう", "role": "Hero"}
+        },
+        "glossary": {
+            "魔法": {"japanese": "魔法", "preferred_translation": "Magic"}
+        },
+        "ruby_overrides": {"術式": "じゅつしき"}
+    })
+    assert resp_post.status_code == 200
+    assert resp_post.json()["series_id"] == "test-series"
+
+    # Get single profile
+    resp_get = client.get("/api/series/test-series")
+    assert resp_get.status_code == 200
+    data = resp_get.json()
+    assert data["title"] == "Test Series Title"
+    assert "主人公" in data["characters"]
+
+    # Test suggest API
+    resp_sug = client.get("/api/series/suggest?query=%E9%AD%94%E6%B3%95%E7%A7%91%E9%AB%98%E6%A0%A1%E3%81%AE%E5%8A%A3%E7%AD%89%E7%94%9F%203.epub")
+    assert resp_sug.status_code == 200
+    sug_data = resp_sug.json()
+    assert sug_data["title"] == "魔法科高校の劣等生"
+    assert sug_data["volume_name"] == "Volume 3"
+
+    # Delete profile
+    resp_del = client.delete("/api/series/test-series")
+    assert resp_del.status_code == 200
+    assert resp_del.json()["deleted"] is True
+
+
 
