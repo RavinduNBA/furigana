@@ -43,6 +43,15 @@
                 byId("modal-create").showModal();
             });
         }
+
+        const emptyCreateBtn = byId("btn-create-series-empty");
+        if (emptyCreateBtn) {
+            emptyCreateBtn.addEventListener("click", () => {
+                byId("create-title").value = "";
+                byId("create-id").value = "";
+                byId("modal-create").showModal();
+            });
+        }
     }
 
     function initTabs() {
@@ -75,6 +84,8 @@
 
         const spinner = byId("series-loading-spinner");
         const content = byId("series-content-area");
+        const emptyWorkspace = byId("series-empty-workspace");
+        if (emptyWorkspace) emptyWorkspace.hidden = true;
         if (spinner) spinner.hidden = false;
         if (content) content.hidden = true;
 
