@@ -145,13 +145,19 @@
             const romanized = typeof c === "object" ? (c.romanized || "") : "";
             const role = typeof c === "object" ? (c.role || "") : "";
             const tone = typeof c === "object" ? (c.speaking_tone || "") : "";
+            const rel = typeof c === "object" ? (
+                typeof c.relationships === "object" && c.relationships !== null ?
+                    Object.entries(c.relationships).map(([target, desc]) => desc ? `${target} (${desc})` : target).join(", ") :
+                    (c.relationships || "")
+            ) : "";
+            const relHtml = rel ? `<br><small class="text-muted" title="Relationships & Ties">🔗 ${escapeHtml(rel)}</small>` : "";
 
             return `
                 <tr data-kanji="${escapeHtml(k)}">
                     <td><strong>${escapeHtml(k)}</strong></td>
                     <td>${escapeHtml(reading)}</td>
                     <td>${escapeHtml(romanized)}</td>
-                    <td><span class="badge-role">${escapeHtml(role || "Character")}</span></td>
+                    <td><span class="badge-role">${escapeHtml(role || "Character")}</span>${relHtml}</td>
                     <td><small class="text-muted">${escapeHtml(tone || "—")}</small></td>
                     <td>
                         <div class="row-actions">
@@ -363,6 +369,7 @@
             byId("char-romanized").value = "";
             byId("char-role").value = "";
             byId("char-tone").value = "";
+            if (byId("char-relations")) byId("char-relations").value = "";
             charModal.showModal();
         });
 
@@ -383,6 +390,10 @@
                 byId("char-romanized").value = c.romanized || "";
                 byId("char-role").value = c.role || "";
                 byId("char-tone").value = c.speaking_tone || "";
+                const relVal = typeof c.relationships === "object" && c.relationships !== null ?
+                    Object.entries(c.relationships).map(([target, desc]) => desc ? `${target} (${desc})` : target).join(", ") :
+                    (c.relationships || "");
+                if (byId("char-relations")) byId("char-relations").value = relVal;
                 charModal.showModal();
             } else if (delBtn) {
                 const confirmed = await window.showConfirmDialog({
@@ -406,12 +417,14 @@
             if (!kanji) return;
 
             if (!currentProfile.characters) currentProfile.characters = {};
+            const relVal = byId("char-relations") ? byId("char-relations").value.trim() : "";
             currentProfile.characters[kanji] = {
                 kanji,
                 reading: byId("char-reading").value.trim(),
                 romanized: byId("char-romanized").value.trim(),
                 role: byId("char-role").value.trim() || "Character",
                 speaking_tone: byId("char-tone").value.trim(),
+                relationships: relVal,
             };
 
             charModal.close();

@@ -216,10 +216,16 @@ def build_series_prompt_context(series_profile: dict[str, Any] | None, max_items
                 gender = char.get("gender") or ""
                 tone = char.get("speaking_tone") or ""
                 aliases = char.get("aliases") or []
+                relationships = char.get("relationships")
+                rel_str = ""
+                if isinstance(relationships, dict) and relationships:
+                    rel_str = f", Relations: {', '.join(f'{k}: {v}' for k, v in relationships.items())}"
+                elif isinstance(relationships, str) and relationships.strip():
+                    rel_str = f", Relations: {relationships.strip()}"
                 alias_str = f" Aliases: {', '.join(aliases)}." if aliases else ""
                 gender_str = f", Gender: {gender}" if gender else ""
                 tone_str = f", Tone: {tone}" if tone else ""
-                lines.append(f"- {name} ({reading}{' / ' + romanized if romanized and romanized != reading else ''}): {role}{gender_str}{tone_str}.{alias_str}")
+                lines.append(f"- {name} ({reading}{' / ' + romanized if romanized and romanized != reading else ''}): {role}{gender_str}{tone_str}{rel_str}.{alias_str}")
             else:
                 lines.append(f"- {name}: {char}")
 

@@ -277,6 +277,7 @@ def build_book_context(
                     role=char.get("role") or "Character",
                     gender=char.get("gender") or "unknown",
                     aliases=char.get("aliases") or [],
+                    relationships=char.get("relationships") if isinstance(char.get("relationships"), dict) else ({char["relationships"]: ""} if isinstance(char.get("relationships"), str) and char["relationships"].strip() else {}),
                 )
         for term, item in series_profile.get("glossary", {}).items():
             if isinstance(item, dict) and term not in context_data.glossary:
