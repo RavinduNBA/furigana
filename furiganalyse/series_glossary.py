@@ -216,6 +216,8 @@ def build_series_prompt_context(series_profile: dict[str, Any] | None, max_items
                 gender = char.get("gender") or ""
                 tone = char.get("speaking_tone") or ""
                 aliases = char.get("aliases") or []
+                if isinstance(aliases, str):
+                    aliases = [a.strip() for a in aliases.split(",") if a.strip()]
                 relationships = char.get("relationships")
                 rel_str = ""
                 if isinstance(relationships, dict) and relationships:
