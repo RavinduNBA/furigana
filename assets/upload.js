@@ -391,7 +391,52 @@
         });
     }
 
+    function adjustBubblePosition(bubble) {
+        if (!bubble) return;
+        const trigger = bubble.querySelector(".info-bubble-trigger");
+        const content = bubble.querySelector(".info-bubble-content");
+        if (!trigger || !content) return;
+
+        const trigRect = trigger.getBoundingClientRect();
+        const contentHeight = content.offsetHeight || 230;
+        const contentWidth = content.offsetWidth || 340;
+        const vw = window.innerWidth;
+
+        // Vertical collision:
+        // Legend headers are near section tops, so flip down.
+        // Other triggers flip down if space above is less than tooltip height + 16px.
+        const isLegend = Boolean(bubble.closest(".legend-title"));
+        if (isLegend || trigRect.top < contentHeight + 16) {
+            bubble.classList.add("flip-down");
+        } else {
+            bubble.classList.remove("flip-down");
+        }
+
+        // Horizontal collision:
+        const idealCenter = trigRect.left + (trigRect.width / 2);
+        const halfWidth = contentWidth / 2;
+
+        if (idealCenter - halfWidth < 12) {
+            bubble.classList.add("clamp-left");
+            bubble.classList.remove("clamp-right");
+        } else if (idealCenter + halfWidth > vw - 12) {
+            bubble.classList.add("clamp-right");
+            bubble.classList.remove("clamp-left");
+        } else {
+            bubble.classList.remove("clamp-left", "clamp-right");
+        }
+    }
+
     function initInfoBubbleInteractivity() {
+        document.querySelectorAll(".info-bubble").forEach(bubble => {
+            bubble.addEventListener("mouseenter", function () {
+                adjustBubblePosition(this);
+            });
+            bubble.addEventListener("focusin", function () {
+                adjustBubblePosition(this);
+            });
+        });
+
         document.addEventListener("click", function (e) {
             const trigger = e.target.closest(".info-bubble-trigger");
             const bubble = e.target.closest(".info-bubble");
@@ -404,6 +449,7 @@
             if (trigger && bubble) {
                 e.preventDefault();
                 e.stopPropagation();
+                adjustBubblePosition(bubble);
                 bubble.classList.toggle("is-open");
             }
         });
@@ -425,6 +471,10 @@
                     document.activeElement.blur();
                 }
             }
+        });
+
+        window.addEventListener("resize", function () {
+            document.querySelectorAll(".info-bubble.is-open").forEach(b => adjustBubblePosition(b));
         });
     }
 

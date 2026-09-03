@@ -153,8 +153,8 @@ main { width: min(var(--max-width), calc(100% - 40px)); margin: 0 auto; }
 
 .workspace { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(280px, .85fr); gap: 28px; align-items: start; padding-bottom: 80px; }
 .converter-card, .info-card, .progress-card, .result-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-.converter-card { overflow: hidden; }
-.section-heading { padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.converter-card { overflow: visible; }
+.section-heading { padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); border-top-left-radius: var(--radius); border-top-right-radius: var(--radius); }
 .section-heading h2, .info-card h2, .progress-card h2, .result-card h2 { margin: 5px 0 0; font-family: var(--font-serif); font-weight: 600; font-size: 1.5rem; line-height: 1.2; }
 .step-count, .status-badge { padding: 6px 10px; border-radius: var(--radius-pill); background: var(--surface-soft); color: var(--accent-dark); font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 
@@ -215,7 +215,7 @@ select:focus, input:focus, textarea:focus { outline: 3px solid var(--accent-glow
 .range-label output { color: var(--accent-dark); font-weight: 700; }
 input[type="range"] { --range-progress: 0%; width: 100%; accent-color: var(--accent); }
 
-.submit-panel { padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--surface-soft); }
+.submit-panel { padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--surface-soft); border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius); }
 .submit-panel > div { display: grid; }
 .primary-button, .secondary-button { min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; gap: 18px; border: 0; border-radius: 11px; text-decoration: none; font-weight: 750; cursor: pointer; transition: background .15s ease, opacity .15s ease; }
 .primary-button { color: white; background: var(--accent); box-shadow: 0 8px 18px var(--accent-glow); }
@@ -558,7 +558,8 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) translateY(4px);
-    width: min(340px, 85vw);
+    width: min(340px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
     background: #ffffff;
     color: var(--ink, #17221c);
     border: 1px solid var(--line, #dce3db);
@@ -594,10 +595,86 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     pointer-events: auto;
     transform: translateX(-50%) translateY(0);
 }
+
+/* Flipped downwards (when near top of viewport or inside legend headers) */
+.legend-title .info-bubble .info-bubble-content,
+.info-bubble.flip-down .info-bubble-content {
+    bottom: auto;
+    top: calc(100% + 8px);
+    transform: translateX(-50%) translateY(-4px);
+}
+.legend-title .info-bubble .info-bubble-content::after,
+.info-bubble.flip-down .info-bubble-content::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent #ffffff transparent;
+}
+.legend-title .info-bubble:hover .info-bubble-content,
+.legend-title .info-bubble-trigger:focus-visible + .info-bubble-content,
+.legend-title .info-bubble.is-open .info-bubble-content,
+.info-bubble.flip-down:hover .info-bubble-content,
+.info-bubble.flip-down .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble.flip-down:focus-within:has(:focus-visible) .info-bubble-content,
+.info-bubble.flip-down.is-open .info-bubble-content {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Clamped to Left (flush with left boundary) */
+.info-bubble.clamp-left .info-bubble-content,
+.legend-title .info-bubble.clamp-left .info-bubble-content {
+    left: -8px;
+    right: auto;
+    transform: translateY(4px);
+}
+.info-bubble.clamp-left.flip-down .info-bubble-content,
+.legend-title .info-bubble.clamp-left .info-bubble-content {
+    transform: translateY(-4px);
+}
+.info-bubble.clamp-left:hover .info-bubble-content,
+.info-bubble.clamp-left .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble.clamp-left.is-open .info-bubble-content,
+.legend-title .info-bubble.clamp-left:hover .info-bubble-content,
+.legend-title .info-bubble.clamp-left.is-open .info-bubble-content {
+    transform: translateY(0);
+}
+.info-bubble.clamp-left .info-bubble-content::after,
+.legend-title .info-bubble.clamp-left .info-bubble-content::after {
+    left: 18px;
+    transform: none;
+}
+
+/* Clamped to Right (flush with right boundary) */
+.info-bubble.clamp-right .info-bubble-content,
+.legend-title .info-bubble.clamp-right .info-bubble-content {
+    left: auto;
+    right: -8px;
+    transform: translateY(4px);
+}
+.info-bubble.clamp-right.flip-down .info-bubble-content,
+.legend-title .info-bubble.clamp-right .info-bubble-content {
+    transform: translateY(-4px);
+}
+.info-bubble.clamp-right:hover .info-bubble-content,
+.info-bubble.clamp-right .info-bubble-trigger:focus-visible + .info-bubble-content,
+.info-bubble.clamp-right.is-open .info-bubble-content,
+.legend-title .info-bubble.clamp-right:hover .info-bubble-content,
+.legend-title .info-bubble.clamp-right.is-open .info-bubble-content {
+    transform: translateY(0);
+}
+.info-bubble.clamp-right .info-bubble-content::after,
+.legend-title .info-bubble.clamp-right .info-bubble-content::after {
+    left: auto;
+    right: 18px;
+    transform: none;
+}
+
 .info-bubble--right .info-bubble-content {
     left: auto;
     right: -10px;
     transform: translateY(4px);
+}
+.info-bubble--right.flip-down .info-bubble-content {
+    transform: translateY(-4px);
 }
 .info-bubble--right:hover .info-bubble-content,
 .info-bubble--right .info-bubble-trigger:focus-visible + .info-bubble-content,
@@ -614,6 +691,9 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), 
     left: -10px;
     right: auto;
     transform: translateY(4px);
+}
+.info-bubble--left.flip-down .info-bubble-content {
+    transform: translateY(-4px);
 }
 .info-bubble--left:hover .info-bubble-content,
 .info-bubble--left .info-bubble-trigger:focus-visible + .info-bubble-content,
