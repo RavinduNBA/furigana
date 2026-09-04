@@ -600,6 +600,54 @@
             downloadAnchor.remove();
         });
 
+        // Auto-Enrich with LLM
+        byId("btn-enrich-series")?.addEventListener("click", async () => {
+            if (!currentProfile) return;
+            const confirmed = await window.showConfirmDialog({
+                title: "Auto-Enrich Series Memory",
+                message: `Run AI cast and lore analysis on "${currentProfile.title}"? This will discover character roles (Protagonist, Heroine), genders, relationships, aliases, and sort terms into the glossary.`,
+                confirmText: "✨ Enrich Profile",
+                cancelText: "Cancel",
+            });
+            if (!confirmed) return;
+
+            const enrichBtn = byId("btn-enrich-series");
+            const origText = enrichBtn ? enrichBtn.textContent : "";
+            if (enrichBtn) {
+                enrichBtn.disabled = true;
+                enrichBtn.textContent = "Analyzing with LLM…";
+            }
+
+            try {
+                const resp = await fetch(`/api/series/${encodeURIComponent(currentProfile.series_id)}/enrich`, {
+                    method: "POST",
+                });
+                if (!resp.ok) {
+                    const errData = await resp.json().catch(() => ({}));
+                    throw new Error(errData.error || "Enrichment request failed");
+                }
+                currentProfile = await resp.json();
+                renderCurrentProfile();
+                await window.showAlertDialog({
+                    title: "Enrichment Complete",
+                    message: "Series profile enriched successfully! Character roles, genders, relationships, and glossary items have been updated.",
+                    type: "success",
+                });
+            } catch (err) {
+                console.error("Enrichment error:", err);
+                await window.showAlertDialog({
+                    title: "Enrichment Failed",
+                    message: "Error enriching series: " + err.message,
+                    type: "error",
+                });
+            } finally {
+                if (enrichBtn) {
+                    enrichBtn.disabled = false;
+                    enrichBtn.textContent = origText;
+                }
+            }
+        });
+
         // Delete Series
         byId("btn-delete-series")?.addEventListener("click", async () => {
             if (!currentProfile) return;

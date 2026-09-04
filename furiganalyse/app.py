@@ -292,6 +292,16 @@ def delete_series_profile_api(series_id: str):
     return JSONResponse({"deleted": ok})
 
 
+@app.post("/api/series/{series_id}/enrich")
+def enrich_series_profile_api(series_id: str):
+    from furiganalyse.series_glossary import enrich_series_profile_with_llm
+    try:
+        updated = enrich_series_profile_with_llm(series_id)
+        return JSONResponse(updated)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
 @app.get("/api/recent_conversions")
 def get_recent_conversions_api():
     return JSONResponse(load_recent_conversions(OUTPUT_FOLDER))
