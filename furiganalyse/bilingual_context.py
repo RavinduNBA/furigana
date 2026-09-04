@@ -17,10 +17,12 @@ SCHEMA_VERSION = 1
 class CharacterProfile:
     kanji: str
     romanized: str
+    reading: str = ""
     role: str = "Supporting Character"
     gender: str = "unknown"  # male, female, neutral, unknown
     aliases: list[str] = field(default_factory=list)
     relationships: dict[str, str] = field(default_factory=dict)
+    speaking_tone: str = ""
 
 
 @dataclass
@@ -58,14 +60,45 @@ class BookContextData:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> BookContextData:
-        characters = {
-            k: CharacterProfile(**v) for k, v in data.get("characters", {}).items()
-        }
+        characters = {}
+        for k, v in data.get("characters", {}).items():
+            if isinstance(v, dict):
+                aliases = v.get("aliases") or []
+                if isinstance(aliases, str):
+                    aliases = [a.strip() for a in aliases.split(",") if a.strip()]
+                rel = v.get("relationships") or {}
+                if isinstance(rel, str):
+                    rel = {rel.strip(): ""} if rel.strip() else {}
+
+                characters[k] = CharacterProfile(
+                    kanji=v.get("kanji") or k,
+                    romanized=v.get("romanized") or k,
+                    reading=v.get("reading") or "",
+                    role=v.get("role") or "Supporting Character",
+                    gender=v.get("gender") or "unknown",
+                    aliases=list(aliases),
+                    relationships=dict(rel) if isinstance(rel, dict) else {},
+                    speaking_tone=v.get("speaking_tone") or "",
+                )
         glossary = {
-            k: GlossaryItem(**v) for k, v in data.get("glossary", {}).items()
+            k: GlossaryItem(
+                japanese=v.get("japanese") or k,
+                preferred_translation=v.get("preferred_translation") or v.get("translation") or k,
+                definition=v.get("definition") or "",
+                category=v.get("category") or "general",
+            )
+            for k, v in data.get("glossary", {}).items()
+            if isinstance(v, dict)
         }
         chapter_outlines = {
-            k: ChapterOutline(**v) for k, v in data.get("chapter_outlines", {}).items()
+            k: ChapterOutline(
+                chapter_id=v.get("chapter_id") or k,
+                title=v.get("title") or "",
+                summary=v.get("summary") or "",
+                active_characters=v.get("active_characters") or [],
+            )
+            for k, v in data.get("chapter_outlines", {}).items()
+            if isinstance(v, dict)
         }
         return cls(
             schema_version=data.get("schema_version", SCHEMA_VERSION),
@@ -121,11 +154,13 @@ Your response MUST be a valid JSON object matching this schema:
   "characters": {
     "KanjiName": {
       "kanji": "KanjiName",
+      "reading": "hiragana reading (e.g. しばたつや)",
       "romanized": "English Romanized Name",
-      "role": "Role / Description (e.g. Protagonist, younger sister, student council president)",
+      "role": "Role / Description (e.g. Protagonist, Heroine, Antagonist, younger sister, student council president)",
       "gender": "male | female | unknown",
-      "aliases": ["Nickname", "Honorific form"],
-      "relationships": {"OtherCharacter": "Relationship description"}
+      "aliases": ["Nickname", "Honorific form", "Codename"],
+      "relationships": {"OtherCharacter": "Relationship description"},
+      "speaking_tone": "Speaking voice / cadence (e.g. calm, polite, energetic, formal)"
     }
   },
   "glossary": {
@@ -274,10 +309,12 @@ def build_book_context(
                 context_data.characters[name] = CharacterProfile(
                     kanji=name,
                     romanized=char.get("romanized") or char.get("reading") or name,
+                    reading=char.get("reading") or char.get("hiragana") or "",
                     role=char.get("role") or "Character",
                     gender=char.get("gender") or "unknown",
                     aliases=char.get("aliases") or [],
                     relationships=char.get("relationships") if isinstance(char.get("relationships"), dict) else ({char["relationships"]: ""} if isinstance(char.get("relationships"), str) and char["relationships"].strip() else {}),
+                    speaking_tone=char.get("speaking_tone") or "",
                 )
         for term, item in series_profile.get("glossary", {}).items():
             if isinstance(item, dict) and term not in context_data.glossary:

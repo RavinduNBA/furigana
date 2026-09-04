@@ -31,7 +31,7 @@ class LLMRequest:
     messages: list[LLMMessage]
     temperature: float = 0.3
     response_json: bool = True
-    model: str = "gpt-4o-mini"
+    model: str | None = None
     max_tokens: int = 4096
 
 

@@ -145,7 +145,9 @@
 
     function updateProgress(progress) {
         if (!progress) return;
-        latestProgressData = progress;
+        latestProgressData = Object.assign({}, latestProgressData, progress);
+        if (progress.cast_summary) latestProgressData.cast_summary = progress.cast_summary;
+        if (progress.glossary_summary) latestProgressData.glossary_summary = progress.glossary_summary;
         const percent = progress.percent || 0;
         byId("conversion-progress").value = percent;
         byId("conversion-progress").textContent = percent + "%";
@@ -486,7 +488,19 @@
             if (!chosenName || !chosenName.trim()) return;
 
             const casts = (latestProgressData.cast_summary || []).reduce((acc, c) => {
-                acc[c.name] = { kanji: c.name, romanized: c.romanized || c.name, role: c.role || "Character" };
+                const relVal = typeof c.relationships === "object" && c.relationships !== null ?
+                    Object.entries(c.relationships).map(([target, desc]) => desc ? `${target}: ${desc}` : target).join(", ") :
+                    (c.relationships || "");
+                acc[c.name] = {
+                    kanji: c.name,
+                    reading: c.reading || c.romanized || "",
+                    romanized: c.romanized || c.name,
+                    role: c.role || "Character",
+                    gender: c.gender || "unknown",
+                    relationships: relVal,
+                    aliases: Array.isArray(c.aliases) ? c.aliases : (c.aliases ? [c.aliases] : []),
+                    speaking_tone: c.speaking_tone || "",
+                };
                 return acc;
             }, {});
             const glossary = (latestProgressData.glossary_summary || []).reduce((acc, g) => {

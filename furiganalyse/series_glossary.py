@@ -421,3 +421,118 @@ def find_matching_series_profile(
         "character_count": 0,
         "glossary_count": 0,
     }
+
+
+def enrich_series_profile_with_llm(
+    series_id: str,
+    provider: Any | None = None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Enrich a series profile using an LLM to discover or clean character roles, gender, relationships, aliases, and world glossary."""
+    profile = load_series_profile(series_id)
+    if not profile:
+        raise ValueError(f"Series profile '{series_id}' not found")
+
+    title = profile.get("title") or series_id
+    existing_chars = profile.get("characters") or {}
+    existing_gloss = profile.get("glossary") or {}
+
+    if provider is None:
+        from furiganalyse.llm_provider import get_llm_provider
+        provider = get_llm_provider("alibaba")
+
+    char_names = list(existing_chars.keys())[:50]
+    gloss_terms = list(existing_gloss.keys())[:50]
+
+    system_prompt = (
+        "You are an expert Japanese light novel analyst, editor, and translator.\n"
+        "Analyze the provided light novel series, its candidate characters, and its terms.\n"
+        "Return a valid JSON object matching this schema:\n"
+        "{\n"
+        '  "synopsis": "1-3 sentence series premise and theme",\n'
+        '  "world_setting": "Brief 1-2 sentence description of the setting and magic/power system",\n'
+        '  "characters": {\n'
+        '    "KanjiName": {\n'
+        '      "kanji": "KanjiName",\n'
+        '      "reading": "hiragana pronunciation (e.g. しばたつや)",\n'
+        '      "romanized": "English romanized name",\n'
+        '      "role": "Role / Status (e.g. Protagonist, Heroine, Antagonist, Student Council President, Disciplinary Committee Chair, Classmate)",\n'
+        '      "gender": "male | female | neutral | unknown",\n'
+        '      "relationships": "Relationship description to other characters (e.g. Younger sister of Tatsuya, Close friend of Miyuki)",\n'
+        '      "aliases": ["Nickname", "Codename", "Title"],\n'
+        '      "speaking_tone": "Voice cadence and mannerism (e.g. calm, stoic, respectful, playful)"\n'
+        '    }\n'
+        '  },\n'
+        '  "glossary": {\n'
+        '    "JapaneseTerm": {\n'
+        '      "japanese": "JapaneseTerm",\n'
+        '      "reading": "reading",\n'
+        '      "author_ruby_override": "custom reading if author assigned one (e.g. ウィード for 劣等生)",\n'
+        '      "preferred_translation": "English translation",\n'
+        '      "definition": "Brief explanation of the term in the world",\n'
+        '      "category": "magic | tech | organization | rank | general"\n'
+        '    }\n'
+        '  }\n'
+        "}\n\n"
+        "Important Rules:\n"
+        "- Ensure genuine human characters are placed in 'characters' with accurate roles, gender, and relationships.\n"
+        "- If candidate character names contain technical terms, concepts, or ranks (such as '二科', 'ブルーム', 'ウィード', 'CAD', '魔法式', '十師族'), move them to 'glossary'!\n"
+        "- Output JSON only without preamble."
+    )
+
+    user_prompt = (
+        f"Series Title: {title}\n"
+        f"Candidate Character Names: {', '.join(char_names) if char_names else 'None specified'}\n"
+        f"Existing Terms: {', '.join(gloss_terms[:25]) if gloss_terms else 'None specified'}\n"
+    )
+
+    from furiganalyse.llm_provider import LLMMessage, LLMRequest
+    req = LLMRequest(
+        messages=[
+            LLMMessage(role="system", content=system_prompt),
+            LLMMessage(role="user", content=user_prompt),
+        ],
+        model=model,
+        response_json=True,
+    )
+    resp = provider.generate(req)
+    data = resp.json_data()
+
+    new_characters = profile.get("characters", {})
+    for k, v in data.get("characters", {}).items():
+        if isinstance(v, dict):
+            new_characters[k] = {
+                "kanji": v.get("kanji") or k,
+                "reading": v.get("reading") or "",
+                "romanized": v.get("romanized") or k,
+                "role": v.get("role") or "Character",
+                "gender": v.get("gender") or "unknown",
+                "relationships": v.get("relationships") or "",
+                "aliases": v.get("aliases") if isinstance(v.get("aliases"), list) else ([v["aliases"]] if v.get("aliases") else []),
+                "speaking_tone": v.get("speaking_tone") or "",
+            }
+
+    new_glossary = profile.get("glossary", {})
+    for k, v in data.get("glossary", {}).items():
+        if isinstance(v, dict):
+            new_glossary[k] = {
+                "japanese": v.get("japanese") or k,
+                "reading": v.get("reading") or "",
+                "author_ruby_override": v.get("author_ruby_override") or "",
+                "preferred_translation": v.get("preferred_translation") or v.get("translation") or k,
+                "definition": v.get("definition") or "",
+                "category": v.get("category") or "general",
+            }
+            # If it was erroneously in characters, remove it from characters
+            if k in new_characters and new_characters[k].get("role") in {"Character / Proper Name", "Proper Name", "Character"}:
+                del new_characters[k]
+
+    return save_series_profile(
+        series_id=series_id,
+        title=title,
+        characters=new_characters,
+        glossary=new_glossary,
+        synopsis=data.get("synopsis") or profile.get("synopsis", ""),
+        world_setting=data.get("world_setting") or profile.get("world_setting", ""),
+    )
+

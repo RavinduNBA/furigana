@@ -940,37 +940,116 @@ def run_dictionary_study_pipeline(
     }
     _write_json(work / "summary.json", summary)
 
-    # Extract discovered cast members and glossary terms from annotation plan and vocabulary
+    # Extract discovered cast members and glossary terms from Series Memory, LLM discovery, or annotation plan
     discovered_casts = []
     seen_names = set()
-    for item in annotation_plan.get("items", []):
-        if item.get("kind") == "name":
-            name = item.get("surface", "")
-            if name and name not in seen_names:
+
+    # 1. Incorporate known characters from Series Memory if active
+    if series_data and series_data.get("characters"):
+        for name, char in series_data["characters"].items():
+            if isinstance(char, dict) and name not in seen_names:
                 seen_names.add(name)
                 discovered_casts.append({
                     "name": name,
-                    "romanized": item.get("reading") or name,
-                    "role": "Character / Proper Name",
+                    "reading": char.get("reading") or char.get("hiragana") or "",
+                    "romanized": char.get("romanized") or name,
+                    "role": char.get("role") or "Character",
+                    "gender": char.get("gender") or "unknown",
+                    "relationships": char.get("relationships") or "",
+                    "aliases": char.get("aliases") or [],
+                    "speaking_tone": char.get("speaking_tone") or "",
                 })
-        if len(discovered_casts) >= 20:
-            break
 
+    # 2. If an LLM is active and not running Bilingual Companion, run a quick Cast & Glossary discovery pass
+    if options.llm_provider != "none" and not options.bilingual_companion and len(discovered_casts) < 15:
+        try:
+            from furiganalyse.bilingual_context import build_book_context
+            from furiganalyse.llm_provider import get_llm_provider
+
+            disc_model = options.llm_model or options.bilingual_model
+            disc_prov = get_llm_provider(
+                provider_name=options.llm_provider,
+                api_key=options.llm_api_key,
+                base_url=options.llm_base_url,
+                model=disc_model,
+                progress_callback=progress,
+                auto_fallback=True,
+                debug_log_path=work / "llm_debug.log",
+            )
+            discovered_ctx = build_book_context(
+                book,
+                vocabulary,
+                provider=disc_prov,
+                model=disc_model,
+                progress_callback=progress,
+                series_profile=series_data,
+            )
+            for k, v in discovered_ctx.characters.items():
+                if k not in seen_names:
+                    seen_names.add(k)
+                    discovered_casts.append({
+                        "name": k,
+                        "reading": getattr(v, "reading", "") or v.romanized,
+                        "romanized": v.romanized,
+                        "role": v.role,
+                        "gender": v.gender,
+                        "relationships": getattr(v, "relationships", {}),
+                        "aliases": list(v.aliases) if isinstance(v.aliases, (list, tuple)) else ([v.aliases] if v.aliases else []),
+                        "speaking_tone": getattr(v, "speaking_tone", ""),
+                    })
+        except Exception as exc:
+            logger.warning("Lightweight LLM cast discovery fallback: %s", exc)
+
+    # 3. Fall back to extracted names from annotation plan
     if len(discovered_casts) < 20:
+        for item in annotation_plan.get("items", []):
+            if item.get("kind") == "name":
+                name = item.get("surface", "")
+                if name and name not in seen_names:
+                    seen_names.add(name)
+                    discovered_casts.append({
+                        "name": name,
+                        "reading": item.get("reading") or "",
+                        "romanized": item.get("reading") or name,
+                        "role": "Character / Proper Name",
+                        "gender": "unknown",
+                        "relationships": "",
+                        "aliases": [],
+                        "speaking_tone": "",
+                    })
+            if len(discovered_casts) >= 25:
+                break
+
+    if len(discovered_casts) < 25:
         for match in vocabulary.get("name_dictionary_matches", []):
             name = match.get("surface", "")
             if name and name not in seen_names:
                 seen_names.add(name)
                 discovered_casts.append({
                     "name": name,
+                    "reading": match.get("reading") or "",
                     "romanized": match.get("reading") or name,
                     "role": "Proper Name",
+                    "gender": "unknown",
+                    "relationships": "",
+                    "aliases": [],
+                    "speaking_tone": "",
                 })
-            if len(discovered_casts) >= 20:
+            if len(discovered_casts) >= 25:
                 break
 
     discovered_glossary = []
     seen_terms = set()
+    if series_data and series_data.get("glossary"):
+        for term, g in series_data["glossary"].items():
+            if isinstance(g, dict) and term not in seen_terms:
+                seen_terms.add(term)
+                discovered_glossary.append({
+                    "japanese": term,
+                    "translation": g.get("preferred_translation") or g.get("translation") or "",
+                    "definition": g.get("definition") or "",
+                })
+
     for item in annotation_plan.get("items", []):
         if item.get("kind") != "name":
             term = item.get("surface", "")
@@ -983,8 +1062,8 @@ def run_dictionary_study_pipeline(
                     "translation": first_meaning[:80],
                     "definition": first_meaning[:120],
                 })
-            if len(discovered_glossary) >= 30:
-                break
+        if len(discovered_glossary) >= 30:
+            break
 
     progress({
         "stage": "complete" if not options.bilingual_companion else "bilingual-translation",
@@ -1045,12 +1124,15 @@ def run_dictionary_study_pipeline(
         cast_summary = [
             {
                 "name": k,
+                "reading": getattr(v, "reading", "") or v.romanized,
                 "romanized": v.romanized,
                 "role": v.role,
                 "gender": v.gender,
-                "aliases": list(v.aliases),
+                "relationships": getattr(v, "relationships", {}),
+                "aliases": list(v.aliases) if isinstance(v.aliases, (list, tuple)) else ([v.aliases] if v.aliases else []),
+                "speaking_tone": getattr(v, "speaking_tone", ""),
             }
-            for k, v in list(book_context.characters.items())[:20]
+            for k, v in list(book_context.characters.items())[:30]
         ]
         glossary_summary = [
             {
@@ -1058,7 +1140,7 @@ def run_dictionary_study_pipeline(
                 "translation": v.preferred_translation,
                 "definition": v.definition,
             }
-            for k, v in list(book_context.glossary.items())[:30]
+            for k, v in list(book_context.glossary.items())[:40]
         ]
 
         trans_cache = TranslationCache(cache_dir=work / "translation_cache")
@@ -1157,6 +1239,8 @@ def run_dictionary_study_pipeline(
             "main_output_bytes": main_size,
             "bilingual_output_bytes": bilingual_size,
             "output_bytes": main_size,
+            "cast_summary": cast_summary,
+            "glossary_summary": glossary_summary,
             "log": f"All chapters translated! Standalone Bilingual Companion EPUB packaged: {bilingual_target.name} ({bilingual_size:,} bytes)",
         })
     else:
